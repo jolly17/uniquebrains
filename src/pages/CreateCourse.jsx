@@ -8,6 +8,7 @@ function CreateCourse() {
     title: '',
     description: '',
     category: 'parenting',
+    courseType: 'group', // 'group' or 'one-on-one'
     price: '',
     sessionDuration: '',
     sessionTime: '',
@@ -123,6 +124,23 @@ function CreateCourse() {
           </select>
           <p className="field-description">
             Each category has a unique icon and color theme for your course
+          </p>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="courseType">Course Type</label>
+          <select
+            id="courseType"
+            name="courseType"
+            value={formData.courseType}
+            onChange={handleChange}
+            required
+          >
+            <option value="group">Group Class 👥</option>
+            <option value="one-on-one">One-on-One 👤</option>
+          </select>
+          <p className="field-description">
+            Group classes have shared sessions for all students. One-on-one courses have individual sessions per student.
           </p>
         </div>
         

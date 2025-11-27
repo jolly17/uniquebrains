@@ -49,47 +49,45 @@
   line-height: 1.6;
 }
 
-.students-sessions {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.course-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
-.student-section {
+.stat-card {
+  background: var(--background-light);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.sessions-container {
   background: var(--background-light);
   border-radius: 0.75rem;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
 }
 
-.student-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.student-header h2 {
+.sessions-container h2 {
   font-size: 1.5rem;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
-}
-
-.student-profile {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.profile-badge {
-  background: #dbeafe;
-  color: #1e40af;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  margin-bottom: 1.5rem;
 }
 
 .sessions-list {
@@ -117,7 +115,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 100px;
+  min-width: 120px;
   padding: 0.75rem;
   background: #f9fafb;
   border-radius: 0.5rem;
@@ -134,6 +132,13 @@
   color: var(--text-secondary);
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.session-attendees {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
 }
 
 .session-topic-area {

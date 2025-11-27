@@ -11,6 +11,7 @@ export const mockCourses = [
     averageRating: 4.8,
     totalRatings: 127,
     thumbnail: null,
+    courseType: 'group', // 'group' or 'one-on-one'
     sessionDuration: 60,
     sessionFrequency: 'weekly',
     selectedDays: ['Monday', 'Wednesday'],
@@ -39,6 +40,7 @@ export const mockCourses = [
     averageRating: 4.9,
     totalRatings: 89,
     thumbnail: null,
+    courseType: 'one-on-one', // 'group' or 'one-on-one'
     sessionDuration: 45,
     sessionFrequency: 'biweekly',
     selectedDays: [],
@@ -66,6 +68,7 @@ export const mockCourses = [
     averageRating: 4.7,
     totalRatings: 156,
     thumbnail: null,
+    courseType: 'group', // 'group' or 'one-on-one'
     sessionDuration: 30,
     sessionFrequency: 'weekly',
     selectedDays: ['Tuesday', 'Thursday'],
@@ -94,6 +97,7 @@ export const mockCourses = [
     averageRating: 4.6,
     totalRatings: 73,
     thumbnail: null,
+    courseType: 'group', // 'group' or 'one-on-one'
     sessionDuration: 0,
     sessionFrequency: '',
     selectedDays: [],
