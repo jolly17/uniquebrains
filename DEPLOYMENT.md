@@ -18,7 +18,7 @@ Already done! The following files are configured:
 - ✅ `vite.config.js` - has base path
 
 **Important**: Update these two places with YOUR GitHub username and repo name:
-- In `package.json`: Change `"homepage": "https://YOUR-USERNAME.github.io/uniquebrains"`
+- In `package.json`: Change `"homepage": "https://jolly17.github.io/uniquebrains"`
 - In `vite.config.js`: Change `base: '/uniquebrains/'`
 
 ### 3. Create GitHub Repository
@@ -38,8 +38,8 @@ git add .
 # Commit
 git commit -m "Initial commit - UniqueBrains MVP"
 
-# Add remote (replace YOUR-USERNAME with your GitHub username)
-git remote add origin https://github.com/YOUR-USERNAME/uniquebrains.git
+# Add remote
+git remote add origin https://github.com/jolly17/uniquebrains.git
 
 # Push to GitHub
 git branch -M main
@@ -66,7 +66,7 @@ This will:
 ### 7. Access Your Site
 Your site will be live at:
 ```
-https://YOUR-USERNAME.github.io/uniquebrains/
+https://jolly17.github.io/uniquebrains/
 ```
 
 It may take a few minutes for the first deployment.
@@ -90,7 +90,7 @@ Want to use `uniquebrains.com`?
 3. Add your domain: `uniquebrains.com`
 4. Configure DNS with your domain provider:
    - Add A records pointing to GitHub's IPs
-   - Or add CNAME record pointing to `YOUR-USERNAME.github.io`
+   - Or add CNAME record pointing to `jolly17.github.io`
 5. Redeploy: `npm run deploy`
 
 ## Troubleshooting
