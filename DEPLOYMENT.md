@@ -2,7 +2,11 @@
 
 ## Prerequisites
 - GitHub account
-- Git installed on your computer
+- **Git installed on your computer** 
+  - Download from: https://git-scm.com/download/win
+  - After installing, restart your terminal
+  - Verify with: `git --version`
+  - Alternative: Use GitHub Desktop (https://desktop.github.com/)
 - Node.js installed
 
 ## Step-by-Step Deployment
@@ -35,16 +39,23 @@ git init
 # Add all files
 git add .
 
-# Commit
+# Commit (IMPORTANT: Must commit before pushing!)
 git commit -m "Initial commit - UniqueBrains MVP"
 
 # Add remote
 git remote add origin https://github.com/jolly17/uniquebrains.git
 
-# Push to GitHub
+# Rename branch to main (fixes "src refspec main does not match any" error)
 git branch -M main
+
+# Push to GitHub
 git push -u origin main
 ```
+
+**Troubleshooting Push Errors:**
+- If you get "src refspec main does not match any": Make sure you've committed your files first with `git commit`
+- If you get "remote origin already exists": Run `git remote remove origin` then add it again
+- If you get authentication errors: Use a Personal Access Token instead of password
 
 ### 5. Deploy to GitHub Pages
 ```bash
