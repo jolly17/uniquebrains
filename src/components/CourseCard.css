@@ -102,7 +102,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  flex: 1;
 }
 
 .course-category {
@@ -138,7 +137,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
   padding-top: 0.75rem;
   border-top: 1px solid var(--border-color);
 }
