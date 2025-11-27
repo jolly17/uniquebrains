@@ -160,7 +160,9 @@ function CreateCourse() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="enrollmentLimit">Maximum Students (Optional)</label>
+          <label htmlFor="enrollmentLimit">
+            {formData.courseType === 'group' ? 'Maximum Students (Optional)' : 'Maximum Individual Students (Optional)'}
+          </label>
           <input
             id="enrollmentLimit"
             name="enrollmentLimit"
@@ -171,24 +173,44 @@ function CreateCourse() {
             placeholder="Leave empty for unlimited"
           />
           <p className="field-description">
-            Set a maximum number of students to maintain appropriate class size
+            {formData.courseType === 'group' 
+              ? 'Set a maximum class size for your group sessions'
+              : 'Set how many individual students you can manage with separate schedules'
+            }
           </p>
         </div>
 
-        <div className="form-group">
-          <label>
-            <input
-              type="checkbox"
-              name="isSelfPaced"
-              checked={formData.isSelfPaced}
-              onChange={handleChange}
-              style={{ marginRight: '0.5rem' }}
-            />
-            This is a self-paced course (no fixed schedule)
-          </label>
-        </div>
+        {formData.courseType === 'one-on-one' && (
+          <div className="sessions-info-banner" style={{ 
+            background: '#dbeafe', 
+            borderLeft: '4px solid #3b82f6', 
+            padding: '1rem 1.25rem', 
+            borderRadius: '0.5rem', 
+            marginBottom: '1.5rem' 
+          }}>
+            <p style={{ margin: 0, color: '#1e40af', fontSize: '0.95rem', lineHeight: '1.6' }}>
+              ℹ️ For one-on-one courses, you'll schedule individual sessions with each student after they enroll. 
+              No need to set a fixed schedule now.
+            </p>
+          </div>
+        )}
 
-        {!formData.isSelfPaced && (
+        {formData.courseType === 'group' && (
+          <div className="form-group">
+            <label>
+              <input
+                type="checkbox"
+                name="isSelfPaced"
+                checked={formData.isSelfPaced}
+                onChange={handleChange}
+                style={{ marginRight: '0.5rem' }}
+              />
+              This is a self-paced course (no fixed schedule)
+            </label>
+          </div>
+        )}
+
+        {formData.courseType === 'group' && !formData.isSelfPaced && (
           <>
             <div className="form-group">
               <label htmlFor="sessionDuration">Session Duration (minutes)</label>
