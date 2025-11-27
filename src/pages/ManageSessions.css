@@ -1,0 +1,268 @@
+.manage-sessions {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.sessions-header {
+  margin-bottom: 2rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.sessions-header h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.course-title {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+}
+
+.sessions-info-banner {
+  background: #fef3c7;
+  border-left: 4px solid #f59e0b;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.sessions-info-banner p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.students-sessions {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.student-section {
+  background: var(--background-light);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.student-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.student-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.student-profile {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.profile-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.session-item {
+  display: flex;
+  gap: 1.5rem;
+  padding: 1.25rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.2s;
+}
+
+.session-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.session-date-time {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.session-date {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.session-time {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.session-topic-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.topic-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.topic-text {
+  flex: 1;
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.topic-text.empty {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.topic-status {
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.topic-status.set {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.topic-status.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.topic-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.topic-input {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--primary-color);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.topic-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.topic-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.topic-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.meeting-link-display {
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  font-family: monospace;
+  background: #eff6ff;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+  .manage-sessions {
+    padding: 1rem;
+  }
+
+  .student-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .session-item {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .session-date-time {
+    width: 100%;
+  }
+
+  .topic-edit {
+    flex-direction: column;
+  }
+
+  .topic-actions {
+    width: 100%;
+  }
+
+  .topic-actions button {
+    flex: 1;
+  }
+}
