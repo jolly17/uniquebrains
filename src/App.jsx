@@ -10,6 +10,7 @@ import CourseView from './pages/CourseView'
 import InstructorDashboard from './pages/InstructorDashboard'
 import CreateCourse from './pages/CreateCourse'
 import ManageSessions from './pages/ManageSessions'
+import ManageCourse from './pages/ManageCourse'
 import StudentProfile from './pages/StudentProfile'
 
 function ProtectedRoute({ children, role }) {
@@ -65,6 +66,12 @@ function App() {
             <Route path="instructor/sessions/:courseId" element={
               <ProtectedRoute role="instructor">
                 <ManageSessions />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="instructor/course/:courseId/manage" element={
+              <ProtectedRoute role="instructor">
+                <ManageCourse />
               </ProtectedRoute>
             } />
             

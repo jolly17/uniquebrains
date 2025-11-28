@@ -2,14 +2,16 @@
 
 ## Introduction
 
-NEST is a SaaS platform that enables course providers to offer and manage educational courses while providing students with a comprehensive learning experience. The system initially focuses on parenting classes with planned expansion to include live children's classes in dance, drama, and music. The platform facilitates course discovery, enrollment, progress tracking, content delivery, homework submission with audio/video recording, live video classes, assessment, certification, and communication between instructors and students.
+NEST (Neurodiversity Education and Support Together) is a specialized SaaS platform designed to provide inclusive educational experiences for neurodivergent children. The platform enables course providers to offer and manage educational courses tailored to the unique learning needs of students with autism, ADHD, dyslexia, and other neurodevelopmental differences. The system focuses on parenting education classes and live children's classes in dance, drama, music, and other creative arts. NEST facilitates course discovery, enrollment, progress tracking, content delivery, homework submission with audio/video recording, live video classes, assessment, certification, payment, and communication between instructors and students, all while supporting the specific accommodations and learning preferences of neurodivergent learners.
 
 ## Glossary
 
-- **NEST**: The complete SaaS web-based platform that hosts courses and manages user interactions
+- **NEST**: Neurodiversity Education and Support Together - The complete SaaS web-based platform that hosts courses and manages user interactions for neurodivergent learners
 - **Course Provider**: An organization or institution that uses NEST to offer courses (tenant in the SaaS model)
-- **Instructor**: A user who creates, publishes, and manages courses on the platform
-- **Student**: A user who enrolls in and participates in courses
+- **Instructor**: A user who creates, publishes, and manages courses on the platform, trained or experienced in working with neurodivergent students
+- **Student**: A neurodivergent child or young person who enrolls in and participates in courses
+- **Neurodiversity Profile**: A student's self-identified neurodevelopmental characteristics and learning preferences
+- **Special Need**: A neurodevelopmental difference such as autism, ADHD, dyslexia, or other conditions that may require specific learning accommodations
 - **Course**: A structured educational offering created by an instructor, containing lessons and assessments
 - **Lesson**: An individual unit of content within a course, which may include video, text, or other materials
 - **Homework**: An assignment given by an instructor that students must complete and submit
@@ -108,7 +110,7 @@ NEST is a SaaS platform that enables course providers to offer and manage educat
 4. WHEN an instructor submits feedback, THEN NEST SHALL immediately notify the student
 5. WHEN a student views feedback, THEN NEST SHALL display the instructor's comments alongside their submission
 6. WHEN an instructor manually marks homework as complete for a student, THEN NEST SHALL update the homework status and record the completion with instructor override indicator
-7. WHEN homework is marked complete by instructor override, THEN NEST SHALL notify the student of the completion confirmation
+7. WHEN homework is marked complete by instructor override, THEN NEST SHALL notify the student of the
 
 ### Requirement 8
 
@@ -340,6 +342,31 @@ NEST is a SaaS platform that enables course providers to offer and manage educat
 
 ### Requirement 27
 
+**User Story:** As a student, I want to pay for courses using my preferred payment method, so that I can easily complete enrollment transactions.
+
+#### Acceptance Criteria
+
+1. WHEN a student proceeds to payment for a course, THEN NEST SHALL display payment options including Apple Pay, PayPal, and Google Pay
+2. WHEN a student selects Apple Pay, THEN NEST SHALL integrate with Apple Pay API to process the transaction securely
+3. WHEN a student selects PayPal, THEN NEST SHALL integrate with PayPal API to process the transaction securely
+4. WHEN a student selects Google Pay, THEN NEST SHALL integrate with Google Pay API to process the transaction securely
+5. WHEN a payment is successfully processed, THEN NEST SHALL transfer funds to the instructor's account minus platform fees
+6. WHEN a payment fails, THEN NEST SHALL notify the student with error details and allow retry with the same or different payment method
+
+### Requirement 28
+
+**User Story:** As an instructor, I want to receive payments from students through the platform, so that I can monetize my courses securely.
+
+#### Acceptance Criteria
+
+1. WHEN an instructor sets up payment receiving, THEN NEST SHALL collect bank account or payment provider details for fund transfers
+2. WHEN a student completes a course payment, THEN NEST SHALL calculate the instructor's earnings after platform fees
+3. WHEN payment processing completes, THEN NEST SHALL notify the instructor of the new enrollment and payment received
+4. WHEN an instructor views their earnings, THEN NEST SHALL display total revenue, pending payments, and completed transfers
+5. WHEN the payout schedule triggers, THEN NEST SHALL transfer accumulated earnings to the instructor's designated account
+
+### Requirement 29
+
 **User Story:** As a course provider, I want to use NEST as a SaaS platform, so that I can offer courses without managing technical infrastructure.
 
 #### Acceptance Criteria
@@ -349,3 +376,76 @@ NEST is a SaaS platform that enables course providers to offer and manage educat
 3. WHEN a course provider manages users, THEN NEST SHALL ensure data isolation between different course provider tenants
 4. WHEN a course provider accesses analytics, THEN NEST SHALL display metrics specific to their tenant only
 5. WHERE a course provider subscribes to a pricing tier, THEN NEST SHALL enforce feature limits and user quotas according to the subscription level
+
+### Requirement 30
+
+**User Story:** As a student, I want to rate and review courses I have completed, so that I can share my experience and help other students make informed decisions.
+
+#### Acceptance Criteria
+
+1. WHEN a student completes a course, THEN NEST SHALL allow the student to submit a rating from 1 to 5 stars and an optional written review
+2. WHEN a student submits a course rating, THEN NEST SHALL store the rating with the student identifier, course identifier, rating value, review text, and timestamp
+3. WHEN a student views a course in the marketplace, THEN NEST SHALL display the average rating and total number of ratings for that course
+4. WHEN a student views course details, THEN NEST SHALL display all reviews with student names, ratings, review text, and submission dates
+5. WHEN a student views an instructor profile, THEN NEST SHALL display the instructor's average rating calculated from all their course ratings
+6. WHEN calculating an instructor's average rating, THEN NEST SHALL aggregate ratings from all courses taught by that instructor
+7. WHEN a student has already rated a course, THEN NEST SHALL allow the student to update their rating and review
+8. WHEN a course has no ratings, THEN NEST SHALL display an indicator that the course has not been rated yet
+
+### Requirement 31
+
+**User Story:** As an instructor, I want to configure session timing and frequency when creating a course, so that students know the schedule and can plan their participation accordingly.
+
+#### Acceptance Criteria
+
+1. WHEN an instructor creates a new course, THEN NEST SHALL allow the instructor to specify session duration in minutes
+2. WHEN an instructor creates a new course, THEN NEST SHALL allow the instructor to set session frequency using options including daily, weekly, bi-weekly, or custom schedule
+3. WHEN an instructor sets a weekly frequency, THEN NEST SHALL allow the instructor to select specific days of the week for sessions
+4. WHEN an instructor sets session timing, THEN NEST SHALL store the duration, frequency, and schedule configuration with the course record
+5. WHEN a student views course details, THEN NEST SHALL display the session duration and frequency information
+6. WHEN an instructor updates session timing for a course, THEN NEST SHALL notify all enrolled students of the schedule change
+7. WHERE a course is self-paced offline, THEN NEST SHALL allow the instructor to mark the course as having no fixed session schedule
+
+### Requirement 32
+
+**User Story:** As an instructor, I want to receive notifications when students request to join my courses, so that I can review and respond to enrollment requests promptly.
+
+#### Acceptance Criteria
+
+1. WHEN a student submits a join request for a course, THEN NEST SHALL send an immediate notification to the instructor
+2. WHEN an instructor receives a join request notification, THEN NEST SHALL display the student name, profile information, and request timestamp
+3. WHEN an instructor accesses their dashboard, THEN NEST SHALL display a count of pending join requests requiring action
+4. WHEN an instructor views pending requests, THEN NEST SHALL provide options to approve or decline each request
+5. WHEN multiple join requests are pending, THEN NEST SHALL display them in chronological order with the most recent first
+6. WHEN an instructor has unread join request notifications, THEN NEST SHALL display a notification badge on the dashboard navigation
+7. WHEN an instructor approves or declines a request, THEN NEST SHALL mark the notification as read and remove it from the pending list
+
+### Requirement 33
+
+**User Story:** As a student or parent, I want to create a neurodiversity profile during registration, so that instructors can understand my learning needs and provide appropriate support.
+
+#### Acceptance Criteria
+
+1. WHEN a student registers for an account, THEN NEST SHALL provide options to select one or more neurodevelopmental characteristics including autism, ADHD, dyslexia, multiple conditions, and other
+2. WHEN a student selects "other" as a neurodevelopmental characteristic, THEN NEST SHALL allow the student to provide a text description of their specific needs
+3. WHEN a student selects multiple conditions, THEN NEST SHALL store all selected characteristics in the student's neurodiversity profile
+4. WHEN a student completes their neurodiversity profile, THEN NEST SHALL store the profile information securely with the student account
+5. WHEN an instructor views a student's enrollment or join request, THEN NEST SHALL display the student's neurodiversity profile information
+6. WHEN an instructor views their course roster, THEN NEST SHALL display neurodiversity profile indicators for each enrolled student
+7. WHEN a student updates their profile, THEN NEST SHALL allow modification of neurodiversity characteristics at any time
+8. WHERE a student prefers not to disclose, THEN NEST SHALL allow the student to skip neurodiversity profile creation during registration
+
+### Requirement 34
+
+**User Story:** As an instructor, I want to set a maximum enrollment limit for my courses, so that I can maintain appropriate class sizes for effective teaching and individual attention.
+
+#### Acceptance Criteria
+
+1. WHEN an instructor creates a new course, THEN NEST SHALL allow the instructor to specify a maximum number of students for enrollment
+2. WHEN an instructor sets an enrollment limit, THEN NEST SHALL store the limit with the course configuration
+3. WHEN the number of enrolled students reaches the maximum limit, THEN NEST SHALL display a "Class Full" indicator on the course listing
+4. WHEN a course is full, THEN NEST SHALL prevent new students from enrolling or submitting join requests
+5. WHEN a student views a full course, THEN NEST SHALL display a message indicating the course has reached capacity
+6. WHEN an instructor views their course, THEN NEST SHALL display the current enrollment count and maximum limit
+7. WHEN an instructor updates the enrollment limit, THEN NEST SHALL apply the new limit and notify affected students if the limit is reduced below current enrollment
+8. WHERE an instructor does not set a limit, THEN NEST SHALL allow unlimited enrollments

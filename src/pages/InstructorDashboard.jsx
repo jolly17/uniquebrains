@@ -67,9 +67,8 @@ function InstructorDashboard() {
                 <Link to={`/courses/${course.id}`} className="btn-secondary">
                   View
                 </Link>
-                <button className="btn-secondary">Edit</button>
-                <Link to={`/instructor/sessions/${course.id}`} className="btn-primary">
-                  Manage Sessions
+                <Link to={`/instructor/course/${course.id}/manage`} className="btn-primary">
+                  Manage Course
                 </Link>
               </div>
             </div>

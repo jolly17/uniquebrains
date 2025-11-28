@@ -1,0 +1,88 @@
+.manage-course {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.manage-course-header {
+  margin-bottom: 2rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+}
+
+.manage-course-header h1 {
+  font-size: 2rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.course-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.course-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 2rem;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.tab-content {
+  min-height: 400px;
+}
+
+@media (max-width: 768px) {
+  .manage-course {
+    padding: 1rem;
+  }
+
+  .course-tabs {
+    gap: 0.25rem;
+  }
+
+  .tab-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
