@@ -22,6 +22,11 @@ function ManageSessions() {
   const enrolledCount = isGroupCourse ? 8 : enrolledStudents.length
   const maxCapacity = course.enrollmentLimit || 10
 
+  // Course-level meeting link
+  const [courseMeetingLink, setCourseMeetingLink] = useState('https://zoom.us/j/123456789')
+  const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false)
+  const [meetingLinkInput, setMeetingLinkInput] = useState(courseMeetingLink)
+
   // Mock sessions - different structure for group vs 1:1
   const [sessions, setSessions] = useState(isGroupCourse ? [
     { 
@@ -30,7 +35,6 @@ function ManageSessions() {
       time: '10:00 AM', 
       topic: 'Introduction to scales and basic techniques',
       topicSet: true,
-      meetingLink: 'https://zoom.us/j/123456789',
       attendees: 8
     },
     { 
@@ -106,7 +110,6 @@ function ManageSessions() {
 
   const [editingSession, setEditingSession] = useState(null)
   const [topicInput, setTopicInput] = useState('')
-  const [meetingLinkInput, setMeetingLinkInput] = useState('')
 
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
@@ -116,24 +119,31 @@ function ManageSessions() {
   const handleEditTopic = (session) => {
     setEditingSession(session.id)
     setTopicInput(session.topic)
-    setMeetingLinkInput(session.meetingLink)
+  }
+
+  const handleSaveMeetingLink = () => {
+    setCourseMeetingLink(meetingLinkInput)
+    setIsEditingMeetingLink(false)
+  }
+
+  const handleCancelMeetingLink = () => {
+    setMeetingLinkInput(courseMeetingLink)
+    setIsEditingMeetingLink(false)
   }
 
   const handleSaveTopic = (sessionId) => {
     setSessions(sessions.map(s => 
       s.id === sessionId 
-        ? { ...s, topic: topicInput, topicSet: topicInput.trim() !== '', meetingLink: meetingLinkInput }
+        ? { ...s, topic: topicInput, topicSet: topicInput.trim() !== '' }
         : s
     ))
     setEditingSession(null)
     setTopicInput('')
-    setMeetingLinkInput('')
   }
 
   const handleCancelEdit = () => {
     setEditingSession(null)
     setTopicInput('')
-    setMeetingLinkInput('')
   }
 
 
@@ -152,9 +162,43 @@ function ManageSessions() {
 
       <div className="sessions-info-banner">
         <p>💡 {isGroupCourse 
-          ? 'Set session topics and meeting links for your group classes. All enrolled students will see the same schedule.'
+          ? 'Set session topics for your group classes. All enrolled students will see the same schedule.'
           : 'Set session topics based on each student\'s progress and learning needs. Topics help students prepare for upcoming classes.'
         }</p>
+      </div>
+
+      <div className="course-meeting-link-section">
+        <h3>📹 Course Meeting Link</h3>
+        <p className="meeting-link-description">Set one meeting link for all sessions in this course</p>
+        {isEditingMeetingLink ? (
+          <div className="meeting-link-edit">
+            <input
+              type="url"
+              value={meetingLinkInput}
+              onChange={(e) => setMeetingLinkInput(e.target.value)}
+              placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+              className="meeting-link-input"
+              autoFocus
+            />
+            <div className="meeting-link-actions">
+              <button onClick={handleSaveMeetingLink} className="btn-primary btn-sm">
+                Save Link
+              </button>
+              <button onClick={handleCancelMeetingLink} className="btn-secondary btn-sm">
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="meeting-link-display-section">
+            <div className="meeting-link-value">
+              🔗 {courseMeetingLink || 'No meeting link set'}
+            </div>
+            <button onClick={() => setIsEditingMeetingLink(true)} className="btn-secondary btn-sm">
+              {courseMeetingLink ? 'Edit Link' : 'Set Link'}
+            </button>
+          </div>
+        )}
       </div>
 
       {isGroupCourse ? (

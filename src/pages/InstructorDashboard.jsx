@@ -114,25 +114,28 @@ function InstructorDashboard() {
       <div className="dashboard-section">
         <h2>Recent Activity</h2>
         <div className="activity-list">
-          <div className="activity-item">
+          <Link to="/instructor/course/1/manage?tab=homework" className="activity-item">
             <div className="activity-icon">📝</div>
             <div className="activity-content">
               <div className="activity-title">New homework submission</div>
+              <div className="activity-subtitle">Positive Parenting Fundamentals</div>
               <div className="activity-time">2 hours ago</div>
             </div>
-          </div>
+          </Link>
+          <Link to="/instructor/course/1/manage?tab=students" className="activity-item">
+            <div className="activity-icon">👤</div>
+            <div className="activity-content">
+              <div className="activity-title">3 new students enrolled</div>
+              <div className="activity-subtitle">Positive Parenting Fundamentals</div>
+              <div className="activity-time">1 day ago</div>
+            </div>
+          </Link>
           <div className="activity-item">
             <div className="activity-icon">⭐</div>
             <div className="activity-content">
               <div className="activity-title">New 5-star review received</div>
+              <div className="activity-subtitle">Piano for Beginners</div>
               <div className="activity-time">5 hours ago</div>
-            </div>
-          </div>
-          <div className="activity-item">
-            <div className="activity-icon">👤</div>
-            <div className="activity-content">
-              <div className="activity-title">3 new students enrolled</div>
-              <div className="activity-time">1 day ago</div>
             </div>
           </div>
         </div>

@@ -116,6 +116,14 @@
   gap: 1rem;
   padding: 1.25rem;
   border-bottom: 1px solid var(--border-color);
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.activity-item:hover {
+  background: rgba(79, 70, 229, 0.05);
 }
 
 .activity-item:last-child {
@@ -140,6 +148,12 @@
 .activity-title {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+.activity-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
 }
 
 .activity-time {
