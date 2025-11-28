@@ -19,39 +19,58 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 - [ ] 2. Implement Students Tab (Instructor View)
 
-- [ ] 2.1 Create CourseStudents component with course statistics
+
+
+
+
+- [x] 2.1 Create CourseStudents component with course statistics
+
   - Display enrolled count, spots remaining, completion rate
   - Show different layouts for group vs one-on-one courses
   - _Requirements: 5.1, 5.2_
 
-- [ ] 2.2 Build student list with neurodiversity profiles
+- [x] 2.2 Build student list with neurodiversity profiles
+
   - Display student cards with names and profiles
   - Show homework completion indicators
   - Add "View Profile" and "Send Message" buttons
   - _Requirements: 5.3, 5.4_
 
-- [ ] 2.3 Add individual session schedule display for one-on-one courses
+- [x] 2.3 Add individual session schedule display for one-on-one courses
+
   - Show next session time for each student
   - Link to session management
   - _Requirements: 5.4_
 
 ---
 
-- [ ] 3. Implement Homework Tab (Instructor View)
+- [-] 3. Implement Homework Tab (Instructor View)
 
-- [ ] 3.1 Create CourseHomework component with assignment list
+
+
+- [x] 3.1 Create CourseHomework component with assignment list
+
+
+
   - Display existing assignments with due dates
   - Show submission statistics
   - Add "Create New Assignment" button
   - _Requirements: 2.1, 2.2_
 
+
+
 - [ ] 3.2 Build homework creation modal
   - Form with title, description, due date fields
   - Submission type selector (text/file/checkmark)
+
+
   - Form validation with clear error messages
   - _Requirements: 2.1, 2.2, 2.3_
 
-- [ ] 3.3 Implement homework submission review interface
+- [x] 3.3 Implement homework submission review interface
+
+
+
   - List all student submissions
   - Show submission status (submitted/pending)
   - Display submitted content (text/file)

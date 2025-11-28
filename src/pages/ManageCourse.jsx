@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { mockCourses } from '../data/mockData'
 import ManageSessions from './ManageSessions'
+import CourseStudents from './CourseStudents'
 import './ManageCourse.css'
 
 function ManageCourse() {
@@ -65,7 +66,7 @@ function ManageCourse() {
 
       <div className="tab-content">
         {activeTab === 'sessions' && <ManageSessions />}
-        {activeTab === 'students' && <div>Students tab - Coming soon</div>}
+        {activeTab === 'students' && <CourseStudents course={course} />}
         {activeTab === 'homework' && <div>Homework tab - Coming soon</div>}
         {activeTab === 'resources' && <div>Resources tab - Coming soon</div>}
         {activeTab === 'chat' && <div>Chat tab - Coming soon</div>}
