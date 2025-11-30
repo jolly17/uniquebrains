@@ -4,8 +4,8 @@
   overflow: hidden;
   box-shadow: var(--shadow);
   transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
+  display: block;
+  height: fit-content;
 }
 
 .course-card:hover {
