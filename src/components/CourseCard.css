@@ -132,7 +132,7 @@
 .course-instructor {
   color: var(--text-secondary);
   font-size: 0.875rem;
-  margin-top: auto;
+  margin-top: 0.5rem;
 }
 
 .course-footer {
