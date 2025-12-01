@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Marketplace from './pages/Marketplace'
@@ -36,7 +37,8 @@ function App() {
           <Route path="/register" element={<Register />} />
           
           <Route path="/" element={<Layout />}>
-            <Route index element={<Marketplace />} />
+            <Route index element={<LandingPage />} />
+            <Route path="marketplace" element={<Marketplace />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
             
             <Route path="my-courses" element={

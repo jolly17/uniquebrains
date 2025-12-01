@@ -36,7 +36,7 @@ function Layout() {
           </button>
 
           <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
-            <Link to="/" className="nav-link" onClick={closeMobileMenu}>Marketplace</Link>
+            <Link to="/marketplace" className="nav-link" onClick={closeMobileMenu}>Marketplace</Link>
             
             {user && (
               <>
