@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/uniquebrains/',
+  base: '/', // Root path for custom domain
   build: {
     outDir: 'docs' // Deploy from docs folder instead of dist
   },

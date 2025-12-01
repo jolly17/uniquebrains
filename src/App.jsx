@@ -32,7 +32,7 @@ function ProtectedRoute({ children, role }) {
 function App() {
   return (
     <AuthProvider>
-      <Router basename="/uniquebrains">
+      <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
