@@ -522,3 +522,109 @@
     width: 100%;
   }
 }
+
+/* Recurring Schedule Styles */
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.student-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.modal-large {
+  max-width: 700px;
+}
+
+.day-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.day-button {
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--border-color);
+  background: white;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-primary);
+  min-width: 60px;
+}
+
+.day-button:hover {
+  border-color: var(--primary-color);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.day-button.selected {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.schedule-preview {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.schedule-preview h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.schedule-preview p {
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.preview-detail {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
+  .student-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .student-actions button {
+    width: 100%;
+  }
+
+  .day-selector {
+    justify-content: space-between;
+  }
+
+  .day-button {
+    flex: 1;
+    min-width: 45px;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .modal-large {
+    max-width: 100%;
+  }
+}

@@ -121,6 +121,21 @@ function ManageSessions() {
     meetingLink: courseMeetingLink
   })
 
+  // Recurring schedule state
+  const [showRecurringModal, setShowRecurringModal] = useState(false)
+  const [recurringSchedule, setRecurringSchedule] = useState({
+    studentId: '',
+    selectedDays: [],
+    time: '',
+    duration: 60,
+    startDate: '',
+    endDate: '',
+    frequency: 'weekly'
+  })
+  
+  // Store recurring schedules per student (for 1:1) or course (for group)
+  const [recurringSchedules, setRecurringSchedules] = useState({})
+
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
     sessions: sessions.filter(s => s.studentId === student.id)
@@ -205,6 +220,98 @@ function ManageSessions() {
     })
   }
 
+  const handleOpenRecurringModal = (studentId = null) => {
+    const existing = studentId ? recurringSchedules[studentId] : recurringSchedules['group']
+    if (existing) {
+      setRecurringSchedule(existing)
+    } else {
+      setRecurringSchedule({
+        studentId: studentId || '',
+        selectedDays: [],
+        time: '',
+        duration: 60,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: '',
+        frequency: 'weekly'
+      })
+    }
+    setShowRecurringModal(true)
+  }
+
+  const handleToggleDay = (day) => {
+    setRecurringSchedule(prev => ({
+      ...prev,
+      selectedDays: prev.selectedDays.includes(day)
+        ? prev.selectedDays.filter(d => d !== day)
+        : [...prev.selectedDays, day]
+    }))
+  }
+
+  const generateRecurringSessions = () => {
+    if (!recurringSchedule.selectedDays.length || !recurringSchedule.time || !recurringSchedule.startDate) {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    if (!isGroupCourse && !recurringSchedule.studentId) {
+      alert('Please select a student')
+      return
+    }
+
+    const newSessions = []
+    const start = new Date(recurringSchedule.startDate)
+    const end = recurringSchedule.endDate ? new Date(recurringSchedule.endDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days default
+    
+    const dayMap = {
+      'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4,
+      'Friday': 5, 'Saturday': 6, 'Sunday': 0
+    }
+
+    let currentDate = new Date(start)
+    let sessionId = sessions.length + 1
+
+    while (currentDate <= end) {
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+      
+      if (recurringSchedule.selectedDays.includes(dayName)) {
+        const session = {
+          id: sessionId++,
+          date: currentDate.toISOString().split('T')[0],
+          time: recurringSchedule.time,
+          topic: '',
+          topicSet: false,
+          meetingLink: courseMeetingLink,
+          recurring: true,
+          ...(isGroupCourse 
+            ? { attendees: enrolledCount }
+            : { 
+                studentId: recurringSchedule.studentId,
+                studentName: enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.name
+              }
+          )
+        }
+        newSessions.push(session)
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+
+    setSessions([...sessions, ...newSessions].sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)))
+    
+    // Save recurring schedule
+    const scheduleKey = isGroupCourse ? 'group' : recurringSchedule.studentId
+    setRecurringSchedules({
+      ...recurringSchedules,
+      [scheduleKey]: recurringSchedule
+    })
+
+    setShowRecurringModal(false)
+  }
+
+  const handleCancelRecurring = () => {
+    setShowRecurringModal(false)
+  }
+
 
 
   return (
@@ -280,9 +387,14 @@ function ManageSessions() {
           <div className="sessions-container">
             <div className="sessions-header-row">
               <h2>Group Sessions Schedule</h2>
-              <button onClick={() => setShowCreateModal(true)} className="btn-primary">
-                + Create New Session
-              </button>
+              <div className="header-actions">
+                <button onClick={() => handleOpenRecurringModal()} className="btn-secondary">
+                  {recurringSchedules['group'] ? '⚙️ Edit Schedule' : '📅 Set up Recurring Schedule'}
+                </button>
+                <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+                  + Create Single Session
+                </button>
+              </div>
             </div>
             <div className="sessions-list">
               {sessions.map(session => (
@@ -372,7 +484,7 @@ function ManageSessions() {
         <div className="students-sessions">
           <div className="create-session-section">
             <button onClick={() => setShowCreateModal(true)} className="btn-primary">
-              + Create New Session
+              + Create Single Session
             </button>
           </div>
           
@@ -387,7 +499,14 @@ function ManageSessions() {
                     ))}
                   </div>
                 </div>
-                <button className="btn-secondary">View Progress</button>
+                <div className="student-actions">
+                  <button 
+                    onClick={() => handleOpenRecurringModal(student.id)} 
+                    className="btn-secondary btn-sm"
+                  >
+                    {recurringSchedules[student.id] ? '⚙️ Edit Schedule' : '📅 Set Schedule'}
+                  </button>
+                </div>
               </div>
 
               <div className="sessions-list">
@@ -571,6 +690,145 @@ function ManageSessions() {
               </button>
               <button className="btn-primary" onClick={handleCreateSession}>
                 Create Session
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Recurring Schedule Modal */}
+      {showRecurringModal && (
+        <div className="modal-overlay" onClick={handleCancelRecurring}>
+          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{recurringSchedules[recurringSchedule.studentId || 'group'] ? 'Edit Recurring Schedule' : 'Set up Recurring Schedule'}</h2>
+              <button className="close-button" onClick={handleCancelRecurring}>×</button>
+            </div>
+
+            <div className="modal-body">
+              {!isGroupCourse && (
+                <div className="form-group">
+                  <label htmlFor="recurring-student">Student *</label>
+                  <select
+                    id="recurring-student"
+                    value={recurringSchedule.studentId}
+                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, studentId: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="">Select a student</option>
+                    {enrolledStudents.map(student => (
+                      <option key={student.id} value={student.id}>
+                        {student.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>On These Days *</label>
+                <div className="day-selector">
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                    <button
+                      key={day}
+                      type="button"
+                      className={`day-button ${recurringSchedule.selectedDays.includes(day) ? 'selected' : ''}`}
+                      onClick={() => handleToggleDay(day)}
+                    >
+                      {day.substring(0, 3)}
+                    </button>
+                  ))}
+                </div>
+                <p className="form-hint">Select the days of the week when sessions will occur</p>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="recurring-time">Session Time *</label>
+                  <input
+                    id="recurring-time"
+                    type="time"
+                    value={recurringSchedule.time}
+                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, time: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="duration">Duration (minutes)</label>
+                  <input
+                    id="duration"
+                    type="number"
+                    value={recurringSchedule.duration}
+                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, duration: parseInt(e.target.value) })}
+                    className="form-input"
+                    min="15"
+                    step="15"
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="start-date">Start Date *</label>
+                  <input
+                    id="start-date"
+                    type="date"
+                    value={recurringSchedule.startDate}
+                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, startDate: e.target.value })}
+                    className="form-input"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="end-date">End Date (Optional)</label>
+                  <input
+                    id="end-date"
+                    type="date"
+                    value={recurringSchedule.endDate}
+                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, endDate: e.target.value })}
+                    className="form-input"
+                    min={recurringSchedule.startDate}
+                  />
+                  <p className="form-hint">Leave blank for 3 months</p>
+                </div>
+              </div>
+
+              <div className="info-banner-modal">
+                <span className="info-icon">ℹ️</span>
+                <p>
+                  {isGroupCourse 
+                    ? 'This will create recurring sessions for all enrolled students on the selected days and time.'
+                    : 'This will create recurring sessions for the selected student. You can set different schedules for each student.'}
+                </p>
+              </div>
+
+              {recurringSchedule.selectedDays.length > 0 && recurringSchedule.time && recurringSchedule.startDate && (
+                <div className="schedule-preview">
+                  <h4>Schedule Preview:</h4>
+                  <p>
+                    <strong>{recurringSchedule.selectedDays.join(', ')}</strong> at <strong>{recurringSchedule.time}</strong>
+                    {!isGroupCourse && recurringSchedule.studentId && (
+                      <> for <strong>{enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.name}</strong></>
+                    )}
+                  </p>
+                  <p className="preview-detail">
+                    Starting {new Date(recurringSchedule.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    {recurringSchedule.endDate && (
+                      <> until {new Date(recurringSchedule.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</>
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={handleCancelRecurring}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={generateRecurringSessions}>
+                {recurringSchedules[recurringSchedule.studentId || 'group'] ? 'Update Schedule' : 'Generate Sessions'}
               </button>
             </div>
           </div>
