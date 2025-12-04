@@ -150,13 +150,22 @@ function CreateCourse() {
             id="price"
             name="price"
             type="number"
-            value={formData.price}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
+            value="0.00"
+            disabled
+            style={{ 
+              backgroundColor: '#f3f4f6', 
+              cursor: 'not-allowed',
+              color: '#6b7280'
+            }}
             placeholder="0.00"
           />
+          <p className="field-description" style={{ 
+            color: '#10b981', 
+            fontWeight: '500',
+            marginTop: '0.5rem'
+          }}>
+            ✨ Currently all courses are offered free! Payments or donations can be managed outside the platform.
+          </p>
         </div>
 
         <div className="form-group">
