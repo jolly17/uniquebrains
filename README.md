@@ -1,169 +1,328 @@
-# UniqueBrains Learning Marketplace
+# UniqueBrains Learning Platform
 
 **Where every brain learns differently.**
 
-A modern, responsive learning management system designed specifically for neurodivergent children, built with React and Vite. UniqueBrains connects unique learners with specialized instructors for personalized, live classes.
+A modern learning management system designed for neurodivergent learners, connecting students with specialized instructors for personalized education.
 
-## Features
+🌐 **Live Site**: [https://uniquebrains.org](https://uniquebrains.org)
+📚 **Documentation**: See [GUIDES.md](./GUIDES.md)
 
-### Student Features
-- **Neurodiversity Profile**: Select learning needs during registration (Autism, ADHD, Dyslexia, etc.)
-- **Browse Marketplace**: Search and filter courses by category
-- **Course Details**: View course information, lessons, reviews, and session schedules
-- **Enroll in Courses**: Enroll in free or paid courses
-- **My Courses**: Track enrolled courses and progress
-- **Course Learning**: Access lessons, homework, and resources
-- **Rate & Review**: Submit ratings and reviews for completed courses
+---
 
-### Instructor Features
-- **Dashboard**: View statistics, courses, and recent activity
-- **Create Courses**: Create and publish new courses with session timing and frequency
-- **Session Scheduling**: Configure session duration, frequency (daily/weekly/bi-weekly), and specific days
-- **Student Profiles**: View neurodiversity profiles to understand student needs
-- **Manage Content**: Add lessons, homework, and assessments
-- **Track Performance**: Monitor student enrollments and ratings
+## ✨ Current Status
 
-### General Features
-- **Authentication**: Login and registration for students and instructors
-- **Responsive Design**: Works on desktop, tablet, and mobile devices
-- **Rating System**: 5-star rating with aggregated instructor ratings
-- **Progress Tracking**: Visual progress bars for course completion
+### ✅ Implemented Features
 
-## Tech Stack
+**Student Experience:**
+- Browse and enroll in courses
+- View course schedules and sessions
+- Submit homework (text, file, or checkmark)
+- Access course resources
+- Chat with instructors (group or private)
+- Track progress and completion
+- Neurodiversity profile support
 
-- **React 18** - UI library
-- **React Router** - Client-side routing
-- **Vite** - Build tool and dev server
-- **CSS3** - Styling with CSS variables
+**Instructor Experience:**
+- Create and manage courses
+- **Recurring session scheduling** (weekly patterns)
+- Create individual sessions
+- Assign and review homework
+- Provide feedback to students
+- Upload resources (files and links)
+- Chat with students (group or 1-on-1)
+- View student profiles and progress
 
-## Getting Started
+**Platform Features:**
+- Role-based authentication (student/instructor/parent)
+- Responsive design (mobile, tablet, desktop)
+- Real-time notifications
+- LocalStorage data persistence
+- Course ratings and reviews
+
+### 📋 Documented (Ready to Implement)
+
+- Complete backend architecture (Supabase + Vercel)
+- Database schema and API design
+- Payment processing (Stripe)
+- Email notifications
+- Video conferencing integration (Zoom)
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 16+ and npm
+- Node.js 18+
+- Git
 
 ### Installation
 
-1. Install dependencies:
 ```bash
-npm install
-```
+# Clone the repository
+git clone https://github.com/jolly17/uniquebrains.git
+cd uniquebrains
 
-2. Start the development server:
-```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-3. Open your browser to `http://localhost:3000`
+Open [http://localhost:3000](http://localhost:3000)
 
 ### Demo Accounts
 
-**Student Account:**
+**Student:**
 - Email: `student@demo.com`
 - Password: any
 
-**Instructor Account:**
+**Instructor:**
 - Email: `instructor@demo.com`
 - Password: any
 
-## Project Structure
+**Parent:**
+- Email: `parent@demo.com`
+- Password: any
+
+---
+
+## 📁 Project Structure
 
 ```
-src/
-├── components/          # Reusable UI components
-│   ├── Layout.jsx      # Main layout with header/footer
-│   ├── CourseCard.jsx  # Course card component
-│   └── StarRating.jsx  # Star rating component
-├── pages/              # Page components
-│   ├── Login.jsx       # Login page
-│   ├── Register.jsx    # Registration page
-│   ├── Marketplace.jsx # Course marketplace
-│   ├── CourseDetail.jsx # Course details
-│   ├── MyCourses.jsx   # Student enrolled courses
-│   ├── CourseView.jsx  # Course learning interface
-│   ├── InstructorDashboard.jsx # Instructor dashboard
-│   └── CreateCourse.jsx # Create course form
-├── context/            # React context providers
-│   └── AuthContext.jsx # Authentication context
-├── data/               # Mock data
-│   └── mockData.js     # Sample courses, homework, reviews
-├── App.jsx             # Main app component with routing
-└── main.jsx            # App entry point
+uniquebrains/
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── Layout.jsx       # Main layout with header/footer
+│   │   ├── CourseCard.jsx   # Course display card
+│   │   ├── HomeworkSubmissionModal.jsx
+│   │   └── HomeworkDetailsModal.jsx
+│   ├── pages/               # Page components
+│   │   ├── LandingPage.jsx
+│   │   ├── Marketplace.jsx
+│   │   ├── InstructorDashboard.jsx
+│   │   ├── ManageCourse.jsx
+│   │   ├── ManageSessions.jsx  # Session scheduling
+│   │   ├── CourseHomework.jsx  # Homework management
+│   │   ├── CourseResources.jsx # Resource management
+│   │   ├── CourseChat.jsx      # Chat system
+│   │   ├── StudentCourseView.jsx
+│   │   ├── StudentHomework.jsx
+│   │   ├── StudentResources.jsx
+│   │   └── StudentChat.jsx
+│   ├── context/
+│   │   └── AuthContext.jsx  # Authentication state
+│   └── data/
+│       └── mockData.js      # Sample data
+├── .kiro/specs/             # Feature specifications
+│   ├── backend-architecture/
+│   └── instructor-course-management/
+├── docs/                    # Production build (GitHub Pages)
+├── GUIDES.md               # Complete user guides
+├── BACKEND_SETUP.md        # Backend implementation guide
+└── README.md               # This file
 ```
 
-## Key Features Implementation
+---
 
-### Authentication
-- Mock authentication system with localStorage
-- Role-based access control (student/instructor)
-- Protected routes for authenticated users
+## 🎯 Key Features
 
-### Course Marketplace
-- Search functionality
-- Category filtering
-- Course cards with ratings and pricing
-- Responsive grid layout
+### Session Scheduling
 
-### Course Learning
-- Lesson navigation sidebar
-- Video player placeholder
-- Homework assignments
-- Rating modal for course completion
+**Recurring Schedules:**
+- Set up weekly patterns (e.g., Mon/Wed/Fri at 10 AM)
+- Auto-generate sessions for weeks/months
+- Individual schedules per student (1-on-1 courses)
+- Edit schedules when availability changes
 
-### Instructor Dashboard
-- Statistics overview
-- Course management
-- Activity feed
-- Create course form
+**Single Sessions:**
+- Create one-off sessions as needed
+- Set custom topics and meeting links
+- Override recurring patterns
 
-### Rating System
-- 5-star rating component
-- Interactive rating submission
-- Display average ratings
-- Review list with timestamps
+### Homework System
 
-## Next Steps for Production
+**For Instructors:**
+- Create assignments with due dates
+- Support text, file, or checkmark submissions
+- Review submissions
+- Provide written feedback
+- Track completion rates
 
-### Backend Integration
-1. Replace mock data with API calls
-2. Implement real authentication with JWT
-3. Add WebSocket for real-time features
-4. Integrate payment processing (Stripe)
+**For Students:**
+- View "To Do" and "Completed" sections
+- Submit homework before due date
+- Receive instructor feedback
+- Track days remaining
 
-### Enhanced Features
-1. Video upload and streaming
-2. Audio/video recording for homework
-3. Live video conferencing (WebRTC)
-4. Real-time messaging
-5. Certificate generation
-6. Progress analytics
+### Resource Management
 
-### Testing
-1. Unit tests with Jest
-2. Component tests with React Testing Library
-3. E2E tests with Playwright
-4. Property-based tests for core logic
+**Instructors can:**
+- Upload files (PDF, images, documents)
+- Add web links
+- Track which students viewed resources
 
-### Performance
-1. Code splitting and lazy loading
-2. Image optimization
-3. CDN integration
-4. Caching strategies
+**Students can:**
+- Download files
+- Preview supported formats
+- Access links
+- View all course materials
 
-### Accessibility
-1. ARIA labels
-2. Keyboard navigation
-3. Screen reader support
-4. WCAG 2.1 compliance
+### Chat System
 
-## Build for Production
+**Group Courses:**
+- Single group chat with all students
+- Real-time messaging
+- Message history
+
+**One-on-One Courses:**
+- Individual chat threads per student
+- Private conversations
+- Coordinate scheduling
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** - UI framework
+- **React Router 6** - Client-side routing
+- **Vite** - Build tool and dev server
+- **CSS3** - Custom styling with variables
+
+### Backend (Documented, Not Yet Implemented)
+- **Supabase** - PostgreSQL database + Auth + Storage
+- **Vercel** - Hosting and serverless functions
+- **Stripe** - Payment processing
+- **Cloudinary** - Image/video CDN
+- **Resend/SendGrid** - Email notifications
+- **Zoom API** - Video conferencing
+
+### Current Data Storage
+- **LocalStorage** - Client-side persistence
+- **Mock Data** - Sample courses and users
+
+---
+
+## 📖 Documentation
+
+### User Guides
+- **[GUIDES.md](./GUIDES.md)** - Complete platform guides
+  - Session scheduling guide
+  - Course management guide
+  - Deployment guide
+  - Backend setup guide
+
+### Technical Documentation
+- **[BACKEND_SETUP.md](./BACKEND_SETUP.md)** - Backend implementation
+- **[.kiro/specs/backend-architecture/](./kiro/specs/backend-architecture/)** - Complete backend specs
+  - Architecture diagrams
+  - Database schema
+  - API design
+  - Security measures
+
+### Other Docs
+- **[BRANDING.md](./BRANDING.md)** - Brand guidelines
+- **[COURSE_TYPES.md](./COURSE_TYPES.md)** - Course type specifications
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions
+
+---
+
+## 🚢 Deployment
+
+### Current Setup
+
+**Hosting**: GitHub Pages
+**Domain**: uniquebrains.org
+**Build Output**: `/docs` folder
+
+### Deploy Process
 
 ```bash
+# 1. Build the project
 npm run build
+
+# 2. Commit and push
+git add .
+git commit -m "Your changes"
+git push origin main
+
+# 3. Wait 2-5 minutes for GitHub Pages to rebuild
 ```
 
-The built files will be in the `dist/` directory.
+### Deployment Status
 
-## License
+Check: [https://github.com/jolly17/uniquebrains/actions](https://github.com/jolly17/uniquebrains/actions)
 
-MIT
+---
+
+## 🗺️ Roadmap
+
+### Phase 1: Core Platform ✅ (Current)
+- [x] Student and instructor dashboards
+- [x] Course creation and management
+- [x] Session scheduling (recurring + single)
+- [x] Homework system
+- [x] Resource management
+- [x] Chat system
+- [x] Responsive design
+
+### Phase 2: Backend Integration 📋 (Next)
+- [ ] Supabase database setup
+- [ ] Real authentication
+- [ ] File storage (Cloudinary)
+- [ ] API integration
+- [ ] Real-time features (WebSocket)
+
+### Phase 3: Payments & Video 💰
+- [ ] Stripe payment processing
+- [ ] Zoom API integration
+- [ ] Video upload and streaming
+- [ ] Certificate generation
+
+### Phase 4: Advanced Features 🚀
+- [ ] AI-powered course recommendations
+- [ ] Progress analytics
+- [ ] Parent dashboard enhancements
+- [ ] Mobile apps (iOS/Android)
+
+---
+
+## 🧪 Testing
+
+### Current
+- Manual testing
+- Browser compatibility testing
+
+### Planned
+- Unit tests (Vitest)
+- Component tests (React Testing Library)
+- E2E tests (Playwright)
+- Property-based tests for core logic
+
+---
+
+## 🤝 Contributing
+
+This is a private project. For questions or suggestions, contact the development team.
+
+---
+
+## 📄 License
+
+Proprietary - All rights reserved
+
+---
+
+## 📞 Support
+
+- **Website**: [https://uniquebrains.org](https://uniquebrains.org)
+- **Email**: support@uniquebrains.org
+- **Documentation**: [GUIDES.md](./GUIDES.md)
+
+---
+
+**Built with ❤️ for neurodivergent learners**
+
+*Last Updated: December 2025*
