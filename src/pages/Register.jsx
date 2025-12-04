@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
 function Register() {
-  const [step, setStep] = useState(1) // 1: Parent info, 2: First student
+  const [step, setStep] = useState(1) // 1: Account info, 2: First student (parent only)
+  const [selectedRole, setSelectedRole] = useState('parent')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -60,7 +61,7 @@ function Register() {
     }
   }
 
-  const handleParentSubmit = async (e) => {
+  const handleAccountSubmit = async (e) => {
     e.preventDefault()
     setError('')
     
@@ -69,7 +70,22 @@ function Register() {
       return
     }
     
-    setStep(2) // Move to student info step
+    // Update role in formData
+    const updatedFormData = { ...formData, role: selectedRole }
+    setFormData(updatedFormData)
+    
+    // If instructor, complete registration immediately
+    if (selectedRole === 'instructor') {
+      try {
+        await register(updatedFormData)
+        navigate('/instructor/dashboard')
+      } catch (err) {
+        setError('Registration failed')
+      }
+    } else {
+      // If parent, move to student info step
+      setStep(2)
+    }
   }
 
   const handleStudentSubmit = async (e) => {
@@ -92,15 +108,39 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{step === 1 ? 'Create Parent Account' : 'Add Your First Student'}</h2>
+        <h2>{step === 1 ? 'Create Your Account' : 'Add Your First Student'}</h2>
         <p className="auth-subtitle">
-          {step === 1 ? 'Manage your children\'s learning in one place' : 'Tell us about your child'}
+          {step === 1 ? 'Join UniqueBrains and start your journey' : 'Tell us about your child'}
         </p>
         
         {error && <div className="error-message">{error}</div>}
         
+        {step === 1 && (
+          <div className="role-selection">
+            <p className="role-label">I want to sign up as:</p>
+            <div className="role-cards">
+              <div 
+                className={`role-card ${selectedRole === 'parent' ? 'selected' : ''}`}
+                onClick={() => setSelectedRole('parent')}
+              >
+                <div className="role-icon">👨‍👩‍👧‍👦</div>
+                <h3>Parent</h3>
+                <p>Manage my children's learning</p>
+              </div>
+              <div 
+                className={`role-card ${selectedRole === 'instructor' ? 'selected' : ''}`}
+                onClick={() => setSelectedRole('instructor')}
+              >
+                <div className="role-icon">👨‍🏫</div>
+                <h3>Instructor</h3>
+                <p>Teach and inspire</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
         {step === 1 ? (
-        <form onSubmit={handleParentSubmit} className="auth-form">
+        <form onSubmit={handleAccountSubmit} className="auth-form">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
@@ -164,7 +204,7 @@ function Register() {
           </div>
 
           <button type="submit" className="btn-primary btn-full">
-            Continue to Student Info
+            {selectedRole === 'parent' ? 'Continue to Student Info' : 'Create Instructor Account'}
           </button>
         </form>
         ) : (

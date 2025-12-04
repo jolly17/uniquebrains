@@ -1,0 +1,187 @@
+.student-homework {
+  width: 100%;
+}
+
+.student-homework h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.info-banner {
+  background: #dbeafe;
+  border-left: 4px solid #3b82f6;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.info-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.info-banner p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.homework-section {
+  margin-bottom: 2.5rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.homework-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.homework-card {
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+
+.homework-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.homework-card.overdue {
+  border-left: 4px solid #dc2626;
+}
+
+.homework-card.completed {
+  background: #f9fafb;
+  border-left: 4px solid #10b981;
+}
+
+.homework-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.homework-header h4 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.due-badge {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.due-badge.overdue {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.due-badge.due-soon {
+  background: #fed7aa;
+  color: #9a3412;
+}
+
+.submitted-badge {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.homework-description {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.homework-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.submit-btn {
+  margin-top: 0.5rem;
+}
+
+.feedback-section {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.feedback-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.feedback-text {
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.pending-feedback {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+  font-size: 1rem;
+  background: white;
+  border: 1px dashed var(--border-color);
+  border-radius: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .homework-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .due-badge,
+  .submitted-badge {
+    align-self: flex-start;
+  }
+
+  .homework-card {
+    padding: 1.25rem;
+  }
+}

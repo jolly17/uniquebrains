@@ -10,6 +10,11 @@ function CourseHomework({ course }) {
     dueDate: '',
     submissionType: 'text'
   })
+  const [formErrors, setFormErrors] = useState({
+    title: '',
+    description: '',
+    dueDate: ''
+  })
 
   // Mock homework assignments
   const [assignments, setAssignments] = useState([
@@ -59,9 +64,53 @@ function CourseHomework({ course }) {
 
   const [submissions, setSubmissions] = useState(mockSubmissions)
   const [feedbackInputs, setFeedbackInputs] = useState({})
+  const [savingFeedback, setSavingFeedback] = useState(null)
+  const [feedbackSaved, setFeedbackSaved] = useState(null)
+
+  const validateForm = () => {
+    const errors = {
+      title: '',
+      description: '',
+      dueDate: ''
+    }
+    let isValid = true
+
+    if (!formData.title.trim()) {
+      errors.title = 'Please enter a title for this assignment'
+      isValid = false
+    }
+
+    if (!formData.description.trim()) {
+      errors.description = 'Please enter a description for this assignment'
+      isValid = false
+    }
+
+    if (!formData.dueDate) {
+      errors.dueDate = 'Please select a due date for this assignment'
+      isValid = false
+    } else {
+      // Check if due date is in the past
+      const selectedDate = new Date(formData.dueDate)
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      
+      if (selectedDate < today) {
+        errors.dueDate = 'Due date cannot be in the past'
+        isValid = false
+      }
+    }
+
+    setFormErrors(errors)
+    return isValid
+  }
 
   const handleCreateAssignment = (e) => {
     e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+
     const newAssignment = {
       id: assignments.length + 1,
       ...formData,
@@ -70,15 +119,63 @@ function CourseHomework({ course }) {
       pendingReviews: 0
     }
     setAssignments([...assignments, newAssignment])
+    
+    // Trigger student notification (in real app, this would be a backend call)
+    console.log(`📧 Notification sent to all students: New homework assignment "${formData.title}" created`)
+    
     setShowCreateModal(false)
     setFormData({ title: '', description: '', dueDate: '', submissionType: 'text' })
+    setFormErrors({ title: '', description: '', dueDate: '' })
   }
 
-  const handleSaveFeedback = (submissionId) => {
+  const handleCloseModal = () => {
+    setShowCreateModal(false)
+    setFormData({ title: '', description: '', dueDate: '', submissionType: 'text' })
+    setFormErrors({ title: '', description: '', dueDate: '' })
+  }
+
+  const handleSaveFeedback = async (submissionId, studentName) => {
     const feedback = feedbackInputs[submissionId] || ''
-    // In real app, save to backend
-    alert(`Feedback saved: "${feedback}"\n\nStudent will be notified.`)
-    setFeedbackInputs({ ...feedbackInputs, [submissionId]: '' })
+    
+    if (!feedback.trim()) {
+      alert('Please enter feedback before saving.')
+      return
+    }
+
+    setSavingFeedback(submissionId)
+    
+    // Simulate API call
+    setTimeout(() => {
+      // Update the submission with the feedback
+      setSubmissions(prevSubmissions => {
+        const updatedSubmissions = { ...prevSubmissions }
+        const assignmentSubmissions = updatedSubmissions[viewingSubmissions]
+        if (assignmentSubmissions) {
+          const submissionIndex = assignmentSubmissions.findIndex(s => s.id === submissionId)
+          if (submissionIndex !== -1) {
+            assignmentSubmissions[submissionIndex] = {
+              ...assignmentSubmissions[submissionIndex],
+              feedback: feedback,
+              feedbackAt: new Date().toISOString()
+            }
+          }
+        }
+        return updatedSubmissions
+      })
+
+      // Clear the input and show confirmation
+      setFeedbackInputs({ ...feedbackInputs, [submissionId]: '' })
+      setSavingFeedback(null)
+      setFeedbackSaved(submissionId)
+      
+      // Trigger student notification (in real app, this would be a backend call)
+      console.log(`📧 Notification sent to ${studentName}: New feedback on homework submission`)
+      
+      // Hide confirmation after 3 seconds
+      setTimeout(() => {
+        setFeedbackSaved(null)
+      }, 3000)
+    }, 500)
   }
 
   const handleDeleteAssignment = (assignmentId) => {
@@ -136,20 +233,36 @@ function CourseHomework({ course }) {
                   <div className="feedback-section">
                     <label>Your Feedback:</label>
                     <textarea
-                      value={feedbackInputs[submission.id] || submission.feedback}
+                      value={feedbackInputs[submission.id] !== undefined 
+                        ? feedbackInputs[submission.id] 
+                        : submission.feedback}
                       onChange={(e) => setFeedbackInputs({
                         ...feedbackInputs,
                         [submission.id]: e.target.value
                       })}
                       placeholder="Write your feedback here..."
                       rows="3"
+                      disabled={savingFeedback === submission.id}
                     />
-                    <button 
-                      onClick={() => handleSaveFeedback(submission.id)}
-                      className="btn-primary btn-sm"
-                    >
-                      Save Feedback
-                    </button>
+                    <div className="feedback-actions">
+                      <button 
+                        onClick={() => handleSaveFeedback(submission.id, submission.studentName)}
+                        className="btn-primary btn-sm"
+                        disabled={savingFeedback === submission.id}
+                      >
+                        {savingFeedback === submission.id ? 'Saving...' : 'Save Feedback'}
+                      </button>
+                      {feedbackSaved === submission.id && (
+                        <div className="feedback-confirmation">
+                          ✅ Feedback saved! Student has been notified.
+                        </div>
+                      )}
+                    </div>
+                    {submission.feedback && submission.feedbackAt && (
+                      <div className="feedback-info">
+                        <small>Last updated: {new Date(submission.feedbackAt).toLocaleString()}</small>
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
@@ -218,7 +331,7 @@ function CourseHomework({ course }) {
       </div>
 
       {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div className="modal-overlay" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Create Homework Assignment</h2>
             <form onSubmit={handleCreateAssignment}>
@@ -227,21 +340,37 @@ function CourseHomework({ course }) {
                 <input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  required
+                  onChange={(e) => {
+                    setFormData({ ...formData, title: e.target.value })
+                    if (formErrors.title) {
+                      setFormErrors({ ...formErrors, title: '' })
+                    }
+                  }}
                   placeholder="e.g., Practice Scales"
+                  className={formErrors.title ? 'error' : ''}
                 />
+                {formErrors.title && (
+                  <div className="error-message">{formErrors.title}</div>
+                )}
               </div>
 
               <div className="form-group">
                 <label>Description *</label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  required
+                  onChange={(e) => {
+                    setFormData({ ...formData, description: e.target.value })
+                    if (formErrors.description) {
+                      setFormErrors({ ...formErrors, description: '' })
+                    }
+                  }}
                   rows="3"
                   placeholder="Describe what students need to do..."
+                  className={formErrors.description ? 'error' : ''}
                 />
+                {formErrors.description && (
+                  <div className="error-message">{formErrors.description}</div>
+                )}
               </div>
 
               <div className="form-group">
@@ -249,9 +378,17 @@ function CourseHomework({ course }) {
                 <input
                   type="date"
                   value={formData.dueDate}
-                  onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  required
+                  onChange={(e) => {
+                    setFormData({ ...formData, dueDate: e.target.value })
+                    if (formErrors.dueDate) {
+                      setFormErrors({ ...formErrors, dueDate: '' })
+                    }
+                  }}
+                  className={formErrors.dueDate ? 'error' : ''}
                 />
+                {formErrors.dueDate && (
+                  <div className="error-message">{formErrors.dueDate}</div>
+                )}
               </div>
 
               <div className="form-group">
@@ -292,7 +429,7 @@ function CourseHomework({ course }) {
               </div>
 
               <div className="modal-actions">
-                <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">
+                <button type="button" onClick={handleCloseModal} className="btn-secondary">
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">

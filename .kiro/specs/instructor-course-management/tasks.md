@@ -17,7 +17,11 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 2. Implement Students Tab (Instructor View)
+- [x] 2. Implement Students Tab (Instructor View)
+
+
+
+
 
 
 
@@ -44,7 +48,11 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [-] 3. Implement Homework Tab (Instructor View)
+- [x] 3. Implement Homework Tab (Instructor View)
+
+
+
+
 
 
 
@@ -59,7 +67,8 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 
 
-- [ ] 3.2 Build homework creation modal
+- [x] 3.2 Build homework creation modal
+
   - Form with title, description, due date fields
   - Submission type selector (text/file/checkmark)
 
@@ -76,7 +85,11 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
   - Display submitted content (text/file)
   - _Requirements: 2.4, 2.5_
 
-- [ ] 3.4 Add feedback functionality
+- [x] 3.4 Add feedback functionality
+
+
+
+
   - Text area for instructor feedback
   - Save feedback button with confirmation
   - Trigger student notification on feedback submission
@@ -84,22 +97,31 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 4. Implement Resources Tab (Instructor View)
+- [x] 4. Implement Resources Tab (Instructor View)
 
-- [ ] 4.1 Create CourseResources component with resource list
+
+
+
+
+
+- [x] 4.1 Create CourseResources component with resource list
+
+
   - Display uploaded files and links
   - Show view statistics
   - Add "Add Resource" button
   - _Requirements: 3.4, 3.5_
 
-- [ ] 4.2 Build resource upload modal
+- [x] 4.2 Build resource upload modal
+
   - Toggle between file upload and link addition
   - File input with type validation
   - URL input for web links
   - Title field for both types
   - _Requirements: 3.1, 3.2, 3.3_
 
-- [ ] 4.3 Implement resource management
+- [x] 4.3 Implement resource management
+
   - Delete functionality with confirmation
   - Update resource titles
   - Track which students have viewed resources
@@ -107,63 +129,94 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 5. Implement Chat Tab (Instructor View - Group Courses)
+- [x] 5. Implement Chat Tab (Instructor View - Group Courses)
 
-- [ ] 5.1 Create CourseChat component for group courses
+
+
+
+
+
+- [x] 5.1 Create CourseChat component for group courses
+
+
   - Display single chat interface
   - Show participant count
   - Add helpful info banner explaining group chat
   - _Requirements: 4.1, 4.3_
 
-- [ ] 5.2 Build message display area
+- [x] 5.2 Build message display area
+
   - Show messages in chronological order
   - Display sender name and timestamp
   - Distinguish instructor vs student messages visually
   - _Requirements: 4.5, 4.6_
 
-- [ ] 5.3 Implement message input and sending
+- [x] 5.3 Implement message input and sending
+
   - Text input with send button
   - Handle message submission
   - Show confirmation when sent
   - _Requirements: 4.7_
 
-- [ ] 5.4 Add real-time message updates
+- [x] 5.4 Add real-time message updates
+
+
   - Poll for new messages or use WebSocket
   - Show notification badge for unread messages
   - _Requirements: 4.4_
 
 ---
 
-- [ ] 6. Implement Chat Tab (Instructor View - One-on-One Courses)
+- [x] 6. Implement Chat Tab (Instructor View - One-on-One Courses)
 
-- [ ] 6.1 Create chat thread list for one-on-one courses
+
+
+
+
+
+- [x] 6.1 Create chat thread list for one-on-one courses
+
+
   - Display list of students with last message preview
   - Show unread indicators
   - Add helpful info banner explaining individual chats
   - _Requirements: 4.2, 4.3_
 
-- [ ] 6.2 Build individual chat view
+- [x] 6.2 Build individual chat view
+
+
   - Show conversation with specific student
   - Display student name in header
   - Add back button to thread list
   - _Requirements: 4.3, 4.5, 4.6_
 
-- [ ] 6.3 Implement private messaging
+- [x] 6.3 Implement private messaging
+
+
   - Ensure messages only visible to instructor and specific student
   - Show confirmation when sent
   - _Requirements: 4.7_
 
 ---
 
-- [ ] 7. Implement Student Course View Structure
+- [x] 7. Implement Student Course View Structure
 
-- [ ] 7.1 Create StudentCourseView component with tab navigation
+
+
+
+
+
+
+- [x] 7.1 Create StudentCourseView component with tab navigation
+
   - Display course title and instructor name
   - Implement tab switching (Sessions, Homework, Resources, Chat)
   - Add back button to My Courses
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 7.2 Add visual indicators for new content
+- [x] 7.2 Add visual indicators for new content
+
+
   - Badge for unread messages
   - Badge for new homework assignments
   - Badge for new resources
@@ -171,22 +224,30 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 8. Implement Homework Tab (Student View)
+- [x] 8. Implement Homework Tab (Student View)
 
-- [ ] 8.1 Create StudentHomework component
+
+
+
+- [x] 8.1 Create StudentHomework component
+
   - Separate "To Do" and "Completed" sections
   - Display assignment cards with due dates
   - Show days remaining for pending assignments
   - _Requirements: 2.1, 2.2_
 
-- [ ] 8.2 Build homework submission interface
+- [x] 8.2 Build homework submission interface
+
+
   - Text input for text responses
   - File upload for file submissions
   - Checkmark button for checkmark-only
   - Show submission confirmation
   - _Requirements: 2.3_
 
-- [ ] 8.3 Display completed homework with feedback
+- [x] 8.3 Display completed homework with feedback
+
+
   - Show submission date
   - Display instructor feedback
   - Add "View Details" option
@@ -194,15 +255,22 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 9. Implement Resources Tab (Student View)
+- [x] 9. Implement Resources Tab (Student View)
 
-- [ ] 9.1 Create StudentResources component
+
+
+
+- [x] 9.1 Create StudentResources component
+
+
   - Display all course resources
   - Show file type icons
   - Add helpful info banner
   - _Requirements: 3.4, 3.5_
 
-- [ ] 9.2 Implement resource access
+
+- [x] 9.2 Implement resource access
+
   - Download button for files
   - Open link button for URLs
   - Preview option for supported file types
@@ -211,15 +279,20 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 10. Implement Chat Tab (Student View - Group Courses)
+- [x] 10. Implement Chat Tab (Student View - Group Courses)
 
-- [ ] 10.1 Create student group chat interface
+
+
+
+- [x] 10.1 Create student group chat interface
+
   - Display group chat messages
   - Show participant count
   - Add helpful info banner
   - _Requirements: 7.1, 7.2_
 
-- [ ] 10.2 Implement student messaging in group chat
+- [x] 10.2 Implement student messaging in group chat
+
   - Message input and send functionality
   - Distinguish instructor vs student messages
   - Show message history
@@ -227,15 +300,23 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 11. Implement Chat Tab (Student View - One-on-One Courses)
+- [x] 11. Implement Chat Tab (Student View - One-on-One Courses)
 
-- [ ] 11.1 Create student private chat interface
+
+
+- [x] 11.1 Create student private chat interface
+
+
   - Display conversation with instructor
   - Add helpful info banner about privacy
   - Show message history
   - _Requirements: 8.1, 8.2_
 
-- [ ] 11.2 Implement private messaging for students
+
+- [x] 11.2 Implement private messaging for students
+
+
+
   - Message input and send functionality
   - Notification when instructor replies
   - Ensure privacy (no other students can see)
@@ -243,7 +324,8 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 12. Implement notification system
+- [-] 12. Implement notification system
+
 
 - [ ] 12.1 Create notification component
   - Toast notifications for new messages
@@ -251,7 +333,8 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
   - Notifications for feedback received
   - _Requirements: 2.4, 2.7, 4.4_
 
-- [ ] 12.2 Add notification badges
+- [x] 12.2 Add notification badges
+
   - Unread message count on chat tab
   - New homework indicator
   - New resource indicator
@@ -281,15 +364,20 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 14. Implement data persistence and state management
+- [x] 14. Implement data persistence and state management
 
-- [ ] 14.1 Set up mock data for homework, resources, and chat
+
+- [x] 14.1 Set up mock data for homework, resources, and chat
+
   - Create sample assignments
   - Add sample resources
   - Generate sample chat messages
   - _Requirements: All_
 
-- [ ] 14.2 Implement local storage for offline support
+
+- [x] 14.2 Implement local storage for offline support
+
+
   - Save draft messages
   - Cache viewed resources
   - Store notification preferences
@@ -297,15 +385,27 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 15. Add helpful guidance and info banners
+- [x] 15. Add helpful guidance and info banners
 
-- [ ] 15.1 Create info banner component
+
+
+
+
+
+
+- [x] 15.1 Create info banner component
+
   - Blue background with info icon
   - Clear, concise explanatory text
   - Consistent styling across all pages
   - _Requirements: 1.4, 6.5_
 
-- [ ] 15.2 Add contextual help text
+
+
+
+- [x] 15.2 Add contextual help text
+
+
   - Explain what each tab does
   - Provide guidance on forms
   - Clarify group vs individual features

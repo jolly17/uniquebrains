@@ -8,7 +8,7 @@ import Register from './pages/Register'
 import Marketplace from './pages/Marketplace'
 import CourseDetail from './pages/CourseDetail'
 import MyCourses from './pages/MyCourses'
-import CourseView from './pages/CourseView'
+import StudentCourseView from './pages/StudentCourseView'
 import ManageStudents from './pages/ManageStudents'
 import InstructorDashboard from './pages/InstructorDashboard'
 import CreateCourse from './pages/CreateCourse'
@@ -60,7 +60,7 @@ function App() {
             
             <Route path="learn/:courseId" element={
               <ProtectedRoute>
-                <CourseView />
+                <StudentCourseView />
               </ProtectedRoute>
             } />
             

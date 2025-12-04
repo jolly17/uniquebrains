@@ -1,10 +1,10 @@
-.manage-course {
+.student-course-view {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.manage-course-header {
+.student-course-header {
   margin-bottom: 2rem;
 }
 
@@ -18,19 +18,20 @@
   margin-bottom: 1rem;
   font-weight: 500;
   display: inline-block;
+  transition: all 0.2s;
 }
 
 .back-button:hover {
   text-decoration: underline;
 }
 
-.manage-course-header h1 {
+.student-course-header h1 {
   font-size: 2rem;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
-.course-subtitle {
+.course-instructor {
   color: var(--text-secondary);
   font-size: 1rem;
 }
@@ -55,6 +56,7 @@
   border-bottom: 3px solid transparent;
   transition: all 0.2s;
   white-space: nowrap;
+  position: relative;
 }
 
 .tab-button:hover {
@@ -66,10 +68,6 @@
   color: var(--primary-color);
   border-bottom-color: var(--primary-color);
   background: rgba(79, 70, 229, 0.05);
-}
-
-.tab-button {
-  position: relative;
 }
 
 .notification-badge {
@@ -91,8 +89,51 @@
   min-height: 400px;
 }
 
+.tab-panel {
+  background: var(--background-light);
+  padding: 2rem;
+  border-radius: 0.75rem;
+}
+
+.tab-panel h2 {
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+}
+
+.info-banner {
+  background: #dbeafe;
+  border-left: 4px solid #3b82f6;
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.info-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.info-banner p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 3rem;
+  font-size: 1.125rem;
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .manage-course {
+  .student-course-view {
     padding: 1rem;
   }
 
@@ -103,5 +144,13 @@
   .tab-button {
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
+  }
+
+  .tab-panel {
+    padding: 1.5rem;
+  }
+
+  .tab-panel h2 {
+    font-size: 1.5rem;
   }
 }

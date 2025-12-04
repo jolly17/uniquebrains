@@ -6,7 +6,7 @@ function InstructorDashboard() {
   // Mock instructor courses
   const instructorCourses = mockCourses.slice(0, 2)
   const totalStudents = 156
-  const totalRevenue = 4250
+  const sessionsCompleted = 87
   const pendingRequests = 3 // Mock pending join requests
 
   return (
@@ -35,8 +35,8 @@ function InstructorDashboard() {
           <div className="stat-label">Total Students</div>
         </div>
         <div className="stat-card">
-          <div className="stat-value">${totalRevenue}</div>
-          <div className="stat-label">Total Revenue</div>
+          <div className="stat-value">{sessionsCompleted}</div>
+          <div className="stat-label">Sessions Completed</div>
         </div>
         <div className="stat-card">
           <div className="stat-value">4.8</div>
