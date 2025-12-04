@@ -69,7 +69,7 @@ function ComingSoon() {
 
         <div className="timeline">
           <p className="timeline-text">
-            <strong>Estimated Launch:</strong> We're aiming to launch in early 2025. 
+            <strong>Estimated Launch:</strong> We're aiming to launch in early 2026. 
             With your support, we can make it happen even sooner!
           </p>
         </div>

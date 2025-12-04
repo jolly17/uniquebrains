@@ -133,7 +133,7 @@ function Layout() {
       </main>
 
       <footer className="footer">
-        <p>&copy; 2024 UniqueBrains. Where every brain learns differently.</p>
+        <p>&copy; 2025 UniqueBrains. Where every brain learns differently.</p>
       </footer>
     </div>
   )
