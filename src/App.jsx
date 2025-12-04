@@ -9,6 +9,7 @@ import Marketplace from './pages/Marketplace'
 import CourseDetail from './pages/CourseDetail'
 import MyCourses from './pages/MyCourses'
 import CourseView from './pages/CourseView'
+import ManageStudents from './pages/ManageStudents'
 import InstructorDashboard from './pages/InstructorDashboard'
 import CreateCourse from './pages/CreateCourse'
 import ManageSessions from './pages/ManageSessions'
@@ -48,6 +49,12 @@ function App() {
             <Route path="my-courses" element={
               <ProtectedRoute>
                 <MyCourses />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="manage-students" element={
+              <ProtectedRoute role="parent">
+                <ManageStudents />
               </ProtectedRoute>
             } />
             

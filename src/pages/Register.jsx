@@ -4,17 +4,23 @@ import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
 function Register() {
+  const [step, setStep] = useState(1) // 1: Parent info, 2: First student
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    neurodiversityProfile: []
+    role: 'parent'
   })
-  const [otherNeeds, setOtherNeeds] = useState('')
+  const [studentData, setStudentData] = useState({
+    firstName: '',
+    age: '',
+    neurodiversityProfile: [],
+    otherNeeds: ''
+  })
   const [error, setError] = useState('')
-  const { register } = useAuth()
+  const { register, addStudent } = useAuth()
   const navigate = useNavigate()
 
   const neurodiversityOptions = [
@@ -32,22 +38,29 @@ function Register() {
     })
   }
 
+  const handleStudentChange = (e) => {
+    setStudentData({
+      ...studentData,
+      [e.target.name]: e.target.value
+    })
+  }
+
   const handleNeurodiversityChange = (value) => {
-    const currentProfile = formData.neurodiversityProfile
+    const currentProfile = studentData.neurodiversityProfile
     if (currentProfile.includes(value)) {
-      setFormData({
-        ...formData,
+      setStudentData({
+        ...studentData,
         neurodiversityProfile: currentProfile.filter(v => v !== value)
       })
     } else {
-      setFormData({
-        ...formData,
+      setStudentData({
+        ...studentData,
         neurodiversityProfile: [...currentProfile, value]
       })
     }
   }
 
-  const handleSubmit = async (e) => {
+  const handleParentSubmit = async (e) => {
     e.preventDefault()
     setError('')
     
@@ -56,13 +69,21 @@ function Register() {
       return
     }
     
+    setStep(2) // Move to student info step
+  }
+
+  const handleStudentSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    
     try {
-      const registrationData = {
-        ...formData,
-        otherNeeds: formData.neurodiversityProfile.includes('other') ? otherNeeds : null
-      }
-      await register(registrationData)
-      navigate('/')
+      // Register parent account
+      await register(formData)
+      
+      // Add first student
+      addStudent(studentData)
+      
+      navigate('/marketplace')
     } catch (err) {
       setError('Registration failed')
     }
@@ -71,12 +92,15 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>Join NEST</h2>
-        <p className="auth-subtitle">Create your account to start learning</p>
+        <h2>{step === 1 ? 'Create Parent Account' : 'Add Your First Student'}</h2>
+        <p className="auth-subtitle">
+          {step === 1 ? 'Manage your children\'s learning in one place' : 'Tell us about your child'}
+        </p>
         
         {error && <div className="error-message">{error}</div>}
         
-        <form onSubmit={handleSubmit} className="auth-form">
+        {step === 1 ? (
+        <form onSubmit={handleParentSubmit} className="auth-form">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
@@ -139,17 +163,49 @@ function Register() {
             />
           </div>
 
+          <button type="submit" className="btn-primary btn-full">
+            Continue to Student Info
+          </button>
+        </form>
+        ) : (
+        <form onSubmit={handleStudentSubmit} className="auth-form">
           <div className="form-group">
-            <label>What's unique about your mind? (Optional)</label>
+            <label htmlFor="studentFirstName">Student's First Name</label>
+            <input
+              id="studentFirstName"
+              name="firstName"
+              type="text"
+              value={studentData.firstName}
+              onChange={handleStudentChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="age">Age</label>
+            <input
+              id="age"
+              name="age"
+              type="number"
+              value={studentData.age}
+              onChange={handleStudentChange}
+              required
+              min="3"
+              max="18"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Learning Profile (Optional)</label>
             <p className="field-description">
-              Help us understand your learning style. Select all that apply:
+              Help us understand your child's learning style. Select all that apply:
             </p>
             <div className="checkbox-group">
               {neurodiversityOptions.map(option => (
                 <label key={option.value} className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={formData.neurodiversityProfile.includes(option.value)}
+                    checked={studentData.neurodiversityProfile.includes(option.value)}
                     onChange={() => handleNeurodiversityChange(option.value)}
                   />
                   <span>{option.label}</span>
@@ -157,26 +213,35 @@ function Register() {
               ))}
             </div>
             
-            {formData.neurodiversityProfile.includes('other') && (
+            {studentData.neurodiversityProfile.includes('other') && (
               <div className="nested-field">
                 <input
                   type="text"
-                  placeholder="Please describe your specific needs..."
-                  value={otherNeeds}
-                  onChange={(e) => setOtherNeeds(e.target.value)}
+                  name="otherNeeds"
+                  placeholder="Please describe specific needs..."
+                  value={studentData.otherNeeds}
+                  onChange={handleStudentChange}
                 />
               </div>
             )}
           </div>
-          
-          <button type="submit" className="btn-primary btn-full">
-            Create Account
-          </button>
+
+          <div className="form-row">
+            <button type="button" onClick={() => setStep(1)} className="btn-secondary btn-full">
+              Back
+            </button>
+            <button type="submit" className="btn-primary btn-full">
+              Complete Registration
+            </button>
+          </div>
         </form>
+        )}
         
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
-        </p>
+        {step === 1 && (
+          <p className="auth-footer">
+            Already have an account? <Link to="/login">Sign in</Link>
+          </p>
+        )}
       </div>
     </div>
   )

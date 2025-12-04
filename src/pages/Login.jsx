@@ -7,7 +7,7 @@ import './Auth.css'
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [selectedRole, setSelectedRole] = useState('student')
+  const [selectedRole, setSelectedRole] = useState('parent')
   const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
@@ -39,12 +39,12 @@ function Login() {
           <p className="role-label">I want to sign in as:</p>
           <div className="role-cards">
             <div 
-              className={`role-card ${selectedRole === 'student' ? 'selected' : ''}`}
-              onClick={() => setSelectedRole('student')}
+              className={`role-card ${selectedRole === 'parent' ? 'selected' : ''}`}
+              onClick={() => setSelectedRole('parent')}
             >
-              <div className="role-icon">🎓</div>
-              <h3>Student</h3>
-              <p>Learn and grow</p>
+              <div className="role-icon">👨‍👩‍👧‍👦</div>
+              <h3>Parent</h3>
+              <p>Manage my children's learning</p>
             </div>
             <div 
               className={`role-card ${selectedRole === 'instructor' ? 'selected' : ''}`}
@@ -83,7 +83,7 @@ function Login() {
           </div>
           
           <button type="submit" className="btn-primary btn-full">
-            Sign In as {selectedRole === 'student' ? 'Student' : 'Instructor'}
+            Sign In as {selectedRole === 'parent' ? 'Parent' : 'Instructor'}
           </button>
         </form>
         
@@ -93,7 +93,7 @@ function Login() {
         
         <div className="demo-accounts">
           <p className="demo-title">Demo Accounts:</p>
-          <p>Student: student@demo.com / Password: any</p>
+          <p>Parent: parent@demo.com / Password: any</p>
           <p>Instructor: instructor@demo.com / Password: any</p>
         </div>
       </div>

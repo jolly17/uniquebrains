@@ -5,9 +5,10 @@ import Logo from './Logo'
 import './Layout.css'
 
 function Layout() {
-  const { user, logout } = useAuth()
+  const { user, students, activeStudent, switchStudent, logout } = useAuth()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showStudentSwitcher, setShowStudentSwitcher] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -40,8 +41,11 @@ function Layout() {
             
             {user && (
               <>
-                {user.role === 'student' && (
-                  <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
+                {user.role === 'parent' && (
+                  <>
+                    <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
+                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Manage Students</Link>
+                  </>
                 )}
                 
                 {user.role === 'instructor' && (
@@ -75,6 +79,40 @@ function Layout() {
           <div className="desktop-header-actions">
             {user ? (
               <div className="user-menu">
+                {user.role === 'parent' && activeStudent && (
+                  <div className="student-switcher">
+                    <button 
+                      className="active-student-btn"
+                      onClick={() => setShowStudentSwitcher(!showStudentSwitcher)}
+                    >
+                      👤 {activeStudent.firstName}
+                      <span className="dropdown-arrow">▼</span>
+                    </button>
+                    {showStudentSwitcher && (
+                      <div className="student-dropdown">
+                        {students.map(student => (
+                          <button
+                            key={student.id}
+                            className={`student-option ${activeStudent.id === student.id ? 'active' : ''}`}
+                            onClick={() => {
+                              switchStudent(student.id)
+                              setShowStudentSwitcher(false)
+                            }}
+                          >
+                            {student.firstName} {activeStudent.id === student.id && '✓'}
+                          </button>
+                        ))}
+                        <Link 
+                          to="/manage-students" 
+                          className="manage-students-link"
+                          onClick={() => setShowStudentSwitcher(false)}
+                        >
+                          + Manage Students
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <span className="user-name">{user.firstName} {user.lastName}</span>
                 <span className="user-role">({user.role})</span>
                 <Link to="/profile" className="btn-secondary">Profile</Link>
