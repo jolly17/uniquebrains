@@ -110,6 +110,16 @@ function ManageSessions() {
 
   const [editingSession, setEditingSession] = useState(null)
   const [topicInput, setTopicInput] = useState('')
+  
+  // New session creation state
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newSession, setNewSession] = useState({
+    studentId: '',
+    date: '',
+    time: '',
+    topic: '',
+    meetingLink: courseMeetingLink
+  })
 
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
@@ -144,6 +154,55 @@ function ManageSessions() {
   const handleCancelEdit = () => {
     setEditingSession(null)
     setTopicInput('')
+  }
+
+  const handleCreateSession = () => {
+    if (!newSession.date || !newSession.time) {
+      alert('Please fill in date and time')
+      return
+    }
+
+    if (!isGroupCourse && !newSession.studentId) {
+      alert('Please select a student')
+      return
+    }
+
+    const session = {
+      id: sessions.length + 1,
+      date: newSession.date,
+      time: newSession.time,
+      topic: newSession.topic,
+      topicSet: newSession.topic.trim() !== '',
+      meetingLink: newSession.meetingLink || courseMeetingLink,
+      ...(isGroupCourse 
+        ? { attendees: enrolledCount }
+        : { 
+            studentId: newSession.studentId,
+            studentName: enrolledStudents.find(s => s.id === newSession.studentId)?.name
+          }
+      )
+    }
+
+    setSessions([...sessions, session].sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)))
+    setShowCreateModal(false)
+    setNewSession({
+      studentId: '',
+      date: '',
+      time: '',
+      topic: '',
+      meetingLink: courseMeetingLink
+    })
+  }
+
+  const handleCancelCreate = () => {
+    setShowCreateModal(false)
+    setNewSession({
+      studentId: '',
+      date: '',
+      time: '',
+      topic: '',
+      meetingLink: courseMeetingLink
+    })
   }
 
 
@@ -219,7 +278,12 @@ function ManageSessions() {
           </div>
 
           <div className="sessions-container">
-            <h2>Group Sessions Schedule</h2>
+            <div className="sessions-header-row">
+              <h2>Group Sessions Schedule</h2>
+              <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+                + Create New Session
+              </button>
+            </div>
             <div className="sessions-list">
               {sessions.map(session => (
             <div key={session.id} className="session-item">
@@ -306,6 +370,12 @@ function ManageSessions() {
         </>
       ) : (
         <div className="students-sessions">
+          <div className="create-session-section">
+            <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+              + Create New Session
+            </button>
+          </div>
+          
           {groupedSessions.map(({ student, sessions: studentSessions }) => (
             <div key={student.id} className="student-section">
               <div className="student-header">
@@ -403,6 +473,107 @@ function ManageSessions() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Create Session Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={handleCancelCreate}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Create New Session</h2>
+              <button className="close-button" onClick={handleCancelCreate}>×</button>
+            </div>
+
+            <div className="modal-body">
+              {!isGroupCourse && (
+                <div className="form-group">
+                  <label htmlFor="student">Student *</label>
+                  <select
+                    id="student"
+                    value={newSession.studentId}
+                    onChange={(e) => setNewSession({ ...newSession, studentId: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="">Select a student</option>
+                    {enrolledStudents.map(student => (
+                      <option key={student.id} value={student.id}>
+                        {student.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="date">Date *</label>
+                  <input
+                    id="date"
+                    type="date"
+                    value={newSession.date}
+                    onChange={(e) => setNewSession({ ...newSession, date: e.target.value })}
+                    className="form-input"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="time">Time *</label>
+                  <input
+                    id="time"
+                    type="time"
+                    value={newSession.time}
+                    onChange={(e) => setNewSession({ ...newSession, time: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="topic">Session Topic (Optional)</label>
+                <input
+                  id="topic"
+                  type="text"
+                  value={newSession.topic}
+                  onChange={(e) => setNewSession({ ...newSession, topic: e.target.value })}
+                  placeholder="e.g., Review scales and introduce new piece"
+                  className="form-input"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="meetingLink">Meeting Link (Optional)</label>
+                <input
+                  id="meetingLink"
+                  type="url"
+                  value={newSession.meetingLink}
+                  onChange={(e) => setNewSession({ ...newSession, meetingLink: e.target.value })}
+                  placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                  className="form-input"
+                />
+                <p className="form-hint">Leave blank to use course default: {courseMeetingLink}</p>
+              </div>
+
+              <div className="info-banner-modal">
+                <span className="info-icon">ℹ️</span>
+                <p>
+                  {isGroupCourse 
+                    ? 'This session will be visible to all enrolled students.'
+                    : 'After creating the session, you can discuss details with the student via chat.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={handleCancelCreate}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={handleCreateSession}>
+                Create Session
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
