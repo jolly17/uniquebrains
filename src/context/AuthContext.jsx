@@ -1,72 +1,104 @@
+/**
+ * Authentication Context
+ * 
+ * Provides authentication state and methods throughout the app
+ * Uses Supabase Auth with helper functions
+ * Requirements: 1.1, 1.2, 1.3, 1.4, 1.5
+ */
+
 import { createContext, useContext, useState, useEffect } from 'react'
+import { 
+  signIn as authSignIn, 
+  signUp as authSignUp, 
+  signOut as authSignOut,
+  getCurrentSession,
+  getCurrentUserProfile,
+  onAuthStateChange
+} from '../lib/auth'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [session, setSession] = useState(null)
   const [students, setStudents] = useState([])
   const [activeStudent, setActiveStudent] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('user')
-    const storedStudents = localStorage.getItem('students')
-    const storedActiveStudent = localStorage.getItem('activeStudent')
-    
-    if (storedUser) {
-      setUser(JSON.parse(storedUser))
+    // Check for existing session
+    getCurrentSession().then(({ session, user }) => {
+      if (session && user) {
+        setSession(session)
+        setUser(user)
+        
+        // Fetch user profile
+        getCurrentUserProfile().then(({ profile }) => {
+          if (profile) {
+            setProfile(profile)
+          }
+          setLoading(false)
+        })
+      } else {
+        setLoading(false)
+      }
+    })
+
+    // Listen for auth changes
+    const subscription = onAuthStateChange((event, session) => {
+      setSession(session)
+      setUser(session?.user || null)
+      
+      if (session?.user) {
+        getCurrentUserProfile().then(({ profile }) => {
+          if (profile) {
+            setProfile(profile)
+          }
+        })
+      } else {
+        setProfile(null)
+      }
+    })
+
+    return () => {
+      subscription?.unsubscribe()
     }
-    if (storedStudents) {
-      setStudents(JSON.parse(storedStudents))
-    }
-    if (storedActiveStudent) {
-      setActiveStudent(JSON.parse(storedActiveStudent))
-    }
-    setLoading(false)
   }, [])
 
-  const login = async (email, password, role = 'parent') => {
-    // Mock login - replace with actual API call
-    const mockUser = {
-      id: `${Date.now()}-${role}`,
-      email,
-      firstName: 'John',
-      lastName: 'Doe',
-      role: role,
-      profilePicture: null
+  const login = async (email, password) => {
+    const { user, session, profile, error } = await authSignIn(email, password)
+    
+    if (error) {
+      console.error('Login error:', error)
+      return { error }
     }
     
-    setUser(mockUser)
-    localStorage.setItem('user', JSON.stringify(mockUser))
+    setUser(user)
+    setSession(session)
+    setProfile(profile)
     
-    // Load students for this parent
-    if (role === 'parent') {
-      const storedStudents = localStorage.getItem(`students_${mockUser.id}`)
-      if (storedStudents) {
-        const studentList = JSON.parse(storedStudents)
-        setStudents(studentList)
-        if (studentList.length > 0) {
-          setActiveStudent(studentList[0])
-          localStorage.setItem('activeStudent', JSON.stringify(studentList[0]))
-        }
-      }
-    }
-    
-    return mockUser
+    return { user, profile, error: null }
   }
 
   const register = async (userData) => {
-    // Mock registration - replace with actual API call
-    const newUser = {
-      id: Date.now().toString(),
-      ...userData,
-      profilePicture: null
+    const { user, session, error } = await authSignUp(userData)
+    
+    if (error) {
+      console.error('Registration error:', error)
+      return { error }
     }
     
-    setUser(newUser)
-    localStorage.setItem('user', JSON.stringify(newUser))
-    return newUser
+    setUser(user)
+    setSession(session)
+    
+    // Fetch profile
+    if (user) {
+      const { profile } = await getCurrentUserProfile()
+      setProfile(profile)
+    }
+    
+    return { user, error: null }
   }
 
   const addStudent = (studentData) => {
@@ -129,13 +161,21 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    const { error } = await authSignOut()
+    
+    if (error) {
+      console.error('Logout error:', error)
+      return { error }
+    }
+    
     setUser(null)
+    setSession(null)
+    setProfile(null)
     setStudents([])
     setActiveStudent(null)
-    localStorage.removeItem('user')
-    localStorage.removeItem('students')
-    localStorage.removeItem('activeStudent')
+    
+    return { error: null }
   }
 
   if (loading) {
@@ -144,9 +184,12 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{ 
-      user, 
+      user,
+      profile,
+      session,
       students, 
       activeStudent, 
+      loading,
       login, 
       register, 
       logout,

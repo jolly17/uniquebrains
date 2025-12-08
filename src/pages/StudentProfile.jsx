@@ -1,21 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import './StudentProfile.css'
 
 function StudentProfile() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    email: user?.email || '',
-    neurodiversityProfile: user?.neurodiversityProfile || [],
-    otherNeeds: user?.otherNeeds || ''
+    firstName: profile?.first_name || '',
+    lastName: profile?.last_name || '',
+    email: profile?.email || user?.email || '',
+    neurodiversityProfile: profile?.neurodiversity_profile || [],
+    otherNeeds: profile?.other_needs || ''
   })
 
   const [isEditing, setIsEditing] = useState(false)
+
+  // Update form data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        firstName: profile.first_name || '',
+        lastName: profile.last_name || '',
+        email: profile.email || user?.email || '',
+        neurodiversityProfile: profile.neurodiversity_profile || [],
+        otherNeeds: profile.other_needs || ''
+      })
+    }
+  }, [profile, user])
 
   const neurodiversityOptions = [
     { value: 'autism', label: 'Autism Spectrum' },
@@ -57,16 +70,16 @@ function StudentProfile() {
 
   const handleCancel = () => {
     setFormData({
-      firstName: user?.firstName || '',
-      lastName: user?.lastName || '',
-      email: user?.email || '',
-      neurodiversityProfile: user?.neurodiversityProfile || [],
-      otherNeeds: user?.otherNeeds || ''
+      firstName: profile?.first_name || '',
+      lastName: profile?.last_name || '',
+      email: profile?.email || user?.email || '',
+      neurodiversityProfile: profile?.neurodiversity_profile || [],
+      otherNeeds: profile?.other_needs || ''
     })
     setIsEditing(false)
   }
 
-  const isInstructor = user?.role === 'instructor'
+  const isInstructor = profile?.role === 'instructor'
 
   return (
     <div className="student-profile">

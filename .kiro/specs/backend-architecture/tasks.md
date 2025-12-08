@@ -6,7 +6,12 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 1. Set up Supabase Project
+- [x] 1. Set up Supabase Project
+
+
+
+
+
   - Create Supabase account and project
   - Configure project settings and region
   - Save API keys and project URL
@@ -15,29 +20,42 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 2. Create Database Schema
+- [x] 2. Create Database Schema
 
-- [ ] 2.1 Create core tables
+
+
+
+
+
+
+- [x] 2.1 Create core tables
+
   - Create profiles table with RLS
   - Create courses table with indexes
   - Create enrollments table with constraints
   - Create sessions table
   - _Requirements: 2.1, 2.3, 2.6_
 
-- [ ] 2.2 Create content tables
+- [x] 2.2 Create content tables
+
+
   - Create homework table
   - Create submissions table
   - Create resources table
   - Create messages table
   - _Requirements: 2.1_
 
-- [ ] 2.3 Create supporting tables
+- [x] 2.3 Create supporting tables
+
+
   - Create reviews table
   - Create payments table
   - Create notifications table
   - _Requirements: 2.1_
 
-- [ ] 2.4 Set up database indexes
+- [x] 2.4 Set up database indexes
+
+
   - Add indexes on foreign keys
   - Add indexes on frequently queried columns
   - Add composite indexes for common queries
@@ -45,27 +63,39 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 3. Implement Row Level Security
+- [x] 3. Implement Row Level Security
 
-- [ ] 3.1 Create RLS policies for profiles
+
+
+
+
+
+- [x] 3.1 Create RLS policies for profiles
+
   - Public read policy
   - User update own profile policy
   - Admin full access policy
   - _Requirements: 2.3, 8.2_
 
-- [ ] 3.2 Create RLS policies for courses
+- [x] 3.2 Create RLS policies for courses
+
+
   - Public read published courses
   - Instructor manage own courses
   - Student read enrolled courses
   - _Requirements: 2.3, 8.2_
 
-- [ ] 3.3 Create RLS policies for enrollments
+
+- [x] 3.3 Create RLS policies for enrollments
+
   - Student view own enrollments
   - Instructor view course enrollments
   - Student create enrollment
   - _Requirements: 2.3, 8.2_
 
-- [ ] 3.4 Create RLS policies for content
+- [x] 3.4 Create RLS policies for content
+
+
   - Homework: Instructor create, students read
   - Submissions: Student create own, instructor read all
   - Resources: Instructor manage, students read
@@ -74,22 +104,42 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 4. Set up Authentication
+- [x] 4. Set up Authentication
 
-- [ ] 4.1 Configure Supabase Auth
+
+
+
+- [x] 4.1 Configure Supabase Auth
+
+
+
   - Enable email provider
   - Configure email templates
   - Set up redirect URLs
   - Configure session settings
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 4.2 Implement OAuth providers
+
+
+- [x] 4.2 Implement OAuth providers
+
+
+
+
+
   - Enable Google OAuth
   - Enable GitHub OAuth
   - Configure OAuth callbacks
+
+
   - _Requirements: 1.6_
 
-- [ ] 4.3 Create auth helper functions
+- [x] 4.3 Create auth helper functions
+
+
+
+
+
   - Sign up function with profile creation
   - Sign in function with role validation
   - Password reset function

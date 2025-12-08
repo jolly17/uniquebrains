@@ -9,9 +9,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "verify-supabase": "node scripts/verify-supabase-setup.js",
+    "verify-auth": "node scripts/verify-auth-config.js",
+    "verify-oauth": "node scripts/verify-oauth-setup.js",
+    "check-db": "node scripts/check-database-tables.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.86.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0"
@@ -20,6 +25,7 @@
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@vitejs/plugin-react": "^4.2.1",
+    "dotenv": "^17.2.3",
     "gh-pages": "^6.3.0",
     "vite": "^5.0.8"
   }

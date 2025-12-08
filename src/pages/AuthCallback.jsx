@@ -1,0 +1,202 @@
+/**
+ * OAuth Callback Handler
+ * 
+ * Handles OAuth redirects from Google and GitHub
+ * Requirements: 1.6 - OAuth callbacks configuration
+ */
+
+import { useEffect, useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import './AuthCallback.css'
+
+export function AuthCallback() {
+  const navigate = useNavigate()
+  const [error, setError] = useState(null)
+  const hasProcessed = useRef(false)
+
+  useEffect(() => {
+    // Prevent double execution in React Strict Mode
+    if (hasProcessed.current) {
+      return
+    }
+    
+    // Handle the OAuth callback
+    const handleAuthCallback = async () => {
+      hasProcessed.current = true
+      try {
+        // Get the session from the URL hash
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          throw sessionError
+        }
+
+        if (session) {
+          console.log('=== OAuth Callback Debug ===')
+          console.log('User ID:', session.user.id)
+          console.log('User Email:', session.user.email)
+          console.log('User Metadata:', session.user.user_metadata)
+          console.log('========================')
+          
+          // Try to check if user has a profile
+          let profile = null
+          let profileError = null
+          
+          try {
+            const result = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', session.user.id)
+              .single()
+            
+            profile = result.data
+            profileError = result.error
+          } catch (err) {
+            console.log('Profile query error (will attempt to create):', err.message)
+            profileError = err
+          }
+
+          // If no profile exists or there was an error, try to create one
+          if (!profile || profileError) {
+            try {
+              // Extract name from user metadata
+              // Google provides: full_name, name, given_name, family_name
+              // GitHub provides: full_name, name
+              const metadata = session.user.user_metadata || {}
+              
+              console.log('User metadata:', metadata) // Debug log
+              
+              let firstName = 'User'
+              let lastName = ''
+              
+              // Try different fields that providers might use
+              if (metadata.given_name) {
+                // Google provides given_name and family_name
+                firstName = metadata.given_name
+                lastName = metadata.family_name || ''
+              } else if (metadata.full_name) {
+                // Fallback to splitting full_name
+                const nameParts = metadata.full_name.split(' ')
+                firstName = nameParts[0] || 'User'
+                lastName = nameParts.slice(1).join(' ') || ''
+              } else if (metadata.name) {
+                // Some providers use 'name' instead of 'full_name'
+                const nameParts = metadata.name.split(' ')
+                firstName = nameParts[0] || 'User'
+                lastName = nameParts.slice(1).join(' ') || ''
+              }
+              
+              console.log('Attempting to create profile with:', {
+                id: session.user.id,
+                email: session.user.email,
+                first_name: firstName,
+                last_name: lastName,
+                role: 'student',
+                avatar_url: metadata.avatar_url || metadata.picture || null
+              })
+
+              const { data: insertData, error: insertError } = await supabase
+                .from('profiles')
+                .insert({
+                  id: session.user.id,
+                  email: session.user.email,
+                  first_name: firstName,
+                  last_name: lastName,
+                  role: 'student', // Default role
+                  avatar_url: metadata.avatar_url || metadata.picture || null
+                })
+                .select()
+
+              if (insertError) {
+                // Check if it's a duplicate key error (profile already exists)
+                if (insertError.code === '23505') {
+                  console.log('✅ Profile already exists (returning user)')
+                  // Profile already exists, fetch it
+                  const { data: existingProfile } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single()
+                  profile = existingProfile
+                } else {
+                  console.error('❌ Error creating profile:', insertError)
+                  console.error('Error code:', insertError.code)
+                  console.error('Error message:', insertError.message)
+                  console.error('Error details:', insertError.details)
+                }
+              } else {
+                console.log('✅ Profile created successfully! (new user)')
+                console.log('Profile data:', insertData)
+                console.log('Name:', firstName, lastName)
+                // Set profile from insert data
+                profile = insertData?.[0] || { role: 'student' }
+                
+                // NEW USER - Redirect to onboarding
+                console.log('Redirecting new user to onboarding...')
+                navigate('/onboarding', {
+                  state: {
+                    userId: session.user.id,
+                    userName: firstName
+                  },
+                  replace: true
+                })
+                return // Exit early to prevent normal redirect
+              }
+            } catch (insertErr) {
+              console.error('Insert error:', insertErr)
+              // Continue anyway
+            }
+          }
+
+          // Redirect based on user role (default to student if unknown)
+          const userRole = profile?.role || 'student'
+          
+          console.log('Redirecting returning user with role:', userRole)
+          
+          if (userRole === 'instructor') {
+            navigate('/instructor/dashboard', { replace: true })
+          } else if (userRole === 'parent') {
+            navigate('/my-courses', { replace: true })
+          } else {
+            navigate('/marketplace', { replace: true })
+          }
+        } else {
+          // No session, redirect to login
+          navigate('/login')
+        }
+      } catch (err) {
+        console.error('Auth callback error:', err)
+        setError(err.message)
+        
+        // Redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate('/login')
+        }, 3000)
+      }
+    }
+
+    handleAuthCallback()
+  }, [navigate])
+
+  if (error) {
+    return (
+      <div className="auth-callback">
+        <div className="auth-callback-error">
+          <h2>Authentication Error</h2>
+          <p>{error}</p>
+          <p>Redirecting to login...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="auth-callback">
+      <div className="auth-callback-loading">
+        <div className="spinner"></div>
+        <p>Completing sign in...</p>
+      </div>
+    </div>
+  )
+}

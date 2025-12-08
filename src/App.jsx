@@ -15,6 +15,8 @@ import CreateCourse from './pages/CreateCourse'
 import ManageSessions from './pages/ManageSessions'
 import ManageCourse from './pages/ManageCourse'
 import StudentProfile from './pages/StudentProfile'
+import { AuthCallback } from './pages/AuthCallback'
+import Onboarding from './pages/Onboarding'
 
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth()
@@ -37,6 +39,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />

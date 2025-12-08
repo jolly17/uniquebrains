@@ -35,6 +35,33 @@
   margin-bottom: 2rem;
 }
 
+.oauth-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.divider span {
+  padding: 0 1rem;
+}
+
 .role-selection {
   margin-bottom: 2rem;
 }
@@ -144,6 +171,58 @@
   padding: 0.75rem;
   border-radius: 0.375rem;
   font-size: 0.875rem;
+}
+
+.success-message-container {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.success-message-container h2 {
+  color: var(--text-primary);
+  font-size: 1.875rem;
+  margin-bottom: 1rem;
+}
+
+.success-message {
+  color: var(--text-primary);
+  font-size: 1.125rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.success-message strong {
+  color: var(--primary-color);
+}
+
+.success-instructions {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.success-actions {
+  margin-bottom: 1.5rem;
+}
+
+.success-note {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.success-note a {
+  color: var(--primary-color);
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .auth-footer {

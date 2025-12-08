@@ -8,6 +8,7 @@ export default defineConfig({
     outDir: 'docs' // Deploy from docs folder instead of dist
   },
   server: {
-    port: 3000
+    port: 5173, // Use Vite's default port for consistency
+    strictPort: false // Allow fallback to another port if 5173 is in use
   }
 })
