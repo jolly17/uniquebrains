@@ -9,7 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d docs",
     "verify-supabase": "node scripts/verify-supabase-setup.js",
     "verify-auth": "node scripts/verify-auth-config.js",
     "verify-oauth": "node scripts/verify-oauth-setup.js",
