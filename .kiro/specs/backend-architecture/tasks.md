@@ -175,18 +175,16 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 5. Set up File Storage
+- [x] 5. Set up File Storage
 
 - [x] 5.1 Configure Supabase Storage
-
-
   - Create storage buckets (profiles, courses, homework)
   - Set up bucket policies and RLS
   - Configure file size limits (100MB max)
   - Enable public access for course thumbnails
   - _Requirements: 4.1, 4.2_
 
-- [ ] 5.2 Implement file upload functions
+- [x] 5.2 Implement file upload functions
   - Profile picture upload
   - Course thumbnail upload
   - Resource file upload
