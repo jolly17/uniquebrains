@@ -2,20 +2,19 @@
 
 ## Overview
 
-The UniqueBrains backend uses a serverless architecture built on Supabase (PostgreSQL + Auth + Storage + Realtime) with Vercel for hosting and edge functions. This design prioritizes cost-efficiency, scalability, and developer experience while maintaining security and performance.
+The UniqueBrains backend uses a simplified serverless architecture built entirely on Supabase (PostgreSQL + Auth + Storage + Realtime) with GitHub Pages for static hosting. This design prioritizes cost-efficiency ($0/month for MVP), simplicity, and rapid deployment while maintaining security and performance.
 
 ## Architecture
 
 ### Technology Stack
 - **Database**: Supabase PostgreSQL with Row Level Security
-- **Authentication**: Supabase Auth (JWT-based)
-- **Storage**: Supabase Storage + Cloudinary CDN
+- **Authentication**: Supabase Auth (JWT-based) with OAuth (Google)
+- **Storage**: Supabase Storage
 - **Realtime**: Supabase Realtime (WebSocket)
-- **API**: Supabase PostgREST + Vercel Edge Functions
-- **Hosting**: Vercel (Static + Serverless)
-- **Payments**: Stripe
-- **Email**: Resend/SendGrid
-- **Video**: Zoom API
+- **API**: Supabase PostgREST (Auto-generated REST API)
+- **Hosting**: GitHub Pages (Static hosting)
+- **Video Conferencing**: Manual links (Zoom/Teams/Meet) - Instructors provide their own meeting links
+- **Email**: Supabase Auth emails (built-in)
 
 ### Architecture Patterns
 1. **Serverless-First**: No server management, auto-scaling
@@ -97,14 +96,25 @@ user:{userId}:notifications - User notifications
 - UPDATE: Content modified
 - DELETE: Content removed
 
-### 5. Edge Functions (Vercel)
+### 5. Video Conferencing (Manual Links)
 
-**Functions:**
+**Implementation:**
+- Instructors manually add meeting links to sessions
+- Support for Zoom, Google Meet, Microsoft Teams, or any video platform
+- Meeting link stored in `sessions` table as a text field
+- Students click link to join from the platform
+
+**Session Data Model:**
 ```
-/api/stripe/webhook - Handle payment events
-/api/zoom/create-meeting - Create Zoom meetings
-/api/email/send - Send transactional emails
-/api/notifications/push - Send push notifications
+sessions {
+  id: uuid
+  course_id: uuid
+  title: text
+  scheduled_at: timestamp
+  duration_minutes: integer
+  meeting_link: text  // Instructor provides their own link
+  meeting_password: text (optional)
+}
 ```
 
 ## Data Models
@@ -142,25 +152,19 @@ See architecture-diagram.md for complete ER diagram.
 *For any* message sent through WebSocket, all subscribed users must receive it within 1 second.
 **Validates: Requirements 5.2**
 
-### Property 6: Payment Idempotency
-*For any* payment webhook, processing the same event multiple times must not create duplicate enrollments.
-**Validates: Requirements 6.3**
-
-### Property 7: Email Delivery Retry
-*For any* failed email send, the system must retry up to 3 times with exponential backoff.
-**Validates: Requirements 7.5**
-
-### Property 8: API Rate Limiting
+### Property 6: API Rate Limiting
 *For any* user making API requests, the system must enforce rate limits and return 429 when exceeded.
 **Validates: Requirements 14.1, 14.3**
 
-### Property 9: Backup Integrity
+### Property 7: Backup Integrity
 *For any* automated backup, the system must verify data integrity before marking it as successful.
 **Validates: Requirements 11.3**
 
-### Property 10: Webhook Signature Validation
-*For any* incoming webhook, the system must validate the signature before processing the payload.
-**Validates: Requirements 12.6**
+### Property 8: Meeting Link Validation
+*For any* session with a meeting link, the link must be a valid URL format.
+**Validates: Requirements 12.1**
+
+**Note:** Properties related to payment webhooks, email delivery retry, and webhook signature validation are deferred to post-launch when payment integration is added.
 
 ## Error Handling
 
@@ -224,9 +228,9 @@ See architecture-diagram.md for complete ER diagram.
 - Database cache: Supabase built-in query cache
 
 ### Load Balancing
-- Vercel Edge Network (automatic)
+- GitHub Pages CDN (automatic)
 - Supabase connection pooler (automatic)
-- Cloudinary CDN (automatic)
+- Supabase Storage CDN (automatic)
 
 ## Security Measures
 
@@ -250,40 +254,40 @@ See architecture-diagram.md for complete ER diagram.
 - GDPR compliance tools
 
 ### Attack Prevention
-- SQL injection: Parameterized queries
+- SQL injection: Parameterized queries (Supabase handles automatically)
 - XSS: Input sanitization
 - CSRF: SameSite cookies
-- DDoS: Rate limiting + Vercel protection
+- DDoS: Rate limiting + Supabase protection + CAPTCHA
 - Brute force: Account lockout after 5 failed attempts
+- API abuse: CAPTCHA on sign-up, rate limiting per IP
 
 ## Deployment Strategy
 
 ### Environments
-1. **Development**: Local Supabase + Vite dev server
-2. **Staging**: Vercel preview + Supabase staging project
-3. **Production**: Vercel production + Supabase production project
+1. **Development**: Local development + Supabase project
+2. **Production**: GitHub Pages + Supabase production project
 
 ### CI/CD Pipeline
 ```
 1. Push to GitHub
-2. Run tests (Vitest)
-3. Build frontend (Vite)
-4. Deploy to Vercel
-5. Run smoke tests
-6. Notify team
+2. Run tests (Vitest) - optional
+3. Build frontend (Vite) - npm run build
+4. Commit built files to docs/
+5. Push to GitHub
+6. GitHub Pages auto-deploys
 ```
 
 ### Database Migrations
 - Use Supabase migrations
 - Version controlled in Git
-- Applied automatically on deploy
+- Applied manually via Supabase Dashboard or CLI
 - Rollback capability
 
 ### Monitoring
-- Vercel Analytics: Performance metrics
-- Supabase Dashboard: Database metrics
-- Sentry: Error tracking
-- Custom dashboards: Business metrics
+- GitHub Pages: Hosting status
+- Supabase Dashboard: Database metrics, API usage, auth events
+- Browser DevTools: Frontend performance
+- Supabase Logs: Error tracking
 
 ## Scalability Plan
 
@@ -307,23 +311,42 @@ See architecture-diagram.md for complete ER diagram.
 
 ## Cost Optimization
 
-### Free Tier Strategy
-- Supabase: Free up to 500MB + 50k MAU
-- Vercel: Free for hobby projects
-- Cloudinary: Free 25GB storage
-- Resend: Free 100 emails/day
+### Free Tier Strategy (MVP Launch)
+- **GitHub Pages**: Free unlimited bandwidth
+- **Supabase Free Tier**: 
+  - 500MB database storage
+  - 50,000 monthly active users
+  - 1GB file storage
+  - 2GB bandwidth
+  - Unlimited API requests (with rate limiting)
 
-### Paid Tier Costs
-- Supabase Pro: $25/month (2GB + 100k MAU)
-- Vercel Pro: $20/month (unlimited bandwidth)
-- Cloudinary Plus: $89/month (100GB)
-- Resend Pro: $20/month (50k emails)
+**Total Cost: $0/month** 🎉
+
+### Scaling Path (When Needed)
+
+**Phase 1: 1k-10k users**
+- Supabase Pro: $25/month
+  - 8GB database
+  - 100k MAU
+  - 100GB file storage
+  - 250GB bandwidth
+
+**Phase 2: 10k-50k users**
+- Supabase Pro: $25/month (same tier)
+- Consider adding:
+  - Payment integration (Stripe): Transaction fees only
+  - Email service (optional): $20/month
+
+**Phase 3: 50k+ users**
+- Supabase Team: $599/month (custom)
+- Payment processing: Stripe fees
+- Advanced features as needed
 
 **Estimated Monthly Cost:**
-- 0-1k users: $0
-- 1k-10k users: $50
-- 10k-50k users: $150
-- 50k+ users: $300+
+- 0-10k users: $0
+- 10k-50k users: $25
+- 50k-100k users: $25-50
+- 100k+ users: $599+
 
 ## API Documentation
 
@@ -348,13 +371,21 @@ Response:
 ]
 ```
 
-## Future Enhancements
+## Future Enhancements (Post-Launch)
 
-1. **GraphQL API**: For more flexible queries
-2. **Redis Cache**: For high-traffic endpoints
-3. **Elasticsearch**: For advanced search
-4. **Message Queue**: For async processing
-5. **CDN Optimization**: Multi-region distribution
-6. **AI Features**: Course recommendations
-7. **Mobile Apps**: Native iOS/Android
-8. **Analytics Dashboard**: Instructor insights
+### Phase 1: Monetization
+1. **Stripe Integration**: Payment processing for paid courses
+2. **Automated Zoom API**: Auto-generate meeting links
+3. **Email Marketing**: Newsletter and course updates
+
+### Phase 2: Advanced Features
+4. **GraphQL API**: For more flexible queries
+5. **Redis Cache**: For high-traffic endpoints
+6. **Advanced Search**: Full-text search with filters
+7. **AI Features**: Course recommendations, matching algorithm
+
+### Phase 3: Scale & Mobile
+8. **Mobile Apps**: Native iOS/Android
+9. **Analytics Dashboard**: Instructor insights and metrics
+10. **Multi-region CDN**: Global performance optimization
+11. **Message Queue**: For async processing

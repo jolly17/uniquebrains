@@ -1,5 +1,32 @@
 # Backend Implementation Plan
 
+## Simplified Architecture for MVP Launch
+
+**Technology Stack:**
+- Frontend: GitHub Pages (FREE)
+- Backend: Supabase (FREE tier - 500MB DB, 50k users)
+- Video: Manual meeting links (Zoom/Meet/Teams)
+- Payments: Deferred to post-launch
+
+**Total Cost: $0/month** 🎉
+
+**What We're NOT Building (Yet):**
+- ❌ Vercel Edge Functions
+- ❌ Cloudinary integration
+- ❌ Stripe payment processing
+- ❌ Automated Zoom API
+- ❌ Email marketing service
+
+**What We ARE Building:**
+- ✅ Complete authentication system
+- ✅ Database with RLS policies
+- ✅ File storage (Supabase)
+- ✅ Realtime chat
+- ✅ Manual meeting links for sessions
+- ✅ Search and filtering
+
+---
+
 ## Phase 1: Backend Infrastructure Setup
 
 This plan breaks down backend implementation into focused, incremental tasks.
@@ -152,17 +179,12 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 - [ ] 5.1 Configure Supabase Storage
   - Create storage buckets (profiles, courses, homework)
-  - Set up bucket policies
-  - Configure file size limits
+  - Set up bucket policies and RLS
+  - Configure file size limits (100MB max)
+  - Enable public access for course thumbnails
   - _Requirements: 4.1, 4.2_
 
-- [ ] 5.2 Integrate Cloudinary
-  - Create Cloudinary account
-  - Configure upload presets
-  - Set up image transformations
-  - _Requirements: 4.5_
-
-- [ ] 5.3 Implement file upload functions
+- [ ] 5.2 Implement file upload functions
   - Profile picture upload
   - Course thumbnail upload
   - Resource file upload
@@ -193,70 +215,50 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 7. Create Edge Functions
+- [ ] 7. Implement Video Conferencing Support
 
-- [ ] 7.1 Set up Vercel project
-  - Connect GitHub repository
-  - Configure build settings
-  - Set up environment variables
-  - _Requirements: 13.1, 13.6_
-
-- [ ] 7.2 Create Stripe webhook handler
-  - Validate webhook signatures
-  - Handle payment success events
-  - Create enrollment on payment
-  - Handle payment failures
-  - _Requirements: 6.3, 6.4, 12.5, 12.6_
-
-- [ ] 7.3 Create Zoom integration
-  - Implement create meeting function
-  - Store meeting links in database
-  - Handle meeting updates
+- [ ] 7.1 Add meeting link fields to sessions table
+  - Add meeting_link column (text)
+  - Add meeting_password column (text, optional)
+  - Add meeting_platform column (text, optional: zoom/meet/teams)
+  - Update RLS policies for session management
   - _Requirements: 12.1, 12.2_
 
-- [ ] 7.4 Create email service
-  - Set up Resend/SendGrid
-  - Create email templates
-  - Implement send email function
-  - Handle email failures and retries
-  - _Requirements: 7.1, 7.2, 7.5_
+- [ ] 7.2 Create session management UI
+  - Instructor can add/edit meeting links when creating sessions
+  - Display meeting link to enrolled students
+  - Validate URL format for meeting links
+  - Support for Zoom, Google Meet, Microsoft Teams, or custom links
+  - _Requirements: 12.1, 12.2_
 
 ---
 
-- [ ] 8. Implement Payment Integration
+- [ ] 8. Prepare for Future Payment Integration (Post-Launch)
 
-- [ ] 8.1 Set up Stripe account
-  - Create Stripe account
-  - Get API keys
-  - Create products and prices
+- [ ] 8.1 Add payment-related fields to database
+  - Add price field to courses table
+  - Add is_free boolean to courses table
+  - Add payment_status to enrollments table
+  - Create payments table structure (for future use)
   - _Requirements: 6.1_
 
-- [ ] 8.2 Implement checkout flow
-  - Create checkout session
-  - Handle redirect to Stripe
-  - Process successful payment
-  - _Requirements: 6.2, 6.3_
-
-- [ ] 8.3 Implement payment tracking
-  - Store payment records
-  - Link payments to enrollments
-  - Handle refunds
-  - _Requirements: 6.4, 6.6_
+**Note**: Actual Stripe integration will be implemented post-launch when monetization is needed.
 
 ---
 
 - [ ] 9. Implement Security Measures
 
-- [ ] 9.1 Set up HTTPS and CORS
-  - Configure HTTPS on Vercel
-  - Set up CORS policies
-  - Configure security headers
-  - _Requirements: 8.1, 8.2_
+- [ ] 9.1 Configure Supabase security settings
+  - Enable CAPTCHA for sign-ups (prevent bot abuse)
+  - Set allowed origins to your domain only
+  - Configure CORS policies in Supabase
+  - Enable email confirmations
+  - _Requirements: 8.1, 8.2, 8.3_
 
-- [ ] 9.2 Implement rate limiting
-  - Set up rate limit middleware
-  - Configure limits per endpoint
-  - Return appropriate error responses
+- [ ] 9.2 Configure rate limiting
+  - Review Supabase built-in rate limiting
+  - Configure custom rate limits if needed
+  - Test rate limit responses
   - _Requirements: 8.3, 14.1, 14.2, 14.3_
 
 - [ ] 9.3 Implement input validation
@@ -273,25 +275,22 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 ---
 
-- [ ] 10. Implement Monitoring
+- [ ] 10. Set up Monitoring
 
-- [ ] 10.1 Set up error tracking
-  - Integrate Sentry
-  - Configure error reporting
-  - Set up error alerts
+- [ ] 10.1 Configure Supabase monitoring
+  - Review Supabase Dashboard metrics
+  - Set up email alerts for critical issues
+  - Monitor API usage and quotas
+  - Track authentication events
   - _Requirements: 10.1, 10.4_
 
-- [ ] 10.2 Set up performance monitoring
-  - Track API response times
-  - Monitor database performance
-  - Track resource usage
+- [ ] 10.2 Set up basic error tracking
+  - Use browser console for frontend errors
+  - Monitor Supabase logs for backend errors
+  - Set up simple error logging
   - _Requirements: 10.2, 10.3_
 
-- [ ] 10.3 Create monitoring dashboards
-  - Set up Supabase dashboard
-  - Create custom metrics dashboard
-  - Configure alert thresholds
-  - _Requirements: 10.5, 10.6_
+**Note**: Advanced monitoring tools (Sentry, custom dashboards) can be added post-launch if needed.
 
 ---
 
@@ -336,56 +335,50 @@ This plan breaks down backend implementation into focused, incremental tasks.
 
 - [ ] 13. Create API Documentation
 
-- [ ] 13.1 Set up Swagger/OpenAPI
-  - Install Swagger tools
-  - Create API specification
-  - Generate documentation
+- [ ] 13.1 Document Supabase API usage
+  - Document authentication flows
+  - Document database queries
+  - Document storage operations
+  - Create developer README
   - _Requirements: 3.6_
 
-- [ ] 13.2 Document all endpoints
-  - Document authentication endpoints
-  - Document course endpoints
-  - Document enrollment endpoints
-  - Document all other endpoints
-  - _Requirements: 3.6_
+**Note**: Supabase provides auto-generated API documentation. Custom Swagger/OpenAPI docs can be added later if needed.
 
 ---
 
-- [ ] 14. Implement CI/CD Pipeline
+- [ ] 14. Set up Deployment Process
 
-- [ ] 14.1 Set up GitHub Actions
-  - Create test workflow
-  - Create build workflow
-  - Create deployment workflow
-  - _Requirements: 13.2, 13.3_
+- [ ] 14.1 Configure GitHub Pages deployment
+  - Ensure docs/ folder is committed
+  - Verify GitHub Pages settings
+  - Test deployment process
+  - _Requirements: 13.1, 13.6_
 
-- [ ] 14.2 Configure deployment
-  - Set up staging deployment
-  - Set up production deployment
-  - Configure rollback mechanism
+- [ ] 14.2 Create deployment documentation
+  - Document build process (npm run build)
+  - Document deployment steps
+  - Create rollback procedure
   - _Requirements: 13.4, 13.5_
+
+**Note**: GitHub Pages deploys automatically when you push to main. No complex CI/CD needed for MVP.
 
 ---
 
 - [ ] 15. Performance Optimization
 
 - [ ] 15.1 Optimize database queries
-  - Analyze slow queries
-  - Add missing indexes
+  - Review and add necessary indexes
+  - Use Supabase query analyzer
   - Optimize complex queries
   - _Requirements: 9.1, 9.3_
 
-- [ ] 15.2 Implement caching
-  - Cache public course list
-  - Cache user profiles
-  - Set up CDN caching
-  - _Requirements: 9.3, 9.5_
+- [ ] 15.2 Implement basic caching
+  - Use browser caching for static assets
+  - Leverage Supabase built-in caching
+  - Implement pagination for large lists
+  - _Requirements: 9.3, 9.5, 9.6_
 
-- [ ] 15.3 Optimize API responses
-  - Implement response compression
-  - Minimize payload sizes
-  - Use pagination effectively
-  - _Requirements: 9.6_
+**Note**: Advanced caching (Redis, CDN optimization) can be added when traffic increases.
 
 ---
 
