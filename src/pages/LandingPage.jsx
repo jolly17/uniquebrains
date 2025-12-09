@@ -113,16 +113,28 @@ function LandingPage() {
             <li>✅ Maintain and improve our technology</li>
             <li>✅ Reach more neurodivergent children worldwide</li>
           </ul>
-          <a 
-            href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="btn-donate"
-          >
-            Donate Now
-          </a>
+          <div className="support-actions">
+            <a 
+              href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-donate"
+            >
+              Donate Now
+            </a>
+            <a 
+              href="mailto:hello@uniquebrains.org?subject=Interested in Volunteering as an Instructor&body=Hi UniqueBrains Team,%0D%0A%0D%0AI'm interested in volunteering my time to teach courses on your platform.%0D%0A%0D%0APlease let me know how I can get started!%0D%0A%0D%0AThank you!" 
+              className="btn-volunteer"
+            >
+              Volunteer as Instructor
+            </a>
+          </div>
           <p className="support-note">
             Every contribution, no matter how small, makes a difference in a child's learning journey.
+          </p>
+          <p className="volunteer-note">
+            <strong>Are you an instructor?</strong> Share your expertise and make a difference! 
+            We're looking for passionate educators to volunteer their time teaching neurodivergent children.
           </p>
         </div>
       </section>

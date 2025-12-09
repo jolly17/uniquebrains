@@ -209,6 +209,14 @@
   padding-left: 0;
 }
 
+.support-actions {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+}
+
 .btn-donate {
   background: #ef4444;
   color: white;
@@ -220,7 +228,6 @@
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
   text-decoration: none;
   display: inline-block;
-  margin: 2rem 0;
 }
 
 .btn-donate:hover {
@@ -229,11 +236,40 @@
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
 }
 
+.btn-volunteer {
+  background: #10b981;
+  color: white;
+  padding: 1.25rem 3rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-volunteer:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
 .support-note {
   font-size: 1rem;
   color: var(--text-secondary);
   font-style: italic;
   margin-top: 1.5rem;
+}
+
+.volunteer-note {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 0.75rem;
+  border: 2px solid rgba(16, 185, 129, 0.3);
 }
 
 /* CTA Section */
@@ -297,13 +333,16 @@
   }
 
   .hero-actions,
-  .cta-actions {
+  .cta-actions,
+  .support-actions {
     flex-direction: column;
     align-items: stretch;
   }
 
   .btn-primary-large,
-  .btn-secondary-large {
+  .btn-secondary-large,
+  .btn-donate,
+  .btn-volunteer {
     width: 100%;
   }
 }
