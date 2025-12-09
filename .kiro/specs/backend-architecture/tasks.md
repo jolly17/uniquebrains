@@ -185,6 +185,7 @@ This plan breaks down backend implementation into focused, incremental tasks.
   - _Requirements: 4.1, 4.2_
 
 - [x] 5.2 Implement file upload functions
+
   - Profile picture upload
   - Course thumbnail upload
   - Resource file upload
