@@ -4,6 +4,10 @@
 -- Requirements: 4.1, 4.2
 -- =====================================================
 
+-- Note: Storage policies must be created in the Supabase Dashboard
+-- This migration only creates the buckets
+-- See STORAGE_SETUP.md for policy creation instructions
+
 -- =====================================================
 -- PROFILE PICTURES BUCKET
 -- Public read, authenticated users can upload their own
@@ -18,35 +22,6 @@ VALUES (
   ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 )
 ON CONFLICT (id) DO NOTHING;
-
--- Policy: Anyone can view profile pictures
-CREATE POLICY "Public profile pictures are viewable by everyone"
-ON storage.objects FOR SELECT
-USING (bucket_id = 'profiles');
-
--- Policy: Users can upload their own profile picture
-CREATE POLICY "Users can upload their own profile picture"
-ON storage.objects FOR INSERT
-WITH CHECK (
-  bucket_id = 'profiles' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
-);
-
--- Policy: Users can update their own profile picture
-CREATE POLICY "Users can update their own profile picture"
-ON storage.objects FOR UPDATE
-USING (
-  bucket_id = 'profiles' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
-);
-
--- Policy: Users can delete their own profile picture
-CREATE POLICY "Users can delete their own profile picture"
-ON storage.objects FOR DELETE
-USING (
-  bucket_id = 'profiles' 
-  AND auth.uid()::text = (storage.foldername(name))[1]
-);
 
 -- =====================================================
 -- COURSE MATERIALS BUCKET
@@ -72,73 +47,6 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Policy: Anyone can view course thumbnails (public folder)
-CREATE POLICY "Public course thumbnails are viewable by everyone"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'courses' 
-  AND (storage.foldername(name))[2] = 'thumbnail'
-);
-
--- Policy: Enrolled students can view course resources
-CREATE POLICY "Enrolled students can view course resources"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'courses'
-  AND (storage.foldername(name))[2] = 'resources'
-  AND (
-    -- Check if user is enrolled in the course
-    EXISTS (
-      SELECT 1 FROM enrollments
-      WHERE enrollments.course_id::text = (storage.foldername(name))[1]
-      AND enrollments.student_id = auth.uid()
-    )
-    OR
-    -- Or if user is the instructor
-    EXISTS (
-      SELECT 1 FROM courses
-      WHERE courses.id::text = (storage.foldername(name))[1]
-      AND courses.instructor_id = auth.uid()
-    )
-  )
-);
-
--- Policy: Instructors can upload course materials
-CREATE POLICY "Instructors can upload course materials"
-ON storage.objects FOR INSERT
-WITH CHECK (
-  bucket_id = 'courses'
-  AND EXISTS (
-    SELECT 1 FROM courses
-    WHERE courses.id::text = (storage.foldername(name))[1]
-    AND courses.instructor_id = auth.uid()
-  )
-);
-
--- Policy: Instructors can update their course materials
-CREATE POLICY "Instructors can update their course materials"
-ON storage.objects FOR UPDATE
-USING (
-  bucket_id = 'courses'
-  AND EXISTS (
-    SELECT 1 FROM courses
-    WHERE courses.id::text = (storage.foldername(name))[1]
-    AND courses.instructor_id = auth.uid()
-  )
-);
-
--- Policy: Instructors can delete their course materials
-CREATE POLICY "Instructors can delete their course materials"
-ON storage.objects FOR DELETE
-USING (
-  bucket_id = 'courses'
-  AND EXISTS (
-    SELECT 1 FROM courses
-    WHERE courses.id::text = (storage.foldername(name))[1]
-    AND courses.instructor_id = auth.uid()
-  )
-);
-
 -- =====================================================
 -- HOMEWORK SUBMISSIONS BUCKET
 -- Private - only student and instructor can access
@@ -162,72 +70,9 @@ VALUES (
 )
 ON CONFLICT (id) DO NOTHING;
 
--- Policy: Students can view their own submissions
-CREATE POLICY "Students can view their own homework submissions"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'homework'
-  AND auth.uid()::text = (storage.foldername(name))[2]  -- student_id in path
-);
-
--- Policy: Instructors can view submissions for their courses
-CREATE POLICY "Instructors can view homework submissions for their courses"
-ON storage.objects FOR SELECT
-USING (
-  bucket_id = 'homework'
-  AND EXISTS (
-    SELECT 1 FROM homework h
-    JOIN courses c ON h.course_id = c.id
-    WHERE h.id::text = (storage.foldername(name))[1]
-    AND c.instructor_id = auth.uid()
-  )
-);
-
--- Policy: Students can upload their own homework submissions
-CREATE POLICY "Students can upload their own homework submissions"
-ON storage.objects FOR INSERT
-WITH CHECK (
-  bucket_id = 'homework'
-  AND auth.uid()::text = (storage.foldername(name))[2]  -- student_id in path
-  AND EXISTS (
-    SELECT 1 FROM homework h
-    JOIN enrollments e ON h.course_id = e.course_id
-    WHERE h.id::text = (storage.foldername(name))[1]
-    AND e.student_id = auth.uid()
-  )
-);
-
--- Policy: Students can update their own submissions (before deadline)
-CREATE POLICY "Students can update their own homework submissions"
-ON storage.objects FOR UPDATE
-USING (
-  bucket_id = 'homework'
-  AND auth.uid()::text = (storage.foldername(name))[2]
-);
-
--- Policy: Students can delete their own submissions
-CREATE POLICY "Students can delete their own homework submissions"
-ON storage.objects FOR DELETE
-USING (
-  bucket_id = 'homework'
-  AND auth.uid()::text = (storage.foldername(name))[2]
-);
-
 -- =====================================================
--- HELPER COMMENTS
+-- POLICIES MUST BE CREATED IN SUPABASE DASHBOARD
 -- =====================================================
-
-COMMENT ON POLICY "Public profile pictures are viewable by everyone" ON storage.objects IS 
-'Allows anyone to view profile pictures. Path format: profiles/{user_id}/avatar.jpg';
-
-COMMENT ON POLICY "Public course thumbnails are viewable by everyone" ON storage.objects IS 
-'Allows anyone to view course thumbnails. Path format: courses/{course_id}/thumbnail/image.jpg';
-
-COMMENT ON POLICY "Enrolled students can view course resources" ON storage.objects IS 
-'Allows enrolled students and instructors to view course resources. Path format: courses/{course_id}/resources/{file_name}';
-
-COMMENT ON POLICY "Students can view their own homework submissions" ON storage.objects IS 
-'Allows students to view their own submissions. Path format: homework/{homework_id}/{student_id}/{file_name}';
-
-COMMENT ON POLICY "Instructors can view homework submissions for their courses" ON storage.objects IS 
-'Allows instructors to view all submissions for their course homework. Path format: homework/{homework_id}/{student_id}/{file_name}';
+-- Storage policies cannot be created via SQL migrations due to permissions
+-- Please create the policies manually in the Supabase Dashboard
+-- See STORAGE_SETUP.md for detailed policy creation instructions

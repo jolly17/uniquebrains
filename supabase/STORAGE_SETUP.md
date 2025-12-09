@@ -35,25 +35,43 @@ We have 3 storage buckets configured:
 
 ## Setup Instructions
 
-### Step 1: Apply Migration
+### Step 1: Apply Migration (Create Buckets)
 
-Run the storage migration in your Supabase project:
+Run migration 008 to create the storage buckets:
 
+**Option A: Using Supabase Dashboard (Recommended)**
+1. Go to your Supabase Dashboard
+2. Navigate to **SQL Editor**
+3. Click **New Query**
+4. Copy and paste the contents of `supabase/migrations/008_create_storage_buckets.sql`
+5. Click **Run**
+
+**Option B: Using Supabase CLI**
 ```bash
-# Using Supabase CLI
 supabase db push
-
-# Or apply manually in Supabase Dashboard
-# SQL Editor → New Query → Paste migration 008 → Run
 ```
 
-### Step 2: Verify Buckets
+### Step 2: Create Storage Policies
+
+Storage policies must be created separately in the Supabase Dashboard:
+
+1. Go to your Supabase Dashboard
+2. Navigate to **SQL Editor**
+3. Click **New Query**
+4. Copy and paste the contents of `supabase/STORAGE_POLICIES.sql`
+5. Click **Run**
+
+**Why separate?** Storage policies require special permissions that migrations don't have by default.
+
+### Step 3: Verify Buckets and Policies
 
 1. Go to Supabase Dashboard
 2. Navigate to **Storage** section
 3. You should see 3 buckets: `profiles`, `courses`, `homework`
+4. Click on each bucket → **Policies** tab
+5. Verify policies are created
 
-### Step 3: Test Upload (Optional)
+### Step 4: Test Upload (Optional)
 
 Test file upload using Supabase Dashboard:
 
