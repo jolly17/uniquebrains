@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
 import LandingPage from './pages/LandingPage'
-import ComingSoon from './pages/ComingSoon'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Marketplace from './pages/Marketplace'
@@ -44,11 +43,8 @@ function App() {
           
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
-            <Route path="marketplace" element={<ComingSoon />} />
+            <Route path="marketplace" element={<Marketplace />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
-            
-            {/* Hidden route for development - access full marketplace */}
-            <Route path="marketplace-dev" element={<Marketplace />} />
             
             <Route path="my-courses" element={
               <ProtectedRoute>
