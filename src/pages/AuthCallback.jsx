@@ -206,18 +206,37 @@ export function AuthCallback() {
             }
           }
 
-          // Redirect based on user role (default to parent if unknown)
+          // Check if user needs onboarding (profile exists but incomplete)
           const userRole = profile?.role || 'parent'
+          const needsOnboarding = !profile?.bio && !profile?.neurodiversity_profile?.length
           
-          console.log('Redirecting returning user with role:', userRole)
+          console.log('User role:', userRole)
+          console.log('Needs onboarding:', needsOnboarding)
+          console.log('Profile completeness:', { 
+            bio: profile?.bio, 
+            neurodiversity_profile: profile?.neurodiversity_profile 
+          })
           
-          if (userRole === 'instructor') {
-            navigate('/instructor/dashboard', { replace: true })
-          } else if (userRole === 'parent') {
-            navigate('/my-courses', { replace: true })
+          if (needsOnboarding) {
+            console.log('Redirecting to onboarding (incomplete profile)')
+            navigate('/onboarding', {
+              state: {
+                userId: session.user.id,
+                userName: profile?.first_name || session.user.user_metadata?.full_name?.split(' ')[0] || 'there'
+              },
+              replace: true
+            })
           } else {
-            // Fallback to marketplace for any other role
-            navigate('/marketplace', { replace: true })
+            console.log('Redirecting returning user with role:', userRole)
+            
+            if (userRole === 'instructor') {
+              navigate('/instructor/dashboard', { replace: true })
+            } else if (userRole === 'parent') {
+              navigate('/my-courses', { replace: true })
+            } else {
+              // Fallback to marketplace for any other role
+              navigate('/marketplace', { replace: true })
+            }
           }
         } else {
           // No session, redirect to login
