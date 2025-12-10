@@ -96,6 +96,10 @@ export function AuthCallback() {
                 avatar_url: metadata.avatar_url || metadata.picture || null
               })
 
+              // Check if there's a role preference in localStorage (from OAuth flow)
+              const preferredRole = localStorage.getItem('oauth_role_preference') || 'student'
+              localStorage.removeItem('oauth_role_preference') // Clean up
+
               const { data: insertData, error: insertError } = await supabase
                 .from('profiles')
                 .insert({
@@ -103,7 +107,7 @@ export function AuthCallback() {
                   email: session.user.email,
                   first_name: firstName,
                   last_name: lastName,
-                  role: 'student', // Default role
+                  role: preferredRole, // Use preferred role or default to student
                   avatar_url: metadata.avatar_url || metadata.picture || null
                 })
                 .select()
