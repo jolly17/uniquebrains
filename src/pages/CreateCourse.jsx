@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import './Auth.css'
 
 function CreateCourse() {
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -67,17 +72,127 @@ function CreateCourse() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
-    console.log('Course created with category:', formData.category)
-    alert('Course created successfully!')
-    navigate('/instructor/dashboard')
+    if (!user) {
+      setError('You must be logged in to create a course')
+      return
+    }
+
+    setLoading(true)
+    setError('')
+
+    try {
+      // Create the course record
+      const courseData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        course_type: formData.courseType,
+        price: 0, // Free for now
+        session_duration: formData.sessionDuration ? parseInt(formData.sessionDuration) : null,
+        enrollment_limit: formData.enrollmentLimit ? parseInt(formData.enrollmentLimit) : null,
+        is_self_paced: formData.isSelfPaced,
+        instructor_id: user.id,
+        status: 'draft', // Start as draft
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      const { data: course, error: courseError } = await supabase
+        .from('courses')
+        .insert([courseData])
+        .select()
+        .single()
+
+      if (courseError) {
+        throw courseError
+      }
+
+      // If it's a group course with a schedule, create sessions
+      if (formData.courseType === 'group' && !formData.isSelfPaced && formData.startDate) {
+        const sessions = []
+        const startDate = new Date(formData.startDate)
+        
+        // Generate sessions based on recurrence
+        if (formData.repeatUnit === 'week' && formData.selectedDays.length > 0) {
+          const endDate = formData.hasEndDate && formData.endDate 
+            ? new Date(formData.endDate) 
+            : new Date(startDate.getTime() + (12 * 7 * 24 * 60 * 60 * 1000)) // 12 weeks default
+
+          let currentDate = new Date(startDate)
+          let sessionNumber = 1
+
+          while (currentDate <= endDate && sessionNumber <= 50) { // Max 50 sessions
+            const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' })
+            
+            if (formData.selectedDays.includes(dayName)) {
+              const sessionDateTime = new Date(currentDate)
+              const [hours, minutes] = formData.sessionTime.split(':')
+              sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+
+              sessions.push({
+                course_id: course.id,
+                title: `Session ${sessionNumber}`,
+                description: `${formData.title} - Session ${sessionNumber}`,
+                session_date: sessionDateTime.toISOString(),
+                duration: parseInt(formData.sessionDuration),
+                meeting_link: '', // Will be added later
+                meeting_platform: null,
+                status: 'scheduled',
+                created_at: new Date().toISOString()
+              })
+              
+              sessionNumber++
+            }
+            
+            // Move to next day
+            currentDate.setDate(currentDate.getDate() + 1)
+          }
+        }
+
+        // Insert sessions if any were created
+        if (sessions.length > 0) {
+          const { error: sessionsError } = await supabase
+            .from('sessions')
+            .insert(sessions)
+
+          if (sessionsError) {
+            console.error('Error creating sessions:', sessionsError)
+            // Don't fail the whole process, just log the error
+          }
+        }
+      }
+
+      console.log('Course created successfully:', course)
+      alert('Course created successfully! You can now add meeting links and publish it.')
+      navigate('/instructor/dashboard')
+      
+    } catch (error) {
+      console.error('Error creating course:', error)
+      setError(error.message || 'Failed to create course. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="create-course">
       <h1>Create New Course</h1>
+      
+      {error && (
+        <div className="error-message" style={{ 
+          background: '#fee2e2', 
+          border: '1px solid #fecaca', 
+          color: '#dc2626', 
+          padding: '0.75rem', 
+          borderRadius: '0.5rem', 
+          marginBottom: '1rem' 
+        }}>
+          {error}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="auth-form" style={{ maxWidth: '600px' }}>
         <div className="form-group">
@@ -359,8 +474,8 @@ function CreateCourse() {
           <button type="button" onClick={() => navigate(-1)} className="btn-secondary btn-full">
             Cancel
           </button>
-          <button type="submit" className="btn-primary btn-full">
-            Create Course
+          <button type="submit" className="btn-primary btn-full" disabled={loading}>
+            {loading ? 'Creating Course...' : 'Create Course'}
           </button>
         </div>
       </form>
