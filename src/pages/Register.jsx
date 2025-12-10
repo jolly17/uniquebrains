@@ -192,6 +192,7 @@ function Register() {
                 className="oauth-button oauth-button-google"
                 onClick={() => {
                   // Store role preference before OAuth
+                  console.log('🔍 Storing OAuth role preference:', selectedRole)
                   localStorage.setItem('oauth_role_preference', selectedRole)
                   // Then trigger OAuth
                   document.querySelector('.oauth-button-google-hidden').click()

@@ -89,6 +89,7 @@ export function AuthCallback() {
               
               // Check if there's a role preference in localStorage (from OAuth flow)
               const preferredRole = localStorage.getItem('oauth_role_preference') || 'parent'
+              console.log('🔍 OAuth role preference from localStorage:', preferredRole)
               localStorage.removeItem('oauth_role_preference') // Clean up
               
               console.log('Attempting to create profile with:', {
@@ -136,7 +137,7 @@ export function AuthCallback() {
                 console.log('Profile data:', insertData)
                 console.log('Name:', firstName, lastName)
                 // Set profile from insert data
-                profile = insertData?.[0] || { role: 'student' }
+                profile = insertData?.[0] || { role: 'parent' }
                 
                 // NEW USER - Redirect to onboarding
                 console.log('Redirecting new user to onboarding...')
