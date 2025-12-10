@@ -18,6 +18,11 @@ import { AuthCallback } from './pages/AuthCallback'
 import Onboarding from './pages/Onboarding'
 import RoleSelection from './pages/RoleSelection'
 
+// Import debug utilities (only in development)
+if (import.meta.env.DEV) {
+  import('./utils/fixProfile.js')
+}
+
 function ProtectedRoute({ children, role }) {
   const { user } = useAuth()
   

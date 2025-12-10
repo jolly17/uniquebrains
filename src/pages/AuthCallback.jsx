@@ -125,7 +125,24 @@ export function AuthCallback() {
                     .select('*')
                     .eq('id', session.user.id)
                     .single()
+                  
                   profile = existingProfile
+                  
+                  // If the existing profile has wrong role, try to update it
+                  if (profile && profile.role === 'student' && preferredRole !== 'student') {
+                    console.log(`🔧 Updating existing profile role from '${profile.role}' to '${preferredRole}'`)
+                    const { error: updateError } = await supabase
+                      .from('profiles')
+                      .update({ role: preferredRole })
+                      .eq('id', session.user.id)
+                    
+                    if (!updateError) {
+                      profile.role = preferredRole
+                      console.log('✅ Profile role updated successfully')
+                    } else {
+                      console.error('❌ Failed to update profile role:', updateError)
+                    }
+                  }
                 } else {
                   console.error('❌ Error creating profile:', insertError)
                   console.error('Error code:', insertError.code)
