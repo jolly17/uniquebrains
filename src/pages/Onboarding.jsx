@@ -1,21 +1,57 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext'
 import './Onboarding.css'
 
 function Onboarding() {
   const navigate = useNavigate()
   const location = useLocation()
-  const userId = location.state?.userId
-  const userName = location.state?.userName || 'there'
+  const { user } = useAuth()
+  const userId = location.state?.userId || user?.id
+  const userName = location.state?.userName || user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
   const [formData, setFormData] = useState({
     neurodiversityProfile: [],
     bio: '',
-    role: 'student' // Default role
+    role: 'parent' // Default to parent instead of student
   })
 
+
+
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Fetch current profile on load
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!userId) return
+
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single()
+
+        if (error) {
+          console.error('Error fetching profile:', error)
+          return
+        }
+
+        if (data) {
+          setFormData({
+            neurodiversityProfile: data.neurodiversity_profile || [],
+            bio: data.bio || '',
+            role: data.role || 'parent'
+          })
+        }
+      } catch (err) {
+        console.error('Profile fetch error:', err)
+      }
+    }
+
+    fetchProfile()
+  }, [userId])
 
   const neurodiversityOptions = [
     { value: 'autism', label: 'Autism Spectrum' },
@@ -109,12 +145,12 @@ function Onboarding() {
             <h2>I want to use UniqueBrains as a:</h2>
             <div className="role-cards">
               <div 
-                className={`role-card ${formData.role === 'student' ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'student' })}
+                className={`role-card ${formData.role === 'parent' ? 'selected' : ''}`}
+                onClick={() => setFormData({ ...formData, role: 'parent' })}
               >
-                <div className="role-icon">🎓</div>
-                <h3>Student</h3>
-                <p>Learn new skills</p>
+                <div className="role-icon">👨‍👩‍👧‍👦</div>
+                <h3>Parent</h3>
+                <p>Manage my children's learning</p>
               </div>
               <div 
                 className={`role-card ${formData.role === 'instructor' ? 'selected' : ''}`}
@@ -124,28 +160,54 @@ function Onboarding() {
                 <h3>Instructor</h3>
                 <p>Teach and inspire</p>
               </div>
-              <div 
-                className={`role-card ${formData.role === 'parent' ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'parent' })}
-              >
-                <div className="role-icon">👨‍👩‍👧‍👦</div>
-                <h3>Parent</h3>
-                <p>Manage children's learning</p>
-              </div>
+            </div>
+            <p className="role-note">
+              <small>Note: Student profiles are created by parents during setup</small>
+            </p>
+          </div>
+
+          {/* Bio Section (for all users) */}
+          <div className="form-section">
+            <h2>Tell us about yourself</h2>
+            <div className="form-group">
+              <label htmlFor="bio">
+                {formData.role === 'instructor' ? 'Teaching Experience & Approach' : 'About You'}
+              </label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                placeholder={
+                  formData.role === 'instructor' 
+                    ? "Share your teaching experience, approach, and what makes you passionate about education..."
+                    : "Tell us a bit about yourself and your family..."
+                }
+                rows="4"
+              />
             </div>
           </div>
 
-          {/* Learning Style (for students) */}
-          {formData.role === 'student' && (
+          {/* Neurodiversity Profile (optional for all) */}
+          {(formData.role === 'parent' || formData.role === 'instructor') && (
             <div className="form-section">
-              <h2>Your Learning Style</h2>
+              <h2>
+                {formData.role === 'instructor' ? 'Your Teaching Specializations' : 'Family Neurodiversity Profile'}
+              </h2>
               <p className="section-description">
-                Help us understand what makes your mind unique so instructors can provide the best support. 
-                This information is private and only shared with your enrolled instructors.
+                {formData.role === 'instructor' 
+                  ? "What neurodiversity areas do you specialize in or have experience teaching? This helps parents find the right match."
+                  : "Help us understand your family's unique needs. This information helps match you with the right instructors and is kept private."
+                }
               </p>
 
               <div className="form-group">
-                <label>What's unique about your mind? (Optional - Select all that apply)</label>
+                <label>
+                  {formData.role === 'instructor' 
+                    ? 'Neurodiversity areas you specialize in (Optional - Select all that apply)'
+                    : 'Family neurodiversity profile (Optional - Select all that apply)'
+                  }
+                </label>
                 <div className="checkbox-grid">
                   {neurodiversityOptions.map(option => (
                     <label key={option.value} className="checkbox-label">
