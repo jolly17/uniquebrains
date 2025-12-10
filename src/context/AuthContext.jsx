@@ -37,6 +37,11 @@ export function AuthProvider({ children }) {
         getCurrentUserProfile().then(({ profile }) => {
           if (profile) {
             setProfile(profile)
+            
+            // If user is a parent, load their students
+            if (profile.role === 'parent') {
+              loadStudents(user.id)
+            }
           }
           setLoading(false)
         })
@@ -65,6 +70,30 @@ export function AuthProvider({ children }) {
       subscription?.unsubscribe()
     }
   }, [])
+
+  const loadStudents = async (parentId) => {
+    try {
+      const { data: studentsData, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('parent_id', parentId)
+        .order('created_at', { ascending: true })
+
+      if (error) {
+        console.error('Error loading students:', error)
+        return
+      }
+
+      setStudents(studentsData || [])
+      
+      // Set first student as active if none selected
+      if (studentsData && studentsData.length > 0 && !activeStudent) {
+        setActiveStudent(studentsData[0])
+      }
+    } catch (err) {
+      console.error('Load students error:', err)
+    }
+  }
 
   const login = async (email, password) => {
     const { user, session, profile, error } = await authSignIn(email, password)
@@ -101,26 +130,52 @@ export function AuthProvider({ children }) {
     return { user, error: null }
   }
 
-  const addStudent = (studentData) => {
-    const newStudent = {
-      id: `student-${Date.now()}`,
-      ...studentData,
-      enrolledCourses: [],
-      createdAt: new Date().toISOString()
+  const addStudent = async (studentData) => {
+    if (!user || profile?.role !== 'parent') {
+      console.error('Only parents can add students')
+      return { error: 'Only parents can add students' }
     }
-    
-    const updatedStudents = [...students, newStudent]
-    setStudents(updatedStudents)
-    localStorage.setItem(`students_${user.id}`, JSON.stringify(updatedStudents))
-    localStorage.setItem('students', JSON.stringify(updatedStudents))
-    
-    // Set as active if first student
-    if (updatedStudents.length === 1) {
-      setActiveStudent(newStudent)
-      localStorage.setItem('activeStudent', JSON.stringify(newStudent))
+
+    try {
+      // Create student in dedicated students table
+      const studentRecord = {
+        parent_id: user.id, // Link to parent
+        first_name: studentData.firstName,
+        last_name: profile?.last_name || studentData.lastName || 'Student',
+        age: parseInt(studentData.age),
+        date_of_birth: studentData.dateOfBirth || null,
+        grade_level: studentData.gradeLevel || null,
+        neurodiversity_profile: studentData.neurodiversityProfile || [],
+        other_needs: studentData.otherNeeds || null,
+        interests: studentData.interests || [],
+        bio: studentData.bio || null
+      }
+
+      const { data: newStudent, error } = await supabase
+        .from('students')
+        .insert([studentRecord])
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error creating student:', error)
+        return { error: error.message }
+      }
+
+      // Update local state
+      const updatedStudents = [...students, newStudent]
+      setStudents(updatedStudents)
+      
+      // Set as active if first student
+      if (updatedStudents.length === 1) {
+        setActiveStudent(newStudent)
+      }
+
+      return { student: newStudent, error: null }
+    } catch (err) {
+      console.error('Student creation error:', err)
+      return { error: err.message }
     }
-    
-    return newStudent
   }
 
   const updateStudent = (studentId, updates) => {
