@@ -17,6 +17,14 @@ function Onboarding() {
     role: 'parent' // Default to parent instead of student
   })
 
+  const [students, setStudents] = useState([])
+  const [currentStudent, setCurrentStudent] = useState({
+    firstName: '',
+    age: '',
+    neurodiversityProfile: [],
+    otherNeeds: ''
+  })
+
 
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -89,6 +97,52 @@ function Onboarding() {
     })
   }
 
+  const handleStudentChange = (e) => {
+    setCurrentStudent({
+      ...currentStudent,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleStudentNeurodiversityChange = (value) => {
+    const currentProfile = currentStudent.neurodiversityProfile
+    if (currentProfile.includes(value)) {
+      setCurrentStudent({
+        ...currentStudent,
+        neurodiversityProfile: currentProfile.filter(item => item !== value)
+      })
+    } else {
+      setCurrentStudent({
+        ...currentStudent,
+        neurodiversityProfile: [...currentProfile, value]
+      })
+    }
+  }
+
+  const addStudent = () => {
+    if (!currentStudent.firstName || !currentStudent.age) {
+      alert('Please fill in student name and age')
+      return
+    }
+
+    const newStudent = {
+      ...currentStudent,
+      id: Date.now() // Temporary ID
+    }
+
+    setStudents([...students, newStudent])
+    setCurrentStudent({
+      firstName: '',
+      age: '',
+      neurodiversityProfile: [],
+      otherNeeds: ''
+    })
+  }
+
+  const removeStudent = (studentId) => {
+    setStudents(students.filter(s => s.id !== studentId))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -124,6 +178,41 @@ function Onboarding() {
       if (error) {
         console.error('Error updating profile:', error)
         alert('Failed to save profile. Please try again.')
+        setIsSubmitting(false)
+        return
+      }
+
+      // Create student profiles if parent
+      if (formData.role === 'parent' && students.length > 0) {
+        console.log('Creating student profiles:', students)
+        
+        const studentProfiles = students.map(student => ({
+          first_name: student.firstName,
+          last_name: '', // We'll add last name field later if needed
+          email: `${student.firstName.toLowerCase()}.${userId.slice(0,8)}@student.local`, // Temporary email
+          role: 'student',
+          parent_id: userId,
+          neurodiversity_profile: student.neurodiversityProfile,
+          bio: student.otherNeeds,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }))
+
+        const { error: studentsError } = await supabase
+          .from('profiles')
+          .insert(studentProfiles)
+
+        if (studentsError) {
+          console.error('Error creating student profiles:', studentsError)
+          alert('Profile saved but failed to create student profiles. You can add them later.')
+        } else {
+          console.log('✅ Student profiles created successfully')
+        }
+      }
+
+      // Validate parent has added at least one student
+      if (formData.role === 'parent' && students.length === 0) {
+        alert('Please add at least one student to continue.')
         setIsSubmitting(false)
         return
       }
@@ -283,6 +372,129 @@ function Onboarding() {
                     rows="3"
                     placeholder="Describe any other learning needs or accommodations..."
                   />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Student Creation (for parents) */}
+          {formData.role === 'parent' && (
+            <div className="form-section">
+              <h2>Add Your Children</h2>
+              <p className="section-description">
+                Create profiles for your children so you can enroll them in courses and track their progress.
+              </p>
+
+              {/* Current Student Form */}
+              <div className="student-form">
+                <h3>Add a Student</h3>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="studentFirstName">Student's First Name</label>
+                    <input
+                      id="studentFirstName"
+                      name="firstName"
+                      type="text"
+                      value={currentStudent.firstName}
+                      onChange={handleStudentChange}
+                      placeholder="Enter student's name"
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="studentAge">Age</label>
+                    <input
+                      id="studentAge"
+                      name="age"
+                      type="number"
+                      value={currentStudent.age}
+                      onChange={handleStudentChange}
+                      min="3"
+                      max="18"
+                      placeholder="Age"
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Student's Learning Profile (Optional)</label>
+                  <p className="field-description">
+                    Help instructors understand your child's unique learning style and needs.
+                  </p>
+                  <div className="checkbox-grid">
+                    {neurodiversityOptions.map(option => (
+                      <label key={option.value} className="checkbox-label">
+                        <input
+                          type="checkbox"
+                          checked={currentStudent.neurodiversityProfile.includes(option.value)}
+                          onChange={() => handleStudentNeurodiversityChange(option.value)}
+                        />
+                        <span>{option.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {currentStudent.neurodiversityProfile.includes('other') && (
+                  <div className="form-group">
+                    <label htmlFor="otherNeeds">Please specify other needs</label>
+                    <textarea
+                      id="otherNeeds"
+                      name="otherNeeds"
+                      value={currentStudent.otherNeeds}
+                      onChange={handleStudentChange}
+                      rows="3"
+                      placeholder="Describe any specific learning needs, accommodations, or other important information..."
+                    />
+                  </div>
+                )}
+
+                <button 
+                  type="button" 
+                  onClick={addStudent}
+                  className="btn-secondary"
+                  disabled={!currentStudent.firstName || !currentStudent.age}
+                >
+                  Add Student
+                </button>
+              </div>
+
+              {/* Added Students List */}
+              {students.length > 0 && (
+                <div className="students-list">
+                  <h3>Added Students ({students.length})</h3>
+                  {students.map(student => (
+                    <div key={student.id} className="student-card">
+                      <div className="student-info">
+                        <h4>{student.firstName}</h4>
+                        <p>Age: {student.age}</p>
+                        {student.neurodiversityProfile.length > 0 && (
+                          <div className="student-badges">
+                            {student.neurodiversityProfile.map(profile => (
+                              <span key={profile} className="profile-badge">
+                                {neurodiversityOptions.find(opt => opt.value === profile)?.label || profile}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {student.otherNeeds && (
+                          <p className="student-notes">{student.otherNeeds}</p>
+                        )}
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => removeStudent(student.id)}
+                        className="btn-danger-small"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {students.length === 0 && (
+                <div className="empty-students">
+                  <p>No students added yet. Please add at least one student to continue.</p>
                 </div>
               )}
             </div>
