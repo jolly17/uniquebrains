@@ -8,7 +8,7 @@ function Onboarding() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
-  const userId = location.state?.userId || user?.id
+  const userId = user?.id || location.state?.userId
   const userName = location.state?.userName || user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
   const [formData, setFormData] = useState({
@@ -24,7 +24,12 @@ function Onboarding() {
   // Fetch current profile on load
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!userId) return
+      if (!userId) {
+        console.error('No user ID available for onboarding')
+        return
+      }
+      
+      console.log('Fetching profile for user ID:', userId)
 
       try {
         const { data, error } = await supabase
@@ -86,9 +91,23 @@ function Onboarding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!userId) {
+      alert('User not authenticated. Please log in again.')
+      navigate('/login')
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
+      console.log('Updating profile for user ID:', userId)
+      console.log('Profile data:', {
+        role: formData.role,
+        bio: formData.bio,
+        neurodiversity_profile: formData.neurodiversityProfile
+      })
+
       // Prepare profile data
       const profileData = {
         role: formData.role,
@@ -127,6 +146,37 @@ function Onboarding() {
   const handleSkip = () => {
     // Skip onboarding and go to marketplace
     navigate('/marketplace')
+  }
+
+  // Show loading if user not loaded yet
+  if (!user) {
+    return (
+      <div className="onboarding-container">
+        <div className="onboarding-card">
+          <div className="onboarding-header">
+            <h1>Loading...</h1>
+            <p>Please wait while we set up your account.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if no user ID
+  if (!userId) {
+    return (
+      <div className="onboarding-container">
+        <div className="onboarding-card">
+          <div className="onboarding-header">
+            <h1>Authentication Error</h1>
+            <p>Please log in again to continue.</p>
+            <button onClick={() => navigate('/login')} className="btn-primary">
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
