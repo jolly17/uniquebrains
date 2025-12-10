@@ -57,8 +57,11 @@ export function AuthCallback() {
             profileError = err
           }
 
+          console.log('🔍 Profile check result:', { profile, profileError })
+
           // If no profile exists or there was an error, try to create one
           if (!profile || profileError) {
+            console.log('🔄 No profile found, creating new profile...')
             try {
               // Extract name from user metadata
               // Google provides: full_name, name, given_name, family_name
@@ -170,6 +173,36 @@ export function AuthCallback() {
             } catch (insertErr) {
               console.error('Insert error:', insertErr)
               // Continue anyway
+            }
+          } else {
+            console.log('✅ Profile already exists')
+            console.log('📋 Existing profile role:', profile?.role)
+            
+            // If existing profile has wrong role, update it
+            if (profile && profile.role === 'student') {
+              console.log('🔧 Existing profile has student role, checking for role preference...')
+              const preferredRole = localStorage.getItem('oauth_role_preference') || 'parent'
+              console.log('🔍 OAuth role preference from localStorage:', preferredRole)
+              localStorage.removeItem('oauth_role_preference') // Clean up
+              
+              if (preferredRole !== 'student') {
+                console.log(`🔧 Updating existing profile role from 'student' to '${preferredRole}'`)
+                try {
+                  const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({ role: preferredRole })
+                    .eq('id', session.user.id)
+                  
+                  if (!updateError) {
+                    profile.role = preferredRole
+                    console.log('✅ Profile role updated successfully')
+                  } else {
+                    console.error('❌ Failed to update profile role:', updateError)
+                  }
+                } catch (updateErr) {
+                  console.error('❌ Update error:', updateErr)
+                }
+              }
             }
           }
 
