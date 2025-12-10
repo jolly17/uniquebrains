@@ -69,6 +69,9 @@ function Login() {
               <p>Teach and inspire</p>
             </div>
           </div>
+          <p className="role-note">
+            <small>Note: Students don't have their own login - parents manage student profiles</small>
+          </p>
         </div>
         
         <div className="oauth-section">

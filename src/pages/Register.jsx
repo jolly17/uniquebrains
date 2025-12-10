@@ -178,6 +178,9 @@ function Register() {
                 <p>Teach and inspire</p>
               </div>
             </div>
+            <p className="role-note">
+              <small>Note: Student profiles are created by parents during onboarding</small>
+            </p>
           </div>
         )}
         

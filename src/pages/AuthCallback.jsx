@@ -87,18 +87,18 @@ export function AuthCallback() {
                 lastName = nameParts.slice(1).join(' ') || ''
               }
               
+              // Check if there's a role preference in localStorage (from OAuth flow)
+              const preferredRole = localStorage.getItem('oauth_role_preference') || 'parent'
+              localStorage.removeItem('oauth_role_preference') // Clean up
+              
               console.log('Attempting to create profile with:', {
                 id: session.user.id,
                 email: session.user.email,
                 first_name: firstName,
                 last_name: lastName,
-                role: 'student',
+                role: preferredRole,
                 avatar_url: metadata.avatar_url || metadata.picture || null
               })
-
-              // Check if there's a role preference in localStorage (from OAuth flow)
-              const preferredRole = localStorage.getItem('oauth_role_preference') || 'student'
-              localStorage.removeItem('oauth_role_preference') // Clean up
 
               const { data: insertData, error: insertError } = await supabase
                 .from('profiles')
@@ -107,7 +107,7 @@ export function AuthCallback() {
                   email: session.user.email,
                   first_name: firstName,
                   last_name: lastName,
-                  role: preferredRole, // Use preferred role or default to student
+                  role: preferredRole, // Use preferred role or default to parent
                   avatar_url: metadata.avatar_url || metadata.picture || null,
                   neurodiversity_profile: [], // Initialize as empty array
                   expertise: [] // Initialize as empty array
@@ -155,8 +155,8 @@ export function AuthCallback() {
             }
           }
 
-          // Redirect based on user role (default to student if unknown)
-          const userRole = profile?.role || 'student'
+          // Redirect based on user role (default to parent if unknown)
+          const userRole = profile?.role || 'parent'
           
           console.log('Redirecting returning user with role:', userRole)
           
@@ -165,6 +165,7 @@ export function AuthCallback() {
           } else if (userRole === 'parent') {
             navigate('/my-courses', { replace: true })
           } else {
+            // Fallback to marketplace for any other role
             navigate('/marketplace', { replace: true })
           }
         } else {

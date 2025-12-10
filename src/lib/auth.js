@@ -21,7 +21,7 @@ import { supabase } from './supabase'
  * 
  * Requirements: 1.1 - User registration with email verification
  */
-export async function signUp({ email, password, firstName, lastName, role = 'student' }) {
+export async function signUp({ email, password, firstName, lastName, role = 'parent' }) {
   try {
     // Validate inputs
     if (!email || !password || !firstName || !lastName) {
@@ -41,13 +41,13 @@ export async function signUp({ email, password, firstName, lastName, role = 'stu
       }
     }
 
-    // Validate role
-    const validRoles = ['student', 'instructor', 'parent', 'admin']
+    // Validate role (students don't have login accounts)
+    const validRoles = ['instructor', 'parent', 'admin']
     if (!validRoles.includes(role)) {
       return {
         user: null,
         session: null,
-        error: { message: 'Invalid role specified' }
+        error: { message: 'Invalid role specified. Only parents and instructors can create accounts.' }
       }
     }
 
