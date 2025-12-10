@@ -106,9 +106,11 @@ Create these policies for each bucket:
 
 1. **Go to**: http://localhost:5173
 2. **Click**: "Get Started" or "Sign Up"
-3. **Create Account**: Use a test email (e.g., instructor@test.com)
-4. **Select Role**: Choose "Instructor"
-5. **Complete Profile**: 
+3. **Select Role**: Choose "Instructor" 
+4. **Create Account**: Use a test email (e.g., instructor@test.com)
+5. **Complete Registration**: Fill in name, email, password
+6. **Verify Email**: Check email and click verification link
+7. **Complete Profile**: 
    - Upload profile picture
    - Fill in bio, expertise, etc.
    - Set hourly rate
@@ -171,14 +173,16 @@ Create these policies for each bucket:
 
 ## 👨‍👩‍👧‍👦 Testing as Parent
 
-### Test 1: Account Creation
+### Test 1: Account Creation & Student Profile Setup
 
 1. **Go to**: http://localhost:5173
-2. **Create Account**: Use different email (parent@test.com)
-3. **Select Role**: Choose "Parent"
-4. **Add Children**:
-   - Child 1: Name, age, interests
+2. **Select Role**: Choose "Parent"
+3. **Create Account**: Use different email (parent@test.com)
+4. **Complete Registration**: Fill in parent details
+5. **Onboarding - Add Children (Students)**:
+   - Child 1: Name, age, neurodiversity profile
    - Child 2: (if applicable)
+   - Note: Students don't get login credentials - only profiles
 
 ### Test 2: Course Discovery
 
@@ -210,15 +214,15 @@ Create these policies for each bucket:
    - (Payment would be here in full version)
    - Receive confirmation
 
-### Test 4: Student Experience
+### Test 4: Student Experience (Managed by Parent)
 
-1. **Access Course**: Go to "My Courses"
-2. **View Schedule**: See upcoming sessions
-3. **Join Session**: Click meeting link
-4. **Access Resources**: Download course materials
-5. **Submit Homework**:
+1. **Parent Access**: Go to "My Courses" 
+2. **Select Student**: Choose which child's courses to view
+3. **View Schedule**: See upcoming sessions for selected student
+4. **Join Session**: Parent helps student click meeting link
+5. **Submit Homework** (Parent assists):
    - View assignment details
-   - Upload completed work
+   - Upload completed work on behalf of student
    - Submit before deadline
 
 ---
