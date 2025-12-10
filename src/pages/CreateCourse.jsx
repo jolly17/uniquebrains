@@ -37,25 +37,7 @@ function CreateCourse() {
     })
   }
 
-  const handleDayToggle = (day) => {
-    const currentDays = formData.selectedDays
-    if (currentDays.includes(day)) {
-      setFormData({
-        ...formData,
-        selectedDays: currentDays.filter(d => d !== day)
-      })
-      // Clear time when day is unchecked
-      setDayTimes({
-        ...dayTimes,
-        [day]: ''
-      })
-    } else {
-      setFormData({
-        ...formData,
-        selectedDays: [...currentDays, day]
-      })
-    }
-  }
+
 
   const toggleDay = (day) => {
     const currentDays = formData.selectedDays
