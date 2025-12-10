@@ -187,19 +187,17 @@ function Onboarding() {
         console.log('Creating student profiles:', students)
         
         const studentProfiles = students.map(student => ({
-          first_name: student.firstName,
-          last_name: '', // We'll add last name field later if needed
-          email: `${student.firstName.toLowerCase()}.${userId.slice(0,8)}@student.local`, // Temporary email
-          role: 'student',
           parent_id: userId,
-          neurodiversity_profile: student.neurodiversityProfile,
-          bio: student.otherNeeds,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          first_name: student.firstName,
+          last_name: student.lastName || '',
+          age: student.age ? parseInt(student.age) : null,
+          neurodiversity_profile: student.neurodiversityProfile || [],
+          other_needs: student.otherNeeds || '',
+          bio: `Student managed by parent`
         }))
 
         const { error: studentsError } = await supabase
-          .from('profiles')
+          .from('students')
           .insert(studentProfiles)
 
         if (studentsError) {
