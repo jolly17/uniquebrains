@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import NeurodiversityBadges from '../components/NeurodiversityBadges'
 import './InstructorDashboard.css'
 
 function InstructorDashboard() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -58,6 +59,22 @@ function InstructorDashboard() {
       <div className="dashboard-header">
         <div>
           <h1>Instructor Dashboard</h1>
+          <div className="instructor-profile-summary">
+            <p>Welcome back, {profile?.first_name || 'Instructor'}!</p>
+            {profile?.neurodiversity_profile && profile.neurodiversity_profile.length > 0 && (
+              <NeurodiversityBadges 
+                profile={profile.neurodiversity_profile} 
+                size="small" 
+                showLabel={false}
+              />
+            )}
+            {(!profile?.bio || !profile?.neurodiversity_profile || profile.neurodiversity_profile.length === 0) && (
+              <div className="profile-incomplete-notice">
+                <span>📝 Complete your instructor profile to help parents find you</span>
+                <Link to="/onboarding" className="btn-link">Complete Profile</Link>
+              </div>
+            )}
+          </div>
           {pendingRequests > 0 && (
             <div className="notification-alert">
               🔔 You have {pendingRequests} pending enrollment request{pendingRequests > 1 ? 's' : ''}

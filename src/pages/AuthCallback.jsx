@@ -108,7 +108,9 @@ export function AuthCallback() {
                   first_name: firstName,
                   last_name: lastName,
                   role: preferredRole, // Use preferred role or default to student
-                  avatar_url: metadata.avatar_url || metadata.picture || null
+                  avatar_url: metadata.avatar_url || metadata.picture || null,
+                  neurodiversity_profile: [], // Initialize as empty array
+                  expertise: [] // Initialize as empty array
                 })
                 .select()
 

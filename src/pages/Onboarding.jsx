@@ -11,7 +11,7 @@ function Onboarding() {
 
   const [formData, setFormData] = useState({
     neurodiversityProfile: [],
-    otherNeeds: '',
+    bio: '',
     role: 'student' // Default role
   })
 
@@ -53,14 +53,17 @@ function Onboarding() {
     setIsSubmitting(true)
 
     try {
+      // Prepare profile data
+      const profileData = {
+        role: formData.role,
+        bio: formData.bio,
+        neurodiversity_profile: formData.neurodiversityProfile
+      }
+
       // Update profile with onboarding data
       const { error } = await supabase
         .from('profiles')
-        .update({
-          role: formData.role,
-          // Store as JSON in a text field or create separate columns
-          bio: formData.otherNeeds
-        })
+        .update(profileData)
         .eq('id', userId)
 
       if (error) {
@@ -159,11 +162,11 @@ function Onboarding() {
 
               {formData.neurodiversityProfile.includes('other') && (
                 <div className="form-group">
-                  <label htmlFor="otherNeeds">Please specify</label>
+                  <label htmlFor="bio">Please specify</label>
                   <textarea
-                    id="otherNeeds"
-                    name="otherNeeds"
-                    value={formData.otherNeeds}
+                    id="bio"
+                    name="bio"
+                    value={formData.bio}
                     onChange={handleInputChange}
                     rows="3"
                     placeholder="Describe any other learning needs or accommodations..."
@@ -176,20 +179,39 @@ function Onboarding() {
           {/* Teaching Style (for instructors) */}
           {formData.role === 'instructor' && (
             <div className="form-section">
-              <h2>Your Teaching Approach</h2>
+              <h2>Your Teaching Profile</h2>
               <p className="section-description">
-                Share what makes your teaching unique to help students understand your approach.
+                Help parents find the right instructor for their children by sharing your background and expertise.
               </p>
 
               <div className="form-group">
-                <label htmlFor="otherNeeds">Tell us about your teaching style (Optional)</label>
+                <label>Your neurodiversity profile (Optional - helps parents find instructors who understand their children)</label>
+                <p className="field-description">
+                  Many of our best instructors are neurodiverse themselves and bring unique understanding to their teaching.
+                </p>
+                <div className="checkbox-grid">
+                  {neurodiversityOptions.map(option => (
+                    <label key={option.value} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={formData.neurodiversityProfile.includes(option.value)}
+                        onChange={() => handleCheckboxChange(option.value)}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="bio">About your teaching approach (Optional)</label>
                 <textarea
-                  id="otherNeeds"
-                  name="otherNeeds"
-                  value={formData.otherNeeds}
+                  id="bio"
+                  name="bio"
+                  value={formData.bio}
                   onChange={handleInputChange}
                   rows="4"
-                  placeholder="What makes your teaching approach unique? Any specializations or experience with neurodiverse learners?"
+                  placeholder="What makes your teaching approach unique? Experience with neurodiverse learners? Special techniques or accommodations you use?"
                 />
               </div>
             </div>
