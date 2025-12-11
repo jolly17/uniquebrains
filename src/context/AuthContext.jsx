@@ -7,6 +7,7 @@
  */
 
 import { createContext, useContext, useState, useEffect } from 'react'
+import { supabase } from '../lib/supabase'
 import { 
   signIn as authSignIn, 
   signUp as authSignUp, 
@@ -51,7 +52,7 @@ export function AuthProvider({ children }) {
     })
 
     // Listen for auth changes
-    const subscription = onAuthStateChange((event, session) => {
+    const subscription = onAuthStateChange((_event, session) => {
       setSession(session)
       setUser(session?.user || null)
       
@@ -59,10 +60,17 @@ export function AuthProvider({ children }) {
         getCurrentUserProfile().then(({ profile }) => {
           if (profile) {
             setProfile(profile)
+            
+            // If user is a parent, load their students
+            if (profile.role === 'parent') {
+              loadStudents(session.user.id)
+            }
           }
         })
       } else {
         setProfile(null)
+        setStudents([])
+        setActiveStudent(null)
       }
     })
 
@@ -131,8 +139,11 @@ export function AuthProvider({ children }) {
   }
 
   const addStudent = async (studentData) => {
+    console.log('➕ Adding student:', studentData)
+    console.log('👤 Current user:', user?.id, 'Role:', profile?.role)
+    
     if (!user || profile?.role !== 'parent') {
-      console.error('Only parents can add students')
+      console.error('❌ Only parents can add students')
       return { error: 'Only parents can add students' }
     }
 
@@ -151,68 +162,127 @@ export function AuthProvider({ children }) {
         bio: studentData.bio || null
       }
 
+      console.log('📝 Student record to insert:', studentRecord)
+
       const { data: newStudent, error } = await supabase
         .from('students')
         .insert([studentRecord])
         .select()
         .single()
 
+      console.log('💾 Insert result:', { newStudent, error })
+
       if (error) {
-        console.error('Error creating student:', error)
+        console.error('❌ Error creating student:', error)
         return { error: error.message }
       }
 
       // Update local state
       const updatedStudents = [...students, newStudent]
       setStudents(updatedStudents)
+      console.log('✅ Students updated:', updatedStudents.length)
       
       // Set as active if first student
       if (updatedStudents.length === 1) {
         setActiveStudent(newStudent)
+        console.log('🎯 Set as active student:', newStudent)
       }
 
       return { student: newStudent, error: null }
     } catch (err) {
-      console.error('Student creation error:', err)
+      console.error('💥 Student creation error:', err)
       return { error: err.message }
     }
   }
 
-  const updateStudent = (studentId, updates) => {
-    const updatedStudents = students.map(s => 
-      s.id === studentId ? { ...s, ...updates } : s
-    )
-    setStudents(updatedStudents)
-    localStorage.setItem(`students_${user.id}`, JSON.stringify(updatedStudents))
-    localStorage.setItem('students', JSON.stringify(updatedStudents))
-    
-    // Update active student if it's the one being updated
-    if (activeStudent?.id === studentId) {
-      const updated = updatedStudents.find(s => s.id === studentId)
-      setActiveStudent(updated)
-      localStorage.setItem('activeStudent', JSON.stringify(updated))
+  const updateStudent = async (studentId, updates) => {
+    if (!user || profile?.role !== 'parent') {
+      console.error('Only parents can update students')
+      return { error: 'Only parents can update students' }
+    }
+
+    try {
+      const { data: updatedStudent, error } = await supabase
+        .from('students')
+        .update(updates)
+        .eq('id', studentId)
+        .eq('parent_id', user.id) // Ensure parent owns this student
+        .select()
+        .single()
+
+      if (error) {
+        console.error('Error updating student:', error)
+        return { error: error.message }
+      }
+
+      // Update local state
+      const updatedStudents = students.map(s => 
+        s.id === studentId ? updatedStudent : s
+      )
+      setStudents(updatedStudents)
+      
+      // Update active student if it's the one being updated
+      if (activeStudent?.id === studentId) {
+        setActiveStudent(updatedStudent)
+      }
+
+      return { student: updatedStudent, error: null }
+    } catch (err) {
+      console.error('Student update error:', err)
+      return { error: err.message }
     }
   }
 
-  const deleteStudent = (studentId) => {
-    const updatedStudents = students.filter(s => s.id !== studentId)
-    setStudents(updatedStudents)
-    localStorage.setItem(`students_${user.id}`, JSON.stringify(updatedStudents))
-    localStorage.setItem('students', JSON.stringify(updatedStudents))
-    
-    // Update active student if deleted
-    if (activeStudent?.id === studentId) {
-      const newActive = updatedStudents[0] || null
-      setActiveStudent(newActive)
-      localStorage.setItem('activeStudent', JSON.stringify(newActive))
+  const deleteStudent = async (studentId) => {
+    if (!user || profile?.role !== 'parent') {
+      console.error('Only parents can delete students')
+      return { error: 'Only parents can delete students' }
+    }
+
+    try {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', studentId)
+        .eq('parent_id', user.id) // Ensure parent owns this student
+
+      if (error) {
+        console.error('Error deleting student:', error)
+        return { error: error.message }
+      }
+
+      // Update local state
+      const updatedStudents = students.filter(s => s.id !== studentId)
+      setStudents(updatedStudents)
+      
+      // Update active student if deleted
+      if (activeStudent?.id === studentId) {
+        const newActive = updatedStudents[0] || null
+        setActiveStudent(newActive)
+      }
+
+      return { error: null }
+    } catch (err) {
+      console.error('Student deletion error:', err)
+      return { error: err.message }
     }
   }
 
   const switchStudent = (studentId) => {
-    const student = students.find(s => s.id === studentId)
-    if (student) {
-      setActiveStudent(student)
-      localStorage.setItem('activeStudent', JSON.stringify(student))
+    if (studentId === null) {
+      // Switch to parent
+      setActiveStudent(null)
+    } else {
+      const student = students.find(s => s.id === studentId)
+      if (student) {
+        setActiveStudent(student)
+      }
+    }
+  }
+
+  const refreshStudents = async () => {
+    if (user && profile?.role === 'parent') {
+      await loadStudents(user.id)
     }
   }
 
@@ -251,7 +321,8 @@ export function AuthProvider({ children }) {
       addStudent,
       updateStudent,
       deleteStudent,
-      switchStudent
+      switchStudent,
+      refreshStudents
     }}>
       {children}
     </AuthContext.Provider>

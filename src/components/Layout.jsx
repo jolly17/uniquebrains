@@ -5,10 +5,16 @@ import Logo from './Logo'
 import './Layout.css'
 
 function Layout() {
-  const { user, students, activeStudent, switchStudent, logout } = useAuth()
+  const { user, profile, students, activeStudent, switchStudent, logout } = useAuth()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showStudentSwitcher, setShowStudentSwitcher] = useState(false)
+
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return ''
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  }
 
   const handleLogout = () => {
     logout()
@@ -41,14 +47,14 @@ function Layout() {
             
             {user && (
               <>
-                {user.role === 'parent' && (
+                {profile?.role === 'parent' && (
                   <>
                     <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
                     <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Manage Students</Link>
                   </>
                 )}
                 
-                {user.role === 'instructor' && (
+                {profile?.role === 'instructor' && (
                   <>
                     <Link to="/instructor/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
                     <Link to="/instructor/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
@@ -61,8 +67,8 @@ function Layout() {
               {user ? (
                 <>
                   <div className="mobile-user-info">
-                    <span className="user-name">{user.firstName} {user.lastName}</span>
-                    <span className="user-role">({user.role})</span>
+                    <span className="user-name">{profile?.first_name} {profile?.last_name}</span>
+                    <span className="user-role">({profile?.role})</span>
                   </div>
                   <Link to="/profile" className="btn-secondary" onClick={closeMobileMenu}>Profile</Link>
                   <button onClick={handleLogout} className="btn-secondary">Logout</button>
@@ -79,29 +85,46 @@ function Layout() {
           <div className="desktop-header-actions">
             {user ? (
               <div className="user-menu">
-                {user.role === 'parent' && activeStudent && (
+                {profile?.role === 'parent' && (
                   <div className="student-switcher">
                     <button 
                       className="active-student-btn"
                       onClick={() => setShowStudentSwitcher(!showStudentSwitcher)}
                     >
-                      👤 {activeStudent.firstName}
+                      👤 {activeStudent ? capitalizeFirstLetter(activeStudent.first_name) : `${capitalizeFirstLetter(profile?.first_name)} (Me)`}
                       <span className="dropdown-arrow">▼</span>
                     </button>
                     {showStudentSwitcher && (
                       <div className="student-dropdown">
+                        {/* Parent option */}
+                        <button
+                          className={`student-option ${!activeStudent ? 'active' : ''}`}
+                          onClick={() => {
+                            switchStudent(null) // null means parent is active
+                            setShowStudentSwitcher(false)
+                          }}
+                        >
+                          👤 {capitalizeFirstLetter(profile?.first_name)} (Me) {!activeStudent && '✓'}
+                        </button>
+                        
+                        {/* Divider */}
+                        <div className="dropdown-divider"></div>
+                        
+                        {/* Students */}
                         {students.map(student => (
                           <button
                             key={student.id}
-                            className={`student-option ${activeStudent.id === student.id ? 'active' : ''}`}
+                            className={`student-option ${activeStudent?.id === student.id ? 'active' : ''}`}
                             onClick={() => {
                               switchStudent(student.id)
                               setShowStudentSwitcher(false)
                             }}
                           >
-                            {student.firstName} {activeStudent.id === student.id && '✓'}
+                            👶 {capitalizeFirstLetter(student.first_name)} {activeStudent?.id === student.id && '✓'}
                           </button>
                         ))}
+                        
+                        <div className="dropdown-divider"></div>
                         <Link 
                           to="/manage-students" 
                           className="manage-students-link"
@@ -113,8 +136,8 @@ function Layout() {
                     )}
                   </div>
                 )}
-                <span className="user-name">{user.firstName} {user.lastName}</span>
-                <span className="user-role">({user.role})</span>
+                <span className="user-name">{profile?.first_name} {profile?.last_name}</span>
+                <span className="user-role">({profile?.role})</span>
                 <Link to="/profile" className="btn-secondary">Profile</Link>
                 <button onClick={handleLogout} className="btn-secondary">Logout</button>
               </div>

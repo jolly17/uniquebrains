@@ -5,7 +5,6 @@ import { OAuthButton } from '../components/OAuthButton'
 import './Auth.css'
 
 function Register() {
-  const [step, setStep] = useState(1) // 1: Account info, 2: First student (parent only)
   const [selectedRole, setSelectedRole] = useState('parent')
   const [formData, setFormData] = useState({
     firstName: '',
@@ -15,24 +14,10 @@ function Register() {
     confirmPassword: '',
     role: 'parent'
   })
-  const [studentData, setStudentData] = useState({
-    firstName: '',
-    age: '',
-    neurodiversityProfile: [],
-    otherNeeds: ''
-  })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const { register, addStudent } = useAuth()
+  const { register } = useAuth()
   const navigate = useNavigate()
-
-  const neurodiversityOptions = [
-    { value: 'autism', label: 'Autism Spectrum' },
-    { value: 'adhd', label: 'ADHD' },
-    { value: 'dyslexia', label: 'Dyslexia' },
-    { value: 'multiple', label: 'Multiple Conditions' },
-    { value: 'other', label: 'Other' }
-  ]
 
   const handleChange = (e) => {
     setFormData({
@@ -41,29 +26,9 @@ function Register() {
     })
   }
 
-  const handleStudentChange = (e) => {
-    setStudentData({
-      ...studentData,
-      [e.target.name]: e.target.value
-    })
-  }
 
-  const handleNeurodiversityChange = (value) => {
-    const currentProfile = studentData.neurodiversityProfile
-    if (currentProfile.includes(value)) {
-      setStudentData({
-        ...studentData,
-        neurodiversityProfile: currentProfile.filter(v => v !== value)
-      })
-    } else {
-      setStudentData({
-        ...studentData,
-        neurodiversityProfile: [...currentProfile, value]
-      })
-    }
-  }
 
-  const handleAccountSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     
@@ -74,43 +39,14 @@ function Register() {
     
     // Update role in formData
     const updatedFormData = { ...formData, role: selectedRole }
-    setFormData(updatedFormData)
-    
-    // If instructor, complete registration immediately
-    if (selectedRole === 'instructor') {
-      try {
-        const result = await register(updatedFormData)
-        if (result.error) {
-          setError('Registration failed: ' + result.error.message)
-        } else {
-          setSuccess(true)
-        }
-      } catch (err) {
-        setError('Registration failed')
-      }
-    } else {
-      // If parent, move to student info step
-      setStep(2)
-    }
-  }
-
-  const handleStudentSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
     
     try {
-      // Register parent account
-      const result = await register(formData)
-      
+      const result = await register(updatedFormData)
       if (result.error) {
         setError('Registration failed: ' + result.error.message)
-        return
+      } else {
+        setSuccess(true)
       }
-      
-      // Add first student
-      addStudent(studentData)
-      
-      setSuccess(true)
     } catch (err) {
       setError('Registration failed')
     }
@@ -128,7 +64,7 @@ function Register() {
             </p>
             <p className="success-instructions">
               Please click the link in the email to verify your account. 
-              Once verified, you can log in and start your journey with UniqueBrains!
+              Once verified, you can log in and complete your profile setup!
             </p>
             <div className="success-actions">
               <Link to="/login" className="btn-primary">
@@ -150,15 +86,14 @@ function Register() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h2>{step === 1 ? 'Create Your Account' : 'Add Your First Student'}</h2>
+        <h2>Create Your Account</h2>
         <p className="auth-subtitle">
-          {step === 1 ? 'Join UniqueBrains and start your journey' : 'Tell us about your child'}
+          Join UniqueBrains and start your journey
         </p>
         
         {error && <div className="error-message">{error}</div>}
         
-        {step === 1 && (
-          <div className="role-selection">
+        <div className="role-selection">
             <p className="role-label">I want to sign up as:</p>
             <div className="role-cards">
               <div 
@@ -182,11 +117,8 @@ function Register() {
               <small>Note: Student profiles are created by parents during onboarding</small>
             </p>
           </div>
-        )}
         
-        {step === 1 && (
-          <>
-            <div className="oauth-section">
+        <div className="oauth-section">
               <button 
                 type="button"
                 className="oauth-button oauth-button-google"
@@ -215,14 +147,11 @@ function Register() {
               </div>
             </div>
 
-            <div className="divider">
-              <span>or</span>
-            </div>
-          </>
-        )}
+        <div className="divider">
+          <span>or</span>
+        </div>
         
-        {step === 1 ? (
-        <form onSubmit={handleAccountSubmit} className="auth-form">
+        <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-row">
             <div className="form-group">
               <label htmlFor="firstName">First Name</label>
@@ -286,84 +215,13 @@ function Register() {
           </div>
 
           <button type="submit" className="btn-primary btn-full">
-            {selectedRole === 'parent' ? 'Continue to Student Info' : 'Create Instructor Account'}
+            Create Account
           </button>
         </form>
-        ) : (
-        <form onSubmit={handleStudentSubmit} className="auth-form">
-          <div className="form-group">
-            <label htmlFor="studentFirstName">Student's First Name</label>
-            <input
-              id="studentFirstName"
-              name="firstName"
-              type="text"
-              value={studentData.firstName}
-              onChange={handleStudentChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="age">Age</label>
-            <input
-              id="age"
-              name="age"
-              type="number"
-              value={studentData.age}
-              onChange={handleStudentChange}
-              required
-              min="3"
-              max="18"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Learning Profile (Optional)</label>
-            <p className="field-description">
-              Help us understand your child's learning style. Select all that apply:
-            </p>
-            <div className="checkbox-group">
-              {neurodiversityOptions.map(option => (
-                <label key={option.value} className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={studentData.neurodiversityProfile.includes(option.value)}
-                    onChange={() => handleNeurodiversityChange(option.value)}
-                  />
-                  <span>{option.label}</span>
-                </label>
-              ))}
-            </div>
-            
-            {studentData.neurodiversityProfile.includes('other') && (
-              <div className="nested-field">
-                <input
-                  type="text"
-                  name="otherNeeds"
-                  placeholder="Please describe specific needs..."
-                  value={studentData.otherNeeds}
-                  onChange={handleStudentChange}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="form-row">
-            <button type="button" onClick={() => setStep(1)} className="btn-secondary btn-full">
-              Back
-            </button>
-            <button type="submit" className="btn-primary btn-full">
-              Complete Registration
-            </button>
-          </div>
-        </form>
-        )}
         
-        {step === 1 && (
-          <p className="auth-footer">
-            Already have an account? <Link to="/login">Sign in</Link>
-          </p>
-        )}
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </p>
       </div>
     </div>
   )

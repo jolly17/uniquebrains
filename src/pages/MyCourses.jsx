@@ -1,13 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import { mockCourses } from '../data/mockData'
 import './MyCourses.css'
 
 function MyCourses() {
+  const { profile, activeStudent } = useAuth()
   const [viewMode, setViewMode] = useState('list') // 'list' or 'calendar'
+  const [enrolledCourses, setEnrolledCourses] = useState([])
   
-  // Mock enrolled courses (first 2 courses)
-  const enrolledCourses = mockCourses.slice(0, 2)
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return ''
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  }
+  
+  // Load courses based on selected student/parent
+  useEffect(() => {
+    // TODO: Replace with actual API call to get enrolled courses
+    // For now, using mock data
+    if (activeStudent) {
+      // Show courses for selected student
+      setEnrolledCourses(mockCourses.slice(0, 2)) // Mock student courses
+    } else {
+      // Show courses for parent
+      setEnrolledCourses(mockCourses.slice(2, 4)) // Mock parent courses
+    }
+  }, [activeStudent])
 
   // Generate upcoming sessions for calendar view
   const generateUpcomingSessions = () => {
@@ -55,7 +74,20 @@ function MyCourses() {
   return (
     <div className="my-courses">
       <div className="my-courses-header">
-        <h1>My Courses</h1>
+        <div className="courses-title">
+          <h1>
+            {activeStudent 
+              ? `${capitalizeFirstLetter(activeStudent.first_name)}'s Courses` 
+              : 'My Courses'
+            }
+          </h1>
+          <p className="courses-subtitle">
+            {activeStudent 
+              ? `Courses enrolled for ${capitalizeFirstLetter(activeStudent.first_name)}` 
+              : 'Courses you are enrolled in'
+            }
+          </p>
+        </div>
         
         <div className="view-toggle">
           <button 

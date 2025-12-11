@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import './ManageStudents.css'
 
 function ManageStudents() {
-  const { students, addStudent, updateStudent, deleteStudent, activeStudent, switchStudent } = useAuth()
+  const { students, addStudent, updateStudent, deleteStudent, activeStudent, switchStudent, refreshStudents } = useAuth()
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingStudent, setEditingStudent] = useState(null)
   const [formData, setFormData] = useState({
@@ -12,6 +12,17 @@ function ManageStudents() {
     neurodiversityProfile: [],
     otherNeeds: ''
   })
+
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return ''
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  }
+
+  // Refresh students when component mounts (in case coming from onboarding)
+  useEffect(() => {
+    refreshStudents()
+  }, [refreshStudents])
 
   const neurodiversityOptions = [
     { value: 'autism', label: 'Autism Spectrum' },
@@ -56,10 +67,10 @@ function ManageStudents() {
 
   const handleEdit = (student) => {
     setFormData({
-      firstName: student.firstName,
+      firstName: student.first_name,
       age: student.age,
-      neurodiversityProfile: student.neurodiversityProfile || [],
-      otherNeeds: student.otherNeeds || ''
+      neurodiversityProfile: student.neurodiversity_profile || [],
+      otherNeeds: student.other_needs || ''
     })
     setEditingStudent(student)
     setShowAddModal(true)
@@ -69,7 +80,14 @@ function ManageStudents() {
     e.preventDefault()
     
     if (editingStudent) {
-      updateStudent(editingStudent.id, formData)
+      // Map form fields to database fields for update
+      const updateData = {
+        first_name: formData.firstName,
+        age: parseInt(formData.age),
+        neurodiversity_profile: formData.neurodiversityProfile,
+        other_needs: formData.otherNeeds
+      }
+      updateStudent(editingStudent.id, updateData)
     } else {
       addStudent(formData)
     }
@@ -111,14 +129,14 @@ function ManageStudents() {
           >
             <div className="student-info">
               <div className="student-avatar">
-                {student.firstName.charAt(0).toUpperCase()}
+                {student.first_name?.charAt(0).toUpperCase() || '?'}
               </div>
               <div className="student-details">
-                <h3>{student.firstName}</h3>
+                <h3>{capitalizeFirstLetter(student.first_name)}</h3>
                 <p className="student-age">Age: {student.age}</p>
-                {student.neurodiversityProfile && student.neurodiversityProfile.length > 0 && (
+                {student.neurodiversity_profile && student.neurodiversity_profile.length > 0 && (
                   <div className="student-profile">
-                    {student.neurodiversityProfile.map(profile => (
+                    {student.neurodiversity_profile.map(profile => (
                       <span key={profile} className="profile-badge">
                         {neurodiversityOptions.find(o => o.value === profile)?.label || profile}
                       </span>

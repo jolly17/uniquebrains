@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import Layout from './components/Layout'
+import ScrollToTop from './components/ScrollToTop'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -24,13 +25,13 @@ if (import.meta.env.DEV) {
 }
 
 function ProtectedRoute({ children, role }) {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   
   if (!user) {
     return <Navigate to="/login" />
   }
   
-  if (role && user.role !== role) {
+  if (role && profile?.role !== role) {
     return <Navigate to="/" />
   }
   
@@ -41,6 +42,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

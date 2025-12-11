@@ -13,7 +13,10 @@ function Onboarding() {
 
   const [formData, setFormData] = useState({
     neurodiversityProfile: [],
+    expertise: [], // Teaching specializations for instructors
     bio: '',
+    otherNeurodiversity: '', // Separate field for "other" neurodiversity description
+    otherExpertise: '', // Separate field for "other" expertise description
     role: 'parent' // Default to parent instead of student
   })
 
@@ -54,7 +57,10 @@ function Onboarding() {
         if (data) {
           setFormData({
             neurodiversityProfile: data.neurodiversity_profile || [],
+            expertise: data.expertise || [],
             bio: data.bio || '',
+            otherNeurodiversity: '',
+            otherExpertise: '',
             role: data.role || 'parent'
           })
         }
@@ -90,10 +96,43 @@ function Onboarding() {
     }
   }
 
+  const handleExpertiseChange = (value) => {
+    const currentExpertise = formData.expertise || []
+    if (currentExpertise.includes(value)) {
+      setFormData({
+        ...formData,
+        expertise: currentExpertise.filter(item => item !== value)
+      })
+    } else {
+      setFormData({
+        ...formData,
+        expertise: [...currentExpertise, value]
+      })
+    }
+  }
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
+    })
+  }
+
+  const handleRoleChange = (newRole) => {
+    // If switching from parent to instructor, clear students
+    if (formData.role === 'parent' && newRole === 'instructor') {
+      setStudents([])
+      setCurrentStudent({
+        firstName: '',
+        age: '',
+        neurodiversityProfile: [],
+        otherNeeds: ''
+      })
+    }
+    
+    setFormData({
+      ...formData,
+      role: newRole
     })
   }
 
@@ -152,21 +191,38 @@ function Onboarding() {
       return
     }
     
+    // Validate instructor has provided bio
+    if (formData.role === 'instructor' && (!formData.bio || formData.bio.trim().length === 0)) {
+      alert('Please provide information about your teaching approach.')
+      setIsSubmitting(false)
+      return
+    }
+
+    // Validate parent has added at least one student
+    if (formData.role === 'parent' && students.length === 0) {
+      alert('Please add at least one student to continue.')
+      setIsSubmitting(false)
+      return
+    }
+
+    // Validate instructor doesn't have students (in case of role switching)
+    if (formData.role === 'instructor' && students.length > 0) {
+      alert('Instructors cannot have student profiles. Please change your role to Parent or remove the students.')
+      setIsSubmitting(false)
+      return
+    }
+    
     setIsSubmitting(true)
 
     try {
-      console.log('Updating profile for user ID:', userId)
-      console.log('Profile data:', {
-        role: formData.role,
-        bio: formData.bio,
-        neurodiversity_profile: formData.neurodiversityProfile
-      })
+
 
       // Prepare profile data
       const profileData = {
         role: formData.role,
         bio: formData.bio,
-        neurodiversity_profile: formData.neurodiversityProfile
+        neurodiversity_profile: formData.neurodiversityProfile,
+        expertise: formData.expertise || []
       }
 
       // Update profile with onboarding data
@@ -184,7 +240,7 @@ function Onboarding() {
 
       // Create student profiles if parent
       if (formData.role === 'parent' && students.length > 0) {
-        console.log('Creating student profiles:', students)
+
         
         const studentProfiles = students.map(student => ({
           parent_id: userId,
@@ -204,25 +260,23 @@ function Onboarding() {
           console.error('Error creating student profiles:', studentsError)
           alert('Profile saved but failed to create student profiles. You can add them later.')
         } else {
-          console.log('✅ Student profiles created successfully')
+
         }
       }
 
-      // Validate parent has added at least one student
-      if (formData.role === 'parent' && students.length === 0) {
-        alert('Please add at least one student to continue.')
-        setIsSubmitting(false)
-        return
-      }
 
-      // Redirect based on role
-      if (formData.role === 'instructor') {
-        navigate('/instructor/dashboard')
-      } else if (formData.role === 'parent') {
-        navigate('/my-courses')
-      } else {
-        navigate('/marketplace')
-      }
+
+      // Redirect based on role with small delay to ensure DB operations complete
+      setTimeout(() => {
+        console.log('Redirecting user with role:', formData.role)
+        if (formData.role === 'instructor') {
+          navigate('/instructor/create-course')
+        } else if (formData.role === 'parent') {
+          navigate('/marketplace')
+        } else {
+          navigate('/marketplace')
+        }
+      }, 500) // 500ms delay
     } catch (err) {
       console.error('Onboarding error:', err)
       alert('Something went wrong. Please try again.')
@@ -283,7 +337,7 @@ function Onboarding() {
             <div className="role-cards">
               <div 
                 className={`role-card ${formData.role === 'parent' ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'parent' })}
+                onClick={() => handleRoleChange('parent')}
               >
                 <div className="role-icon">👨‍👩‍👧‍👦</div>
                 <h3>Parent</h3>
@@ -291,7 +345,7 @@ function Onboarding() {
               </div>
               <div 
                 className={`role-card ${formData.role === 'instructor' ? 'selected' : ''}`}
-                onClick={() => setFormData({ ...formData, role: 'instructor' })}
+                onClick={() => handleRoleChange('instructor')}
               >
                 <div className="role-icon">👨‍🏫</div>
                 <h3>Instructor</h3>
@@ -325,25 +379,62 @@ function Onboarding() {
             </div>
           </div>
 
-          {/* Neurodiversity Profile (optional for all) */}
+          {/* Teaching Specializations (for instructors only) */}
+          {formData.role === 'instructor' && (
+            <div className="form-section">
+              <h2>Your Teaching Specializations</h2>
+              <p className="section-description">
+                What neurodiversity areas do you specialize in or have experience teaching? This helps parents find the right match.
+              </p>
+
+              <div className="form-group">
+                <label>
+                  Neurodiversity areas you specialize in (Optional - Select all that apply)
+                </label>
+                <div className="checkbox-grid">
+                  {neurodiversityOptions.map(option => (
+                    <label key={option.value} className="checkbox-label">
+                      <input
+                        type="checkbox"
+                        checked={formData.expertise?.includes(option.value) || false}
+                        onChange={() => handleExpertiseChange(option.value)}
+                      />
+                      <span>{option.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {formData.expertise?.includes('other') && (
+                <div className="form-group">
+                  <label htmlFor="otherExpertise">Please specify your other specializations</label>
+                  <textarea
+                    id="otherExpertise"
+                    name="otherExpertise"
+                    value={formData.otherExpertise}
+                    onChange={handleInputChange}
+                    rows="3"
+                    placeholder="Describe any other neurodiversity areas you specialize in..."
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Personal Neurodiversity Profile (optional for all) */}
           {(formData.role === 'parent' || formData.role === 'instructor') && (
             <div className="form-section">
-              <h2>
-                {formData.role === 'instructor' ? 'Your Teaching Specializations' : 'Family Neurodiversity Profile'}
-              </h2>
+              <h2>Your Neurodiversity Profile</h2>
               <p className="section-description">
                 {formData.role === 'instructor' 
-                  ? "What neurodiversity areas do you specialize in or have experience teaching? This helps parents find the right match."
-                  : "Help us understand your family's unique needs. This information helps match you with the right instructors and is kept private."
+                  ? "Help parents find instructors who understand their children by sharing your own neurodiversity profile. Many of our best instructors are neurodiverse themselves."
+                  : "Help us understand your own neurodiversity profile. This information helps match you with instructors who understand your perspective and is kept private."
                 }
               </p>
 
               <div className="form-group">
                 <label>
-                  {formData.role === 'instructor' 
-                    ? 'Neurodiversity areas you specialize in (Optional - Select all that apply)'
-                    : 'Family neurodiversity profile (Optional - Select all that apply)'
-                  }
+                  Your personal neurodiversity profile (Optional - Select all that apply)
                 </label>
                 <div className="checkbox-grid">
                   {neurodiversityOptions.map(option => (
@@ -361,14 +452,14 @@ function Onboarding() {
 
               {formData.neurodiversityProfile.includes('other') && (
                 <div className="form-group">
-                  <label htmlFor="bio">Please specify</label>
+                  <label htmlFor="otherNeurodiversity">Please specify</label>
                   <textarea
-                    id="bio"
-                    name="bio"
-                    value={formData.bio}
+                    id="otherNeurodiversity"
+                    name="otherNeurodiversity"
+                    value={formData.otherNeurodiversity}
                     onChange={handleInputChange}
                     rows="3"
-                    placeholder="Describe any other learning needs or accommodations..."
+                    placeholder="Describe any other aspects of your neurodiversity..."
                   />
                 </div>
               )}
@@ -498,46 +589,7 @@ function Onboarding() {
             </div>
           )}
 
-          {/* Teaching Style (for instructors) */}
-          {formData.role === 'instructor' && (
-            <div className="form-section">
-              <h2>Your Teaching Profile</h2>
-              <p className="section-description">
-                Help parents find the right instructor for their children by sharing your background and expertise.
-              </p>
 
-              <div className="form-group">
-                <label>Your neurodiversity profile (Optional - helps parents find instructors who understand their children)</label>
-                <p className="field-description">
-                  Many of our best instructors are neurodiverse themselves and bring unique understanding to their teaching.
-                </p>
-                <div className="checkbox-grid">
-                  {neurodiversityOptions.map(option => (
-                    <label key={option.value} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={formData.neurodiversityProfile.includes(option.value)}
-                        onChange={() => handleCheckboxChange(option.value)}
-                      />
-                      <span>{option.label}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="bio">About your teaching approach (Optional)</label>
-                <textarea
-                  id="bio"
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  rows="4"
-                  placeholder="What makes your teaching approach unique? Experience with neurodiverse learners? Special techniques or accommodations you use?"
-                />
-              </div>
-            </div>
-          )}
 
           <div className="onboarding-actions">
             <button 

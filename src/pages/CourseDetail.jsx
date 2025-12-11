@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
@@ -6,8 +7,9 @@ import './CourseDetail.css'
 
 function CourseDetail() {
   const { courseId } = useParams()
-  const { user } = useAuth()
+  const { user, profile, activeStudent } = useAuth()
   const navigate = useNavigate()
+  const [showEnrollmentSuccess, setShowEnrollmentSuccess] = useState(false)
   
   const course = mockCourses.find(c => c.id === courseId)
   const reviews = mockReviews.filter(r => r.courseId === courseId)
@@ -28,9 +30,19 @@ function CourseDetail() {
       alert('Sorry, this class is full!')
       return
     }
-    // Mock enrollment
-    alert('Enrolled successfully!')
-    navigate(`/learn/${courseId}`)
+    
+    // Show success popup with student info
+    setShowEnrollmentSuccess(true)
+    
+    // TODO: Add actual enrollment logic here
+    // - Create enrollment record in database
+    // - Link to activeStudent or parent profile
+    
+    // Auto-close popup after 3 seconds
+    setTimeout(() => {
+      setShowEnrollmentSuccess(false)
+      navigate('/my-courses')
+    }, 3000)
   }
 
   return (
@@ -159,6 +171,47 @@ function CourseDetail() {
           )}
         </section>
       </div>
+
+      {/* Enrollment Success Popup */}
+      {showEnrollmentSuccess && (
+        <div className="enrollment-success-overlay">
+          <div className="enrollment-success-popup">
+            <div className="success-icon">🎉</div>
+            <h2>Enrollment Successful!</h2>
+            <p>
+              <strong>
+                {activeStudent 
+                  ? `${activeStudent.first_name} has been enrolled` 
+                  : `You have been enrolled`
+                }
+              </strong> in <strong>{course.title}</strong>
+            </p>
+            <p className="success-subtitle">
+              {activeStudent 
+                ? `${activeStudent.first_name} can now access the course materials and join sessions.`
+                : 'You can now access the course materials and join sessions.'
+              }
+            </p>
+            <div className="success-actions">
+              <button 
+                onClick={() => {
+                  setShowEnrollmentSuccess(false)
+                  navigate('/my-courses')
+                }}
+                className="btn-primary"
+              >
+                View My Courses
+              </button>
+              <button 
+                onClick={() => setShowEnrollmentSuccess(false)}
+                className="btn-secondary"
+              >
+                Continue Browsing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

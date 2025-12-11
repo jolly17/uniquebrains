@@ -27,7 +27,7 @@ function Login() {
           setError(result.error.message || 'Invalid credentials')
         }
       } else {
-        navigate('/')
+        navigate('/marketplace')
       }
     } catch (err) {
       if (err.message && err.message.includes('Email not confirmed')) {
