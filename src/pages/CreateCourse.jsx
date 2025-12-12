@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { api, handleApiCall } from '../services/api'
 import './Auth.css'
 
 function CreateCourse() {
@@ -66,89 +66,28 @@ function CreateCourse() {
     setError('')
 
     try {
-      // Create the course record
+      // Prepare course data for the API
       const courseData = {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        course_type: formData.courseType,
-        price: 0, // Free for now
-        session_duration: formData.sessionDuration ? parseInt(formData.sessionDuration) : null,
-        enrollment_limit: formData.enrollmentLimit ? parseInt(formData.enrollmentLimit) : null,
-        is_self_paced: formData.isSelfPaced,
-        instructor_id: user.id,
-        status: 'draft', // Start as draft
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        courseType: formData.courseType,
+        sessionDuration: formData.sessionDuration,
+        enrollmentLimit: formData.enrollmentLimit,
+        isSelfPaced: formData.isSelfPaced,
+        // Schedule data for session creation
+        startDate: formData.startDate,
+        sessionTime: formData.sessionTime,
+        selectedDays: formData.selectedDays,
+        hasEndDate: formData.hasEndDate,
+        endDate: formData.endDate
       }
 
-      const { data: course, error: courseError } = await supabase
-        .from('courses')
-        .insert([courseData])
-        .select()
-        .single()
-
-      if (courseError) {
-        throw courseError
-      }
-
-      // If it's a group course with a schedule, create sessions
-      if (formData.courseType === 'group' && !formData.isSelfPaced && formData.startDate) {
-        const sessions = []
-        const startDate = new Date(formData.startDate)
-        
-        // Generate sessions based on recurrence
-        if (formData.repeatUnit === 'week' && formData.selectedDays.length > 0) {
-          const endDate = formData.hasEndDate && formData.endDate 
-            ? new Date(formData.endDate) 
-            : new Date(startDate.getTime() + (12 * 7 * 24 * 60 * 60 * 1000)) // 12 weeks default
-
-          let currentDate = new Date(startDate)
-          let sessionNumber = 1
-
-          while (currentDate <= endDate && sessionNumber <= 50) { // Max 50 sessions
-            const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' })
-            
-            if (formData.selectedDays.includes(dayName)) {
-              const sessionDateTime = new Date(currentDate)
-              const [hours, minutes] = formData.sessionTime.split(':')
-              sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-
-              sessions.push({
-                course_id: course.id,
-                title: `Session ${sessionNumber}`,
-                description: `${formData.title} - Session ${sessionNumber}`,
-                session_date: sessionDateTime.toISOString(),
-                duration: parseInt(formData.sessionDuration),
-                meeting_link: '', // Will be added later
-                meeting_platform: null,
-                status: 'scheduled',
-                created_at: new Date().toISOString()
-              })
-              
-              sessionNumber++
-            }
-            
-            // Move to next day
-            currentDate.setDate(currentDate.getDate() + 1)
-          }
-        }
-
-        // Insert sessions if any were created
-        if (sessions.length > 0) {
-          const { error: sessionsError } = await supabase
-            .from('sessions')
-            .insert(sessions)
-
-          if (sessionsError) {
-            console.error('Error creating sessions:', sessionsError)
-            // Don't fail the whole process, just log the error
-          }
-        }
-      }
-
-      console.log('Course created successfully:', course)
-      alert('Course created successfully! You can now add meeting links and publish it.')
+      // Use the new API service to create the course
+      const result = await handleApiCall(api.courses.create, courseData, user)
+      
+      console.log('Course created successfully:', result.course)
+      alert(result.message)
       navigate('/instructor/dashboard')
       
     } catch (error) {

@@ -18,6 +18,8 @@ import StudentProfile from './pages/StudentProfile'
 import { AuthCallback } from './pages/AuthCallback'
 import Onboarding from './pages/Onboarding'
 import RoleSelection from './pages/RoleSelection'
+import BackendTestComponent from './components/BackendTestComponent'
+import RLSSecurityTest from './components/RLSSecurityTest'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -100,6 +102,18 @@ function App() {
             <Route path="profile" element={
               <ProtectedRoute>
                 <StudentProfile />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="test-backend" element={
+              <ProtectedRoute role="instructor">
+                <BackendTestComponent />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="test-security" element={
+              <ProtectedRoute>
+                <RLSSecurityTest />
               </ProtectedRoute>
             } />
           </Route>

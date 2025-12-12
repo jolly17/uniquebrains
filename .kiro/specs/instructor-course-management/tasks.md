@@ -435,8 +435,42 @@ This plan breaks down the implementation into focused, incremental tasks. Each t
 
 ---
 
-- [ ] 17. Final checkpoint
+- [x] 17. Backend Integration for Course Creation
+
+- [x] 17.1 Create comprehensive API service layer
+  - Created courseService.js for course CRUD operations
+  - Created sessionService.js for session management
+  - Created homeworkService.js for assignments and submissions
+  - Created resourceService.js for course materials
+  - Created messageService.js for chat functionality
+  - Created enrollmentService.js for student management
+  - _Requirements: All backend operations_
+
+- [x] 17.2 Implement unified API interface
+  - Created main api.js with organized service modules
+  - Added consistent error handling with ApiError class
+  - Added validation utilities and helper functions
+  - Added handleApiCall wrapper for consistent error management
+  - _Requirements: Code organization and maintainability_
+
+- [x] 17.3 Update existing components to use new API
+  - Updated CreateCourse component to use courseService
+  - Updated InstructorDashboard to use new API structure
+  - Created BackendIntegrationExample for testing and reference
+  - _Requirements: Integration with existing frontend_
+
+- [x] 17.4 Create comprehensive documentation
+  - Created BACKEND_INTEGRATION.md with usage examples
+  - Documented all API functions with parameters and return types
+  - Added security features and error handling guide
+  - Provided migration guide for existing components
+  - _Requirements: Developer documentation_
+
+---
+
+- [ ] 18. Final checkpoint
 
 - Ensure all tests pass, ask the user if questions arise.
 - Verify all accessibility features work correctly
 - Confirm all requirements are met
+- Test backend integration with real course creation flows

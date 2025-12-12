@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import { api, handleApiCall } from '../services/api'
 import NeurodiversityBadges from '../components/NeurodiversityBadges'
 import './InstructorDashboard.css'
 
@@ -23,29 +23,9 @@ function InstructorDashboard() {
 
   const fetchInstructorCourses = async () => {
     try {
-      const { data, error } = await supabase
-        .from('courses')
-        .select(`
-          *,
-          sessions (
-            id,
-            title,
-            session_date,
-            status
-          ),
-          enrollments (
-            id,
-            student_id
-          )
-        `)
-        .eq('instructor_id', user.id)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        throw error
-      }
-
-      setCourses(data || [])
+      // Use the new API service to fetch instructor courses
+      const coursesData = await handleApiCall(api.courses.getInstructorCourses, user.id)
+      setCourses(coursesData || [])
     } catch (error) {
       console.error('Error fetching courses:', error)
       setError('Failed to load courses')
