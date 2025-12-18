@@ -7,10 +7,20 @@ import './Marketplace.css'
 
 function Marketplace() {
   // Show coming soon page only on production website
-  const isProduction = window.location.hostname === 'uniquebrains.org' || 
-                      window.location.hostname === 'www.uniquebrains.org'
+  const hostname = window.location.hostname
+  const urlParams = new URLSearchParams(window.location.search)
+  const forceComingSoon = urlParams.get('coming-soon') === 'true'
   
-  if (isProduction) {
+  const isProduction = hostname.includes('uniquebrains.org') || 
+                      hostname === 'uniquebrains.org' ||
+                      hostname === 'www.uniquebrains.org'
+  
+  // Debug logging (remove after testing)
+  console.log('Current hostname:', hostname)
+  console.log('Is production:', isProduction)
+  console.log('Force coming soon:', forceComingSoon)
+  
+  if (isProduction || forceComingSoon) {
     return <ComingSoon />
   }
   const [searchTerm, setSearchTerm] = useState('')
