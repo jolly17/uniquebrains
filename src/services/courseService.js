@@ -37,7 +37,14 @@ export async function createCourse(courseData, user) {
       is_self_paced: courseData.isSelfPaced || false,
       instructor_id: user.id,
       status: 'draft', // Start as draft
-      is_published: false
+      is_published: false,
+      // Add missing date and schedule fields
+      start_date: courseData.startDate || null,
+      end_date: courseData.endDate || null,
+      has_end_date: courseData.hasEndDate || false,
+      session_time: courseData.sessionTime || null,
+      selected_days: courseData.selectedDays || null,
+      frequency: courseData.frequency || 'weekly'
     }
 
     // Create the course
@@ -141,7 +148,7 @@ async function createCourseSessions(courseId, scheduleData) {
 /**
  * Get courses for an instructor
  * @param {string} instructorId - Instructor user ID
- * @returns {Promise<Array>} List of instructor's courses
+ * @returns {Promise<Array>} List of instructor's courses with timeline info
  */
 export async function getInstructorCourses(instructorId) {
   if (!instructorId) {

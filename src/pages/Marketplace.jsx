@@ -2,9 +2,17 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import CourseCard from '../components/CourseCard'
 import { mockCourses } from '../data/mockData'
+import ComingSoon from './ComingSoon'
 import './Marketplace.css'
 
 function Marketplace() {
+  // Show coming soon page only on production website
+  const isProduction = window.location.hostname === 'uniquebrains.org' || 
+                      window.location.hostname === 'www.uniquebrains.org'
+  
+  if (isProduction) {
+    return <ComingSoon />
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
 

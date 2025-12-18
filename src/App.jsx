@@ -20,6 +20,7 @@ import Onboarding from './pages/Onboarding'
 import RoleSelection from './pages/RoleSelection'
 import BackendTestComponent from './components/BackendTestComponent'
 import RLSSecurityTest from './components/RLSSecurityTest'
+import ComingSoon from './pages/ComingSoon'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
