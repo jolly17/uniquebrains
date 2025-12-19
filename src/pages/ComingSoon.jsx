@@ -64,7 +64,7 @@ function ComingSoon() {
               🎓 Volunteer as Instructor
             </a>
             <a
-              href="https://wa.me/?text=Check%20out%20UniqueBrains%20-%20Free%20courses%20for%20parents!%20https://uniquebrains.com"
+              href="https://wa.me/?text=Check%20out%20UniqueBrains%20-%20Free%20courses%20for%20neurodivergent%20kids!%20https://uniquebrains.org"
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg"

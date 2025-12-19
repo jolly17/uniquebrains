@@ -180,6 +180,35 @@
   margin: 0;
 }
 
+/* Support buttons styling */
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.space-y-4 a {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 1.125rem;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  border: none;
+}
+
+.space-y-4 a:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.space-y-4 a:active {
+  transform: translateY(0) scale(0.98);
+}
+
 @media (max-width: 768px) {
   .coming-soon {
     padding: 2rem 1rem;
@@ -215,5 +244,10 @@
   .btn-donate-large {
     width: 100%;
     padding: 1rem 2rem;
+  }
+
+  .space-y-4 a {
+    padding: 1rem;
+    font-size: 1rem;
   }
 }

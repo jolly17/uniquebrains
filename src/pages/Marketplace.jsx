@@ -26,8 +26,10 @@ function Marketplace() {
   // NUCLEAR OPTION: Force coming soon for EVERYONE until deployment works
   // Only show marketplace if explicitly requested with ?dev=true
   if (showMarketplace) {
+    console.log('Showing marketplace due to ?dev=true')
     // Continue to show marketplace (for development testing)
   } else {
+    console.log('Forcing coming soon page for everyone')
     // Force coming soon for everyone (production and localhost)
     return <ComingSoon />
   }
