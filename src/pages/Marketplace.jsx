@@ -6,21 +6,27 @@ import ComingSoon from './ComingSoon'
 import './Marketplace.css'
 
 function Marketplace() {
-  // Show coming soon page only on production website
+  // TEMPORARY: Force coming soon for all environments until deployment works
+  // This ensures the production site shows coming soon immediately
   const hostname = window.location.hostname
   const urlParams = new URLSearchParams(window.location.search)
   const forceComingSoon = urlParams.get('coming-soon') === 'true'
+  const showMarketplace = urlParams.get('dev') === 'true' // Override for development
   
   const isProduction = hostname.includes('uniquebrains.org') || 
                       hostname === 'uniquebrains.org' ||
                       hostname === 'www.uniquebrains.org'
   
-  // Debug logging (remove after testing)
+  // Debug logging
   console.log('Current hostname:', hostname)
   console.log('Is production:', isProduction)
   console.log('Force coming soon:', forceComingSoon)
+  console.log('Show marketplace:', showMarketplace)
   
-  if (isProduction || forceComingSoon) {
+  // Show marketplace only if explicitly requested with ?dev=true
+  if (showMarketplace) {
+    // Continue to show marketplace (for development)
+  } else if (isProduction || forceComingSoon) {
     return <ComingSoon />
   }
   const [searchTerm, setSearchTerm] = useState('')
