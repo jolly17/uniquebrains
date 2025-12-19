@@ -23,10 +23,12 @@ function Marketplace() {
   console.log('Force coming soon:', forceComingSoon)
   console.log('Show marketplace:', showMarketplace)
   
-  // Show marketplace only if explicitly requested with ?dev=true
+  // NUCLEAR OPTION: Force coming soon for EVERYONE until deployment works
+  // Only show marketplace if explicitly requested with ?dev=true
   if (showMarketplace) {
-    // Continue to show marketplace (for development)
-  } else if (isProduction || forceComingSoon) {
+    // Continue to show marketplace (for development testing)
+  } else {
+    // Force coming soon for everyone (production and localhost)
     return <ComingSoon />
   }
   const [searchTerm, setSearchTerm] = useState('')
