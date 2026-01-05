@@ -46,12 +46,12 @@ function ComingSoon() {
           <p>
             Help us bring free, quality education to families. Your support makes a difference!
           </p>
-          <div className="space-y-4">
+          <div className="support-buttons">
             <a
               href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 shadow-lg"
+              className="support-btn donation-btn"
             >
               💚 Make a Donation
             </a>
@@ -59,7 +59,7 @@ function ComingSoon() {
               href="https://wa.me/447417364089?text=I'm%20interested%20in%20becoming%20an%20instructor"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg"
+              className="support-btn volunteer-btn"
             >
               🎓 Volunteer as Instructor
             </a>
@@ -67,7 +67,7 @@ function ComingSoon() {
               href="https://wa.me/?text=Check%20out%20UniqueBrains%20-%20Free%20courses%20for%20neurodivergent%20kids!%20https://uniquebrains.org"
               target="_blank"
               rel="noopener noreferrer"
-              className="block w-full bg-gradient-to-r from-orange-500 to-pink-500 text-white font-semibold py-4 px-6 rounded-lg hover:from-orange-600 hover:to-pink-600 transition-all transform hover:scale-105 shadow-lg"
+              className="support-btn spread-btn"
             >
               📢 Spread the Word
             </a>
