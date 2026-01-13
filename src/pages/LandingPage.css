@@ -55,6 +55,23 @@
   gap: 1.5rem;
   justify-content: center;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.donation-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-secondary-large.donation-india {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+}
+
+.btn-secondary-large.donation-india:hover {
+  background: rgba(249, 115, 22, 0.3);
 }
 
 .btn-primary-large {
@@ -217,6 +234,13 @@
   margin: 2rem 0;
 }
 
+.donation-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .btn-donate {
   background: #ef4444;
   color: white;
@@ -234,6 +258,16 @@
   background: #dc2626;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-donate.donation-india {
+  background: #f97316;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.btn-donate.donation-india:hover {
+  background: #ea580c;
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
 }
 
 .btn-volunteer {
@@ -337,6 +371,10 @@
   .support-actions {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .donation-buttons {
+    flex-direction: column;
   }
 
   .btn-primary-large,

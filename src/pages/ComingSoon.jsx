@@ -47,14 +47,24 @@ function ComingSoon() {
             Help us bring free, quality education to families. Your support makes a difference!
           </p>
           <div className="support-buttons">
-            <a
-              href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="support-btn donation-btn"
-            >
-              💚 Make a Donation
-            </a>
+            <div className="donation-buttons">
+              <a
+                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="support-btn donation-btn"
+              >
+                💚 Make a Donation
+              </a>
+              <a
+                href="https://milaap.org/fundraisers/support-autistic-kids-1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="support-btn donation-btn donation-india"
+              >
+                💚 Donate (India) 🇮🇳
+              </a>
+            </div>
             <a
               href="https://wa.me/447417364089?text=I'm%20interested%20in%20becoming%20an%20instructor"
               target="_blank"

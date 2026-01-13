@@ -18,14 +18,24 @@ function LandingPage() {
             <Link to="/marketplace" className="btn-primary-large">
               Explore Courses
             </Link>
-            <a 
-              href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="btn-secondary-large"
-            >
-              Support Our Mission ❤️
-            </a>
+            <div className="donation-buttons">
+              <a 
+                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-secondary-large"
+              >
+                Support Our Mission ❤️
+              </a>
+              <a 
+                href="https://milaap.org/fundraisers/support-autistic-kids-1" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-secondary-large donation-india"
+              >
+                Donate (India) 🇮🇳
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -114,14 +124,24 @@ function LandingPage() {
             <li>✅ Reach more neurodivergent children worldwide</li>
           </ul>
           <div className="support-actions">
-            <a 
-              href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="btn-donate"
-            >
-              Donate Now
-            </a>
+            <div className="donation-buttons">
+              <a 
+                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-donate"
+              >
+                Donate Now
+              </a>
+              <a 
+                href="https://milaap.org/fundraisers/support-autistic-kids-1" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn-donate donation-india"
+              >
+                Donate (India) 🇮🇳
+              </a>
+            </div>
             <a 
               href="mailto:hello@uniquebrains.org?subject=Interested in Volunteering as an Instructor&body=Hi UniqueBrains Team,%0D%0A%0D%0AI'm interested in volunteering my time to teach courses on your platform.%0D%0A%0D%0APlease let me know how I can get started!%0D%0A%0D%0AThank you!" 
               className="btn-volunteer"
