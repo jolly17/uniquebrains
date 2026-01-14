@@ -5,7 +5,16 @@ export default defineConfig({
   plugins: [react()],
   base: '/', // Root path for custom domain
   build: {
-    outDir: 'docs' // Deploy from docs folder instead of dist
+    outDir: 'docs', // Deploy from docs folder instead of dist
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase-vendor': ['@supabase/supabase-js']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
   },
   server: {
     port: 5173, // Use Vite's default port for consistency
