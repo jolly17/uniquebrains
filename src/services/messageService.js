@@ -1,12 +1,18 @@
 import { supabase } from '../lib/supabase'
+import { getActiveChannels } from './realtimeService'
 
 /**
  * Message Service - Backend API functions for course messaging and chat
  * Handles group chat and one-on-one messaging between instructors and students
+ * Requirements: 5.2 (message broadcasting and persistence)
  */
+
+// Get reference to active channels
+const activeChannels = getActiveChannels()
 
 /**
  * Send a message in a course
+ * Broadcasts to all channel subscribers via Supabase Realtime
  * @param {string} courseId - Course ID
  * @param {Object} messageData - Message content and metadata
  * @param {string} senderId - Sender user ID
@@ -51,6 +57,7 @@ export async function sendMessage(courseId, messageData, senderId) {
       }
     }
 
+    // Insert message to database
     const { data: message, error: messageError } = await supabase
       .from('messages')
       .insert([dbMessageData])
@@ -65,10 +72,76 @@ export async function sendMessage(courseId, messageData, senderId) {
       throw new Error(`Failed to send message: ${messageError.message}`)
     }
 
+    // Broadcast message via Realtime Broadcast (doesn't require replication)
+    console.log('📡 Broadcasting message to channel:', `course:${courseId}:messages`)
+    console.log('📡 Message payload:', message)
+    await broadcastMessageToChannel(courseId, 'new_message', message)
+    console.log('📡 Broadcast complete')
+    
     return message
   } catch (error) {
     console.error('Error in sendMessage:', error)
     throw error
+  }
+}
+
+/**
+ * Broadcast a message to a course channel using Realtime Broadcast
+ * This works without database replication
+ * @param {string} courseId - Course ID
+ * @param {string} eventType - Event type
+ * @param {Object} payload - Message payload
+ * @returns {Promise<void>}
+ */
+async function broadcastMessageToChannel(courseId, eventType, payload) {
+  try {
+    const channelName = `course:${courseId}:messages`
+    
+    console.log('Looking for existing channel:', channelName)
+    console.log('Active channels:', Array.from(activeChannels.keys()))
+    
+    // Check if channel exists in active channels
+    const existingChannel = activeChannels.get(channelName)
+    
+    if (existingChannel && existingChannel.channel) {
+      // Use existing channel
+      console.log('Using existing channel for broadcast, state:', existingChannel.channel.state)
+      
+      const result = await existingChannel.channel.send({
+        type: 'broadcast',
+        event: eventType,
+        payload: payload
+      })
+      
+      console.log('Broadcast result:', result)
+    } else {
+      // No existing channel - try to get all channels from supabase
+      console.log('No existing channel found in activeChannels')
+      const allChannels = supabase.getChannels()
+      console.log('All Supabase channels:', allChannels.map(c => c.topic))
+      
+      // Find matching channel - Supabase adds "realtime:" prefix
+      const matchingChannel = allChannels.find(c => 
+        c.topic === channelName || c.topic === `realtime:${channelName}`
+      )
+      
+      if (matchingChannel) {
+        console.log('Found matching channel in Supabase, using it')
+        const result = await matchingChannel.send({
+          type: 'broadcast',
+          event: eventType,
+          payload: payload
+        })
+        console.log('Broadcast result:', result)
+      } else {
+        console.warn('No channel found - message saved but not broadcast')
+      }
+    }
+    
+    console.log('Broadcast sent successfully')
+  } catch (error) {
+    console.error('Error broadcasting message:', error)
+    // Don't throw - message is already saved to DB
   }
 }
 
@@ -399,6 +472,8 @@ export async function deleteMessage(messageId, instructorId) {
  */
 async function checkCourseAccess(courseId, userId) {
   try {
+    console.log('Checking course access:', { courseId, userId })
+    
     // Check if user is the instructor
     const { data: course, error: courseError } = await supabase
       .from('courses')
@@ -406,11 +481,15 @@ async function checkCourseAccess(courseId, userId) {
       .eq('id', courseId)
       .single()
 
+    console.log('Course query result:', { course, courseError })
+
     if (courseError) {
+      console.error('Course not found or error:', courseError)
       return false
     }
 
     if (course.instructor_id === userId) {
+      console.log('User is the instructor - access granted')
       return true
     }
 
@@ -422,13 +501,66 @@ async function checkCourseAccess(courseId, userId) {
       .eq('student_id', userId)
       .single()
 
+    console.log('Enrollment query result:', { enrollment, enrollmentError })
+
     if (enrollmentError) {
+      console.error('Not enrolled or error:', enrollmentError)
       return false
     }
 
-    return !!enrollment
+    const hasAccess = !!enrollment
+    console.log('Access check result:', hasAccess)
+    return hasAccess
   } catch (error) {
     console.error('Error checking course access:', error)
     return false
   }
+}
+
+/**
+ * Broadcast a custom event to a course channel
+ * Used for non-database events like typing indicators
+ * @param {string} courseId - Course ID
+ * @param {string} eventType - Event type (e.g., 'typing', 'presence_update')
+ * @param {Object} payload - Event payload
+ * @returns {Promise<void>}
+ */
+export async function broadcastEvent(courseId, eventType, payload) {
+  if (!courseId || !eventType) {
+    throw new Error('Course ID and event type are required')
+  }
+
+  try {
+    const channelName = `course:${courseId}:messages`
+    
+    // Get or create channel
+    const channel = supabase.channel(channelName)
+    
+    // Broadcast event
+    await channel.send({
+      type: 'broadcast',
+      event: eventType,
+      payload
+    })
+    
+    console.log(`Event ${eventType} broadcast to ${channelName}`)
+  } catch (error) {
+    console.error('Error broadcasting event:', error)
+    throw error
+  }
+}
+
+/**
+ * Send typing indicator to course channel
+ * @param {string} courseId - Course ID
+ * @param {string} userId - User ID
+ * @param {boolean} isTyping - Whether user is typing
+ * @returns {Promise<void>}
+ */
+export async function sendTypingIndicator(courseId, userId, isTyping) {
+  await broadcastEvent(courseId, 'typing', {
+    user_id: userId,
+    is_typing: isTyping,
+    timestamp: new Date().toISOString()
+  })
 }
