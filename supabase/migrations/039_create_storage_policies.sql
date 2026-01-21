@@ -1,7 +1,7 @@
 -- =====================================================
 -- Storage Bucket Policies
--- Run this in Supabase Dashboard → SQL Editor
--- After running migration 008
+-- Migration 039: Create storage bucket policies
+-- Created: January 2026
 -- =====================================================
 
 -- =====================================================

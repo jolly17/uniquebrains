@@ -334,6 +334,7 @@ function Chat({ courseId }) {
 8. **Mobile App** - Native iOS/Android apps
 9. **Analytics Dashboard** - Instructor insights
 10. **Certificates** - Course completion certificates
+11. **Self-paced Courses** - Course modules for offline learning
 
 ---
 

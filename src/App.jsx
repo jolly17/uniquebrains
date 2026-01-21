@@ -21,10 +21,6 @@ import RoleSelection from './pages/RoleSelection'
 import BackendTestComponent from './components/BackendTestComponent'
 import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
-import RealtimeTest from './pages/RealtimeTest'
-import RealtimeTestSetup from './pages/RealtimeTestSetup'
-import RealtimeDebug from './pages/RealtimeDebug'
-import SimpleRealtimeTest from './pages/SimpleRealtimeTest'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -119,30 +115,6 @@ function App() {
             <Route path="test-security" element={
               <ProtectedRoute>
                 <RLSSecurityTest />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="realtime-test" element={
-              <ProtectedRoute>
-                <RealtimeTest />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="realtime-setup" element={
-              <ProtectedRoute>
-                <RealtimeTestSetup />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="realtime-debug" element={
-              <ProtectedRoute>
-                <RealtimeDebug />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="simple-realtime-test" element={
-              <ProtectedRoute>
-                <SimpleRealtimeTest />
               </ProtectedRoute>
             } />
           </Route>
