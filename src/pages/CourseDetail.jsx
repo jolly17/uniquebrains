@@ -160,8 +160,8 @@ function CourseDetail() {
           )}
           
           <div className="enroll-features">
-            <div className="feature">✓ Lifetime access</div>
-            <div className="feature">✓ Certificate of completion</div>
+            <div className="feature">✓ Live classes</div>
+            <div className="feature">✓ Online feedback</div>
             <div className="feature">✓ Instructor support</div>
           </div>
         </div>
