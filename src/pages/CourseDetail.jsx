@@ -74,11 +74,23 @@ function CourseDetail() {
     }
     
     try {
-      // Get student ID (either activeStudent or user's own ID)
-      const studentId = activeStudent?.id || user.id
+      // Determine enrollment type:
+      // - If activeStudent exists, enroll the student profile (parent-managed)
+      // - Otherwise, enroll the user directly (student with own account)
+      const enrollmentData = {
+        courseId,
+        studentId: activeStudent ? null : user.id,  // Direct student enrollment
+        studentProfileId: activeStudent ? activeStudent.id : null  // Parent-managed enrollment
+      }
+      
+      console.log('=== ENROLLMENT DEBUG ===')
+      console.log('User ID:', user.id)
+      console.log('Active Student:', activeStudent)
+      console.log('Enrollment Data:', enrollmentData)
+      console.log('========================')
       
       // Create enrollment record in database
-      await handleApiCall(api.enrollments.enroll, courseId, studentId)
+      await handleApiCall(api.enrollments.enroll, enrollmentData.courseId, enrollmentData.studentId, enrollmentData.studentProfileId)
       
       // Show success popup with student info
       setShowEnrollmentSuccess(true)
