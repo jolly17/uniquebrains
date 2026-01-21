@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CourseCard from '../components/CourseCard'
-import { mockCourses } from '../data/mockData'
+import { api, handleApiCall } from '../services/api'
 import ComingSoon from './ComingSoon'
 import './Marketplace.css'
 
@@ -25,14 +25,37 @@ function Marketplace() {
   console.log('🛠️ Showing Marketplace (dev mode)')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [courses, setCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   const categories = ['all', 'parenting', 'music', 'dance', 'drama', 'art', 'language']
 
-  const filteredCourses = mockCourses.filter(course => {
+  // Fetch all published courses
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true)
+        const coursesData = await handleApiCall(api.courses.getAll)
+        // Filter to only show published courses
+        const publishedCourses = coursesData.filter(course => course.status === 'published')
+        setCourses(publishedCourses)
+      } catch (err) {
+        console.error('Error fetching courses:', err)
+        setError('Failed to load courses')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourses()
+  }, [])
+
+  const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          course.description.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesCategory = selectedCategory === 'all' || course.category === selectedCategory
-    return matchesSearch && matchesCategory && course.isPublished
+    return matchesSearch && matchesCategory
   })
 
   return (
@@ -66,17 +89,32 @@ function Marketplace() {
         </div>
       </div>
 
-      <div className="courses-grid">
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map(course => (
-            <CourseCard key={course.id} course={course} />
-          ))
-        ) : (
-          <div className="no-results">
-            <p>No courses found matching your criteria</p>
-          </div>
-        )}
-      </div>
+      {loading ? (
+        <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading courses...</p>
+        </div>
+      ) : error ? (
+        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>{error}</p>
+        </div>
+      ) : (
+        <div className="courses-grid">
+          {filteredCourses.length > 0 ? (
+            filteredCourses.map(course => (
+              <CourseCard key={course.id} course={course} />
+            ))
+          ) : (
+            <div className="no-results">
+              <p>No courses found matching your criteria</p>
+              {courses.length === 0 && (
+                <p style={{ marginTop: '1rem', color: '#6b7280' }}>
+                  No courses have been published yet. Check back soon!
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
