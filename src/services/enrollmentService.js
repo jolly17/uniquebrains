@@ -117,11 +117,12 @@ export async function enrollStudent(courseId, studentId = null, studentProfileId
 
 /**
  * Get enrollments for a student
- * @param {string} studentId - Student user ID
+ * @param {string} studentId - Student user ID (for direct enrollments) OR student profile ID (for parent-managed)
+ * @param {boolean} isStudentProfile - True if studentId is actually a student_profile_id
  * @param {string} status - Filter by status (optional)
  * @returns {Promise<Array>} List of student enrollments
  */
-export async function getStudentEnrollments(studentId, status = null) {
+export async function getStudentEnrollments(studentId, isStudentProfile = false, status = null) {
   if (!studentId) {
     throw new Error('Student ID is required')
   }
@@ -142,8 +143,14 @@ export async function getStudentEnrollments(studentId, status = null) {
           profiles!instructor_id(id, full_name, avatar_url)
         )
       `)
-      .eq('student_id', studentId)
       .order('enrolled_at', { ascending: false })
+
+    // Query by student_id OR student_profile_id depending on the type
+    if (isStudentProfile) {
+      query = query.eq('student_profile_id', studentId)
+    } else {
+      query = query.eq('student_id', studentId)
+    }
 
     if (status) {
       query = query.eq('status', status)

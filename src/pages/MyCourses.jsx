@@ -26,11 +26,16 @@ function MyCourses() {
         setLoading(true)
         setError('')
         
-        // Get student ID (either activeStudent or user's own ID)
+        // Determine if we're fetching for a student profile or direct user
+        const isStudentProfile = activeStudent !== null
         const studentId = activeStudent?.id || user.id
         
+        console.log('📚 Fetching enrollments for:', { studentId, isStudentProfile, activeStudent })
+        
         // Fetch enrollments for this student
-        const enrollments = await handleApiCall(api.enrollments.getStudent, studentId)
+        const enrollments = await handleApiCall(api.enrollments.getStudent, studentId, isStudentProfile)
+        
+        console.log('✅ Enrollments fetched:', enrollments)
         
         // Fetch full course details for each enrollment
         const coursesPromises = enrollments.map(enrollment => 
