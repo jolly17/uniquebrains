@@ -4,57 +4,61 @@
 
 A modern learning management system designed for neurodivergent learners, connecting students with specialized instructors for personalized education.
 
-🌐 **Live Site**: [https://uniquebrains.org](https://uniquebrains.org)
-📚 **Documentation**: See [GUIDES.md](./GUIDES.md)
+🌐 **Live Site**: [https://uniquebrains.org](https://uniquebrains.org)  
+📚 **Documentation**: Complete guides below
 
 ---
 
-## ✨ Current Status
+## ✨ Features
 
-### ✅ Implemented Features
+### Core Platform
+- ✅ **User Authentication** - Role-based access (Instructor, Student, Parent)
+- ✅ **Course Management** - Create, edit, and publish courses
+- ✅ **Marketplace** - Browse and enroll in courses
+- ✅ **Session Scheduling** - Recurring and one-time sessions
+- ✅ **Homework System** - Assignments, submissions, and grading
+- ✅ **Real-time Messaging** - Instant chat with WebSocket
+- ✅ **Resource Management** - Upload and share course materials
+- ✅ **Responsive Design** - Works on all devices
 
-**Student Experience:**
-- Browse and enroll in courses
-- View course schedules and sessions
-- Submit homework (text, file, or checkmark)
-- Access course resources
-- Chat with instructors (group or private)
-- Track progress and completion
-- Neurodiversity profile support
+### Technical Highlights
+- 🚀 **Real-time Communication** - Sub-second message delivery
+- 🔒 **Secure Authentication** - JWT tokens with Supabase Auth
+- 📊 **Supabase Backend** - PostgreSQL with Row Level Security
+- ⚡ **Fast Performance** - Vite build system
+- 🎨 **Modern UI** - Clean, accessible interface
 
-**Instructor Experience:**
-- Create and manage courses
-- **Recurring session scheduling** (weekly patterns)
-- Create individual sessions
-- Assign and review homework
-- Provide feedback to students
-- Upload resources (files and links)
-- Chat with students (group or 1-on-1)
-- View student profiles and progress
+---
 
-**Platform Features:**
-- Role-based authentication (student/instructor/parent)
-- Responsive design (mobile, tablet, desktop)
-- Real-time notifications
-- LocalStorage data persistence
-- Course ratings and reviews
+## 📚 Documentation
 
-### 📋 Documented (Ready to Implement)
+### Quick Links
+- **[FEATURES.md](./FEATURES.md)** - Complete feature documentation
+- **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common issues and solutions
+- **[TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md)** - Quick testing reference
+- **[COMPLETE_TESTING_GUIDE.md](./COMPLETE_TESTING_GUIDE.md)** - Detailed testing guide
 
-- Complete backend architecture (Supabase + Vercel)
-- Database schema and API design
-- Payment processing (Stripe)
-- Email notifications
-- Video conferencing integration (Zoom)
+### Setup & Configuration
+- **[BACKEND_SETUP.md](./BACKEND_SETUP.md)** - Backend configuration
+- **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Supabase setup guide
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions
+- **[SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md)** - Initial setup steps
+
+### Additional Resources
+- **[LAUNCH_CHECKLIST.md](./LAUNCH_CHECKLIST.md)** - Pre-launch checklist
+- **[BRANDING.md](./BRANDING.md)** - Brand guidelines
+- **[COURSE_TYPES.md](./COURSE_TYPES.md)** - Course specifications
+- **[GUIDES.md](./GUIDES.md)** - User guides
+- **[AUTH_README.md](./AUTH_README.md)** - Authentication details
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-
 - Node.js 18+
 - Git
+- Supabase account (for backend)
 
 ### Installation
 
@@ -66,25 +70,44 @@ cd uniquebrains
 # Install dependencies
 npm install
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Supabase credentials
+
 # Start development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:5173](http://localhost:5173)
 
-### Demo Accounts
+### Build for Production
 
-**Student:**
-- Email: `student@demo.com`
-- Password: any
+```bash
+npm run build
+```
 
-**Instructor:**
-- Email: `instructor@demo.com`
-- Password: any
+---
 
-**Parent:**
-- Email: `parent@demo.com`
-- Password: any
+## 🛠️ Tech Stack
+
+### Frontend
+- **React 18** - UI framework
+- **React Router 6** - Navigation
+- **Vite** - Build tool
+- **CSS3** - Custom styling
+
+### Backend
+- **Supabase** - Backend as a Service
+  - PostgreSQL database
+  - Authentication (JWT)
+  - Real-time subscriptions
+  - Row Level Security
+  - File storage
+- **Supabase Realtime** - WebSocket messaging
+
+### Deployment
+- **GitHub Pages** - Static hosting
+- **Custom Domain** - uniquebrains.org
 
 ---
 
@@ -94,218 +117,129 @@ Open [http://localhost:3000](http://localhost:3000)
 uniquebrains/
 ├── src/
 │   ├── components/          # Reusable UI components
-│   │   ├── Layout.jsx       # Main layout with header/footer
-│   │   ├── CourseCard.jsx   # Course display card
-│   │   ├── HomeworkSubmissionModal.jsx
-│   │   └── HomeworkDetailsModal.jsx
 │   ├── pages/               # Page components
-│   │   ├── LandingPage.jsx
-│   │   ├── Marketplace.jsx
-│   │   ├── InstructorDashboard.jsx
-│   │   ├── ManageCourse.jsx
-│   │   ├── ManageSessions.jsx  # Session scheduling
-│   │   ├── CourseHomework.jsx  # Homework management
-│   │   ├── CourseResources.jsx # Resource management
-│   │   ├── CourseChat.jsx      # Chat system
-│   │   ├── StudentCourseView.jsx
-│   │   ├── StudentHomework.jsx
-│   │   ├── StudentResources.jsx
-│   │   └── StudentChat.jsx
-│   ├── context/
-│   │   └── AuthContext.jsx  # Authentication state
-│   └── data/
-│       └── mockData.js      # Sample data
+│   ├── services/            # API services
+│   │   ├── api.js           # Unified API interface
+│   │   ├── courseService.js
+│   │   ├── messageService.js
+│   │   ├── realtimeService.js
+│   │   └── ...
+│   ├── hooks/               # Custom React hooks
+│   ├── context/             # React context providers
+│   └── lib/                 # Utilities and config
+├── docs/                    # Production build
 ├── .kiro/specs/             # Feature specifications
-│   ├── backend-architecture/
-│   └── instructor-course-management/
-├── docs/                    # Production build (GitHub Pages)
-├── GUIDES.md               # Complete user guides
-├── BACKEND_SETUP.md        # Backend implementation guide
-└── README.md               # This file
+└── [documentation files]    # See Documentation section
 ```
 
 ---
 
-## 🎯 Key Features
+## 🎯 Key Features Explained
 
-### Session Scheduling
+### Real-time Messaging
+- Instant message delivery (< 1 second)
+- WebSocket-based communication
+- Automatic reconnection
+- Connection status indicators
+- Group and one-on-one chat
 
-**Recurring Schedules:**
-- Set up weekly patterns (e.g., Mon/Wed/Fri at 10 AM)
-- Auto-generate sessions for weeks/months
-- Individual schedules per student (1-on-1 courses)
-- Edit schedules when availability changes
-
-**Single Sessions:**
-- Create one-off sessions as needed
-- Set custom topics and meeting links
-- Override recurring patterns
+### Course Management
+- Create group or one-on-one courses
+- Auto-publish to marketplace
+- Recurring session scheduling
+- Enrollment management
+- Student progress tracking
 
 ### Homework System
-
-**For Instructors:**
 - Create assignments with due dates
-- Support text, file, or checkmark submissions
-- Review submissions
-- Provide written feedback
-- Track completion rates
-
-**For Students:**
-- View "To Do" and "Completed" sections
-- Submit homework before due date
-- Receive instructor feedback
-- Track days remaining
-
-### Resource Management
-
-**Instructors can:**
-- Upload files (PDF, images, documents)
-- Add web links
-- Track which students viewed resources
-
-**Students can:**
-- Download files
-- Preview supported formats
-- Access links
-- View all course materials
-
-### Chat System
-
-**Group Courses:**
-- Single group chat with all students
-- Real-time messaging
-- Message history
-
-**One-on-One Courses:**
-- Individual chat threads per student
-- Private conversations
-- Coordinate scheduling
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React 18** - UI framework
-- **React Router 6** - Client-side routing
-- **Vite** - Build tool and dev server
-- **CSS3** - Custom styling with variables
-
-### Backend (Documented, Not Yet Implemented)
-- **Supabase** - PostgreSQL database + Auth + Storage
-- **Vercel** - Hosting and serverless functions
-- **Stripe** - Payment processing
-- **Cloudinary** - Image/video CDN
-- **Resend/SendGrid** - Email notifications
-- **Zoom API** - Video conferencing
-
-### Current Data Storage
-- **LocalStorage** - Client-side persistence
-- **Mock Data** - Sample courses and users
-
----
-
-## 📖 Documentation
-
-### User Guides
-- **[GUIDES.md](./GUIDES.md)** - Complete platform guides
-  - Session scheduling guide
-  - Course management guide
-  - Deployment guide
-  - Backend setup guide
-
-### Technical Documentation
-- **[BACKEND_SETUP.md](./BACKEND_SETUP.md)** - Backend implementation
-- **[.kiro/specs/backend-architecture/](./kiro/specs/backend-architecture/)** - Complete backend specs
-  - Architecture diagrams
-  - Database schema
-  - API design
-  - Security measures
-
-### Other Docs
-- **[BRANDING.md](./BRANDING.md)** - Brand guidelines
-- **[COURSE_TYPES.md](./COURSE_TYPES.md)** - Course type specifications
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions
-
----
-
-## 🚢 Deployment
-
-### Current Setup
-
-**Hosting**: GitHub Pages
-**Domain**: uniquebrains.org
-**Build Output**: `/docs` folder
-
-### Deploy Process
-
-```bash
-# 1. Build the project
-npm run build
-
-# 2. Commit and push
-git add .
-git commit -m "Your changes"
-git push origin main
-
-# 3. Wait 2-5 minutes for GitHub Pages to rebuild
-```
-
-### Deployment Status
-
-Check: [https://github.com/jolly17/uniquebrains/actions](https://github.com/jolly17/uniquebrains/actions)
-
----
-
-## 🗺️ Roadmap
-
-### Phase 1: Core Platform ✅ (Current)
-- [x] Student and instructor dashboards
-- [x] Course creation and management
-- [x] Session scheduling (recurring + single)
-- [x] Homework system
-- [x] Resource management
-- [x] Chat system
-- [x] Responsive design
-
-### Phase 2: Backend Integration 📋 (Next)
-- [ ] Supabase database setup
-- [ ] Real authentication
-- [ ] File storage (Cloudinary)
-- [ ] API integration
-- [ ] Real-time features (WebSocket)
-
-### Phase 3: Payments & Video 💰
-- [ ] Stripe payment processing
-- [ ] Zoom API integration
-- [ ] Video upload and streaming
-- [ ] Certificate generation
-
-### Phase 4: Advanced Features 🚀
-- [ ] AI-powered course recommendations
-- [ ] Progress analytics
-- [ ] Parent dashboard enhancements
-- [ ] Mobile apps (iOS/Android)
+- Text and file submissions
+- Grading with feedback
+- Completion tracking
+- Late submission handling
 
 ---
 
 ## 🧪 Testing
 
-### Current
-- Manual testing
-- Browser compatibility testing
+### Manual Testing
+Use the testing checklist for quick validation:
+```bash
+# See TESTING_CHECKLIST.md for step-by-step testing
+```
 
-### Planned
-- Unit tests (Vitest)
-- Component tests (React Testing Library)
-- E2E tests (Playwright)
-- Property-based tests for core logic
+### Test Accounts
+Create test accounts with different roles:
+- Instructor: `instructor@test.com`
+- Student: `student@test.com`
 
 ---
 
-## 🤝 Contributing
+## 🚢 Deployment
 
-This is a private project. For questions or suggestions, contact the development team.
+### GitHub Pages Deployment
+
+```bash
+# Build and deploy
+npm run build
+git add docs
+git commit -m "Deploy updates"
+git push
+
+# Or use the deploy script
+npm run deploy
+```
+
+### Environment Variables
+Required for production:
+```env
+VITE_SUPABASE_URL=your-project-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+---
+
+## 🗺️ Roadmap
+
+### Current Version (v1.0)
+- ✅ Core platform features
+- ✅ Real-time messaging
+- ✅ Course management
+- ✅ Homework system
+- ✅ Supabase backend
+
+### Upcoming Features
+- 📹 Video conferencing integration
+- 💳 Payment processing (Stripe)
+- 📧 Email notifications
+- 📱 Mobile app
+- 📊 Analytics dashboard
+- 🎓 Certificates
+
+---
+
+## 🐛 Troubleshooting
+
+Having issues? Check these resources:
+
+1. **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** - Common problems and solutions
+2. **Browser Console** - Check for error messages (F12)
+3. **Supabase Dashboard** - Verify backend status
+4. **Network Tab** - Inspect API requests
+
+Common issues:
+- Authentication problems → Check Supabase configuration
+- Real-time not working → Enable Realtime in Supabase
+- Courses not showing → Verify course status is 'published'
+
+---
+
+## 📞 Support
+
+- **Documentation**: See links above
+- **Issues**: Check TROUBLESHOOTING.md
+- **Website**: [https://uniquebrains.org](https://uniquebrains.org)
 
 ---
 
@@ -315,14 +249,8 @@ Proprietary - All rights reserved
 
 ---
 
-## 📞 Support
-
-- **Website**: [https://uniquebrains.org](https://uniquebrains.org)
-- **Email**: support@uniquebrains.org
-- **Documentation**: [GUIDES.md](./GUIDES.md)
-
----
-
 **Built with ❤️ for neurodivergent learners**
 
-*Last Updated: December 2025*
+*Last Updated: January 2026*  
+*Version: 1.0.0*  
+*Status: Production Ready 🚀*
