@@ -17,7 +17,6 @@ function CreateCourse() {
     price: '',
     sessionDuration: '',
     sessionTime: '',
-    isSelfPaced: false,
     enrollmentLimit: '',
     // Recurrence fields
     startDate: '',
@@ -74,7 +73,6 @@ function CreateCourse() {
         courseType: formData.courseType,
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
-        isSelfPaced: formData.isSelfPaced,
         // Schedule data for session creation
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
@@ -223,21 +221,6 @@ function CreateCourse() {
                 />
               </div>
             </div>
-
-            {formData.courseType === 'group' && (
-              <div className="form-group" style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
-                  <input
-                    type="checkbox"
-                    name="isSelfPaced"
-                    checked={formData.isSelfPaced}
-                    onChange={handleChange}
-                    style={{ marginRight: '0.5rem' }}
-                  />
-                  Self-paced (no fixed schedule)
-                </label>
-              </div>
-            )}
           </div>
 
           {/* Right Column - Schedule Section */}
@@ -257,7 +240,7 @@ function CreateCourse() {
               </div>
             )}
 
-            {formData.courseType === 'group' && !formData.isSelfPaced && (
+            {formData.courseType === 'group' && (
               <>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#374151' }}>Schedule</h3>
                 
@@ -270,7 +253,7 @@ function CreateCourse() {
                       type="number"
                       value={formData.sessionDuration}
                       onChange={handleChange}
-                      required={!formData.isSelfPaced}
+                      required
                       min="15"
                       step="15"
                       placeholder="60"
@@ -286,7 +269,7 @@ function CreateCourse() {
                       type="time"
                       value={formData.sessionTime}
                       onChange={handleChange}
-                      required={!formData.isSelfPaced}
+                      required
                       style={{ padding: '0.5rem' }}
                     />
                   </div>
@@ -301,7 +284,7 @@ function CreateCourse() {
                       type="date"
                       value={formData.startDate}
                       onChange={handleChange}
-                      required={!formData.isSelfPaced}
+                      required
                       style={{ padding: '0.5rem' }}
                     />
                   </div>
@@ -333,14 +316,14 @@ function CreateCourse() {
                       onChange={handleChange}
                       min="1"
                       max="52"
-                      required={!formData.isSelfPaced}
+                      required
                       style={{ width: '80px', padding: '0.5rem' }}
                     />
                     <select
                       name="repeatUnit"
                       value={formData.repeatUnit}
                       onChange={handleChange}
-                      required={!formData.isSelfPaced}
+                      required
                       style={{ flex: 1, padding: '0.5rem' }}
                     >
                       <option value="day">Day(s)</option>
