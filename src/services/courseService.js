@@ -36,8 +36,8 @@ export async function createCourse(courseData, user) {
       enrollment_limit: courseData.enrollmentLimit ? parseInt(courseData.enrollmentLimit) : null,
       is_self_paced: courseData.isSelfPaced || false,
       instructor_id: user.id,
-      status: 'draft', // Start as draft
-      is_published: false,
+      status: 'published', // Auto-publish new courses
+      is_published: true,
       // Add missing date and schedule fields
       start_date: courseData.startDate || null,
       end_date: courseData.endDate || null,
@@ -72,7 +72,7 @@ export async function createCourse(courseData, user) {
     return {
       course,
       sessions,
-      message: 'Course created successfully! You can now add meeting links and publish it.'
+      message: 'Course created and published successfully! Students can now enroll.'
     }
 
   } catch (error) {
