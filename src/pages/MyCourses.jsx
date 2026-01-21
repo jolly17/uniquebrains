@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { mockCourses } from '../data/mockData'
+import { api, handleApiCall } from '../services/api'
 import './MyCourses.css'
 
 function MyCourses() {
-  const { profile, activeStudent } = useAuth()
+  const { user, profile, activeStudent } = useAuth()
   const [viewMode, setViewMode] = useState('list') // 'list' or 'calendar'
   const [enrolledCourses, setEnrolledCourses] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   
   // Helper function to capitalize first letter
   const capitalizeFirstLetter = (str) => {
@@ -17,16 +19,36 @@ function MyCourses() {
   
   // Load courses based on selected student/parent
   useEffect(() => {
-    // TODO: Replace with actual API call to get enrolled courses
-    // For now, using mock data
-    if (activeStudent) {
-      // Show courses for selected student
-      setEnrolledCourses(mockCourses.slice(0, 2)) // Mock student courses
-    } else {
-      // Show courses for parent
-      setEnrolledCourses(mockCourses.slice(2, 4)) // Mock parent courses
+    const fetchEnrolledCourses = async () => {
+      if (!user) return
+      
+      try {
+        setLoading(true)
+        setError('')
+        
+        // Get student ID (either activeStudent or user's own ID)
+        const studentId = activeStudent?.id || user.id
+        
+        // Fetch enrollments for this student
+        const enrollments = await handleApiCall(api.enrollments.getStudent, studentId)
+        
+        // Fetch full course details for each enrollment
+        const coursesPromises = enrollments.map(enrollment => 
+          handleApiCall(api.courses.getById, enrollment.course_id)
+        )
+        
+        const courses = await Promise.all(coursesPromises)
+        setEnrolledCourses(courses)
+      } catch (err) {
+        console.error('Error fetching enrolled courses:', err)
+        setError('Failed to load your courses')
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [activeStudent])
+
+    fetchEnrolledCourses()
+  }, [user, activeStudent])
 
   // Generate upcoming sessions for calendar view
   const generateUpcomingSessions = () => {
@@ -71,6 +93,26 @@ function MyCourses() {
 
   const upcomingSessions = generateUpcomingSessions()
 
+  if (loading) {
+    return (
+      <div className="my-courses">
+        <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading your courses...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="my-courses">
+        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>{error}</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="my-courses">
       <div className="my-courses-header">
@@ -107,45 +149,54 @@ function MyCourses() {
 
       {viewMode === 'list' ? (
         <div className="courses-list">
-        {enrolledCourses.map(course => {
-          // Mock progress - in real app this would come from user's progress data
-          const progress = 35 // Mock 35% completion
+        {enrolledCourses.length > 0 ? (
+          enrolledCourses.map(course => {
+            // Mock progress - in real app this would come from user's progress data
+            const progress = 35 // Mock 35% completion
 
-          return (
-            <div key={course.id} className="enrolled-course-card">
-              <div className="course-info">
-                <h3>{course.title}</h3>
-                <p className="instructor">By {course.instructorName}</p>
-                
-                {!course.isSelfPaced && (
-                  <p className="session-info">
-                    📅 {course.sessionDuration} min • {course.sessionFrequency}
-                    {course.selectedDays.length > 0 && course.dayTimes && (
-                      <span className="session-times">
-                        {' • '}
-                        {course.selectedDays.map(day => `${day} ${course.dayTimes[day]}`).join(', ')}
-                      </span>
-                    )}
-                  </p>
-                )}
-                {course.isSelfPaced && (
-                  <p className="session-info">⏰ Self-paced learning</p>
-                )}
-                
-                <div className="progress-section">
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+            return (
+              <div key={course.id} className="enrolled-course-card">
+                <div className="course-info">
+                  <h3>{course.title}</h3>
+                  <p className="instructor">By {course.instructorName}</p>
+                  
+                  {!course.isSelfPaced && course.sessionDuration && (
+                    <p className="session-info">
+                      📅 {course.sessionDuration} min • {course.sessionFrequency}
+                      {course.selectedDays && course.selectedDays.length > 0 && course.dayTimes && (
+                        <span className="session-times">
+                          {' • '}
+                          {course.selectedDays.map(day => `${day} ${course.dayTimes[day] || ''}`).join(', ')}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                  {course.isSelfPaced && (
+                    <p className="session-info">⏰ Self-paced learning</p>
+                  )}
+                  
+                  <div className="progress-section">
+                    <div className="progress-bar">
+                      <div className="progress-fill" style={{ width: `${progress}%` }}></div>
+                    </div>
+                    <span className="progress-text">{Math.round(progress)}% Complete</span>
                   </div>
-                  <span className="progress-text">{Math.round(progress)}% Complete</span>
                 </div>
+                
+                <Link to={`/learn/${course.id}`} className="btn-primary">
+                  View Course
+                </Link>
               </div>
-              
-              <Link to={`/learn/${course.id}`} className="btn-primary">
-                View Course
-              </Link>
-            </div>
-          )
-        })}
+            )
+          })
+        ) : (
+          <div className="no-courses" style={{ textAlign: 'center', padding: '3rem' }}>
+            <p>You haven't enrolled in any courses yet.</p>
+            <Link to="/marketplace" className="btn-primary" style={{ marginTop: '1rem', display: 'inline-block' }}>
+              Browse Courses
+            </Link>
+          </div>
+        )}
         </div>
       ) : (
         <div className="calendar-view">
