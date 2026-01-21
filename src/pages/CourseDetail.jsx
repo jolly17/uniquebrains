@@ -57,7 +57,7 @@ function CourseDetail() {
   const isFull = course.enrollmentLimit && course.currentEnrollment >= course.enrollmentLimit
   const spotsLeft = course.enrollmentLimit ? course.enrollmentLimit - course.currentEnrollment : null
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     if (!user) {
       navigate('/login')
       return
@@ -67,18 +67,25 @@ function CourseDetail() {
       return
     }
     
-    // Show success popup with student info
-    setShowEnrollmentSuccess(true)
-    
-    // TODO: Add actual enrollment logic here
-    // - Create enrollment record in database
-    // - Link to activeStudent or parent profile
-    
-    // Auto-close popup after 3 seconds
-    setTimeout(() => {
-      setShowEnrollmentSuccess(false)
-      navigate('/my-courses')
-    }, 3000)
+    try {
+      // Get student ID (either activeStudent or user's own ID)
+      const studentId = activeStudent?.id || user.id
+      
+      // Create enrollment record in database
+      await handleApiCall(api.enrollments.enroll, courseId, studentId)
+      
+      // Show success popup with student info
+      setShowEnrollmentSuccess(true)
+      
+      // Auto-close popup after 3 seconds
+      setTimeout(() => {
+        setShowEnrollmentSuccess(false)
+        navigate('/my-courses')
+      }, 3000)
+    } catch (err) {
+      console.error('Enrollment error:', err)
+      alert(err.message || 'Failed to enroll in course. Please try again.')
+    }
   }
 
   return (
