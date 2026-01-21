@@ -8,12 +8,17 @@ import { supabase } from '../lib/supabase'
 /**
  * Enroll a student in a course
  * @param {string} courseId - Course ID
- * @param {string} studentId - Student user ID
+ * @param {string} studentId - Student user ID (for direct enrollments) - can be null if studentProfileId is provided
+ * @param {string} studentProfileId - Student profile ID (for parent-managed enrollments) - can be null if studentId is provided
  * @returns {Promise<Object>} Created enrollment
  */
-export async function enrollStudent(courseId, studentId) {
-  if (!courseId || !studentId) {
-    throw new Error('Course ID and student ID are required')
+export async function enrollStudent(courseId, studentId = null, studentProfileId = null) {
+  if (!courseId) {
+    throw new Error('Course ID is required')
+  }
+
+  if (!studentId && !studentProfileId) {
+    throw new Error('Either student ID or student profile ID is required')
   }
 
   try {
@@ -33,17 +38,23 @@ export async function enrollStudent(courseId, studentId) {
     }
 
     // Check if student is trying to enroll in their own course
-    if (course.instructor_id === studentId) {
+    if (studentId && course.instructor_id === studentId) {
       throw new Error('Instructors cannot enroll in their own courses')
     }
 
     // Check if student is already enrolled
-    const { data: existingEnrollment, error: existingError } = await supabase
+    let existingEnrollmentQuery = supabase
       .from('enrollments')
       .select('id, status')
       .eq('course_id', courseId)
-      .eq('student_id', studentId)
-      .single()
+
+    if (studentId) {
+      existingEnrollmentQuery = existingEnrollmentQuery.eq('student_id', studentId)
+    } else {
+      existingEnrollmentQuery = existingEnrollmentQuery.eq('student_profile_id', studentProfileId)
+    }
+
+    const { data: existingEnrollment, error: existingError } = await existingEnrollmentQuery.single()
 
     if (existingEnrollment) {
       if (existingEnrollment.status === 'active') {
@@ -71,7 +82,8 @@ export async function enrollStudent(courseId, studentId) {
     // Create enrollment
     const enrollmentData = {
       course_id: courseId,
-      student_id: studentId,
+      student_id: studentId,  // Will be null for parent-managed enrollments
+      student_profile_id: studentProfileId,  // Will be null for direct enrollments
       status: 'active',
       progress: 0,
       enrolled_at: new Date().toISOString()
