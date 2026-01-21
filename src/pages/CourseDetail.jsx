@@ -15,6 +15,12 @@ function CourseDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   
+  // Debug: Log activeStudent whenever it changes
+  useEffect(() => {
+    console.log('🎯 CourseDetail - activeStudent changed:', activeStudent)
+    console.log('👤 CourseDetail - user:', user?.id)
+  }, [activeStudent, user])
+  
   const reviews = mockReviews.filter(r => r.courseId === courseId)
 
   // Fetch course data

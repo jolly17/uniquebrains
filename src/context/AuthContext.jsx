@@ -269,13 +269,21 @@ export function AuthProvider({ children }) {
   }
 
   const switchStudent = (studentId) => {
+    console.log('🔄 switchStudent called with:', studentId)
+    console.log('📋 Available students:', students)
+    
     if (studentId === null) {
       // Switch to parent
+      console.log('👤 Switching to parent (activeStudent = null)')
       setActiveStudent(null)
     } else {
       const student = students.find(s => s.id === studentId)
+      console.log('👶 Found student:', student)
       if (student) {
+        console.log('✅ Setting active student:', student)
         setActiveStudent(student)
+      } else {
+        console.error('❌ Student not found with ID:', studentId)
       }
     }
   }
