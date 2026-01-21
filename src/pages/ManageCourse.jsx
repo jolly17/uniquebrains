@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { mockCourses } from '../data/mockData'
+import { api, handleApiCall } from '../services/api'
 import ManageSessions from './ManageSessions'
 import CourseStudents from './CourseStudents'
 import CourseHomework from './CourseHomework'
@@ -15,9 +15,31 @@ function ManageCourse() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { user } = useAuth()
   const [unreadCount, setUnreadCount] = useState(0)
+  const [course, setCourse] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   
-  const course = mockCourses.find(c => c.id === courseId)
   const activeTab = searchParams.get('tab') || 'sessions'
+
+  // Fetch course data
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true)
+        const courseData = await handleApiCall(api.courses.getById, courseId)
+        setCourse(courseData)
+      } catch (err) {
+        console.error('Error fetching course:', err)
+        setError('Failed to load course')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (courseId) {
+      fetchCourse()
+    }
+  }, [courseId])
 
   // Check for unread messages
   useEffect(() => {
@@ -39,8 +61,25 @@ function ManageCourse() {
     return () => clearInterval(interval)
   }, [courseId, user.id, activeTab])
 
-  if (!course) {
-    return <div>Course not found</div>
+  if (loading) {
+    return (
+      <div className="manage-course">
+        <div className="loading-state">Loading course...</div>
+      </div>
+    )
+  }
+
+  if (error || !course) {
+    return (
+      <div className="manage-course">
+        <div className="error-state">
+          <p>{error || 'Course not found'}</p>
+          <button onClick={() => navigate('/instructor/dashboard')} className="btn-primary">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    )
   }
 
   const handleTabChange = (tab) => {

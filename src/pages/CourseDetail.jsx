@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
-import { mockCourses, mockReviews } from '../data/mockData'
+import { api, handleApiCall } from '../services/api'
+import { mockReviews } from '../data/mockData'
 import './CourseDetail.css'
 
 function CourseDetail() {
@@ -10,12 +11,47 @@ function CourseDetail() {
   const { user, profile, activeStudent } = useAuth()
   const navigate = useNavigate()
   const [showEnrollmentSuccess, setShowEnrollmentSuccess] = useState(false)
+  const [course, setCourse] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   
-  const course = mockCourses.find(c => c.id === courseId)
   const reviews = mockReviews.filter(r => r.courseId === courseId)
 
-  if (!course) {
-    return <div>Course not found</div>
+  // Fetch course data
+  useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        setLoading(true)
+        const courseData = await handleApiCall(api.courses.getById, courseId)
+        setCourse(courseData)
+      } catch (err) {
+        console.error('Error fetching course:', err)
+        setError('Failed to load course')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    if (courseId) {
+      fetchCourse()
+    }
+  }, [courseId])
+
+  if (loading) {
+    return <div className="course-detail"><div className="loading-state">Loading course...</div></div>
+  }
+
+  if (error || !course) {
+    return (
+      <div className="course-detail">
+        <div className="error-state">
+          <p>{error || 'Course not found'}</p>
+          <button onClick={() => navigate('/marketplace')} className="btn-primary">
+            Back to Marketplace
+          </button>
+        </div>
+      </div>
+    )
   }
 
   const isFull = course.enrollmentLimit && course.currentEnrollment >= course.enrollmentLimit
