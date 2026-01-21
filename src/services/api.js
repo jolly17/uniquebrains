@@ -18,6 +18,8 @@ import * as enrollmentService from './enrollmentService'
 export const courses = {
   // Course CRUD operations
   create: courseService.createCourse,
+  getAll: courseService.getAllPublishedCourses,
+  getById: courseService.getCourseById,
   getInstructorCourses: courseService.getInstructorCourses,
   update: courseService.updateCourse,
   delete: courseService.deleteCourse,

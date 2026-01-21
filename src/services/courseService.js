@@ -179,6 +179,70 @@ export async function getInstructorCourses(instructorId) {
 }
 
 /**
+ * Get all published courses (for marketplace)
+ * @returns {Promise<Array>} List of published courses
+ */
+export async function getAllPublishedCourses() {
+  try {
+    const { data: courses, error } = await supabase
+      .from('courses')
+      .select(`
+        *,
+        profiles!instructor_id(id, first_name, last_name, avatar_url),
+        enrollments(count),
+        sessions(count)
+      `)
+      .eq('status', 'published')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching published courses:', error)
+      throw new Error(`Failed to fetch courses: ${error.message}`)
+    }
+
+    return courses || []
+  } catch (error) {
+    console.error('Error in getAllPublishedCourses:', error)
+    throw error
+  }
+}
+
+/**
+ * Get a single course by ID
+ * @param {string} courseId - Course ID
+ * @returns {Promise<Object>} Course details
+ */
+export async function getCourseById(courseId) {
+  if (!courseId) {
+    throw new Error('Course ID is required')
+  }
+
+  try {
+    const { data: course, error } = await supabase
+      .from('courses')
+      .select(`
+        *,
+        profiles!instructor_id(id, first_name, last_name, avatar_url, bio),
+        enrollments(count),
+        sessions(*)
+      `)
+      .eq('id', courseId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching course:', error)
+      throw new Error(`Failed to fetch course: ${error.message}`)
+    }
+
+    return course
+  } catch (error) {
+    console.error('Error in getCourseById:', error)
+    throw error
+  }
+}
+
+/**
  * Update course information
  * @param {string} courseId - Course ID
  * @param {Object} updates - Fields to update
