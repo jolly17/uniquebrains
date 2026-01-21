@@ -168,18 +168,6 @@ function CourseDetail() {
       </div>
 
       <div className="course-sections">
-        {/* Only show "What You'll Learn" section if description exists */}
-        <section className="course-section">
-          <h2>About This Course</h2>
-          <p className="course-description-full">{course.description}</p>
-          {course.instructorBio && (
-            <div className="instructor-bio">
-              <h3>About the Instructor</h3>
-              <p>{course.instructorBio}</p>
-            </div>
-          )}
-        </section>
-
         <section className="course-section">
           <h2>Student Reviews</h2>
           {reviews.length > 0 ? (
