@@ -27,6 +27,7 @@ CREATE POLICY "enrollments_select_own"
   USING (student_id = auth.uid());
 
 -- Students can create their own enrollments
+-- WITH CHECK verifies the student_id in the INSERT matches the authenticated user
 CREATE POLICY "enrollments_insert_own"
   ON enrollments FOR INSERT
   WITH CHECK (student_id = auth.uid());

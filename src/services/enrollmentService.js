@@ -77,6 +77,9 @@ export async function enrollStudent(courseId, studentId) {
       enrolled_at: new Date().toISOString()
     }
 
+    console.log('Creating enrollment with data:', enrollmentData)
+    console.log('Current user from Supabase:', (await supabase.auth.getUser()).data.user?.id)
+
     const { data: enrollment, error: enrollmentError } = await supabase
       .from('enrollments')
       .insert([enrollmentData])
@@ -89,6 +92,7 @@ export async function enrollStudent(courseId, studentId) {
 
     if (enrollmentError) {
       console.error('Error creating enrollment:', enrollmentError)
+      console.error('Enrollment data attempted:', enrollmentData)
       throw new Error(`Failed to enroll in course: ${enrollmentError.message}`)
     }
 
