@@ -2,27 +2,9 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import CourseCard from '../components/CourseCard'
 import { api, handleApiCall } from '../services/api'
-import ComingSoon from './ComingSoon'
 import './Marketplace.css'
 
 function Marketplace() {
-  // ULTRA SIMPLE: Just return ComingSoon for everyone except ?dev=true
-  const urlParams = new URLSearchParams(window.location.search)
-  const showMarketplace = urlParams.get('dev') === 'true'
-  
-  console.log('=== MARKETPLACE DEBUG ===')
-  console.log('URL:', window.location.href)
-  console.log('Hostname:', window.location.hostname)
-  console.log('Show marketplace:', showMarketplace)
-  console.log('========================')
-  
-  // Show ComingSoon for everyone unless ?dev=true
-  if (!showMarketplace) {
-    console.log('🎄 Showing ComingSoon page')
-    return <ComingSoon />
-  }
-  
-  console.log('🛠️ Showing Marketplace (dev mode)')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [courses, setCourses] = useState([])
