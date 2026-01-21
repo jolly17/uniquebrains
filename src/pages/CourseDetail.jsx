@@ -168,19 +168,14 @@ function CourseDetail() {
       </div>
 
       <div className="course-sections">
+        {/* Only show "What You'll Learn" section if description exists */}
         <section className="course-section">
-          <h2>What You'll Learn</h2>
-          <div className="learning-objectives">
-            {course.learningObjectives.map((objective, index) => (
-              <div key={index} className="objective-item">
-                <span className="objective-icon">✓</span>
-                <span className="objective-text">{objective}</span>
-              </div>
-            ))}
-          </div>
-          {!course.isSelfPaced && (
-            <div className="course-note">
-              <p>📅 <strong>Note:</strong> Session topics will be tailored to your learning pace and progress. Your instructor will set specific topics for each upcoming class based on your individual needs.</p>
+          <h2>About This Course</h2>
+          <p className="course-description-full">{course.description}</p>
+          {course.instructorBio && (
+            <div className="instructor-bio">
+              <h3>About the Instructor</h3>
+              <p>{course.instructorBio}</p>
             </div>
           )}
         </section>

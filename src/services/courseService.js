@@ -259,9 +259,13 @@ export async function getCourseById(courseId) {
       totalSessions: course.sessions?.length || 0,
       averageRating: course.average_rating || 0,
       totalRatings: course.total_ratings || 0,
-      sessionFrequency: course.frequency || 'weekly', // Add default frequency
+      sessionFrequency: course.frequency || 'weekly',
       selectedDays: course.selected_days || [],
-      dayTimes: course.session_time ? [course.session_time] : []
+      dayTimes: course.session_time ? [course.session_time] : [],
+      isSelfPaced: course.is_self_paced || false,
+      sessionDuration: course.session_duration || 60,
+      enrollmentLimit: course.enrollment_limit || null,
+      price: course.price || 0
     }
 
     return transformedCourse
