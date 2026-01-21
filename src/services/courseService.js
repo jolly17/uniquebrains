@@ -201,7 +201,20 @@ export async function getAllPublishedCourses() {
       throw new Error(`Failed to fetch courses: ${error.message}`)
     }
 
-    return courses || []
+    // Transform the data to match expected format
+    const transformedCourses = (courses || []).map(course => ({
+      ...course,
+      instructorName: course.profiles 
+        ? `${course.profiles.first_name} ${course.profiles.last_name}`.trim()
+        : 'Unknown Instructor',
+      currentEnrollment: course.enrollments?.[0]?.count || 0,
+      totalSessions: course.sessions?.[0]?.count || 0,
+      averageRating: course.average_rating || 0,
+      totalRatings: course.total_ratings || 0,
+      sessionFrequency: course.frequency || 'weekly' // Add default frequency
+    }))
+
+    return transformedCourses
   } catch (error) {
     console.error('Error in getAllPublishedCourses:', error)
     throw error
@@ -235,7 +248,23 @@ export async function getCourseById(courseId) {
       throw new Error(`Failed to fetch course: ${error.message}`)
     }
 
-    return course
+    // Transform the data to match expected format
+    const transformedCourse = {
+      ...course,
+      instructorName: course.profiles 
+        ? `${course.profiles.first_name} ${course.profiles.last_name}`.trim()
+        : 'Unknown Instructor',
+      instructorBio: course.profiles?.bio || '',
+      currentEnrollment: course.enrollments?.[0]?.count || 0,
+      totalSessions: course.sessions?.length || 0,
+      averageRating: course.average_rating || 0,
+      totalRatings: course.total_ratings || 0,
+      sessionFrequency: course.frequency || 'weekly', // Add default frequency
+      selectedDays: course.selected_days || [],
+      dayTimes: course.session_time ? [course.session_time] : []
+    }
+
+    return transformedCourse
   } catch (error) {
     console.error('Error in getCourseById:', error)
     throw error
