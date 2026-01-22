@@ -130,10 +130,11 @@ export async function getCourseHomework(courseId, userId, publishedOnly = true) 
  * Submit homework assignment
  * @param {string} homeworkId - Homework ID
  * @param {Object} submissionData - Submission content
- * @param {string} studentId - Student user ID
+ * @param {string} studentId - Student user ID or student profile ID
+ * @param {boolean} isStudentProfile - Whether studentId is a student_profile_id
  * @returns {Promise<Object>} Created submission
  */
-export async function submitHomework(homeworkId, submissionData, studentId) {
+export async function submitHomework(homeworkId, submissionData, studentId, isStudentProfile = false) {
   if (!homeworkId || !studentId) {
     throw new Error('Homework ID and student ID are required')
   }
@@ -155,24 +156,36 @@ export async function submitHomework(homeworkId, submissionData, studentId) {
     }
 
     // Check if student is enrolled in the course
-    const { data: enrollment, error: enrollmentError } = await supabase
+    let enrollmentQuery = supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', homework.course_id)
-      .eq('student_id', studentId)
-      .single()
+
+    if (isStudentProfile) {
+      enrollmentQuery = enrollmentQuery.eq('student_profile_id', studentId)
+    } else {
+      enrollmentQuery = enrollmentQuery.eq('student_id', studentId)
+    }
+
+    const { data: enrollment, error: enrollmentError } = await enrollmentQuery.single()
 
     if (enrollmentError) {
       throw new Error('You must be enrolled in this course to submit homework')
     }
 
     // Check if submission already exists
-    const { data: existingSubmission, error: existingError } = await supabase
+    let existingQuery = supabase
       .from('submissions')
       .select('id')
       .eq('homework_id', homeworkId)
-      .eq('student_id', studentId)
-      .single()
+
+    if (isStudentProfile) {
+      existingQuery = existingQuery.eq('student_profile_id', studentId)
+    } else {
+      existingQuery = existingQuery.eq('student_id', studentId)
+    }
+
+    const { data: existingSubmission } = await existingQuery.single()
 
     if (existingSubmission) {
       throw new Error('You have already submitted this homework. Contact your instructor to resubmit.')
@@ -190,7 +203,8 @@ export async function submitHomework(homeworkId, submissionData, studentId) {
     // Prepare submission data
     const dbSubmissionData = {
       homework_id: homeworkId,
-      student_id: studentId,
+      student_id: isStudentProfile ? null : studentId,
+      student_profile_id: isStudentProfile ? studentId : null,
       content: submissionData.content || '',
       file_url: submissionData.file_url || null,
       status: 'submitted'
@@ -512,25 +526,59 @@ export async function getStudentSubmissions(courseId, studentId) {
 
 /**
  * Check if user has access to a course (instructor or enrolled student)
+ * Supports both direct enrollments and parent-managed student profiles
  * @param {string} courseId - Course ID
- * @param {string} userId - User ID
+ * @param {string} userId - User ID (can be student_id or parent_id)
+ * @param {string} studentProfileId - Optional student profile ID for parent-managed enrollments
  * @returns {Promise<boolean>} Access status
  */
-async function checkCourseAccess(courseId, userId) {
+async function checkCourseAccess(courseId, userId, studentProfileId = null) {
   try {
     // Check if user is the instructor
     const isInstructor = await checkIsInstructor(courseId, userId)
     if (isInstructor) return true
 
-    // Check if user is enrolled
-    const { data: enrollment, error: enrollmentError } = await supabase
+    // Check if user is enrolled directly as a student (student_id = userId)
+    // This covers: direct student accounts AND parents enrolling themselves
+    const { data: directEnrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
       .eq('student_id', userId)
       .single()
 
-    return !enrollmentError && !!enrollment
+    if (directEnrollment) return true
+
+    // Check if a specific student profile is enrolled (parent-managed)
+    if (studentProfileId) {
+      const { data: profileEnrollment } = await supabase
+        .from('enrollments')
+        .select(`
+          id,
+          students!inner(parent_id)
+        `)
+        .eq('course_id', courseId)
+        .eq('student_profile_id', studentProfileId)
+        .eq('students.parent_id', userId)
+        .single()
+
+      if (profileEnrollment) return true
+    }
+
+    // Check if user is a parent with ANY enrolled student profiles
+    // This allows parents to access courses their children are enrolled in
+    const { data: parentEnrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        id,
+        student_profile_id,
+        students!inner(parent_id)
+      `)
+      .eq('course_id', courseId)
+      .eq('students.parent_id', userId)
+      .limit(1)
+
+    return !!parentEnrollments && parentEnrollments.length > 0
   } catch (error) {
     console.error('Error checking course access:', error)
     return false

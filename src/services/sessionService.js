@@ -325,6 +325,7 @@ export async function getUpcomingSessions(instructorId, limit = 5) {
 
 /**
  * Check if user has access to a course (instructor or enrolled student)
+ * Supports both direct student enrollments and parent-managed student profiles
  * @param {string} courseId - Course ID
  * @param {string} userId - User ID
  * @returns {Promise<boolean>} Access status
@@ -346,19 +347,31 @@ async function checkCourseAccess(courseId, userId) {
       return true
     }
 
-    // Check if user is enrolled
-    const { data: enrollment, error: enrollmentError } = await supabase
+    // Check if user is enrolled directly (student_id)
+    const { data: directEnrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
       .eq('student_id', userId)
       .single()
 
-    if (enrollmentError) {
-      return false
+    if (directEnrollment) {
+      return true
     }
 
-    return !!enrollment
+    // Check if user is a parent with enrolled student profiles
+    const { data: parentEnrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        id,
+        student_profile_id,
+        students!inner(parent_id)
+      `)
+      .eq('course_id', courseId)
+      .eq('students.parent_id', userId)
+      .limit(1)
+
+    return !!parentEnrollments && parentEnrollments.length > 0
   } catch (error) {
     console.error('Error checking course access:', error)
     return false

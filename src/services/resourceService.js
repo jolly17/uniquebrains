@@ -240,10 +240,11 @@ export async function deleteResource(resourceId, instructorId) {
 /**
  * Track resource access by a student
  * @param {string} resourceId - Resource ID
- * @param {string} studentId - Student user ID
+ * @param {string} studentId - Student user ID or student profile ID
+ * @param {boolean} isStudentProfile - Whether studentId is a student_profile_id
  * @returns {Promise<boolean>} Success status
  */
-export async function trackResourceAccess(resourceId, studentId) {
+export async function trackResourceAccess(resourceId, studentId, isStudentProfile = false) {
   if (!resourceId || !studentId) {
     throw new Error('Resource ID and student ID are required')
   }
@@ -261,19 +262,25 @@ export async function trackResourceAccess(resourceId, studentId) {
     }
 
     // Check if student is enrolled in the course
-    const { data: enrollment, error: enrollmentError } = await supabase
+    let enrollmentQuery = supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', resource.course_id)
-      .eq('student_id', studentId)
-      .single()
+
+    if (isStudentProfile) {
+      enrollmentQuery = enrollmentQuery.eq('student_profile_id', studentId)
+    } else {
+      enrollmentQuery = enrollmentQuery.eq('student_id', studentId)
+    }
+
+    const { data: enrollment, error: enrollmentError } = await enrollmentQuery.single()
 
     if (enrollmentError) {
       throw new Error('You must be enrolled in this course to access resources')
     }
 
     // For now, we'll just log the access (could be expanded to track in a separate table)
-    console.log(`Student ${studentId} accessed resource ${resourceId}`)
+    console.log(`Student ${studentId} (profile: ${isStudentProfile}) accessed resource ${resourceId}`)
 
     return true
   } catch (error) {
@@ -403,6 +410,7 @@ export async function getResourceStats(instructorId) {
 
 /**
  * Check if user has access to a course (instructor or enrolled student)
+ * Supports both direct student enrollments and parent-managed student profiles
  * @param {string} courseId - Course ID
  * @param {string} userId - User ID
  * @returns {Promise<boolean>} Access status
@@ -424,19 +432,31 @@ async function checkCourseAccess(courseId, userId) {
       return true
     }
 
-    // Check if user is enrolled
-    const { data: enrollment, error: enrollmentError } = await supabase
+    // Check if user is enrolled directly (student_id)
+    const { data: directEnrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
       .eq('student_id', userId)
       .single()
 
-    if (enrollmentError) {
-      return false
+    if (directEnrollment) {
+      return true
     }
 
-    return !!enrollment
+    // Check if user is a parent with enrolled student profiles
+    const { data: parentEnrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        id,
+        student_profile_id,
+        students!inner(parent_id)
+      `)
+      .eq('course_id', courseId)
+      .eq('students.parent_id', userId)
+      .limit(1)
+
+    return !!parentEnrollments && parentEnrollments.length > 0
   } catch (error) {
     console.error('Error checking course access:', error)
     return false

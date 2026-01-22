@@ -466,6 +466,7 @@ export async function deleteMessage(messageId, instructorId) {
 
 /**
  * Check if user has access to a course (instructor or enrolled student)
+ * Supports both direct student enrollments and parent-managed student profiles
  * @param {string} courseId - Course ID
  * @param {string} userId - User ID
  * @returns {Promise<boolean>} Access status
@@ -493,22 +494,36 @@ async function checkCourseAccess(courseId, userId) {
       return true
     }
 
-    // Check if user is enrolled
-    const { data: enrollment, error: enrollmentError } = await supabase
+    // Check if user is enrolled directly (student_id)
+    const { data: directEnrollment } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
       .eq('student_id', userId)
       .single()
 
-    console.log('Enrollment query result:', { enrollment, enrollmentError })
+    console.log('Direct enrollment query result:', { directEnrollment })
 
-    if (enrollmentError) {
-      console.error('Not enrolled or error:', enrollmentError)
-      return false
+    if (directEnrollment) {
+      console.log('User is directly enrolled - access granted')
+      return true
     }
 
-    const hasAccess = !!enrollment
+    // Check if user is a parent with enrolled student profiles
+    const { data: parentEnrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        id,
+        student_profile_id,
+        students!inner(parent_id)
+      `)
+      .eq('course_id', courseId)
+      .eq('students.parent_id', userId)
+      .limit(1)
+
+    console.log('Parent enrollment query result:', { parentEnrollments })
+
+    const hasAccess = !!parentEnrollments && parentEnrollments.length > 0
     console.log('Access check result:', hasAccess)
     return hasAccess
   } catch (error) {
