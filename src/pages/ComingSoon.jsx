@@ -1,7 +1,41 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import './ComingSoon.css'
 
 function ComingSoon() {
+  const [donationLink, setDonationLink] = useState('https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai')
+
+  useEffect(() => {
+    // Detect user's country based on timezone or use a geolocation API
+    const detectCountry = async () => {
+      try {
+        // Try to detect India based on timezone
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const isIndia = timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta')
+        
+        if (isIndia) {
+          setDonationLink('https://milaap.org/fundraisers/support-autistic-kids-1')
+        } else {
+          // Optionally, use a geolocation API for more accurate detection
+          try {
+            const response = await fetch('https://ipapi.co/json/')
+            const data = await response.json()
+            if (data.country_code === 'IN') {
+              setDonationLink('https://milaap.org/fundraisers/support-autistic-kids-1')
+            }
+          } catch (error) {
+            // If API fails, keep default GoFundMe link
+            console.log('Geolocation detection failed, using default link')
+          }
+        }
+      } catch (error) {
+        console.log('Country detection failed, using default link')
+      }
+    }
+
+    detectCountry()
+  }, [])
+
   return (
     <div className="coming-soon">
       <div className="coming-soon-content">
@@ -47,24 +81,14 @@ function ComingSoon() {
             Help us bring free, quality education to families. Your support makes a difference!
           </p>
           <div className="support-buttons">
-            <div className="donation-buttons">
-              <a
-                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="support-btn donation-btn"
-              >
-                💚 Make a Donation
-              </a>
-              <a
-                href="https://milaap.org/fundraisers/support-autistic-kids-1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="support-btn donation-btn donation-india"
-              >
-                💚 Donate (India) 🇮🇳
-              </a>
-            </div>
+            <a
+              href={donationLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="support-btn donation-btn"
+            >
+              💚 Support Our Mission
+            </a>
             <a
               href="https://wa.me/447417364089?text=I'm%20interested%20in%20becoming%20an%20instructor"
               target="_blank"

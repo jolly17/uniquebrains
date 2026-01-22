@@ -1,7 +1,41 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import './LandingPage.css'
 
 function LandingPage() {
+  const [donationLink, setDonationLink] = useState('https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai')
+
+  useEffect(() => {
+    // Detect user's country based on timezone or use a geolocation API
+    const detectCountry = async () => {
+      try {
+        // Try to detect India based on timezone
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
+        const isIndia = timezone.includes('Asia/Kolkata') || timezone.includes('Asia/Calcutta')
+        
+        if (isIndia) {
+          setDonationLink('https://milaap.org/fundraisers/support-autistic-kids-1')
+        } else {
+          // Optionally, use a geolocation API for more accurate detection
+          try {
+            const response = await fetch('https://ipapi.co/json/')
+            const data = await response.json()
+            if (data.country_code === 'IN') {
+              setDonationLink('https://milaap.org/fundraisers/support-autistic-kids-1')
+            }
+          } catch (error) {
+            // If API fails, keep default GoFundMe link
+            console.log('Geolocation detection failed, using default link')
+          }
+        }
+      } catch (error) {
+        console.log('Country detection failed, using default link')
+      }
+    }
+
+    detectCountry()
+  }, [])
+
   return (
     <div className="landing-page">
       <section className="hero">
@@ -18,24 +52,14 @@ function LandingPage() {
             <Link to="/marketplace" className="btn-primary-large">
               Explore Courses
             </Link>
-            <div className="donation-buttons">
-              <a 
-                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn-secondary-large"
-              >
-                Support Our Mission ❤️
-              </a>
-              <a 
-                href="https://milaap.org/fundraisers/support-autistic-kids-1" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn-secondary-large donation-india"
-              >
-                Donate (India) 🇮🇳
-              </a>
-            </div>
+            <a 
+              href={donationLink}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-secondary-large"
+            >
+              Support Our Mission ❤️
+            </a>
           </div>
         </div>
       </section>
@@ -124,24 +148,14 @@ function LandingPage() {
             <li>✅ Reach more neurodivergent children worldwide</li>
           </ul>
           <div className="support-actions">
-            <div className="donation-buttons">
-              <a 
-                href="https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn-donate"
-              >
-                Donate Now
-              </a>
-              <a 
-                href="https://milaap.org/fundraisers/support-autistic-kids-1" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="btn-donate donation-india"
-              >
-                Donate (India) 🇮🇳
-              </a>
-            </div>
+            <a 
+              href={donationLink}
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="btn-donate"
+            >
+              Support Our Mission ❤️
+            </a>
             <a 
               href="mailto:hello@uniquebrains.org?subject=Interested in Volunteering as an Instructor&body=Hi UniqueBrains Team,%0D%0A%0D%0AI'm interested in volunteering my time to teach courses on your platform.%0D%0A%0D%0APlease let me know how I can get started!%0D%0A%0D%0AThank you!" 
               className="btn-volunteer"
