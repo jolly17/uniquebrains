@@ -158,6 +158,11 @@ function Layout() {
       <footer className="footer">
         <div className="footer-content">
           <p>&copy; 2025 UniqueBrains. Where every brain learns differently.</p>
+          <div className="footer-links">
+            <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
+            <span className="footer-separator">•</span>
+            <Link to="/terms-of-service" className="footer-link">Terms of Service</Link>
+          </div>
           <div className="footer-social">
             <a 
               href="https://www.instagram.com/ouruniquebrains" 

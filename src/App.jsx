@@ -15,6 +15,8 @@ import CreateCourse from './pages/CreateCourse'
 import ManageSessions from './pages/ManageSessions'
 import ManageCourse from './pages/ManageCourse'
 import StudentProfile from './pages/StudentProfile'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfService from './pages/TermsOfService'
 import { AuthCallback } from './pages/AuthCallback'
 import Onboarding from './pages/Onboarding'
 import RoleSelection from './pages/RoleSelection'
@@ -57,6 +59,8 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="marketplace" element={<Marketplace />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="terms-of-service" element={<TermsOfService />} />
             
             <Route path="my-courses" element={
               <ProtectedRoute>
