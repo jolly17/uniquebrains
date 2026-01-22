@@ -59,6 +59,8 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="marketplace" element={<Marketplace />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
+            <Route path="privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="terms-of-service" element={<TermsOfService />} />
             
             <Route path="my-courses" element={
               <ProtectedRoute>
