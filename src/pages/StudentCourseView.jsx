@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { mockCourses } from '../data/mockData'
+import { api, handleApiCall } from '../services/api'
 import StudentHomework from './StudentHomework'
 import StudentResources from './StudentResources'
 import StudentChat from './StudentChat'
@@ -13,9 +13,11 @@ function StudentCourseView() {
   const { courseId } = useParams()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { user } = useAuth()
+  const { user, activeStudent } = useAuth()
   
-  const course = mockCourses.find(c => c.id === courseId)
+  const [course, setCourse] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const activeTab = searchParams.get('tab') || 'sessions'
 
   // State for notification badges
@@ -30,6 +32,31 @@ function StudentCourseView() {
   // State for homework details modal
   const [showDetailsModal, setShowDetailsModal] = useState(false)
   const [selectedSubmission, setSelectedSubmission] = useState(null)
+
+  // Fetch course data
+  useEffect(() => {
+    const fetchCourse = async () => {
+      if (!courseId) return
+      
+      try {
+        setLoading(true)
+        setError('')
+        
+        console.log('📚 Fetching course:', courseId)
+        const courseData = await handleApiCall(api.courses.getById, courseId)
+        console.log('✅ Course fetched:', courseData)
+        
+        setCourse(courseData)
+      } catch (err) {
+        console.error('Error fetching course:', err)
+        setError('Failed to load course')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCourse()
+  }, [courseId])
 
   useEffect(() => {
     // Check for new content indicators
@@ -131,8 +158,27 @@ function StudentCourseView() {
     checkForNewContent()
   }
 
-  if (!course) {
-    return <div>Course not found</div>
+  if (loading) {
+    return (
+      <div className="student-course-view">
+        <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading course...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !course) {
+    return (
+      <div className="student-course-view">
+        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>{error || 'Course not found'}</p>
+          <button onClick={() => navigate('/my-courses')} className="btn-primary" style={{ marginTop: '1rem' }}>
+            ← Back to My Courses
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
