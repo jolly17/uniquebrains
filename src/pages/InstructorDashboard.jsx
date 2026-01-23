@@ -90,11 +90,7 @@ function InstructorDashboard() {
             </div>
             <div className="stat-card">
               <div className="stat-value">{stats?.completedEnrollments || 0}</div>
-              <div className="stat-label">Completed Enrollments</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{stats?.enrollmentsThisMonth || 0}</div>
-              <div className="stat-label">New This Month</div>
+              <div className="stat-label">Sessions Completed</div>
             </div>
           </div>
 
@@ -111,7 +107,6 @@ function InstructorDashboard() {
               <div className="instructor-courses-list">
                 {courses.map(course => {
                   const enrollmentCount = stats?.enrollmentsByCourse[course.title]?.active || 0
-                  const totalEnrollments = stats?.enrollmentsByCourse[course.title]?.total || 0
                   
                   // Truncate description to 150 characters
                   const truncatedDescription = course.description && course.description.length > 150
@@ -130,7 +125,6 @@ function InstructorDashboard() {
                               <span className="full-indicator"> (FULL)</span>
                             )}
                           </span>
-                          <span>Total enrollments: {totalEnrollments}</span>
                         </div>
                         {truncatedDescription && (
                           <p className="course-description">{truncatedDescription}</p>
@@ -147,41 +141,6 @@ function InstructorDashboard() {
                     </div>
                   )
                 })}
-              </div>
-            )}
-          </div>
-
-          <div className="dashboard-section">
-            <h2>Enrollment Overview</h2>
-            {stats && Object.keys(stats.enrollmentsByCourse).length > 0 ? (
-              <div className="enrollment-overview">
-                {Object.entries(stats.enrollmentsByCourse).map(([courseTitle, courseStats]) => (
-                  <div key={courseTitle} className="enrollment-course-card">
-                    <h4>{courseTitle}</h4>
-                    <div className="enrollment-stats-grid">
-                      <div className="enrollment-stat">
-                        <span className="stat-value">{courseStats.active}</span>
-                        <span className="stat-label">Active</span>
-                      </div>
-                      <div className="enrollment-stat">
-                        <span className="stat-value">{courseStats.completed}</span>
-                        <span className="stat-label">Completed</span>
-                      </div>
-                      <div className="enrollment-stat">
-                        <span className="stat-value">{courseStats.withdrawn}</span>
-                        <span className="stat-label">Withdrawn</span>
-                      </div>
-                      <div className="enrollment-stat">
-                        <span className="stat-value">{courseStats.total}</span>
-                        <span className="stat-label">Total</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="empty-state">
-                <p>No enrollment data available yet.</p>
               </div>
             )}
           </div>
