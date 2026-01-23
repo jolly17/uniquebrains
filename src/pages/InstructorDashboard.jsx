@@ -8,27 +8,32 @@ import './InstructorDashboard.css'
 function InstructorDashboard() {
   const { user, profile } = useAuth()
   const [courses, setCourses] = useState([])
+  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  
-  const totalStudents = 156 // Will be calculated from real data later
-  const sessionsCompleted = 87 // Will be calculated from real data later
-  const pendingRequests = 3 // Mock pending join requests
 
   useEffect(() => {
     if (user) {
-      fetchInstructorCourses()
+      fetchDashboardData()
     }
   }, [user])
 
-  const fetchInstructorCourses = async () => {
+  const fetchDashboardData = async () => {
     try {
-      // Use the new API service to fetch instructor courses
+      setLoading(true)
+      
+      // Fetch instructor courses
       const coursesData = await handleApiCall(api.courses.getInstructorCourses, user.id)
       setCourses(coursesData || [])
+      
+      // Fetch enrollment statistics
+      const enrollmentStats = await handleApiCall(api.enrollments.getStats, user.id)
+      setStats(enrollmentStats)
+      
+      console.log('Dashboard data loaded:', { courses: coursesData, stats: enrollmentStats })
     } catch (error) {
-      console.error('Error fetching courses:', error)
-      setError('Failed to load courses')
+      console.error('Error fetching dashboard data:', error)
+      setError('Failed to load dashboard data')
     } finally {
       setLoading(false)
     }
@@ -55,146 +60,133 @@ function InstructorDashboard() {
               </div>
             )}
           </div>
-          {pendingRequests > 0 && (
-            <div className="notification-alert">
-              🔔 You have {pendingRequests} pending enrollment request{pendingRequests > 1 ? 's' : ''}
-            </div>
-          )}
         </div>
         <Link to="/instructor/create-course" className="btn-primary">
           Create New Course
         </Link>
       </div>
 
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-value">{courses.length}</div>
-          <div className="stat-label">Total Courses</div>
+      {loading ? (
+        <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading dashboard...</p>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{totalStudents}</div>
-          <div className="stat-label">Total Students</div>
+      ) : error ? (
+        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>{error}</p>
+          <button onClick={fetchDashboardData} className="btn-primary" style={{ marginTop: '1rem' }}>
+            Retry
+          </button>
         </div>
-        <div className="stat-card">
-          <div className="stat-value">{sessionsCompleted}</div>
-          <div className="stat-label">Sessions Completed</div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-value">4.8</div>
-          <div className="stat-label">Average Rating</div>
-        </div>
-      </div>
-
-      <div className="dashboard-section">
-        <h2>My Courses</h2>
-        {loading ? (
-          <div>Loading courses...</div>
-        ) : error ? (
-          <div className="error-message">{error}</div>
-        ) : courses.length === 0 ? (
-          <div className="empty-state">
-            <p>You haven't created any courses yet.</p>
-            <Link to="/instructor/create-course" className="btn-primary">
-              Create Your First Course
-            </Link>
+      ) : (
+        <>
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-value">{courses.length}</div>
+              <div className="stat-label">Total Courses</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats?.activeEnrollments || 0}</div>
+              <div className="stat-label">Active Students</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats?.completedEnrollments || 0}</div>
+              <div className="stat-label">Completed Enrollments</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value">{stats?.enrollmentsThisMonth || 0}</div>
+              <div className="stat-label">New This Month</div>
+            </div>
           </div>
-        ) : (
-          <div className="instructor-courses-list">
-            {courses.map(course => (
-              <div key={course.id} className="instructor-course-card">
-                <div className="course-details">
-                  <h3>{course.title}</h3>
-                  <div className="course-stats">
-                    <span>
-                      {course.enrollments?.length || 0}
-                      {course.enrollment_limit ? ` / ${course.enrollment_limit}` : ''} students
-                      {course.enrollment_limit && (course.enrollments?.length || 0) >= course.enrollment_limit && (
-                        <span className="full-indicator"> (FULL)</span>
-                      )}
-                    </span>
-                    <span>Status: {course.status}</span>
-                    <span>{course.sessions?.length || 0} sessions</span>
+
+          <div className="dashboard-section">
+            <h2>My Courses</h2>
+            {courses.length === 0 ? (
+              <div className="empty-state">
+                <p>You haven't created any courses yet.</p>
+                <Link to="/instructor/create-course" className="btn-primary">
+                  Create Your First Course
+                </Link>
+              </div>
+            ) : (
+              <div className="instructor-courses-list">
+                {courses.map(course => {
+                  const enrollmentCount = stats?.enrollmentsByCourse[course.title]?.active || 0
+                  const totalEnrollments = stats?.enrollmentsByCourse[course.title]?.total || 0
+                  
+                  // Truncate description to 150 characters
+                  const truncatedDescription = course.description && course.description.length > 150
+                    ? course.description.substring(0, 150) + '...'
+                    : course.description
+                  
+                  return (
+                    <div key={course.id} className="instructor-course-card">
+                      <div className="course-details">
+                        <h3>{course.title}</h3>
+                        <div className="course-stats">
+                          <span>
+                            {enrollmentCount} active
+                            {course.enrollment_limit ? ` / ${course.enrollment_limit}` : ''} students
+                            {course.enrollment_limit && enrollmentCount >= course.enrollment_limit && (
+                              <span className="full-indicator"> (FULL)</span>
+                            )}
+                          </span>
+                          <span>Total enrollments: {totalEnrollments}</span>
+                        </div>
+                        {truncatedDescription && (
+                          <p className="course-description">{truncatedDescription}</p>
+                        )}
+                      </div>
+                      <div className="course-actions">
+                        <Link to={`/courses/${course.id}`} className="btn-secondary">
+                          View
+                        </Link>
+                        <Link to={`/instructor/course/${course.id}/manage`} className="btn-primary">
+                          Manage Course
+                        </Link>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="dashboard-section">
+            <h2>Enrollment Overview</h2>
+            {stats && Object.keys(stats.enrollmentsByCourse).length > 0 ? (
+              <div className="enrollment-overview">
+                {Object.entries(stats.enrollmentsByCourse).map(([courseTitle, courseStats]) => (
+                  <div key={courseTitle} className="enrollment-course-card">
+                    <h4>{courseTitle}</h4>
+                    <div className="enrollment-stats-grid">
+                      <div className="enrollment-stat">
+                        <span className="stat-value">{courseStats.active}</span>
+                        <span className="stat-label">Active</span>
+                      </div>
+                      <div className="enrollment-stat">
+                        <span className="stat-value">{courseStats.completed}</span>
+                        <span className="stat-label">Completed</span>
+                      </div>
+                      <div className="enrollment-stat">
+                        <span className="stat-value">{courseStats.withdrawn}</span>
+                        <span className="stat-label">Withdrawn</span>
+                      </div>
+                      <div className="enrollment-stat">
+                        <span className="stat-value">{courseStats.total}</span>
+                        <span className="stat-label">Total</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="course-description">{course.description}</p>
-                </div>
-                <div className="course-actions">
-                  <Link to={`/courses/${course.id}`} className="btn-secondary">
-                    View
-                  </Link>
-                  <Link to={`/instructor/course/${course.id}/manage`} className="btn-primary">
-                    Manage Course
-                  </Link>
-                </div>
+                ))}
               </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="dashboard-section">
-        <h2>Pending Enrollment Requests</h2>
-        <div className="requests-list">
-          <div className="request-item">
-            <div className="request-info">
-              <div className="request-student">Emma Thompson</div>
-              <div className="request-course">Positive Parenting Fundamentals</div>
-              <div className="request-profile">
-                <span className="profile-badge">Autism</span>
+            ) : (
+              <div className="empty-state">
+                <p>No enrollment data available yet.</p>
               </div>
-              <div className="request-time">2 hours ago</div>
-            </div>
-            <div className="request-actions">
-              <button className="btn-primary">Approve</button>
-              <button className="btn-secondary">Decline</button>
-            </div>
+            )}
           </div>
-          <div className="request-item">
-            <div className="request-info">
-              <div className="request-student">Liam Chen</div>
-              <div className="request-course">Positive Parenting Fundamentals</div>
-              <div className="request-profile">
-                <span className="profile-badge">ADHD</span>
-                <span className="profile-badge">Dyslexia</span>
-              </div>
-              <div className="request-time">5 hours ago</div>
-            </div>
-            <div className="request-actions">
-              <button className="btn-primary">Approve</button>
-              <button className="btn-secondary">Decline</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="dashboard-section">
-        <h2>Recent Activity</h2>
-        <div className="activity-list">
-          <Link to="/instructor/course/1/manage?tab=homework" className="activity-item">
-            <div className="activity-icon">📝</div>
-            <div className="activity-content">
-              <div className="activity-title">New homework submission</div>
-              <div className="activity-subtitle">Positive Parenting Fundamentals</div>
-              <div className="activity-time">2 hours ago</div>
-            </div>
-          </Link>
-          <Link to="/instructor/course/1/manage?tab=students" className="activity-item">
-            <div className="activity-icon">👤</div>
-            <div className="activity-content">
-              <div className="activity-title">3 new students enrolled</div>
-              <div className="activity-subtitle">Positive Parenting Fundamentals</div>
-              <div className="activity-time">1 day ago</div>
-            </div>
-          </Link>
-          <div className="activity-item">
-            <div className="activity-icon">⭐</div>
-            <div className="activity-content">
-              <div className="activity-title">New 5-star review received</div>
-              <div className="activity-subtitle">Piano for Beginners</div>
-              <div className="activity-time">5 hours ago</div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
