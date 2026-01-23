@@ -221,8 +221,13 @@
 - [ ] White-label solution
 
 ### Community Features
-- [ ] Course ratings and reviews
-- [ ] Instructor ratings
+- [ ] **Course Ratings and Reviews**
+  - Course rating submission (1-5 stars)
+  - Review text with ratings
+  - Course average rating calculation
+  - Instructor rating aggregation
+  - Rating display in marketplace
+  - Review moderation
 - [ ] Student achievements
 - [ ] Learning history
 - [ ] Social features
