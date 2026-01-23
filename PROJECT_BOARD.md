@@ -7,6 +7,17 @@
 ## 🎯 BACKLOG
 
 ### High Priority
+- [ ] **Dual Role Support (URGENT - Next Session)**
+  - Issue: Users can only have ONE role (instructor OR parent), not both
+  - Current: Database has single `role` column with CHECK constraint
+  - Solution Options:
+    1. Change role column to array (TEXT[]) - requires migration
+    2. Add role switcher UI - simpler, no DB changes needed
+    3. Create separate accounts - not user-friendly
+  - Decision: TBD in next session
+  - Impact: Users who want to teach AND manage children need workaround
+  - Assigned: Next session
+
 - [ ] **Fix Instructor Session Management**
   - Issue: Cannot save meeting links or create sessions
   - Issue: Student dropdown doesn't show enrolled students for 1-on-1 courses
@@ -84,6 +95,18 @@
 ---
 
 ## 🚧 IN PROGRESS
+
+- [ ] **Dual Role Support (URGENT)**
+  - Status: Implementing solution
+  - Issue: Users can only have ONE role (instructor OR parent), not both
+  - Current: Database has single `role` column with CHECK constraint
+  - Solution Options:
+    1. Change role column to array (TEXT[]) - requires migration
+    2. Add role switcher UI - simpler, no DB changes needed
+    3. Create separate accounts - not user-friendly
+  - Decision: Implement role switcher UI for now (quick fix)
+  - Future: Consider array-based roles for true multi-role support
+  - Assigned: Current session
 
 - [ ] **Instructor Session Management (BLOCKED)**
   - Status: Needs debugging
