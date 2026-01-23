@@ -2,6 +2,8 @@
 
 **Last Updated**: January 2026
 
+> 📋 **NEW**: Check out our [Project Board](../PROJECT_BOARD.md) for a Kanban-style view of all features!
+
 This is a quick reference for understanding the current state of the UniqueBrains platform.
 
 ---
