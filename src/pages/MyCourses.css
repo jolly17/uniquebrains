@@ -1,54 +1,86 @@
-.my-courses-header {
+/* Student Dashboard Styles */
+.my-courses {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.my-courses h1 {
+.dashboard-header h1 {
   font-size: 2rem;
   color: var(--text-primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.student-profile-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.student-profile-summary p {
+  color: var(--text-secondary);
   margin: 0;
 }
 
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-  background: white;
-  padding: 0.25rem;
-  border-radius: 0.5rem;
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--background-light);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
   box-shadow: var(--shadow);
+  text-align: center;
 }
 
-.toggle-btn {
-  padding: 0.5rem 1.25rem;
-  background: transparent;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 500;
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
   color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.toggle-btn:hover {
-  background: #f3f4f6;
+/* Dashboard Section */
+.dashboard-section {
+  margin-bottom: 2rem;
 }
 
-.toggle-btn.active {
-  background: var(--primary-color);
-  color: white;
+.dashboard-section h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
 }
 
-.courses-list {
+/* Student Courses List */
+.student-courses-list {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.enrolled-course-card {
+.student-course-card {
   background: var(--background-light);
   padding: 2rem;
   border-radius: 0.75rem;
@@ -57,33 +89,45 @@
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.course-info {
+.student-course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.course-details {
   flex: 1;
 }
 
-.course-info h3 {
+.course-details h3 {
   font-size: 1.5rem;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
-.instructor {
-  color: var(--text-secondary);
-  margin-bottom: 0.5rem;
+.course-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
-.session-info {
+.course-meta span {
   color: var(--text-secondary);
   font-size: 0.875rem;
-  margin-bottom: 1rem;
+}
+
+.instructor-name {
+  font-weight: 500;
 }
 
 .progress-section {
   display: flex;
   align-items: center;
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .progress-bar {
@@ -104,11 +148,63 @@
   color: var(--text-secondary);
   font-size: 0.875rem;
   white-space: nowrap;
+  font-weight: 500;
 }
 
+.course-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: var(--background-light);
+  border-radius: 0.75rem;
+  box-shadow: var(--shadow);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Loading and Error States */
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .enrolled-course-card {
+  .my-courses {
+    padding: 1rem;
+  }
+
+  .dashboard-header {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-course-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .course-actions {
+    flex-direction: row;
+  }
+
+  .course-details h3 {
+    font-size: 1.25rem;
   }
 }

@@ -134,6 +134,7 @@ This is a quick reference for understanding the current state of the UniqueBrain
 ### Community Features
 - Course ratings and reviews
 - Instructor ratings
+- Average course rating stat on instructor dashboard
 - Student achievements
 - Learning history
 

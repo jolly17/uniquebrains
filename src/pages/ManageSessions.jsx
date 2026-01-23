@@ -1,115 +1,102 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { mockCourses } from '../data/mockData'
+import { useAuth } from '../context/AuthContext'
+import { api, handleApiCall } from '../services/api'
 import './ManageSessions.css'
 
 function ManageSessions() {
   const { courseId } = useParams()
   const navigate = useNavigate()
-  const course = mockCourses.find(c => c.id === courseId)
+  const { user } = useAuth()
+  
+  const [course, setCourse] = useState(null)
+  const [enrolledStudents, setEnrolledStudents] = useState([])
+  const [sessions, setSessions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  if (!course) return <div>Course not found</div>
-
-  const isGroupCourse = course.courseType === 'group'
-
-  // Mock enrolled students
-  const enrolledStudents = [
-    { id: '1', name: 'Emma Thompson', neurodiversity: ['Autism'] },
-    { id: '2', name: 'Liam Chen', neurodiversity: ['ADHD', 'Dyslexia'] },
-    { id: '3', name: 'Sophia Rodriguez', neurodiversity: ['Other'] }
-  ]
-
-  const enrolledCount = isGroupCourse ? 8 : enrolledStudents.length
-  const maxCapacity = course.enrollmentLimit || 10
+  const isGroupCourse = course?.course_type === 'group'
+  const enrolledCount = enrolledStudents.length
+  const maxCapacity = course?.enrollment_limit || 0
 
   // Course-level meeting link
-  const [courseMeetingLink, setCourseMeetingLink] = useState('https://zoom.us/j/123456789')
+  const [courseMeetingLink, setCourseMeetingLink] = useState('')
   const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false)
-  const [meetingLinkInput, setMeetingLinkInput] = useState(courseMeetingLink)
+  const [meetingLinkInput, setMeetingLinkInput] = useState('')
 
-  // Mock sessions - different structure for group vs 1:1
-  const [sessions, setSessions] = useState(isGroupCourse ? [
-    { 
-      id: 1, 
-      date: '2024-01-15', 
-      time: '10:00 AM', 
-      topic: 'Introduction to scales and basic techniques',
-      topicSet: true,
-      attendees: 8
-    },
-    { 
-      id: 2, 
-      date: '2024-01-17', 
-      time: '10:00 AM', 
-      topic: '',
-      topicSet: false,
-      meetingLink: '',
-      attendees: 8
-    },
-    { 
-      id: 3, 
-      date: '2024-01-22', 
-      time: '10:00 AM', 
-      topic: '',
-      topicSet: false,
-      meetingLink: '',
-      attendees: 8
-    },
-    { 
-      id: 4, 
-      date: '2024-01-24', 
-      time: '10:00 AM', 
-      topic: '',
-      topicSet: false,
-      meetingLink: '',
-      attendees: 8
+  // Load course data, sessions, and enrolled students
+  useEffect(() => {
+    if (courseId && user) {
+      fetchCourseData()
     }
-  ] : [
-    // 1:1 sessions - per student
-    { 
-      id: 1, 
-      studentId: '1', 
-      studentName: 'Emma Thompson',
-      date: '2024-01-15', 
-      time: '10:00 AM', 
-      topic: 'Review scales and introduce new piece',
-      topicSet: true,
-      meetingLink: 'https://zoom.us/j/123456789'
-    },
-    { 
-      id: 2, 
-      studentId: '1', 
-      studentName: 'Emma Thompson',
-      date: '2024-01-17', 
-      time: '10:00 AM', 
-      topic: '',
-      topicSet: false,
-      meetingLink: ''
-    },
-    { 
-      id: 3, 
-      studentId: '2', 
-      studentName: 'Liam Chen',
-      date: '2024-01-15', 
-      time: '11:00 AM', 
-      topic: 'Continue with chord progressions',
-      topicSet: true,
-      meetingLink: 'https://meet.google.com/abc-defg-hij'
-    },
-    { 
-      id: 4, 
-      studentId: '2', 
-      studentName: 'Liam Chen',
-      date: '2024-01-17', 
-      time: '11:00 AM', 
-      topic: '',
-      topicSet: false,
-      meetingLink: ''
+  }, [courseId, user])
+
+  const fetchCourseData = async () => {
+    try {
+      setLoading(true)
+      setError('')
+
+      // Fetch course details
+      const courseData = await handleApiCall(api.courses.getById, courseId)
+      setCourse(courseData)
+      setCourseMeetingLink(courseData.meeting_link || '')
+      setMeetingLinkInput(courseData.meeting_link || '')
+
+      // Fetch sessions
+      const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+      setSessions(sessionsData || [])
+
+      // Fetch enrolled students
+      const enrollmentsData = await handleApiCall(api.enrollments.getCourse, courseId, user.id)
+      
+      // Extract student profiles from enrollments
+      // Handle both direct enrollments (profiles) and parent-managed enrollments (students)
+      const students = enrollmentsData.map(enrollment => {
+        if (enrollment.student_profile_id) {
+          // Parent-managed enrollment - need to fetch student profile
+          return enrollment.students || {}
+        } else {
+          // Direct enrollment - use profile data
+          return enrollment.profiles || {}
+        }
+      }).filter(student => student.id) // Filter out any null/undefined students
+      
+      setEnrolledStudents(students)
+
+    } catch (err) {
+      console.error('Error fetching course data:', err)
+      setError('Failed to load course data')
+    } finally {
+      setLoading(false)
     }
-  ])
+  }
+
+  if (loading) {
+    return (
+      <div className="manage-sessions">
+        <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>Loading sessions...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !course) {
+    return (
+      <div className="manage-sessions">
+        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
+          <p>{error || 'Course not found'}</p>
+          <button onClick={() => navigate('/instructor/dashboard')} className="btn-primary">
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const [editingSession, setEditingSession] = useState(null)
   const [topicInput, setTopicInput] = useState('')
+  const [sessionMeetingLinkInput, setSessionMeetingLinkInput] = useState('')
   
   // New session creation state
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -118,7 +105,7 @@ function ManageSessions() {
     date: '',
     time: '',
     topic: '',
-    meetingLink: courseMeetingLink
+    meetingLink: ''
   })
 
   // Recurring schedule state
@@ -138,17 +125,25 @@ function ManageSessions() {
 
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
-    sessions: sessions.filter(s => s.studentId === student.id)
+    sessions: sessions.filter(s => s.student_id === student.id)
   })) : null
 
   const handleEditTopic = (session) => {
     setEditingSession(session.id)
-    setTopicInput(session.topic)
+    setTopicInput(session.title || '')
+    setSessionMeetingLinkInput(session.meeting_link || courseMeetingLink)
   }
 
-  const handleSaveMeetingLink = () => {
-    setCourseMeetingLink(meetingLinkInput)
-    setIsEditingMeetingLink(false)
+  const handleSaveMeetingLink = async () => {
+    try {
+      // Update course meeting link
+      await handleApiCall(api.courses.update, courseId, { meeting_link: meetingLinkInput })
+      setCourseMeetingLink(meetingLinkInput)
+      setIsEditingMeetingLink(false)
+    } catch (err) {
+      console.error('Error updating meeting link:', err)
+      alert('Failed to update meeting link')
+    }
   }
 
   const handleCancelMeetingLink = () => {
@@ -156,22 +151,38 @@ function ManageSessions() {
     setIsEditingMeetingLink(false)
   }
 
-  const handleSaveTopic = (sessionId) => {
-    setSessions(sessions.map(s => 
-      s.id === sessionId 
-        ? { ...s, topic: topicInput, topicSet: topicInput.trim() !== '' }
-        : s
-    ))
-    setEditingSession(null)
-    setTopicInput('')
+  const handleSaveTopic = async (sessionId) => {
+    try {
+      const updates = {
+        title: topicInput,
+        meeting_link: sessionMeetingLinkInput
+      }
+      
+      await handleApiCall(api.sessions.update, sessionId, updates, user.id)
+      
+      // Update local state
+      setSessions(sessions.map(s => 
+        s.id === sessionId 
+          ? { ...s, title: topicInput, meeting_link: sessionMeetingLinkInput }
+          : s
+      ))
+      
+      setEditingSession(null)
+      setTopicInput('')
+      setSessionMeetingLinkInput('')
+    } catch (err) {
+      console.error('Error updating session:', err)
+      alert('Failed to update session')
+    }
   }
 
   const handleCancelEdit = () => {
     setEditingSession(null)
     setTopicInput('')
+    setSessionMeetingLinkInput('')
   }
 
-  const handleCreateSession = () => {
+  const handleCreateSession = async () => {
     if (!newSession.date || !newSession.time) {
       alert('Please fill in date and time')
       return
@@ -182,31 +193,38 @@ function ManageSessions() {
       return
     }
 
-    const session = {
-      id: sessions.length + 1,
-      date: newSession.date,
-      time: newSession.time,
-      topic: newSession.topic,
-      topicSet: newSession.topic.trim() !== '',
-      meetingLink: newSession.meetingLink || courseMeetingLink,
-      ...(isGroupCourse 
-        ? { attendees: enrolledCount }
-        : { 
-            studentId: newSession.studentId,
-            studentName: enrolledStudents.find(s => s.id === newSession.studentId)?.name
-          }
-      )
-    }
+    try {
+      // Combine date and time into ISO string
+      const sessionDateTime = new Date(`${newSession.date}T${newSession.time}`)
+      
+      const sessionData = {
+        title: newSession.topic || 'Session',
+        description: '',
+        session_date: sessionDateTime.toISOString(),
+        duration: 60,
+        meeting_link: newSession.meetingLink || courseMeetingLink,
+        student_id: !isGroupCourse ? newSession.studentId : null
+      }
 
-    setSessions([...sessions, session].sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)))
-    setShowCreateModal(false)
-    setNewSession({
-      studentId: '',
-      date: '',
-      time: '',
-      topic: '',
-      meetingLink: courseMeetingLink
-    })
+      const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
+      
+      // Add to local state
+      setSessions([...sessions, createdSession].sort((a, b) => 
+        new Date(a.session_date) - new Date(b.session_date)
+      ))
+      
+      setShowCreateModal(false)
+      setNewSession({
+        studentId: '',
+        date: '',
+        time: '',
+        topic: '',
+        meetingLink: ''
+      })
+    } catch (err) {
+      console.error('Error creating session:', err)
+      alert(err.message || 'Failed to create session')
+    }
   }
 
   const handleCancelCreate = () => {
@@ -216,7 +234,7 @@ function ManageSessions() {
       date: '',
       time: '',
       topic: '',
-      meetingLink: courseMeetingLink
+      meetingLink: ''
     })
   }
 
@@ -247,7 +265,7 @@ function ManageSessions() {
     }))
   }
 
-  const generateRecurringSessions = () => {
+  const generateRecurringSessions = async () => {
     if (!recurringSchedule.selectedDays.length || !recurringSchedule.time || !recurringSchedule.startDate) {
       alert('Please fill in all required fields')
       return
@@ -258,58 +276,74 @@ function ManageSessions() {
       return
     }
 
-    const newSessions = []
-    const start = new Date(recurringSchedule.startDate)
-    const end = recurringSchedule.endDate ? new Date(recurringSchedule.endDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days default
-    
-    const dayMap = {
-      'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4,
-      'Friday': 5, 'Saturday': 6, 'Sunday': 0
-    }
-
-    let currentDate = new Date(start)
-    let sessionId = sessions.length + 1
-
-    while (currentDate <= end) {
-      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+    try {
+      const newSessions = []
+      const start = new Date(recurringSchedule.startDate)
+      const end = recurringSchedule.endDate ? new Date(recurringSchedule.endDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days default
       
-      if (recurringSchedule.selectedDays.includes(dayName)) {
-        const session = {
-          id: sessionId++,
-          date: currentDate.toISOString().split('T')[0],
-          time: recurringSchedule.time,
-          topic: '',
-          topicSet: false,
-          meetingLink: courseMeetingLink,
-          recurring: true,
-          ...(isGroupCourse 
-            ? { attendees: enrolledCount }
-            : { 
-                studentId: recurringSchedule.studentId,
-                studentName: enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.name
-              }
-          )
+      let currentDate = new Date(start)
+
+      while (currentDate <= end) {
+        const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+        
+        if (recurringSchedule.selectedDays.includes(dayName)) {
+          const sessionDateTime = new Date(currentDate)
+          const [hours, minutes] = recurringSchedule.time.split(':')
+          sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+          
+          const sessionData = {
+            title: 'Session',
+            description: '',
+            session_date: sessionDateTime.toISOString(),
+            duration: recurringSchedule.duration,
+            meeting_link: courseMeetingLink,
+            student_id: !isGroupCourse ? recurringSchedule.studentId : null
+          }
+          
+          const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
+          newSessions.push(createdSession)
         }
-        newSessions.push(session)
+        
+        currentDate.setDate(currentDate.getDate() + 1)
       }
+
+      setSessions([...sessions, ...newSessions].sort((a, b) => 
+        new Date(a.session_date) - new Date(b.session_date)
+      ))
       
-      currentDate.setDate(currentDate.getDate() + 1)
+      // Save recurring schedule
+      const scheduleKey = isGroupCourse ? 'group' : recurringSchedule.studentId
+      setRecurringSchedules({
+        ...recurringSchedules,
+        [scheduleKey]: recurringSchedule
+      })
+
+      setShowRecurringModal(false)
+    } catch (err) {
+      console.error('Error generating recurring sessions:', err)
+      alert('Failed to generate sessions')
     }
-
-    setSessions([...sessions, ...newSessions].sort((a, b) => new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time)))
-    
-    // Save recurring schedule
-    const scheduleKey = isGroupCourse ? 'group' : recurringSchedule.studentId
-    setRecurringSchedules({
-      ...recurringSchedules,
-      [scheduleKey]: recurringSchedule
-    })
-
-    setShowRecurringModal(false)
   }
 
   const handleCancelRecurring = () => {
     setShowRecurringModal(false)
+  }
+
+  // Helper function to format session date and time
+  const formatSessionDateTime = (session) => {
+    const date = new Date(session.session_date)
+    return {
+      date: date.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+      time: date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    }
   }
 
 
@@ -397,130 +431,14 @@ function ManageSessions() {
               </div>
             </div>
             <div className="sessions-list">
-              {sessions.map(session => (
-            <div key={session.id} className="session-item">
-              <div className="session-date-time">
-                <div className="session-date">
-                  {new Date(session.date).toLocaleDateString('en-US', { 
-                    weekday: 'short', 
-                    month: 'short', 
-                    day: 'numeric' 
-                  })}
-                </div>
-                <div className="session-time">{session.time}</div>
-                <div className="session-attendees">👥 {session.attendees} students</div>
-              </div>
-
-              <div className="session-topic-area">
-                {editingSession === session.id ? (
-                  <div className="topic-edit">
-                    <div className="edit-fields">
-                      <input
-                        type="text"
-                        value={topicInput}
-                        onChange={(e) => setTopicInput(e.target.value)}
-                        placeholder="Enter session topic..."
-                        className="topic-input"
-                        autoFocus
-                      />
-                      <input
-                        type="url"
-                        value={meetingLinkInput}
-                        onChange={(e) => setMeetingLinkInput(e.target.value)}
-                        placeholder="Meeting link (Zoom, Google Meet, etc.)"
-                        className="topic-input"
-                      />
-                    </div>
-                    <div className="topic-actions">
-                      <button 
-                        onClick={() => handleSaveTopic(session.id)}
-                        className="btn-primary btn-sm"
-                      >
-                        Save
-                      </button>
-                      <button 
-                        onClick={handleCancelEdit}
-                        className="btn-secondary btn-sm"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="topic-display">
-                    <div className="topic-info">
-                      {session.topicSet ? (
-                        <>
-                          <div className="topic-text">{session.topic}</div>
-                          {session.meetingLink && (
-                            <div className="meeting-link-display">
-                              🔗 {session.meetingLink}
-                            </div>
-                          )}
-                          <span className="topic-status set">✓ Ready</span>
-                        </>
-                      ) : (
-                        <>
-                          <div className="topic-text empty">No topic set yet</div>
-                          <span className="topic-status pending">⚠ Pending</span>
-                        </>
-                      )}
-                    </div>
-                    <button 
-                      onClick={() => handleEditTopic(session)}
-                      className="btn-secondary btn-sm"
-                    >
-                      {session.topicSet ? 'Edit' : 'Set Details'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-        </>
-      ) : (
-        <div className="students-sessions">
-          <div className="create-session-section">
-            <button onClick={() => setShowCreateModal(true)} className="btn-primary">
-              + Create Single Session
-            </button>
-          </div>
-          
-          {groupedSessions.map(({ student, sessions: studentSessions }) => (
-            <div key={student.id} className="student-section">
-              <div className="student-header">
-                <div>
-                  <h2>{student.name}</h2>
-                  <div className="student-profile">
-                    {student.neurodiversity.map((need, idx) => (
-                      <span key={idx} className="profile-badge">{need}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="student-actions">
-                  <button 
-                    onClick={() => handleOpenRecurringModal(student.id)} 
-                    className="btn-secondary btn-sm"
-                  >
-                    {recurringSchedules[student.id] ? '⚙️ Edit Schedule' : '📅 Set Schedule'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="sessions-list">
-                {studentSessions.map(session => (
+              {sessions.map(session => {
+                const { date, time } = formatSessionDateTime(session)
+                return (
                   <div key={session.id} className="session-item">
                     <div className="session-date-time">
-                      <div className="session-date">
-                        {new Date(session.date).toLocaleDateString('en-US', { 
-                          weekday: 'short', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </div>
-                      <div className="session-time">{session.time}</div>
+                      <div className="session-date">{date}</div>
+                      <div className="session-time">{time}</div>
+                      <div className="session-attendees">👥 {enrolledCount} students</div>
                     </div>
 
                     <div className="session-topic-area">
@@ -537,8 +455,8 @@ function ManageSessions() {
                             />
                             <input
                               type="url"
-                              value={meetingLinkInput}
-                              onChange={(e) => setMeetingLinkInput(e.target.value)}
+                              value={sessionMeetingLinkInput}
+                              onChange={(e) => setSessionMeetingLinkInput(e.target.value)}
                               placeholder="Meeting link (Zoom, Google Meet, etc.)"
                               className="topic-input"
                             />
@@ -561,12 +479,12 @@ function ManageSessions() {
                       ) : (
                         <div className="topic-display">
                           <div className="topic-info">
-                            {session.topicSet ? (
+                            {session.title && session.title.trim() ? (
                               <>
-                                <div className="topic-text">{session.topic}</div>
-                                {session.meetingLink && (
+                                <div className="topic-text">{session.title}</div>
+                                {session.meeting_link && (
                                   <div className="meeting-link-display">
-                                    🔗 {session.meetingLink}
+                                    🔗 {session.meeting_link}
                                   </div>
                                 )}
                                 <span className="topic-status set">✓ Ready</span>
@@ -582,13 +500,123 @@ function ManageSessions() {
                             onClick={() => handleEditTopic(session)}
                             className="btn-secondary btn-sm"
                           >
-                            {session.topicSet ? 'Edit' : 'Set Details'}
+                            {session.title ? 'Edit' : 'Set Details'}
                           </button>
                         </div>
                       )}
                     </div>
                   </div>
-                ))}
+                )
+              })}
+            </div>
+      </div>
+        </>
+      ) : (
+        <div className="students-sessions">
+          <div className="create-session-section">
+            <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+              + Create Single Session
+            </button>
+          </div>
+          
+          {groupedSessions.map(({ student, sessions: studentSessions }) => (
+            <div key={student.id} className="student-section">
+              <div className="student-header">
+                <div>
+                  <h2>{student.first_name} {student.last_name}</h2>
+                  <div className="student-profile">
+                    {student.neurodiversity_profile && student.neurodiversity_profile.map((need, idx) => (
+                      <span key={idx} className="profile-badge">{need}</span>
+                    ))}
+                  </div>
+                </div>
+                <div className="student-actions">
+                  <button 
+                    onClick={() => handleOpenRecurringModal(student.id)} 
+                    className="btn-secondary btn-sm"
+                  >
+                    {recurringSchedules[student.id] ? '⚙️ Edit Schedule' : '📅 Set Schedule'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="sessions-list">
+                {studentSessions.map(session => {
+                  const { date, time } = formatSessionDateTime(session)
+                  return (
+                    <div key={session.id} className="session-item">
+                      <div className="session-date-time">
+                        <div className="session-date">{date}</div>
+                        <div className="session-time">{time}</div>
+                      </div>
+
+                      <div className="session-topic-area">
+                        {editingSession === session.id ? (
+                          <div className="topic-edit">
+                            <div className="edit-fields">
+                              <input
+                                type="text"
+                                value={topicInput}
+                                onChange={(e) => setTopicInput(e.target.value)}
+                                placeholder="Enter session topic..."
+                                className="topic-input"
+                                autoFocus
+                              />
+                              <input
+                                type="url"
+                                value={sessionMeetingLinkInput}
+                                onChange={(e) => setSessionMeetingLinkInput(e.target.value)}
+                                placeholder="Meeting link (Zoom, Google Meet, etc.)"
+                                className="topic-input"
+                              />
+                            </div>
+                            <div className="topic-actions">
+                              <button 
+                                onClick={() => handleSaveTopic(session.id)}
+                                className="btn-primary btn-sm"
+                              >
+                                Save
+                              </button>
+                              <button 
+                                onClick={handleCancelEdit}
+                                className="btn-secondary btn-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="topic-display">
+                            <div className="topic-info">
+                              {session.title && session.title.trim() ? (
+                                <>
+                                  <div className="topic-text">{session.title}</div>
+                                  {session.meeting_link && (
+                                    <div className="meeting-link-display">
+                                      🔗 {session.meeting_link}
+                                    </div>
+                                  )}
+                                  <span className="topic-status set">✓ Ready</span>
+                                </>
+                              ) : (
+                                <>
+                                  <div className="topic-text empty">No topic set yet</div>
+                                  <span className="topic-status pending">⚠ Pending</span>
+                                </>
+                              )}
+                            </div>
+                            <button 
+                              onClick={() => handleEditTopic(session)}
+                              className="btn-secondary btn-sm"
+                            >
+                              {session.title ? 'Edit' : 'Set Details'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           ))}
@@ -617,7 +645,7 @@ function ManageSessions() {
                     <option value="">Select a student</option>
                     {enrolledStudents.map(student => (
                       <option key={student.id} value={student.id}>
-                        {student.name}
+                        {student.first_name} {student.last_name}
                       </option>
                     ))}
                   </select>
@@ -718,7 +746,7 @@ function ManageSessions() {
                     <option value="">Select a student</option>
                     {enrolledStudents.map(student => (
                       <option key={student.id} value={student.id}>
-                        {student.name}
+                        {student.first_name} {student.last_name}
                       </option>
                     ))}
                   </select>
@@ -810,7 +838,7 @@ function ManageSessions() {
                   <p>
                     <strong>{recurringSchedule.selectedDays.join(', ')}</strong> at <strong>{recurringSchedule.time}</strong>
                     {!isGroupCourse && recurringSchedule.studentId && (
-                      <> for <strong>{enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.name}</strong></>
+                      <> for <strong>{enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.first_name} {enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.last_name}</strong></>
                     )}
                   </p>
                   <p className="preview-detail">
