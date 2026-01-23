@@ -15,14 +15,49 @@ function ManageSessions() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const isGroupCourse = course?.course_type === 'group'
-  const enrolledCount = enrolledStudents.length
-  const maxCapacity = course?.enrollment_limit || 0
-
   // Course-level meeting link
   const [courseMeetingLink, setCourseMeetingLink] = useState('')
   const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false)
   const [meetingLinkInput, setMeetingLinkInput] = useState('')
+
+  // Session editing state
+  const [editingSession, setEditingSession] = useState(null)
+  const [topicInput, setTopicInput] = useState('')
+  const [sessionMeetingLinkInput, setSessionMeetingLinkInput] = useState('')
+  
+  // New session creation state
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [newSession, setNewSession] = useState({
+    studentId: '',
+    date: '',
+    time: '',
+    topic: '',
+    meetingLink: ''
+  })
+
+  // Recurring schedule state
+  const [showRecurringModal, setShowRecurringModal] = useState(false)
+  const [recurringSchedule, setRecurringSchedule] = useState({
+    studentId: '',
+    selectedDays: [],
+    time: '',
+    duration: 60,
+    startDate: '',
+    endDate: '',
+    frequency: 'weekly'
+  })
+  
+  // Store recurring schedules per student (for 1:1) or course (for group)
+  const [recurringSchedules, setRecurringSchedules] = useState({})
+
+  const isGroupCourse = course?.course_type === 'group'
+  const enrolledCount = enrolledStudents.length
+  const maxCapacity = course?.enrollment_limit || 0
+
+  const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
+    student,
+    sessions: sessions.filter(s => s.student_id === student.id)
+  })) : null
 
   // Load course data, sessions, and enrolled students
   useEffect(() => {
@@ -93,40 +128,6 @@ function ManageSessions() {
       </div>
     )
   }
-
-  const [editingSession, setEditingSession] = useState(null)
-  const [topicInput, setTopicInput] = useState('')
-  const [sessionMeetingLinkInput, setSessionMeetingLinkInput] = useState('')
-  
-  // New session creation state
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [newSession, setNewSession] = useState({
-    studentId: '',
-    date: '',
-    time: '',
-    topic: '',
-    meetingLink: ''
-  })
-
-  // Recurring schedule state
-  const [showRecurringModal, setShowRecurringModal] = useState(false)
-  const [recurringSchedule, setRecurringSchedule] = useState({
-    studentId: '',
-    selectedDays: [],
-    time: '',
-    duration: 60,
-    startDate: '',
-    endDate: '',
-    frequency: 'weekly'
-  })
-  
-  // Store recurring schedules per student (for 1:1) or course (for group)
-  const [recurringSchedules, setRecurringSchedules] = useState({})
-
-  const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
-    student,
-    sessions: sessions.filter(s => s.student_id === student.id)
-  })) : null
 
   const handleEditTopic = (session) => {
     setEditingSession(session.id)
