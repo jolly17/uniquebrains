@@ -1,20 +1,13 @@
-import { useState } from 'react'
+import ComingSoonBanner from '../components/ComingSoonBanner'
 import './CourseHomework.css'
 
 function CourseHomework({ course }) {
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [viewingSubmissions, setViewingSubmissions] = useState(null)
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    dueDate: '',
-    submissionType: 'text'
-  })
-  const [formErrors, setFormErrors] = useState({
-    title: '',
-    description: '',
-    dueDate: ''
-  })
+  return (
+    <div className="course-homework">
+      <ComingSoonBanner featureName="homework assignments" />
+    </div>
+  )
+}
 
   // Mock homework assignments
   const [assignments, setAssignments] = useState([
