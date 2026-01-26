@@ -12,6 +12,7 @@ function InstructorDashboard() {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [deletingCourseId, setDeletingCourseId] = useState(null)
 
   useEffect(() => {
     if (user) {
@@ -37,6 +38,29 @@ function InstructorDashboard() {
       setError('Failed to load dashboard data')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDeleteCourse = async (courseId, courseTitle) => {
+    if (!window.confirm(`Are you sure you want to delete "${courseTitle}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      setDeletingCourseId(courseId)
+      await handleApiCall(api.courses.delete, courseId)
+      
+      // Remove from local state
+      setCourses(courses.filter(c => c.id !== courseId))
+      
+      // Refresh stats
+      const enrollmentStats = await handleApiCall(api.enrollments.getStats, user.id)
+      setStats(enrollmentStats)
+    } catch (error) {
+      console.error('Error deleting course:', error)
+      alert('Failed to delete course. Please try again.')
+    } finally {
+      setDeletingCourseId(null)
     }
   }
 
@@ -149,6 +173,13 @@ function InstructorDashboard() {
                         <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
                           Manage Course
                         </Link>
+                        <button 
+                          onClick={() => handleDeleteCourse(course.id, course.title)}
+                          className="btn-danger"
+                          disabled={deletingCourseId === course.id}
+                        >
+                          {deletingCourseId === course.id ? 'Deleting...' : 'Delete'}
+                        </button>
                       </div>
                     </div>
                   )

@@ -52,17 +52,9 @@ function LandingPage() {
             <Link to="/marketplace" className="btn-primary-large">
               Explore Courses
             </Link>
-            <a 
-              href={donationLink}
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="btn-secondary-large"
-            >
-              Support Our Mission ❤️
-            </a>
             <Link 
               to="/register?role=instructor" 
-              className="btn-tertiary-large"
+              className="btn-primary-large"
             >
               Start Teaching
             </Link>
@@ -160,13 +152,13 @@ function LandingPage() {
               rel="noopener noreferrer"
               className="btn-donate"
             >
-              Support Our Mission ❤️
+              Donate Now ❤️
             </a>
             <Link 
               to="/register?role=instructor" 
               className="btn-volunteer"
             >
-              Sign Up to Teach
+              Volunteer as Instructor
             </Link>
           </div>
           <p className="support-note">

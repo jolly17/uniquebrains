@@ -9,6 +9,7 @@ import './MyCourses.css'
 function MyCourses() {
   const { user, profile, activeStudent, activePortal, availablePortals } = useAuth()
   const [enrolledCourses, setEnrolledCourses] = useState([])
+  const [enrollments, setEnrollments] = useState([])
   const [stats, setStats] = useState({
     totalCourses: 0,
     totalInstructors: 0,
@@ -16,6 +17,7 @@ function MyCourses() {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [unenrollingCourseId, setUnenrollingCourseId] = useState(null)
   
   // Helper function to capitalize first letter
   const capitalizeFirstLetter = (str) => {
@@ -39,12 +41,13 @@ function MyCourses() {
         console.log('📚 Fetching enrollments for:', { studentId, isStudentProfile, activeStudent })
         
         // Fetch enrollments for this student
-        const enrollments = await handleApiCall(api.enrollments.getStudent, studentId, isStudentProfile)
+        const enrollmentsData = await handleApiCall(api.enrollments.getStudent, studentId, isStudentProfile)
+        setEnrollments(enrollmentsData)
         
-        console.log('✅ Enrollments fetched:', enrollments)
+        console.log('✅ Enrollments fetched:', enrollmentsData)
         
         // Fetch full course details for each enrollment
-        const coursesPromises = enrollments.map(enrollment => 
+        const coursesPromises = enrollmentsData.map(enrollment => 
           handleApiCall(api.courses.getById, enrollment.course_id)
         )
         
@@ -53,7 +56,7 @@ function MyCourses() {
         
         // Calculate stats
         const uniqueInstructors = new Set(courses.map(c => c.instructor_id)).size
-        const completedSessions = enrollments.reduce((sum, e) => sum + (e.progress || 0), 0)
+        const completedSessions = enrollmentsData.reduce((sum, e) => sum + (e.progress || 0), 0)
         
         setStats({
           totalCourses: courses.length,
@@ -70,6 +73,40 @@ function MyCourses() {
 
     fetchEnrolledCourses()
   }, [user, activeStudent])
+
+  const handleUnenroll = async (courseId, courseTitle) => {
+    if (!window.confirm(`Are you sure you want to unenroll from "${courseTitle}"?`)) {
+      return
+    }
+
+    try {
+      setUnenrollingCourseId(courseId)
+      
+      // Find the enrollment for this course
+      const enrollment = enrollments.find(e => e.course_id === courseId)
+      if (!enrollment) {
+        throw new Error('Enrollment not found')
+      }
+      
+      // Delete the enrollment
+      await handleApiCall(api.enrollments.delete, enrollment.id)
+      
+      // Remove from local state
+      setEnrolledCourses(enrolledCourses.filter(c => c.id !== courseId))
+      setEnrollments(enrollments.filter(e => e.course_id !== courseId))
+      
+      // Update stats
+      setStats(prev => ({
+        ...prev,
+        totalCourses: prev.totalCourses - 1
+      }))
+    } catch (error) {
+      console.error('Error unenrolling:', error)
+      alert('Failed to unenroll. Please try again.')
+    } finally {
+      setUnenrollingCourseId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -198,9 +235,16 @@ function MyCourses() {
                     <Link to={`/courses/${course.id}`} className="btn-secondary">
                       View Details
                     </Link>
-                    <Link to={`/learn/${course.id}`} className="btn-primary">
+                    <Link to={`/learn/course/${course.id}/view`} className="btn-primary">
                       Continue Learning
                     </Link>
+                    <button 
+                      onClick={() => handleUnenroll(course.id, course.title)}
+                      className="btn-danger"
+                      disabled={unenrollingCourseId === course.id}
+                    >
+                      {unenrollingCourseId === course.id ? 'Unenrolling...' : 'Unenroll'}
+                    </button>
                   </div>
                 </div>
               )

@@ -60,7 +60,6 @@ function Layout() {
                   <>
                     <Link to="/learn/dashboard" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
                     <Link to="/learn/marketplace" className="nav-link" onClick={closeMobileMenu}>Find Courses</Link>
-                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Child Management</Link>
                   </>
                 )}
                 
@@ -68,7 +67,6 @@ function Layout() {
                 {!activePortal && profile?.role === 'parent' && (
                   <>
                     <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
-                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Child Management</Link>
                   </>
                 )}
                 
