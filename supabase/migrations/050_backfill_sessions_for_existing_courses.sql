@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION generate_sessions_for_course(
   p_end_date DATE,
   p_has_end_date BOOLEAN,
   p_session_duration INTEGER,
-  p_meeting_link TEXT
+  p_zoom_link TEXT
 )
 RETURNS INTEGER AS $$
 DECLARE
@@ -67,7 +67,7 @@ BEGIN
         '',
         v_session_datetime,
         COALESCE(p_session_duration, 60),
-        COALESCE(p_meeting_link, ''),
+        COALESCE(p_zoom_link, ''),
         'scheduled'
       );
       
@@ -101,7 +101,7 @@ BEGIN
       end_date,
       has_end_date,
       session_duration,
-      meeting_link
+      zoom_link
     FROM courses
     WHERE course_type = 'group'
       AND selected_days IS NOT NULL
@@ -121,7 +121,7 @@ BEGIN
       v_course.end_date,
       v_course.has_end_date,
       v_course.session_duration,
-      v_course.meeting_link
+      v_course.zoom_link
     );
     
     v_total_sessions := v_total_sessions + v_sessions_created;
