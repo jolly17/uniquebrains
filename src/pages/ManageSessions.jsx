@@ -79,7 +79,21 @@ function ManageSessions() {
 
       // Fetch sessions
       const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
-      setSessions(sessionsData || [])
+      
+      // Auto-generate sessions for group courses if none exist
+      if (courseData.course_type === 'group' && 
+          (!sessionsData || sessionsData.length === 0) &&
+          courseData.selected_days && 
+          courseData.selected_days.length > 0 &&
+          courseData.session_time &&
+          courseData.start_date) {
+        
+        console.log('Auto-generating sessions for group course...')
+        const generatedSessions = await autoGenerateSessions(courseData)
+        setSessions(generatedSessions)
+      } else {
+        setSessions(sessionsData || [])
+      }
 
       // Fetch enrolled students
       const enrollmentsData = await handleApiCall(api.enrollments.getCourse, courseId, user.id)
@@ -104,6 +118,50 @@ function ManageSessions() {
     } finally {
       setLoading(false)
     }
+  }
+  
+  // Auto-generate sessions based on course schedule
+  const autoGenerateSessions = async (courseData) => {
+    const generatedSessions = []
+    const startDate = new Date(courseData.start_date)
+    const endDate = courseData.has_end_date && courseData.end_date 
+      ? new Date(courseData.end_date) 
+      : new Date(startDate.getTime() + (12 * 7 * 24 * 60 * 60 * 1000)) // 12 weeks default
+    
+    const [hours, minutes] = courseData.session_time.split(':')
+    let currentDate = new Date(startDate)
+    let sessionNumber = 1
+
+    while (currentDate <= endDate) {
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+      
+      if (courseData.selected_days.includes(dayName)) {
+        const sessionDateTime = new Date(currentDate)
+        sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+        
+        const sessionData = {
+          title: `Topic ${sessionNumber}`,
+          description: '',
+          session_date: sessionDateTime.toISOString(),
+          duration: courseData.session_duration || 60,
+          meeting_link: courseData.meeting_link || '',
+          student_id: null // Group session
+        }
+        
+        try {
+          const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
+          generatedSessions.push(createdSession)
+          sessionNumber++
+        } catch (err) {
+          console.error('Error creating session:', err)
+        }
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+    
+    console.log(`Generated ${generatedSessions.length} sessions`)
+    return generatedSessions.sort((a, b) => new Date(a.session_date) - new Date(b.session_date))
   }
 
   if (loading) {
