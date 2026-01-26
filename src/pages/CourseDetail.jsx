@@ -154,52 +154,6 @@ function CourseDetail() {
               </div>
             )}
           </div>
-          
-          {/* Schedule Section - Prominent Display */}
-          {!course.isSelfPaced && course.course_type === 'group' && (
-            <div className="course-schedule-table">
-              <h3>📅 Course Schedule</h3>
-              <div className="schedule-info-row">
-                <div className="schedule-info-item">
-                  <span className="info-label">Days:</span>
-                  <span className="info-value">{course.selected_days?.join(', ') || 'Not set'}</span>
-                </div>
-                <div className="schedule-info-item">
-                  <span className="info-label">Time:</span>
-                  <span className="info-value">{course.session_time || 'Not set'}</span>
-                </div>
-                <div className="schedule-info-item">
-                  <span className="info-label">Duration:</span>
-                  <span className="info-value">{course.session_duration} minutes</span>
-                </div>
-                <div className="schedule-info-item">
-                  <span className="info-label">Frequency:</span>
-                  <span className="info-value">{course.frequency || 'weekly'}</span>
-                </div>
-              </div>
-              {course.start_date && (
-                <div className="schedule-dates-row">
-                  <span className="info-label">Start Date:</span>
-                  <span className="info-value">{new Date(course.start_date).toLocaleDateString()}</span>
-                  {course.has_end_date && course.end_date && (
-                    <>
-                      <span className="info-label">End Date:</span>
-                      <span className="info-value">{new Date(course.end_date).toLocaleDateString()}</span>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-          
-          {!course.isSelfPaced && course.course_type === 'one-on-one' && (
-            <div className="course-schedule-table">
-              <h3>📅 Course Schedule</h3>
-              <div className="schedule-note">
-                <p>📝 Schedule to be discussed between instructor and student after enrollment</p>
-              </div>
-            </div>
-          )}
         </div>
         
         <div className="course-enroll-card">
@@ -252,6 +206,52 @@ function CourseDetail() {
           </div>
         </div>
       </div>
+
+      {/* Schedule Section - Full Width Below Hero */}
+      {!course.isSelfPaced && course.course_type === 'group' && (
+        <div className="course-schedule-table-full">
+          <h3>📅 Course Schedule</h3>
+          <div className="schedule-info-row">
+            <div className="schedule-info-item">
+              <span className="info-label">Days:</span>
+              <span className="info-value">{course.selected_days?.join(', ') || 'Not set'}</span>
+            </div>
+            <div className="schedule-info-item">
+              <span className="info-label">Time:</span>
+              <span className="info-value">{course.session_time || 'Not set'}</span>
+            </div>
+            <div className="schedule-info-item">
+              <span className="info-label">Duration:</span>
+              <span className="info-value">{course.session_duration} minutes</span>
+            </div>
+            <div className="schedule-info-item">
+              <span className="info-label">Frequency:</span>
+              <span className="info-value">{course.frequency || 'weekly'}</span>
+            </div>
+          </div>
+          {course.start_date && (
+            <div className="schedule-dates-row">
+              <span className="info-label">Start Date:</span>
+              <span className="info-value">{new Date(course.start_date).toLocaleDateString()}</span>
+              {course.has_end_date && course.end_date && (
+                <>
+                  <span className="info-label">End Date:</span>
+                  <span className="info-value">{new Date(course.end_date).toLocaleDateString()}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+      
+      {!course.isSelfPaced && course.course_type === 'one-on-one' && (
+        <div className="course-schedule-table-full">
+          <h3>📅 Course Schedule</h3>
+          <div className="schedule-note">
+            <p>📝 Schedule to be discussed between instructor and student after enrollment</p>
+          </div>
+        </div>
+      )}
 
       {/* Enrollment Success Popup */}
       {showEnrollmentSuccess && (

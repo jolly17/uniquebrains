@@ -124,15 +124,22 @@ function ManageSessions() {
   const autoGenerateSessions = async (courseData) => {
     const generatedSessions = []
     const startDate = new Date(courseData.start_date)
-    const endDate = courseData.has_end_date && courseData.end_date 
-      ? new Date(courseData.end_date) 
-      : new Date(startDate.getTime() + (12 * 7 * 24 * 60 * 60 * 1000)) // 12 weeks default
+    
+    // For courses without end date, generate 5 sessions
+    // For courses with end date, generate all sessions until end date
+    const hasEndDate = courseData.has_end_date && courseData.end_date
+    const endDate = hasEndDate
+      ? new Date(courseData.end_date)
+      : null
+    
+    const maxSessions = hasEndDate ? 1000 : 5 // Limit to 5 for open-ended courses
     
     const [hours, minutes] = courseData.session_time.split(':')
     let currentDate = new Date(startDate)
     let sessionNumber = 1
+    let sessionsCreated = 0
 
-    while (currentDate <= endDate) {
+    while (sessionsCreated < maxSessions && (!endDate || currentDate <= endDate)) {
       const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
       
       if (courseData.selected_days.includes(dayName)) {
@@ -152,6 +159,7 @@ function ManageSessions() {
           const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
           generatedSessions.push(createdSession)
           sessionNumber++
+          sessionsCreated++
         } catch (err) {
           console.error('Error creating session:', err)
         }
@@ -160,8 +168,68 @@ function ManageSessions() {
       currentDate.setDate(currentDate.getDate() + 1)
     }
     
-    console.log(`Generated ${generatedSessions.length} sessions`)
+    console.log(`Generated ${generatedSessions.length} sessions${!hasEndDate ? ' (5 initial sessions for open-ended course)' : ''}`)
     return generatedSessions.sort((a, b) => new Date(a.session_date) - new Date(b.session_date))
+  }
+  
+  // Generate more sessions for open-ended courses
+  const generateMoreSessions = async (count) => {
+    if (!course || !course.selected_days || !course.session_time) {
+      alert('Course schedule information is missing')
+      return
+    }
+    
+    try {
+      const generatedSessions = []
+      
+      // Find the last session date
+      const lastSession = sessions.length > 0 
+        ? sessions.sort((a, b) => new Date(b.session_date) - new Date(a.session_date))[0]
+        : null
+      
+      const startDate = lastSession 
+        ? new Date(new Date(lastSession.session_date).getTime() + 24 * 60 * 60 * 1000) // Day after last session
+        : new Date(course.start_date)
+      
+      const [hours, minutes] = course.session_time.split(':')
+      let currentDate = new Date(startDate)
+      let sessionNumber = sessions.length + 1
+      let sessionsCreated = 0
+
+      while (sessionsCreated < count) {
+        const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+        
+        if (course.selected_days.includes(dayName)) {
+          const sessionDateTime = new Date(currentDate)
+          sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+          
+          const sessionData = {
+            title: `Topic ${sessionNumber}`,
+            description: '',
+            session_date: sessionDateTime.toISOString(),
+            duration: course.session_duration || 60,
+            meeting_link: course.meeting_link || '',
+            student_id: null
+          }
+          
+          const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
+          generatedSessions.push(createdSession)
+          sessionNumber++
+          sessionsCreated++
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1)
+      }
+      
+      setSessions([...sessions, ...generatedSessions].sort((a, b) => 
+        new Date(a.session_date) - new Date(b.session_date)
+      ))
+      
+      console.log(`Added ${generatedSessions.length} more sessions`)
+    } catch (err) {
+      console.error('Error generating more sessions:', err)
+      alert('Failed to generate more sessions')
+    }
   }
 
   if (loading) {
@@ -518,6 +586,11 @@ function ManageSessions() {
             <div className="sessions-header-row">
               <h2>Group Sessions Schedule</h2>
               <div className="header-actions">
+                {!course.has_end_date && (
+                  <button onClick={() => generateMoreSessions(5)} className="btn-secondary">
+                    + Add 5 More Sessions
+                  </button>
+                )}
                 <button onClick={() => handleOpenRecurringModal()} className="btn-secondary">
                   {recurringSchedules['group'] ? '⚙️ Edit Schedule' : '📅 Set up Recurring Schedule'}
                 </button>

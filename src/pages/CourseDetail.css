@@ -76,15 +76,16 @@
 }
 
 /* Course Schedule Table */
-.course-schedule-table {
-  margin-top: 2rem;
+.course-schedule-table-full {
+  margin: 2rem 0;
   padding: 1.5rem;
   background: #f8fafc;
   border-radius: 0.75rem;
   border: 2px solid #e2e8f0;
+  max-width: 1200px;
 }
 
-.course-schedule-table h3 {
+.course-schedule-table-full h3 {
   font-size: 1.125rem;
   color: var(--text-primary);
   margin-bottom: 1rem;
