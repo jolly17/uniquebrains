@@ -187,6 +187,8 @@ function Layout() {
             <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
             <span className="footer-separator">•</span>
             <Link to="/terms-of-service" className="footer-link">Terms of Service</Link>
+            <span className="footer-separator">•</span>
+            <a href="mailto:hello@uniquebrains.org" className="footer-link">Contact Us</a>
           </div>
           <div className="footer-social">
             <a 

@@ -12,7 +12,7 @@ function CreateCourse() {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'parenting',
+    category: 'performing-arts',
     courseType: 'group', // 'group' or 'one-on-one'
     price: '',
     sessionDuration: '',
@@ -160,12 +160,13 @@ function CreateCourse() {
                   required
                   style={{ padding: '0.5rem' }}
                 >
+                  <option value="performing-arts">Performing Arts 🎭</option>
+                  <option value="visual-arts">Visual Arts 🎨</option>
                   <option value="parenting">Parenting 👨‍👩‍👧‍👦</option>
-                  <option value="music">Music 🎵</option>
-                  <option value="dance">Dance 💃</option>
-                  <option value="drama">Drama 🎭</option>
-                  <option value="art">Art 🎨</option>
+                  <option value="academics">Academics 📚</option>
                   <option value="language">Language 🌍</option>
+                  <option value="spirituality">Spirituality 🧘</option>
+                  <option value="lifeskills">Life Skills 🐷</option>
                 </select>
               </div>
 

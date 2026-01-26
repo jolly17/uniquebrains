@@ -74,12 +74,15 @@
 - [ ] **Student Management System (NEXT UP)**
   - Status: Queued for next session
   - Features needed:
-    - View all students across all courses
-    - Filter students by course
+    - View enrolled students under manage courses
     - View student profiles and neurodiversity needs
-    - Track student progress and attendance
-    - Communication tools
+    - Ability to unenroll a student from the course
   - Priority: High
+
+- [ ] **UI fixes before launch**
+  - Add Contact Us button
+  - Change category of courses
+  - Put "Coming Soon" for homework, feedback, resources and chat tabs
 
 ---
 
