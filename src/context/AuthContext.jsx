@@ -50,15 +50,50 @@ export function AuthProvider({ children }) {
       }
       
       // Check if user has enrollments (learn capability)
-      const { data: enrollments, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('id')
-        .eq('user_id', userId)
-        .limit(1)
+      // For parents: check if any of their students have enrollments
+      // For direct students: check if they have enrollments
+      let hasEnrollments = false
       
-      if (enrollmentsError) {
-        console.error('Error checking enrollments:', enrollmentsError)
-      } else if (enrollments && enrollments.length > 0) {
+      if (userProfile.role === 'parent') {
+        // First get student IDs for this parent
+        const { data: studentProfiles, error: studentsError } = await supabase
+          .from('students')
+          .select('id')
+          .eq('parent_id', userId)
+        
+        if (studentsError) {
+          console.error('Error checking students:', studentsError)
+        } else if (studentProfiles && studentProfiles.length > 0) {
+          // Check if any student profiles have enrollments
+          const studentIds = studentProfiles.map(s => s.id)
+          const { data: studentEnrollments, error: enrollmentsError } = await supabase
+            .from('enrollments')
+            .select('id')
+            .in('student_profile_id', studentIds)
+            .limit(1)
+          
+          if (enrollmentsError) {
+            console.error('Error checking enrollments:', enrollmentsError)
+          } else if (studentEnrollments && studentEnrollments.length > 0) {
+            hasEnrollments = true
+          }
+        }
+      } else {
+        // For direct student enrollments
+        const { data: enrollments, error: enrollmentsError } = await supabase
+          .from('enrollments')
+          .select('id')
+          .eq('student_id', userId)
+          .limit(1)
+        
+        if (enrollmentsError) {
+          console.error('Error checking enrollments:', enrollmentsError)
+        } else if (enrollments && enrollments.length > 0) {
+          hasEnrollments = true
+        }
+      }
+      
+      if (hasEnrollments) {
         portals.push('learn')
       }
       
