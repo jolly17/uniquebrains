@@ -204,7 +204,7 @@ function StudentProfile() {
 
       {profile?.role === 'parent' && (
         <div className="profile-section">
-          <h2>Student Management</h2>
+          <h2>Child Management</h2>
           <p className="section-description">
             Manage your children's profiles and learning preferences.
           </p>
@@ -212,7 +212,7 @@ function StudentProfile() {
             onClick={() => navigate('/manage-students')} 
             className="btn-primary"
           >
-            📚 Manage Students
+            📚 Manage Children
           </button>
         </div>
       )}

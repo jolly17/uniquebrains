@@ -1,23 +1,30 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { OAuthButton } from '../components/OAuthButton'
 import './Auth.css'
 
 function Register() {
-  const [selectedRole, setSelectedRole] = useState('parent')
+  const [searchParams] = useSearchParams()
+  const roleParam = searchParams.get('role')
+  const [selectedRole, setSelectedRole] = useState(roleParam === 'instructor' ? 'instructor' : 'parent')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'parent'
+    role: roleParam === 'instructor' ? 'instructor' : 'parent'
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const { register } = useAuth()
   const navigate = useNavigate()
+
+  // Update formData when selectedRole changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, role: selectedRole }))
+  }, [selectedRole])
 
   const handleChange = (e) => {
     setFormData({

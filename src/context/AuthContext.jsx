@@ -25,7 +25,89 @@ export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [students, setStudents] = useState([])
   const [activeStudent, setActiveStudent] = useState(null)
+  const [activePortal, setActivePortal] = useState(null) // 'teach' | 'learn' | null
+  const [availablePortals, setAvailablePortals] = useState([]) // ['teach', 'learn']
   const [loading, setLoading] = useState(true)
+
+  // Detect available portals based on user activities
+  const detectAvailablePortals = async (userId, userProfile) => {
+    if (!userId || !userProfile) return []
+    
+    const portals = []
+    
+    try {
+      // Check if user has created courses (teach capability)
+      const { data: courses, error: coursesError } = await supabase
+        .from('courses')
+        .select('id')
+        .eq('instructor_id', userId)
+        .limit(1)
+      
+      if (coursesError) {
+        console.error('Error checking courses:', coursesError)
+      } else if (courses && courses.length > 0) {
+        portals.push('teach')
+      }
+      
+      // Check if user has enrollments (learn capability)
+      const { data: enrollments, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1)
+      
+      if (enrollmentsError) {
+        console.error('Error checking enrollments:', enrollmentsError)
+      } else if (enrollments && enrollments.length > 0) {
+        portals.push('learn')
+      }
+      
+      // Always include primary role portal
+      if (userProfile.role === 'instructor' && !portals.includes('teach')) {
+        portals.push('teach')
+      }
+      if (userProfile.role === 'parent' && !portals.includes('learn')) {
+        portals.push('learn')
+      }
+      
+      setAvailablePortals(portals)
+      return portals
+    } catch (err) {
+      console.error('Error detecting available portals:', err)
+      // Fallback to primary role
+      const fallback = userProfile.role === 'instructor' ? ['teach'] : ['learn']
+      setAvailablePortals(fallback)
+      return fallback
+    }
+  }
+
+  // Get active portal from URL path
+  const getActivePortal = () => {
+    // Detect portal from URL path
+    const path = window.location.pathname
+    if (path.startsWith('/teach')) return 'teach'
+    if (path.startsWith('/learn')) return 'learn'
+    
+    // Fallback to localStorage preference
+    const savedPortal = localStorage.getItem('last_portal')
+    if (savedPortal === 'teach' || savedPortal === 'learn') {
+      return savedPortal
+    }
+    
+    // Fallback to primary role default
+    if (profile?.role === 'instructor') return 'teach'
+    if (profile?.role === 'parent') return 'learn'
+    
+    return null
+  }
+
+  // Switch portal and save preference
+  const switchPortal = (portal) => {
+    if (portal === 'teach' || portal === 'learn') {
+      setActivePortal(portal)
+      localStorage.setItem('last_portal', portal)
+    }
+  }
 
   useEffect(() => {
     // Check for existing session
@@ -35,9 +117,16 @@ export function AuthProvider({ children }) {
         setUser(user)
         
         // Fetch user profile
-        getCurrentUserProfile().then(({ profile }) => {
+        getCurrentUserProfile().then(async ({ profile }) => {
           if (profile) {
             setProfile(profile)
+            
+            // Detect available portals
+            await detectAvailablePortals(user.id, profile)
+            
+            // Set active portal
+            const portal = getActivePortal()
+            setActivePortal(portal)
             
             // If user is a parent, load their students
             if (profile.role === 'parent') {
@@ -57,9 +146,16 @@ export function AuthProvider({ children }) {
       setUser(session?.user || null)
       
       if (session?.user) {
-        getCurrentUserProfile().then(({ profile }) => {
+        getCurrentUserProfile().then(async ({ profile }) => {
           if (profile) {
             setProfile(profile)
+            
+            // Detect available portals
+            await detectAvailablePortals(session.user.id, profile)
+            
+            // Set active portal
+            const portal = getActivePortal()
+            setActivePortal(portal)
             
             // If user is a parent, load their students
             if (profile.role === 'parent') {
@@ -71,6 +167,8 @@ export function AuthProvider({ children }) {
         setProfile(null)
         setStudents([])
         setActiveStudent(null)
+        setAvailablePortals([])
+        setActivePortal(null)
       }
     })
 
@@ -115,6 +213,13 @@ export function AuthProvider({ children }) {
     setSession(session)
     setProfile(profile)
     
+    // Detect available portals after login
+    if (user && profile) {
+      await detectAvailablePortals(user.id, profile)
+      const portal = getActivePortal()
+      setActivePortal(portal)
+    }
+    
     return { user, profile, error: null }
   }
 
@@ -133,6 +238,13 @@ export function AuthProvider({ children }) {
     if (user) {
       const { profile } = await getCurrentUserProfile()
       setProfile(profile)
+      
+      // Detect available portals after registration
+      if (profile) {
+        await detectAvailablePortals(user.id, profile)
+        const portal = getActivePortal()
+        setActivePortal(portal)
+      }
     }
     
     return { user, error: null }
@@ -307,6 +419,8 @@ export function AuthProvider({ children }) {
     setProfile(null)
     setStudents([])
     setActiveStudent(null)
+    setActivePortal(null)
+    setAvailablePortals([])
     
     return { error: null }
   }
@@ -321,7 +435,9 @@ export function AuthProvider({ children }) {
       profile,
       session,
       students, 
-      activeStudent, 
+      activeStudent,
+      activePortal,
+      availablePortals,
       loading,
       login, 
       register, 
@@ -330,7 +446,10 @@ export function AuthProvider({ children }) {
       updateStudent,
       deleteStudent,
       switchStudent,
-      refreshStudents
+      refreshStudents,
+      detectAvailablePortals,
+      getActivePortal,
+      switchPortal
     }}>
       {children}
     </AuthContext.Provider>

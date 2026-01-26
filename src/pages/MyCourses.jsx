@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import NeurodiversityBadges from '../components/NeurodiversityBadges'
+import PortalSwitcher from '../components/PortalSwitcher'
 import './MyCourses.css'
 
 function MyCourses() {
-  const { user, profile, activeStudent } = useAuth()
+  const { user, profile, activeStudent, activePortal, availablePortals } = useAuth()
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [stats, setStats] = useState({
     totalCourses: 0,
@@ -92,6 +93,17 @@ function MyCourses() {
 
   return (
     <div className="my-courses">
+      {/* Portal Switcher */}
+      {availablePortals && availablePortals.length > 1 && (
+        <div className="dashboard-portal-switcher">
+          <PortalSwitcher 
+            currentPortal={activePortal} 
+            availablePortals={availablePortals} 
+            compact={false} 
+          />
+        </div>
+      )}
+      
       <div className="dashboard-header">
         <div>
           <h1>
@@ -123,9 +135,16 @@ function MyCourses() {
             )}
           </div>
         </div>
-        <Link to="/marketplace" className="btn-primary">
-          Browse More Courses
-        </Link>
+        <div className="dashboard-header-actions">
+          <Link to="/learn/marketplace" className="btn-primary">
+            Browse More Courses
+          </Link>
+          {availablePortals && availablePortals.includes('teach') && (
+            <Link to="/teach/create-course" className="btn-secondary">
+              Create Course
+            </Link>
+          )}
+        </div>
       </div>
 
       <div className="stats-grid">
@@ -190,7 +209,7 @@ function MyCourses() {
         ) : (
           <div className="empty-state">
             <p>You haven't enrolled in any courses yet.</p>
-            <Link to="/marketplace" className="btn-primary">
+            <Link to="/learn/marketplace" className="btn-primary">
               Browse Courses
             </Link>
           </div>

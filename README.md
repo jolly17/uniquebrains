@@ -12,13 +12,15 @@ A modern learning management system designed for neurodivergent learners, connec
 ## ✨ Features
 
 ### Core Platform
-- ✅ **User Authentication** - Role-based access (Instructor, Student, Parent)
+- ✅ **User Authentication** - Role-based access (Instructor, Parent)
+- ✅ **Dual Portal System** - Separate teaching and learning portals
 - ✅ **Course Management** - Create, edit, and publish courses
 - ✅ **Marketplace** - Browse and enroll in courses
 - ✅ **Session Scheduling** - Recurring and one-time sessions
 - ✅ **Homework System** - Assignments, submissions, and grading
 - ✅ **Real-time Messaging** - Instant chat with WebSocket
 - ✅ **Resource Management** - Upload and share course materials
+- ✅ **Child Management** - Parents manage multiple children profiles
 - ✅ **Responsive Design** - Works on all devices
 
 ### Technical Highlights
@@ -136,6 +138,13 @@ uniquebrains/
 
 ## 🎯 Key Features Explained
 
+### Dual Portal System
+- **Teaching Portal** (`/teach/*`) - For instructors to manage courses
+- **Learning Portal** (`/learn/*`) - For parents/students to access courses
+- **Automatic Portal Detection** - Based on user activities
+- **Portal Switcher** - Easy switching between portals
+- **Cross-Portal Actions** - Instructors can enroll in courses, parents can create courses
+
 ### Real-time Messaging
 - Instant message delivery (< 1 second)
 - WebSocket-based communication
@@ -170,7 +179,12 @@ Use the testing checklist for quick validation:
 ### Test Accounts
 Create test accounts with different roles:
 - Instructor: `instructor@test.com`
-- Student: `student@test.com`
+- Parent: `parent@test.com`
+
+Test dual portal functionality:
+1. Create course as instructor → Teaching portal available
+2. Enroll in course as instructor → Learning portal becomes available
+3. Switch between portals using footer link
 
 ---
 

@@ -60,6 +60,12 @@ function LandingPage() {
             >
               Support Our Mission ❤️
             </a>
+            <Link 
+              to="/register?role=instructor" 
+              className="btn-tertiary-large"
+            >
+              Start Teaching
+            </Link>
           </div>
         </div>
       </section>
@@ -156,12 +162,12 @@ function LandingPage() {
             >
               Support Our Mission ❤️
             </a>
-            <a 
-              href="mailto:hello@uniquebrains.org?subject=Interested in Volunteering as an Instructor&body=Hi UniqueBrains Team,%0D%0A%0D%0AI'm interested in volunteering my time to teach courses on your platform.%0D%0A%0D%0APlease let me know how I can get started!%0D%0A%0D%0AThank you!" 
+            <Link 
+              to="/register?role=instructor" 
               className="btn-volunteer"
             >
-              Volunteer as Instructor
-            </a>
+              Sign Up to Teach
+            </Link>
           </div>
           <p className="support-note">
             Every contribution, no matter how small, makes a difference in a child's learning journey.

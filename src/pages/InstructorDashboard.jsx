@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import NeurodiversityBadges from '../components/NeurodiversityBadges'
+import PortalSwitcher from '../components/PortalSwitcher'
 import './InstructorDashboard.css'
 
 function InstructorDashboard() {
-  const { user, profile } = useAuth()
+  const { user, profile, activePortal, availablePortals } = useAuth()
   const [courses, setCourses] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -41,6 +42,17 @@ function InstructorDashboard() {
 
   return (
     <div className="instructor-dashboard">
+      {/* Portal Switcher */}
+      {availablePortals && availablePortals.length > 1 && (
+        <div className="dashboard-portal-switcher">
+          <PortalSwitcher 
+            currentPortal={activePortal} 
+            availablePortals={availablePortals} 
+            compact={false} 
+          />
+        </div>
+      )}
+      
       <div className="dashboard-header">
         <div>
           <h1>Instructor Dashboard</h1>
@@ -61,7 +73,7 @@ function InstructorDashboard() {
             )}
           </div>
         </div>
-        <Link to="/instructor/create-course" className="btn-primary">
+        <Link to="/teach/create-course" className="btn-primary">
           Create New Course
         </Link>
       </div>
@@ -95,11 +107,16 @@ function InstructorDashboard() {
           </div>
 
           <div className="dashboard-section">
-            <h2>My Courses</h2>
+            <div className="section-header">
+              <h2>My Courses</h2>
+              <Link to="/teach/marketplace" className="btn-secondary">
+                Browse Marketplace
+              </Link>
+            </div>
             {courses.length === 0 ? (
               <div className="empty-state">
                 <p>You haven't created any courses yet.</p>
-                <Link to="/instructor/create-course" className="btn-primary">
+                <Link to="/teach/create-course" className="btn-primary">
                   Create Your First Course
                 </Link>
               </div>
@@ -134,7 +151,7 @@ function InstructorDashboard() {
                         <Link to={`/courses/${course.id}`} className="btn-secondary">
                           View
                         </Link>
-                        <Link to={`/instructor/course/${course.id}/manage`} className="btn-primary">
+                        <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
                           Manage Course
                         </Link>
                       </div>

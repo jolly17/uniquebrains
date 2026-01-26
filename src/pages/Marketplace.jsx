@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import CourseCard from '../components/CourseCard'
 import { api, handleApiCall } from '../services/api'
 import './Marketplace.css'
 
 function Marketplace() {
+  const location = useLocation()
+  const { user, activePortal } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+
+  // Detect portal from route or activePortal
+  const portal = location.pathname.startsWith('/teach') ? 'teach' : 
+                 location.pathname.startsWith('/learn') ? 'learn' : 
+                 activePortal || 'learn'
 
   const categories = ['all', 'parenting', 'music', 'dance', 'drama', 'art', 'language']
 
@@ -21,7 +29,17 @@ function Marketplace() {
         const coursesData = await handleApiCall(api.courses.getAll)
         // Filter to only show published courses
         const publishedCourses = coursesData.filter(course => course.status === 'published')
-        setCourses(publishedCourses)
+        
+        // Add ownership information if user is logged in
+        if (user) {
+          const coursesWithOwnership = publishedCourses.map(course => ({
+            ...course,
+            isOwned: course.instructor_id === user.id
+          }))
+          setCourses(coursesWithOwnership)
+        } else {
+          setCourses(publishedCourses)
+        }
       } catch (err) {
         console.error('Error fetching courses:', err)
         setError('Failed to load courses')
@@ -31,7 +49,7 @@ function Marketplace() {
     }
 
     fetchCourses()
-  }, [])
+  }, [user])
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,7 +101,20 @@ function Marketplace() {
         <div className="courses-grid">
           {filteredCourses.length > 0 ? (
             filteredCourses.map(course => (
-              <CourseCard key={course.id} course={course} />
+              <div key={course.id} className="marketplace-course-item">
+                <CourseCard course={course} />
+                <div className="course-card-actions">
+                  {portal === 'teach' && course.isOwned ? (
+                    <Link to={`/teach/course/${course.id}/manage`} className="btn-primary btn-full">
+                      Manage Course
+                    </Link>
+                  ) : (
+                    <Link to={`/courses/${course.id}`} className="btn-primary btn-full">
+                      {portal === 'teach' ? 'Enroll' : 'View Details'}
+                    </Link>
+                  )}
+                </div>
+              </div>
             ))
           ) : (
             <div className="no-results">

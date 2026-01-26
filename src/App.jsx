@@ -29,15 +29,18 @@ if (import.meta.env.DEV) {
   import('./utils/fixProfile.js')
 }
 
-function ProtectedRoute({ children, role }) {
-  const { user, profile } = useAuth()
+function ProtectedRoute({ children, requirePortal }) {
+  const { user, profile, availablePortals } = useAuth()
   
   if (!user) {
     return <Navigate to="/login" />
   }
   
-  if (role && profile?.role !== role) {
-    return <Navigate to="/" />
+  // Check if user has access to the required portal
+  if (requirePortal && !availablePortals.includes(requirePortal)) {
+    // Redirect to their available portal
+    const defaultPortal = profile?.role === 'instructor' ? 'teach' : 'learn'
+    return <Navigate to={`/${defaultPortal}/dashboard`} />
   }
   
   return children
@@ -49,12 +52,14 @@ function App() {
       <Router>
         <ScrollToTop />
         <Routes>
+          {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/role-selection" element={<RoleSelection />} />
           
+          {/* Main layout routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
             <Route path="marketplace" element={<Marketplace />} />
@@ -62,6 +67,79 @@ function App() {
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
             
+            {/* Teaching Portal Routes */}
+            <Route path="teach">
+              <Route path="dashboard" element={
+                <ProtectedRoute requirePortal="teach">
+                  <InstructorDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="marketplace" element={
+                <ProtectedRoute requirePortal="teach">
+                  <Marketplace portal="teach" />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="my-courses" element={
+                <ProtectedRoute requirePortal="teach">
+                  <InstructorDashboard />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="create-course" element={
+                <ProtectedRoute requirePortal="teach">
+                  <CreateCourse />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="sessions/:courseId" element={
+                <ProtectedRoute requirePortal="teach">
+                  <ManageSessions />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="course/:courseId/manage" element={
+                <ProtectedRoute requirePortal="teach">
+                  <ManageCourse />
+                </ProtectedRoute>
+              } />
+            </Route>
+            
+            {/* Learning Portal Routes */}
+            <Route path="learn">
+              <Route path="dashboard" element={
+                <ProtectedRoute requirePortal="learn">
+                  <MyCourses />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="marketplace" element={
+                <ProtectedRoute requirePortal="learn">
+                  <Marketplace portal="learn" />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="my-courses" element={
+                <ProtectedRoute requirePortal="learn">
+                  <MyCourses />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="course/:courseId/view" element={
+                <ProtectedRoute requirePortal="learn">
+                  <StudentCourseView />
+                </ProtectedRoute>
+              } />
+              
+              <Route path="onboarding" element={
+                <ProtectedRoute requirePortal="learn">
+                  <Onboarding />
+                </ProtectedRoute>
+              } />
+            </Route>
+            
+            {/* Legacy routes - redirect to appropriate portal */}
             <Route path="my-courses" element={
               <ProtectedRoute>
                 <MyCourses />
@@ -69,39 +147,17 @@ function App() {
             } />
             
             <Route path="manage-students" element={
-              <ProtectedRoute role="parent">
+              <ProtectedRoute>
                 <ManageStudents />
               </ProtectedRoute>
             } />
             
-            <Route path="learn/:courseId" element={
-              <ProtectedRoute>
-                <StudentCourseView />
-              </ProtectedRoute>
-            } />
-            
             <Route path="instructor/dashboard" element={
-              <ProtectedRoute role="instructor">
-                <InstructorDashboard />
-              </ProtectedRoute>
+              <Navigate to="/teach/dashboard" replace />
             } />
             
             <Route path="instructor/create-course" element={
-              <ProtectedRoute role="instructor">
-                <CreateCourse />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="instructor/sessions/:courseId" element={
-              <ProtectedRoute role="instructor">
-                <ManageSessions />
-              </ProtectedRoute>
-            } />
-            
-            <Route path="instructor/course/:courseId/manage" element={
-              <ProtectedRoute role="instructor">
-                <ManageCourse />
-              </ProtectedRoute>
+              <Navigate to="/teach/create-course" replace />
             } />
             
             <Route path="profile" element={
@@ -111,7 +167,7 @@ function App() {
             } />
             
             <Route path="test-backend" element={
-              <ProtectedRoute role="instructor">
+              <ProtectedRoute requirePortal="teach">
                 <BackendTestComponent />
               </ProtectedRoute>
             } />

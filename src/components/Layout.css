@@ -368,3 +368,17 @@
     height: 18px;
   }
 }
+
+/* Portal Switcher in Footer */
+.footer-portal-switcher {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 768px) {
+  .footer-portal-switcher {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+}

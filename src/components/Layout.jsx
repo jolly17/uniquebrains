@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
+import PortalSwitcher from './PortalSwitcher'
 import './Layout.css'
 
 function Layout() {
-  const { user, profile, students, activeStudent, switchStudent, logout } = useAuth()
+  const { user, profile, students, activeStudent, activePortal, availablePortals, switchStudent, logout } = useAuth()
   const navigate = useNavigate()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showStudentSwitcher, setShowStudentSwitcher] = useState(false)
@@ -47,17 +48,35 @@ function Layout() {
             
             {user && (
               <>
-                {profile?.role === 'parent' && (
+                {/* Show portal-specific navigation based on active portal */}
+                {activePortal === 'teach' && (
                   <>
-                    <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
-                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Manage Students</Link>
+                    <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
+                    <Link to="/teach/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
+                    <Link to="/teach/marketplace" className="nav-link" onClick={closeMobileMenu}>Browse Courses</Link>
                   </>
                 )}
                 
-                {profile?.role === 'instructor' && (
+                {activePortal === 'learn' && (
                   <>
-                    <Link to="/instructor/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
-                    <Link to="/instructor/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
+                    <Link to="/learn/dashboard" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
+                    <Link to="/learn/marketplace" className="nav-link" onClick={closeMobileMenu}>Find Courses</Link>
+                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Child Management</Link>
+                  </>
+                )}
+                
+                {/* Fallback for users not in a portal yet */}
+                {!activePortal && profile?.role === 'parent' && (
+                  <>
+                    <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
+                    <Link to="/manage-students" className="nav-link" onClick={closeMobileMenu}>Child Management</Link>
+                  </>
+                )}
+                
+                {!activePortal && profile?.role === 'instructor' && (
+                  <>
+                    <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
+                    <Link to="/teach/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
                   </>
                 )}
               </>
@@ -130,7 +149,7 @@ function Layout() {
                           className="manage-students-link"
                           onClick={() => setShowStudentSwitcher(false)}
                         >
-                          + Manage Students
+                          + Manage Children
                         </Link>
                       </div>
                     )}
@@ -157,6 +176,17 @@ function Layout() {
 
       <footer className="footer">
         <div className="footer-content">
+          {/* Portal Switcher - only show if user has multiple portals */}
+          {user && availablePortals && availablePortals.length > 1 && (
+            <div className="footer-portal-switcher">
+              <PortalSwitcher 
+                currentPortal={activePortal} 
+                availablePortals={availablePortals} 
+                compact={true} 
+              />
+            </div>
+          )}
+          
           <p>&copy; 2025 UniqueBrains. Where every brain learns differently.</p>
           <div className="footer-links">
             <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>

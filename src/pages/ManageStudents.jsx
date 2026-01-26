@@ -115,9 +115,9 @@ function ManageStudents() {
   return (
     <div className="manage-students">
       <div className="students-header">
-        <h1>Manage Student Profiles</h1>
+        <h1>Manage Children Profiles</h1>
         <button onClick={handleAdd} className="btn-primary">
-          + Add Student
+          + Add Child
         </button>
       </div>
 

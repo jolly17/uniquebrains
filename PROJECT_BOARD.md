@@ -7,17 +7,6 @@
 ## 🎯 BACKLOG
 
 ### High Priority
-- [ ] **Dual Role Support (URGENT - Next Session)**
-  - Issue: Users can only have ONE role (instructor OR parent), not both
-  - Current: Database has single `role` column with CHECK constraint
-  - Solution Options:
-    1. Change role column to array (TEXT[]) - requires migration
-    2. Add role switcher UI - simpler, no DB changes needed
-    3. Create separate accounts - not user-friendly
-  - Decision: TBD in next session
-  - Impact: Users who want to teach AND manage children need workaround
-  - Assigned: Next session
-
 - [ ] **Fix Instructor Session Management**
   - Issue: Cannot save meeting links or create sessions
   - Issue: Student dropdown doesn't show enrolled students for 1-on-1 courses
@@ -96,18 +85,6 @@
 
 ## 🚧 IN PROGRESS
 
-- [ ] **Dual Role Support (URGENT)**
-  - Status: Implementing solution
-  - Issue: Users can only have ONE role (instructor OR parent), not both
-  - Current: Database has single `role` column with CHECK constraint
-  - Solution Options:
-    1. Change role column to array (TEXT[]) - requires migration
-    2. Add role switcher UI - simpler, no DB changes needed
-    3. Create separate accounts - not user-friendly
-  - Decision: Implement role switcher UI for now (quick fix)
-  - Future: Consider array-based roles for true multi-role support
-  - Assigned: Current session
-
 - [ ] **Instructor Session Management (BLOCKED)**
   - Status: Needs debugging
   - Blocker: API integration issues
@@ -116,6 +93,21 @@
 ---
 
 ## ✅ DONE
+
+### January 26, 2026
+- [x] **Dual Role Support - COMPLETE**
+  - Path-based routing (/teach and /learn portals)
+  - Portal detection based on user activities
+  - Portal switcher component in footer
+  - AuthContext enhanced with portal management
+  - Updated all dashboards with portal-aware navigation
+  - Marketplace supports both portals with different CTAs
+  - Login simplified (no role selection)
+  - Registration supports role pre-selection from landing page
+  - Landing page updated with "Start Teaching" CTA
+  - Renamed "Student Management" to "Child Management"
+  - Documentation updated (README, PROJECT_BOARD)
+  - All phases complete and tested
 
 ### January 23, 2026
 - [x] **Student Dashboard Redesign**
@@ -267,9 +259,9 @@
 
 ### Overall Progress
 - **Total Features**: 100+
-- **Completed**: ~40 (40%)
-- **In Progress**: 1
-- **Backlog**: ~60
+- **Completed**: ~48 (48%)
+- **In Progress**: 0
+- **Backlog**: ~52
 
 ### By Category
 | Category | Complete | In Progress | Backlog | Total |
@@ -285,7 +277,8 @@
 ### Sprint Velocity
 - **Week of Jan 15-21**: 15 features completed
 - **Week of Jan 22-23**: 8 features completed
-- **Average**: ~11 features/week
+- **Week of Jan 26**: 8 features completed (Dual Role Support)
+- **Average**: ~10 features/week
 
 ---
 
@@ -324,7 +317,6 @@
 
 ### Medium
 - ⚠️ **Enrollment Count**: Shows 0 in ManageStudents page
-- ⚠️ **Active Student Persistence**: Not remembered across sessions
 
 ### Low
 - ℹ️ **OAuth Branding**: Shows Supabase URL instead of UniqueBrains
@@ -362,6 +354,6 @@
 
 ---
 
-**Last Review**: January 23, 2026
+**Last Review**: January 26, 2026
 **Next Review**: Next session
-**Status**: Active Development - 40% Complete
+**Status**: Active Development - 48% Complete
