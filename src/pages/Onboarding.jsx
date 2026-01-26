@@ -270,9 +270,9 @@ function Onboarding() {
       setTimeout(() => {
         console.log('Redirecting user with role:', formData.role)
         if (formData.role === 'instructor') {
-          navigate('/instructor/create-course')
+          navigate('/teach/dashboard')
         } else if (formData.role === 'parent') {
-          navigate('/marketplace')
+          navigate('/learn/dashboard')
         } else {
           navigate('/marketplace')
         }
