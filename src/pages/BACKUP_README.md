@@ -9,6 +9,8 @@ These files contain the original implementations of course management features t
 
 ### Files Backed Up:
 
+**Instructor Portal:**
+
 1. **CourseStudents.jsx.backup**
    - Student roster display (group and one-on-one)
    - Student profile cards with neurodiversity badges
@@ -39,6 +41,30 @@ These files contain the original implementations of course management features t
    - Real-time polling for new messages
    - Read receipts
    - Student thread list with unread counts
+
+**Student Portal:**
+
+5. **StudentHomework.jsx.backup**
+   - Homework assignment list (To Do and Completed)
+   - Due date tracking with overdue warnings
+   - Submission interface
+   - Feedback display from instructor
+   - Custom events for modal handling
+
+6. **StudentResources.jsx.backup**
+   - Resource list display
+   - File type icons
+   - Preview functionality for supported files
+   - Download tracking
+   - View statistics
+
+7. **StudentChat.jsx.backup**
+   - Group chat for group courses
+   - One-on-one chat with instructor
+   - Message sending and receiving
+   - Real-time polling
+   - Read receipts
+   - Keyboard shortcuts (Enter to send)
 
 ## How to Restore
 
