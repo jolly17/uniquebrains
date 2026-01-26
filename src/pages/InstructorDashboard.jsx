@@ -67,7 +67,7 @@ function InstructorDashboard() {
 
     try {
       setDeletingCourseId(courseId)
-      await handleApiCall(api.courses.delete, courseId)
+      await handleApiCall(api.courses.delete, courseId, user.id)
       
       // Remove from local state
       setCourses(courses.filter(c => c.id !== courseId))
