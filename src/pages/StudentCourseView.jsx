@@ -49,8 +49,11 @@ function StudentCourseView() {
         
         setCourse(courseData)
         
+        // Determine the correct user ID (child profile or direct user)
+        const studentId = activeStudent?.id || user.id
+        
         // Fetch sessions
-        const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+        const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, studentId)
         console.log('✅ Sessions fetched:', sessionsData)
         setSessions(sessionsData || [])
       } catch (err) {
@@ -62,7 +65,7 @@ function StudentCourseView() {
     }
 
     fetchCourse()
-  }, [courseId, user])
+  }, [courseId, user, activeStudent])
 
   useEffect(() => {
     // Check for new content indicators
@@ -326,6 +329,7 @@ function StudentCourseView() {
                 {sessions.map(session => {
                   const { date, time } = formatSessionDateTime(session)
                   const isPast = new Date(session.session_date) < now
+                  const meetingLink = session.meeting_link || course.meeting_link
                   
                   return (
                     <div key={session.id} className={`session-item-student ${isPast ? 'past' : 'upcoming'}`}>
@@ -338,9 +342,9 @@ function StudentCourseView() {
                         <div className="session-title">
                           {session.title || 'Session'}
                         </div>
-                        {session.meeting_link && (
+                        {meetingLink && (
                           <a 
-                            href={session.meeting_link} 
+                            href={meetingLink} 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="meeting-link-button"
