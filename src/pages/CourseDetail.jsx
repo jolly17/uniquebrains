@@ -14,6 +14,8 @@ function CourseDetail() {
   const [course, setCourse] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isEnrolled, setIsEnrolled] = useState(false)
+  const [isInstructor, setIsInstructor] = useState(false)
   
   // Debug: Log activeStudent whenever it changes
   useEffect(() => {
@@ -23,13 +25,31 @@ function CourseDetail() {
   
   const reviews = mockReviews.filter(r => r.courseId === courseId)
 
-  // Fetch course data
+  // Fetch course data and check enrollment status
   useEffect(() => {
     const fetchCourse = async () => {
       try {
         setLoading(true)
         const courseData = await handleApiCall(api.courses.getById, courseId)
         setCourse(courseData)
+        
+        // Check if user is the instructor
+        if (user && courseData.instructor_id === user.id) {
+          setIsInstructor(true)
+        }
+        
+        // Check if user/student is already enrolled
+        if (user) {
+          try {
+            const studentId = activeStudent ? activeStudent.id : user.id
+            const isStudentProfile = activeStudent !== null
+            const enrollmentData = await handleApiCall(api.enrollments.check, courseId, studentId)
+            setIsEnrolled(!!enrollmentData)
+          } catch (err) {
+            console.log('Not enrolled or error checking enrollment:', err)
+            setIsEnrolled(false)
+          }
+        }
       } catch (err) {
         console.error('Error fetching course:', err)
         setError('Failed to load course')
@@ -41,7 +61,7 @@ function CourseDetail() {
     if (courseId) {
       fetchCourse()
     }
-  }, [courseId])
+  }, [courseId, user, activeStudent])
 
   if (loading) {
     return <div className="course-detail"><div className="loading-state">Loading course...</div></div>
@@ -116,11 +136,7 @@ function CourseDetail() {
           
           <div className="course-meta">
             <div className="meta-item">
-              <StarRating rating={course.averageRating} />
-              <span>{course.averageRating} ({course.totalRatings} ratings)</span>
-            </div>
-            <div className="meta-item">
-              <span>Instructor: {course.instructorName}</span>
+              <span>👨‍🏫 Instructor: {course.instructorName}</span>
             </div>
             {!course.isSelfPaced && (
               <>
@@ -130,18 +146,6 @@ function CourseDetail() {
                 <div className="meta-item">
                   <span>🔄 {course.sessionFrequency.charAt(0).toUpperCase() + course.sessionFrequency.slice(1)}</span>
                 </div>
-                {course.selectedDays.length > 0 && course.dayTimes && (
-                  <div className="meta-item schedule-details">
-                    <span>🕐 Schedule:</span>
-                    <div className="schedule-list">
-                      {course.selectedDays.map(day => (
-                        <span key={day} className="schedule-day">
-                          {day} at {course.dayTimes[day] || 'TBD'}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </>
             )}
             {course.isSelfPaced && (
@@ -150,6 +154,21 @@ function CourseDetail() {
               </div>
             )}
           </div>
+          
+          {/* Schedule Section - Prominent Display */}
+          {!course.isSelfPaced && course.selectedDays && course.selectedDays.length > 0 && course.dayTimes && (
+            <div className="course-schedule">
+              <h3>📅 Class Schedule</h3>
+              <div className="schedule-grid">
+                {course.selectedDays.map(day => (
+                  <div key={day} className="schedule-item">
+                    <span className="schedule-day-name">{day}</span>
+                    <span className="schedule-time">{course.dayTimes[day] || 'TBD'}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="course-enroll-card">
@@ -178,6 +197,17 @@ function CourseDetail() {
             <button className="btn-secondary btn-full" disabled>
               Class Full
             </button>
+          ) : isInstructor ? (
+            <button 
+              onClick={() => navigate(`/teach/course/${courseId}/manage`)} 
+              className="btn-secondary btn-full"
+            >
+              Manage Course
+            </button>
+          ) : isEnrolled ? (
+            <button className="btn-secondary btn-full" disabled>
+              ✓ Enrolled
+            </button>
           ) : (
             <button onClick={handleEnroll} className="btn-primary btn-full">
               Enroll Now
@@ -190,30 +220,6 @@ function CourseDetail() {
             <div className="feature">✓ Instructor support</div>
           </div>
         </div>
-      </div>
-
-      <div className="course-sections">
-        <section className="course-section">
-          <h2>Student Reviews</h2>
-          {reviews.length > 0 ? (
-            <div className="reviews-list">
-              {reviews.map(review => (
-                <div key={review.id} className="review-item">
-                  <div className="review-header">
-                    <div>
-                      <div className="review-author">{review.studentName}</div>
-                      <div className="review-date">{new Date(review.createdAt).toLocaleDateString()}</div>
-                    </div>
-                    <StarRating rating={review.rating} size="small" />
-                  </div>
-                  <p className="review-text">{review.reviewText}</p>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="no-reviews">No reviews yet. Be the first to review this course!</p>
-          )}
-        </section>
       </div>
 
       {/* Enrollment Success Popup */}
