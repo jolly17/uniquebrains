@@ -11,7 +11,7 @@ CREATE OR REPLACE FUNCTION generate_sessions_for_course(
   p_end_date DATE,
   p_has_end_date BOOLEAN,
   p_session_duration INTEGER,
-  p_zoom_link TEXT
+  p_meeting_link TEXT
 )
 RETURNS INTEGER AS $$
 DECLARE
@@ -52,14 +52,14 @@ BEGIN
       -- Create session datetime
       v_session_datetime := v_current_date + (v_hour || ' hours')::INTERVAL + (v_minute || ' minutes')::INTERVAL;
       
-      -- Insert session
+      -- Insert session with course's meeting link
       INSERT INTO sessions (
         course_id,
         title,
         description,
         session_date,
         duration_minutes,
-        zoom_link,
+        meeting_link,
         status
       ) VALUES (
         p_course_id,
@@ -67,7 +67,7 @@ BEGIN
         '',
         v_session_datetime,
         COALESCE(p_session_duration, 60),
-        COALESCE(p_zoom_link, ''),
+        COALESCE(p_meeting_link, ''),
         'scheduled'
       );
       
@@ -96,12 +96,12 @@ BEGIN
     SELECT 
       id,
       selected_days,
-      session_time,
+      session_time::TEXT as session_time,
       start_date,
       end_date,
       has_end_date,
       session_duration,
-      zoom_link
+      meeting_link
     FROM courses
     WHERE course_type = 'group'
       AND selected_days IS NOT NULL
@@ -121,7 +121,7 @@ BEGIN
       v_course.end_date,
       v_course.has_end_date,
       v_course.session_duration,
-      v_course.zoom_link
+      v_course.meeting_link
     );
     
     v_total_sessions := v_total_sessions + v_sessions_created;

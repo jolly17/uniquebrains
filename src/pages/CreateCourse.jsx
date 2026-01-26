@@ -18,6 +18,7 @@ function CreateCourse() {
     sessionDuration: '',
     sessionTime: '',
     enrollmentLimit: '',
+    meetingLink: '', // Optional meeting link for all sessions
     // Recurrence fields
     startDate: '',
     repeatEvery: 1,
@@ -73,6 +74,7 @@ function CreateCourse() {
         courseType: formData.courseType,
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
+        meetingLink: formData.meetingLink, // Optional meeting link
         // Schedule data for session creation
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
@@ -371,6 +373,24 @@ function CreateCourse() {
                     />
                     Set an end date
                   </label>
+                </div>
+
+                <div className="form-group" style={{ marginTop: '1rem' }}>
+                  <label htmlFor="meetingLink" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>
+                    Meeting Link (Optional)
+                  </label>
+                  <input
+                    id="meetingLink"
+                    name="meetingLink"
+                    type="url"
+                    value={formData.meetingLink}
+                    onChange={handleChange}
+                    placeholder="https://zoom.us/j/... or https://meet.google.com/..."
+                    style={{ padding: '0.5rem' }}
+                  />
+                  <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
+                    💡 This link will be used for all sessions. You can add or update it later.
+                  </p>
                 </div>
               </>
             )}

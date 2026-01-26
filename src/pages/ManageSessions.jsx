@@ -22,8 +22,12 @@ function ManageSessions() {
 
   // Session editing state
   const [editingSession, setEditingSession] = useState(null)
-  const [topicInput, setTopicInput] = useState('')
-  const [sessionMeetingLinkInput, setSessionMeetingLinkInput] = useState('')
+  const [sessionEditData, setSessionEditData] = useState({
+    title: '',
+    date: '',
+    time: '',
+    duration: 60
+  })
   
   // New session creation state
   const [showCreateModal, setShowCreateModal] = useState(false)
@@ -255,16 +259,21 @@ function ManageSessions() {
     )
   }
 
-  const handleEditTopic = (session) => {
+  const handleEditSession = (session) => {
+    const sessionDate = new Date(session.session_date)
     setEditingSession(session.id)
-    setTopicInput(session.title || '')
-    setSessionMeetingLinkInput(session.meeting_link || courseMeetingLink)
+    setSessionEditData({
+      title: session.title || '',
+      date: sessionDate.toISOString().split('T')[0],
+      time: sessionDate.toTimeString().slice(0, 5),
+      duration: session.duration_minutes || 60
+    })
   }
 
   const handleSaveMeetingLink = async () => {
     try {
-      // Update course meeting link
-      await handleApiCall(api.courses.update, courseId, { meeting_link: meetingLinkInput })
+      // Update course meeting link with instructor ID
+      await handleApiCall(api.courses.update, courseId, { meeting_link: meetingLinkInput }, user.id)
       setCourseMeetingLink(meetingLinkInput)
       setIsEditingMeetingLink(false)
     } catch (err) {
@@ -278,11 +287,15 @@ function ManageSessions() {
     setIsEditingMeetingLink(false)
   }
 
-  const handleSaveTopic = async (sessionId) => {
+  const handleSaveSession = async (sessionId) => {
     try {
+      // Combine date and time into ISO string
+      const sessionDateTime = new Date(`${sessionEditData.date}T${sessionEditData.time}`)
+      
       const updates = {
-        title: topicInput,
-        meeting_link: sessionMeetingLinkInput
+        title: sessionEditData.title,
+        session_date: sessionDateTime.toISOString(),
+        duration_minutes: parseInt(sessionEditData.duration)
       }
       
       await handleApiCall(api.sessions.update, sessionId, updates, user.id)
@@ -290,13 +303,12 @@ function ManageSessions() {
       // Update local state
       setSessions(sessions.map(s => 
         s.id === sessionId 
-          ? { ...s, title: topicInput, meeting_link: sessionMeetingLinkInput }
+          ? { ...s, ...updates }
           : s
       ))
       
       setEditingSession(null)
-      setTopicInput('')
-      setSessionMeetingLinkInput('')
+      setSessionEditData({ title: '', date: '', time: '', duration: 60 })
     } catch (err) {
       console.error('Error updating session:', err)
       alert('Failed to update session')
@@ -305,8 +317,25 @@ function ManageSessions() {
 
   const handleCancelEdit = () => {
     setEditingSession(null)
-    setTopicInput('')
-    setSessionMeetingLinkInput('')
+    setSessionEditData({ title: '', date: '', time: '', duration: 60 })
+  }
+
+  const handleDeleteSession = async (sessionId) => {
+    if (!confirm('Are you sure you want to delete this session? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await handleApiCall(api.sessions.delete, sessionId, user.id)
+      
+      // Remove from local state
+      setSessions(sessions.filter(s => s.id !== sessionId))
+      
+      console.log('Session deleted successfully')
+    } catch (err) {
+      console.error('Error deleting session:', err)
+      alert('Failed to delete session')
+    }
   }
 
   const handleCreateSession = async () => {
@@ -586,14 +615,6 @@ function ManageSessions() {
             <div className="sessions-header-row">
               <h2>Group Sessions Schedule</h2>
               <div className="header-actions">
-                {!course.has_end_date && (
-                  <button onClick={() => generateMoreSessions(5)} className="btn-secondary">
-                    + Add 5 More Sessions
-                  </button>
-                )}
-                <button onClick={() => handleOpenRecurringModal()} className="btn-secondary">
-                  {recurringSchedules['group'] ? '⚙️ Edit Schedule' : '📅 Set up Recurring Schedule'}
-                </button>
                 <button onClick={() => setShowCreateModal(true)} className="btn-primary">
                   + Create Single Session
                 </button>
@@ -616,23 +637,39 @@ function ManageSessions() {
                           <div className="edit-fields">
                             <input
                               type="text"
-                              value={topicInput}
-                              onChange={(e) => setTopicInput(e.target.value)}
+                              value={sessionEditData.title}
+                              onChange={(e) => setSessionEditData({ ...sessionEditData, title: e.target.value })}
                               placeholder="Enter session topic..."
                               className="topic-input"
                               autoFocus
                             />
-                            <input
-                              type="url"
-                              value={sessionMeetingLinkInput}
-                              onChange={(e) => setSessionMeetingLinkInput(e.target.value)}
-                              placeholder="Meeting link (Zoom, Google Meet, etc.)"
-                              className="topic-input"
-                            />
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                              <input
+                                type="date"
+                                value={sessionEditData.date}
+                                onChange={(e) => setSessionEditData({ ...sessionEditData, date: e.target.value })}
+                                className="topic-input"
+                              />
+                              <input
+                                type="time"
+                                value={sessionEditData.time}
+                                onChange={(e) => setSessionEditData({ ...sessionEditData, time: e.target.value })}
+                                className="topic-input"
+                              />
+                              <input
+                                type="number"
+                                value={sessionEditData.duration}
+                                onChange={(e) => setSessionEditData({ ...sessionEditData, duration: e.target.value })}
+                                placeholder="Duration (min)"
+                                className="topic-input"
+                                min="15"
+                                step="15"
+                              />
+                            </div>
                           </div>
                           <div className="topic-actions">
                             <button 
-                              onClick={() => handleSaveTopic(session.id)}
+                              onClick={() => handleSaveSession(session.id)}
                               className="btn-primary btn-sm"
                             >
                               Save
@@ -651,11 +688,6 @@ function ManageSessions() {
                             {session.title && session.title.trim() ? (
                               <>
                                 <div className="topic-text">{session.title}</div>
-                                {session.meeting_link && (
-                                  <div className="meeting-link-display">
-                                    🔗 {session.meeting_link}
-                                  </div>
-                                )}
                                 <span className="topic-status set">✓ Ready</span>
                               </>
                             ) : (
@@ -665,12 +697,21 @@ function ManageSessions() {
                               </>
                             )}
                           </div>
-                          <button 
-                            onClick={() => handleEditTopic(session)}
-                            className="btn-secondary btn-sm"
-                          >
-                            {session.title ? 'Edit' : 'Set Details'}
-                          </button>
+                          <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            <button 
+                              onClick={() => handleEditSession(session)}
+                              className="btn-secondary btn-sm"
+                            >
+                              {session.title ? 'Edit' : 'Set Details'}
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteSession(session.id)}
+                              className="btn-secondary btn-sm"
+                              style={{ color: '#dc2626' }}
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -725,23 +766,39 @@ function ManageSessions() {
                             <div className="edit-fields">
                               <input
                                 type="text"
-                                value={topicInput}
-                                onChange={(e) => setTopicInput(e.target.value)}
+                                value={sessionEditData.title}
+                                onChange={(e) => setSessionEditData({ ...sessionEditData, title: e.target.value })}
                                 placeholder="Enter session topic..."
                                 className="topic-input"
                                 autoFocus
                               />
-                              <input
-                                type="url"
-                                value={sessionMeetingLinkInput}
-                                onChange={(e) => setSessionMeetingLinkInput(e.target.value)}
-                                placeholder="Meeting link (Zoom, Google Meet, etc.)"
-                                className="topic-input"
-                              />
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                                <input
+                                  type="date"
+                                  value={sessionEditData.date}
+                                  onChange={(e) => setSessionEditData({ ...sessionEditData, date: e.target.value })}
+                                  className="topic-input"
+                                />
+                                <input
+                                  type="time"
+                                  value={sessionEditData.time}
+                                  onChange={(e) => setSessionEditData({ ...sessionEditData, time: e.target.value })}
+                                  className="topic-input"
+                                />
+                                <input
+                                  type="number"
+                                  value={sessionEditData.duration}
+                                  onChange={(e) => setSessionEditData({ ...sessionEditData, duration: e.target.value })}
+                                  placeholder="Duration (min)"
+                                  className="topic-input"
+                                  min="15"
+                                  step="15"
+                                />
+                              </div>
                             </div>
                             <div className="topic-actions">
                               <button 
-                                onClick={() => handleSaveTopic(session.id)}
+                                onClick={() => handleSaveSession(session.id)}
                                 className="btn-primary btn-sm"
                               >
                                 Save
@@ -760,11 +817,6 @@ function ManageSessions() {
                               {session.title && session.title.trim() ? (
                                 <>
                                   <div className="topic-text">{session.title}</div>
-                                  {session.meeting_link && (
-                                    <div className="meeting-link-display">
-                                      🔗 {session.meeting_link}
-                                    </div>
-                                  )}
                                   <span className="topic-status set">✓ Ready</span>
                                 </>
                               ) : (
@@ -774,12 +826,21 @@ function ManageSessions() {
                                 </>
                               )}
                             </div>
-                            <button 
-                              onClick={() => handleEditTopic(session)}
-                              className="btn-secondary btn-sm"
-                            >
-                              {session.title ? 'Edit' : 'Set Details'}
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              <button 
+                                onClick={() => handleEditSession(session)}
+                                className="btn-secondary btn-sm"
+                              >
+                                {session.title ? 'Edit' : 'Set Details'}
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteSession(session.id)}
+                                className="btn-secondary btn-sm"
+                                style={{ color: '#dc2626' }}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
