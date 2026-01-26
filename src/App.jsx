@@ -137,6 +137,12 @@ function App() {
                   <Onboarding />
                 </ProtectedRoute>
               } />
+              
+              <Route path="manage-students" element={
+                <ProtectedRoute requirePortal="learn">
+                  <ManageStudents />
+                </ProtectedRoute>
+              } />
             </Route>
             
             {/* Legacy routes - redirect to appropriate portal */}

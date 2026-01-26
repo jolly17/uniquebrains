@@ -202,14 +202,14 @@ function StudentProfile() {
         )}
       </form>
 
-      {profile?.role === 'parent' && (
+      {(profile?.role === 'parent' || profile?.role === 'instructor') && (
         <div className="profile-section">
           <h2>Child Management</h2>
           <p className="section-description">
             Manage your children's profiles and learning preferences.
           </p>
           <button 
-            onClick={() => navigate('/manage-students')} 
+            onClick={() => navigate('/learn/manage-students')} 
             className="btn-primary"
           >
             📚 Manage Children
