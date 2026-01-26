@@ -53,7 +53,6 @@ function Layout() {
                   <>
                     <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
                     <Link to="/teach/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
-                    <Link to="/teach/marketplace" className="nav-link" onClick={closeMobileMenu}>Browse Courses</Link>
                   </>
                 )}
                 

@@ -106,6 +106,15 @@ export function AuthProvider({ children }) {
     if (portal === 'teach' || portal === 'learn') {
       setActivePortal(portal)
       localStorage.setItem('last_portal', portal)
+      
+      // When switching to teaching portal, reset to parent (activeStudent = null)
+      if (portal === 'teach') {
+        setActiveStudent(null)
+      }
+      // When switching to learning portal, set first student if available
+      else if (portal === 'learn' && students.length > 0 && !activeStudent) {
+        setActiveStudent(students[0])
+      }
     }
   }
 
@@ -192,8 +201,12 @@ export function AuthProvider({ children }) {
 
       setStudents(studentsData || [])
       
-      // Set first student as active if none selected
-      if (studentsData && studentsData.length > 0 && !activeStudent) {
+      // Only set first student as active if in learning portal and none selected
+      // In teaching portal, default should be parent (activeStudent = null)
+      const currentPath = window.location.pathname
+      const isLearningPortal = currentPath.startsWith('/learn')
+      
+      if (studentsData && studentsData.length > 0 && !activeStudent && isLearningPortal) {
         setActiveStudent(studentsData[0])
       }
     } catch (err) {

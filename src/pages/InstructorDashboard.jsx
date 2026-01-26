@@ -107,12 +107,7 @@ function InstructorDashboard() {
           </div>
 
           <div className="dashboard-section">
-            <div className="section-header">
-              <h2>My Courses</h2>
-              <Link to="/teach/marketplace" className="btn-secondary">
-                Browse Marketplace
-              </Link>
-            </div>
+            <h2>My Courses</h2>
             {courses.length === 0 ? (
               <div className="empty-state">
                 <p>You haven't created any courses yet.</p>
