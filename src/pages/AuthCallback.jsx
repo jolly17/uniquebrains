@@ -229,8 +229,15 @@ export function AuthCallback() {
           } else {
             console.log('Redirecting returning user with role:', userRole)
             
-            // Send all returning users to marketplace to browse courses
-            navigate('/marketplace', { replace: true })
+            // Redirect based on user role
+            if (userRole === 'instructor') {
+              navigate('/teach/dashboard', { replace: true })
+            } else if (userRole === 'parent') {
+              navigate('/learn/dashboard', { replace: true })
+            } else {
+              // Fallback to marketplace
+              navigate('/marketplace', { replace: true })
+            }
           }
         } else {
           // No session, redirect to login

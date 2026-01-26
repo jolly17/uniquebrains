@@ -25,8 +25,17 @@ function Login() {
         } else {
           setError(result.error.message || 'Invalid credentials')
         }
+      } else if (result.profile) {
+        // Redirect based on user role
+        if (result.profile.role === 'instructor') {
+          navigate('/teach/dashboard')
+        } else if (result.profile.role === 'parent') {
+          navigate('/learn/dashboard')
+        } else {
+          // Fallback to marketplace
+          navigate('/marketplace')
+        }
       }
-      // Navigation is handled by AuthContext based on portal detection
     } catch (err) {
       if (err.message && err.message.includes('Email not confirmed')) {
         setError('Please verify your email address. Check your inbox for the confirmation link.')
