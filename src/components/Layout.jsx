@@ -52,7 +52,6 @@ function Layout() {
                 {activePortal === 'teach' && (
                   <>
                     <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
-                    <Link to="/teach/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
                   </>
                 )}
                 
