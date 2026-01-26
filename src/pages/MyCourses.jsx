@@ -88,8 +88,11 @@ function MyCourses() {
         throw new Error('Enrollment not found')
       }
       
-      // Delete the enrollment
-      await handleApiCall(api.enrollments.delete, enrollment.id)
+      // Determine the student ID (could be direct user or student profile)
+      const studentId = activeStudent?.id || user.id
+      
+      // Withdraw from the course
+      await handleApiCall(api.enrollments.withdraw, courseId, studentId)
       
       // Remove from local state
       setEnrolledCourses(enrolledCourses.filter(c => c.id !== courseId))
