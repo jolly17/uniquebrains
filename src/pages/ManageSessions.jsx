@@ -368,6 +368,43 @@ function ManageSessions() {
         }</p>
       </div>
 
+      {/* Course Schedule Information */}
+      {isGroupCourse && course.selected_days && course.selected_days.length > 0 && (
+        <div className="course-schedule-info">
+          <h3>📅 Course Schedule</h3>
+          <div className="schedule-details-grid">
+            <div className="schedule-detail">
+              <span className="detail-label">Days:</span>
+              <span className="detail-value">{course.selected_days.join(', ')}</span>
+            </div>
+            <div className="schedule-detail">
+              <span className="detail-label">Time:</span>
+              <span className="detail-value">{course.session_time || 'Not set'}</span>
+            </div>
+            <div className="schedule-detail">
+              <span className="detail-label">Duration:</span>
+              <span className="detail-value">{course.session_duration} minutes</span>
+            </div>
+            <div className="schedule-detail">
+              <span className="detail-label">Frequency:</span>
+              <span className="detail-value">{course.frequency || 'Weekly'}</span>
+            </div>
+          </div>
+          {course.start_date && (
+            <div className="schedule-dates">
+              <span className="detail-label">Start Date:</span>
+              <span className="detail-value">{new Date(course.start_date).toLocaleDateString()}</span>
+              {course.has_end_date && course.end_date && (
+                <>
+                  <span className="detail-label" style={{ marginLeft: '2rem' }}>End Date:</span>
+                  <span className="detail-value">{new Date(course.end_date).toLocaleDateString()}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="course-meeting-link-section">
         <h3>📹 Course Meeting Link</h3>
         <p className="meeting-link-description">Set one meeting link for all sessions in this course</p>
