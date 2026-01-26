@@ -121,6 +121,20 @@
   font-weight: 500;
 }
 
+.schedule-note {
+  padding: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.schedule-note p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .course-enroll-card {
   background: var(--background-light);
   padding: 2rem;

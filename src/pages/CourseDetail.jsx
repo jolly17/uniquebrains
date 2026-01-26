@@ -156,17 +156,27 @@ function CourseDetail() {
           </div>
           
           {/* Schedule Section - Prominent Display */}
-          {!course.isSelfPaced && course.selectedDays && course.selectedDays.length > 0 && course.dayTimes && (
+          {!course.isSelfPaced && (
             <div className="course-schedule">
               <h3>📅 Class Schedule</h3>
-              <div className="schedule-grid">
-                {course.selectedDays.map(day => (
-                  <div key={day} className="schedule-item">
-                    <span className="schedule-day-name">{day}</span>
-                    <span className="schedule-time">{course.dayTimes[day] || 'TBD'}</span>
-                  </div>
-                ))}
-              </div>
+              {course.course_type === 'group' && course.selectedDays && course.selectedDays.length > 0 && course.dayTimes ? (
+                <div className="schedule-grid">
+                  {course.selectedDays.map(day => (
+                    <div key={day} className="schedule-item">
+                      <span className="schedule-day-name">{day}</span>
+                      <span className="schedule-time">{course.dayTimes[day] || 'TBD'}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : course.course_type === 'one-on-one' ? (
+                <div className="schedule-note">
+                  <p>📝 Schedule to be discussed between instructor and student after enrollment</p>
+                </div>
+              ) : (
+                <div className="schedule-note">
+                  <p>Schedule information will be provided after enrollment</p>
+                </div>
+              )}
             </div>
           )}
         </div>
