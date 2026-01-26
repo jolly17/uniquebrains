@@ -414,7 +414,7 @@ export async function getEnrollmentStats(instructorId) {
 /**
  * Check if a student is enrolled in a course
  * @param {string} courseId - Course ID
- * @param {string} studentId - Student user ID
+ * @param {string} studentId - Student user ID or student profile ID
  * @returns {Promise<Object|null>} Enrollment object or null if not enrolled
  */
 export async function checkEnrollment(courseId, studentId) {
@@ -423,22 +423,36 @@ export async function checkEnrollment(courseId, studentId) {
   }
 
   try {
-    const { data: enrollment, error } = await supabase
+    // First check for direct enrollment (student_id)
+    const { data: directEnrollment, error: directError } = await supabase
       .from('enrollments')
       .select('*')
       .eq('course_id', courseId)
       .eq('student_id', studentId)
       .single()
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error checking enrollment:', error)
-      throw new Error(`Failed to check enrollment: ${error.message}`)
+    if (directEnrollment) {
+      return directEnrollment
     }
 
-    return enrollment || null
+    // If not found, check for student profile enrollment (student_profile_id)
+    const { data: profileEnrollment, error: profileError } = await supabase
+      .from('enrollments')
+      .select('*')
+      .eq('course_id', courseId)
+      .eq('student_profile_id', studentId)
+      .single()
+
+    if (profileEnrollment) {
+      return profileEnrollment
+    }
+
+    // No enrollment found
+    return null
   } catch (error) {
     console.error('Error in checkEnrollment:', error)
-    throw error
+    // Return null instead of throwing to allow graceful handling
+    return null
   }
 }
 

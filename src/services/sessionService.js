@@ -333,7 +333,7 @@ export async function getUpcomingSessions(instructorId, limit = 5) {
 async function checkCourseAccess(courseId, userId) {
   try {
     // Check if user is the instructor
-    const { data: course, error: courseError } = await supabase
+    const { data: course, error: courseError} = await supabase
       .from('courses')
       .select('instructor_id')
       .eq('id', courseId)
@@ -357,6 +357,27 @@ async function checkCourseAccess(courseId, userId) {
 
     if (directEnrollment) {
       return true
+    }
+
+    // Check if user is a student profile enrolled via parent
+    const { data: studentProfile } = await supabase
+      .from('students')
+      .select('id, parent_id')
+      .eq('id', userId)
+      .single()
+
+    if (studentProfile) {
+      // Check if this student profile is enrolled
+      const { data: studentEnrollment } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('course_id', courseId)
+        .eq('student_profile_id', studentProfile.id)
+        .single()
+
+      if (studentEnrollment) {
+        return true
+      }
     }
 
     // Check if user is a parent with enrolled student profiles

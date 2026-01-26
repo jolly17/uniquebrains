@@ -91,16 +91,20 @@ async function createCourseSessions(courseId, scheduleData) {
   const sessions = []
   const startDate = new Date(scheduleData.startDate)
   
-  // Calculate end date
-  const endDate = scheduleData.hasEndDate && scheduleData.endDate 
-    ? new Date(scheduleData.endDate) 
-    : new Date(startDate.getTime() + (12 * 7 * 24 * 60 * 60 * 1000)) // 12 weeks default
+  // For courses without end date, generate 5 sessions
+  // For courses with end date, generate all sessions until end date
+  const hasEndDate = scheduleData.hasEndDate && scheduleData.endDate
+  const endDate = hasEndDate
+    ? new Date(scheduleData.endDate)
+    : null
+  
+  const maxSessions = hasEndDate ? 1000 : 5 // Limit to 5 for open-ended courses
 
   let currentDate = new Date(startDate)
   let sessionNumber = 1
-  const maxSessions = 50 // Safety limit
+  let sessionsCreated = 0
 
-  while (currentDate <= endDate && sessionNumber <= maxSessions) {
+  while (sessionsCreated < maxSessions && (!endDate || currentDate <= endDate)) {
     const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' })
     
     if (scheduleData.selectedDays.includes(dayName)) {
@@ -110,16 +114,16 @@ async function createCourseSessions(courseId, scheduleData) {
 
       sessions.push({
         course_id: courseId,
-        title: `Session ${sessionNumber}`,
-        description: `${scheduleData.title} - Session ${sessionNumber}`,
+        title: `Topic ${sessionNumber}`,
+        description: '',
         session_date: sessionDateTime.toISOString(),
-        duration: parseInt(scheduleData.sessionDuration),
-        meeting_link: '', // Will be added later by instructor
-        meeting_platform: null,
+        duration_minutes: parseInt(scheduleData.sessionDuration),
+        meeting_link: scheduleData.meetingLink || '',
         status: 'scheduled'
       })
       
       sessionNumber++
+      sessionsCreated++
     }
     
     // Move to next day
@@ -139,6 +143,7 @@ async function createCourseSessions(courseId, scheduleData) {
       return []
     }
 
+    console.log(`Created ${createdSessions.length} sessions for course ${courseId}`)
     return createdSessions
   }
 
