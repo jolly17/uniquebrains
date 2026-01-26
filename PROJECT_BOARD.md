@@ -7,13 +7,6 @@
 ## 🎯 BACKLOG
 
 ### High Priority
-- [ ] **Fix Instructor Session Management**
-  - Issue: Cannot save meeting links or create sessions
-  - Issue: Student dropdown doesn't show enrolled students for 1-on-1 courses
-  - Issue: Group courses shouldn't require student selection for sessions
-  - Need to debug API calls and data flow
-  - Assigned: Next session
-
 - [ ] **Security Hardening**
   - Enable CAPTCHA for sign-ups
   - Configure rate limiting
@@ -29,13 +22,6 @@
   - Assigned: Pre-launch
 
 ### Medium Priority
-- [ ] **Video Conferencing Support**
-  - Add meeting link fields to database (DONE in migration 007)
-  - Create meeting link management UI
-  - Display meeting links to students
-  - Support Zoom/Meet/Teams links
-  - Assigned: TBD
-
 - [ ] **Search & Filtering**
   - Full-text search across courses
   - Category filtering
@@ -85,14 +71,50 @@
 
 ## 🚧 IN PROGRESS
 
-- [ ] **Instructor Session Management (BLOCKED)**
-  - Status: Needs debugging
-  - Blocker: API integration issues
-  - Next: Debug and fix in next session
+- [ ] **Student Management System (NEXT UP)**
+  - Status: Queued for next session
+  - Features needed:
+    - View all students across all courses
+    - Filter students by course
+    - View student profiles and neurodiversity needs
+    - Track student progress and attendance
+    - Communication tools
+  - Priority: High
 
 ---
 
 ## ✅ DONE
+
+### January 27, 2026
+- [x] **Session Management & Display - COMPLETE**
+  - Moved stats cards to ManageCourse page (visible across all tabs)
+  - Fixed stats counters: Enrolled Students, Spots Remaining, Upcoming Sessions
+  - Updated Instructor Dashboard "Sessions Completed" to count actual completed sessions
+  - Added sessions display in Student portal (read-only)
+  - Added course progress bar showing completion % based on sessions passed
+  - Students can see all sessions with date, time, duration, and meeting links
+  - Sessions marked as Completed or Upcoming based on current date/time
+  - Auto-create 5 session placeholders for new group courses
+  - Fixed sessions visibility for child profiles
+  - Meeting links now show for all sessions (fallback to course meeting link)
+  - Enhanced session editing: date, time, duration, topic
+  - Added delete session functionality
+  - Removed meeting link editing from individual sessions (managed at course level)
+
+- [x] **Meeting Link Management - COMPLETE**
+  - Added meeting_link column to courses table (migration 051)
+  - Updated backfill migration to use course meeting links (migration 050)
+  - Added optional meeting link field in course creation form
+  - Fixed meeting link update API call with instructor ID
+  - Meeting link now managed centrally at course level
+  - All sessions inherit course's meeting link
+
+- [x] **Bug Fixes & API Improvements**
+  - Fixed course deletion (missing instructor ID parameter)
+  - Fixed unenroll functionality (use withdraw API instead of delete)
+  - Fixed enrollment status for child profiles (check both student_id and student_profile_id)
+  - Fixed sessions not appearing for students (updated checkCourseAccess)
+  - Audited all API calls for correct parameter passing
 
 ### January 26, 2026
 - [x] **Dual Role Support - COMPLETE**
@@ -259,16 +281,16 @@
 
 ### Overall Progress
 - **Total Features**: 100+
-- **Completed**: ~48 (48%)
-- **In Progress**: 0
-- **Backlog**: ~52
+- **Completed**: ~58 (58%)
+- **In Progress**: 1
+- **Backlog**: ~41
 
 ### By Category
 | Category | Complete | In Progress | Backlog | Total |
 |----------|----------|-------------|---------|-------|
-| Backend Infrastructure | 6 | 0 | 11 | 17 |
-| Instructor Features | 18 | 1 | 3 | 22 |
-| Student Features | 12 | 0 | 0 | 12 |
+| Backend Infrastructure | 8 | 0 | 9 | 17 |
+| Instructor Features | 22 | 0 | 0 | 22 |
+| Student Features | 15 | 1 | 0 | 16 |
 | Parent Features | 5 | 0 | 2 | 7 |
 | Marketplace | 3 | 0 | 3 | 6 |
 | Security & Testing | 0 | 0 | 8 | 8 |
@@ -278,45 +300,46 @@
 - **Week of Jan 15-21**: 15 features completed
 - **Week of Jan 22-23**: 8 features completed
 - **Week of Jan 26**: 8 features completed (Dual Role Support)
+- **Week of Jan 27**: 10 features completed (Session Management & Bug Fixes)
 - **Average**: ~10 features/week
 
 ---
 
 ## 🎯 NEXT SPRINT PRIORITIES
 
-### Sprint Goal: Fix Critical Issues & Prepare for Launch
+### Sprint Goal: Student Management & UI Polish
 
-1. **Fix Instructor Session Management** (High Priority)
-   - Debug API integration
-   - Fix student dropdown
-   - Fix meeting link save
-   - Test session creation
+1. **Student Management System** (High Priority - NEXT UP)
+   - View all students across all courses
+   - Filter students by course
+   - View student profiles and neurodiversity needs
+   - Track student progress and attendance
+   - Communication tools
 
-2. **Security Hardening** (Pre-Launch Blocker)
+2. **UI Enhancements** (Quick Wins)
+   - Add Contact Us button
+   - Update course categories
+   - Add "Coming Soon" placeholders for Homework, Feedback, and Chat tabs
+
+3. **Security Hardening** (Pre-Launch Blocker)
    - Enable CAPTCHA
    - Configure rate limiting
    - Input validation
 
-3. **Monitoring Setup** (Pre-Launch Blocker)
+4. **Monitoring Setup** (Pre-Launch Blocker)
    - Supabase monitoring
    - Error tracking
    - Alerts
-
-4. **Testing** (Pre-Launch Blocker)
-   - Critical path testing
-   - User acceptance testing
-   - Performance testing
 
 ---
 
 ## 🐛 KNOWN ISSUES
 
 ### Critical
-- ❌ **Instructor Session Management**: Cannot save meeting links or create sessions
-- ❌ **Student Dropdown**: Not showing enrolled students for 1-on-1 courses
+- None currently
 
 ### Medium
-- ⚠️ **Enrollment Count**: Shows 0 in ManageStudents page
+- None currently
 
 ### Low
 - ℹ️ **OAuth Branding**: Shows Supabase URL instead of UniqueBrains
