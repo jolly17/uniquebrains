@@ -16,18 +16,28 @@ function ManageCourse() {
   const { user } = useAuth()
   const [unreadCount, setUnreadCount] = useState(0)
   const [course, setCourse] = useState(null)
+  const [sessions, setSessions] = useState([])
+  const [enrolledStudents, setEnrolledStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   
   const activeTab = searchParams.get('tab') || 'sessions'
 
-  // Fetch course data
+  // Fetch course data, sessions, and enrollments
   useEffect(() => {
-    const fetchCourse = async () => {
+    const fetchCourseData = async () => {
       try {
         setLoading(true)
         const courseData = await handleApiCall(api.courses.getById, courseId)
         setCourse(courseData)
+        
+        // Fetch sessions
+        const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+        setSessions(sessionsData || [])
+        
+        // Fetch enrolled students
+        const enrollmentsData = await handleApiCall(api.enrollments.getCourse, courseId, user.id)
+        setEnrolledStudents(enrollmentsData || [])
       } catch (err) {
         console.error('Error fetching course:', err)
         setError('Failed to load course')
@@ -37,9 +47,9 @@ function ManageCourse() {
     }
 
     if (courseId) {
-      fetchCourse()
+      fetchCourseData()
     }
-  }, [courseId])
+  }, [courseId, user])
 
   // Check for unread messages
   useEffect(() => {
@@ -90,6 +100,15 @@ function ManageCourse() {
     }
   }
 
+  // Calculate stats
+  const enrolledCount = enrolledStudents.length
+  const maxCapacity = course?.enrollment_limit || 0
+  const spotsRemaining = maxCapacity > 0 ? Math.max(0, maxCapacity - enrolledCount) : '∞'
+  
+  // Count upcoming sessions (sessions after current date/time)
+  const now = new Date()
+  const upcomingSessions = sessions.filter(s => new Date(s.session_date) > now).length
+
   return (
     <div className="manage-course">
       <div className="manage-course-header">
@@ -98,6 +117,22 @@ function ManageCourse() {
         </button>
         <h1>{course.title}</h1>
         <p className="course-subtitle">Manage your course content and students</p>
+      </div>
+
+      {/* Course Stats Cards */}
+      <div className="course-stats">
+        <div className="stat-card">
+          <div className="stat-value">{enrolledCount}</div>
+          <div className="stat-label">Enrolled Students</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{spotsRemaining}</div>
+          <div className="stat-label">Spots Remaining</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value">{upcomingSessions}</div>
+          <div className="stat-label">Upcoming Sessions</div>
+        </div>
       </div>
 
       <div className="course-tabs">

@@ -16,6 +16,7 @@ function StudentCourseView() {
   const { user, activeStudent } = useAuth()
   
   const [course, setCourse] = useState(null)
+  const [sessions, setSessions] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const activeTab = searchParams.get('tab') || 'sessions'
@@ -47,6 +48,11 @@ function StudentCourseView() {
         console.log('✅ Course fetched:', courseData)
         
         setCourse(courseData)
+        
+        // Fetch sessions
+        const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+        console.log('✅ Sessions fetched:', sessionsData)
+        setSessions(sessionsData || [])
       } catch (err) {
         console.error('Error fetching course:', err)
         setError('Failed to load course')
@@ -56,7 +62,7 @@ function StudentCourseView() {
     }
 
     fetchCourse()
-  }, [courseId])
+  }, [courseId, user])
 
   useEffect(() => {
     // Check for new content indicators
@@ -181,6 +187,30 @@ function StudentCourseView() {
     )
   }
 
+  // Calculate completion percentage based on sessions passed
+  const now = new Date()
+  const totalSessions = sessions.length
+  const completedSessions = sessions.filter(s => new Date(s.session_date) < now).length
+  const completionPercentage = totalSessions > 0 ? Math.round((completedSessions / totalSessions) * 100) : 0
+
+  // Helper function to format session date and time
+  const formatSessionDateTime = (session) => {
+    const date = new Date(session.session_date)
+    return {
+      date: date.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+      }),
+      time: date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    }
+  }
+
   return (
     <div className="student-course-view">
       <div className="student-course-header">
@@ -225,6 +255,22 @@ function StudentCourseView() {
         {activeTab === 'sessions' && (
           <div className="tab-panel">
             <h2>Sessions</h2>
+            
+            {/* Course Progress */}
+            {totalSessions > 0 && (
+              <div className="course-progress-section">
+                <div className="progress-header">
+                  <span className="progress-label">Course Progress</span>
+                  <span className="progress-percentage">{completionPercentage}% Complete</span>
+                </div>
+                <div className="progress-bar">
+                  <div className="progress-fill" style={{ width: `${completionPercentage}%` }}></div>
+                </div>
+                <div className="progress-stats">
+                  <span>{completedSessions} of {totalSessions} sessions completed</span>
+                </div>
+              </div>
+            )}
             
             {/* Course Schedule Information */}
             {course.course_type === 'group' && course.selected_days && course.selected_days.length > 0 && (
@@ -273,11 +319,53 @@ function StudentCourseView() {
               </div>
             )}
             
-            <div className="info-banner">
-              <span className="info-icon">ℹ️</span>
-              <p>Your upcoming class sessions will appear here. Check back soon!</p>
-            </div>
-            <p className="empty-state">Session schedule coming soon</p>
+            {/* Sessions List */}
+            {sessions.length > 0 ? (
+              <div className="sessions-list-student">
+                <h3>All Sessions</h3>
+                {sessions.map(session => {
+                  const { date, time } = formatSessionDateTime(session)
+                  const isPast = new Date(session.session_date) < now
+                  
+                  return (
+                    <div key={session.id} className={`session-item-student ${isPast ? 'past' : 'upcoming'}`}>
+                      <div className="session-date-time">
+                        <div className="session-date">{date}</div>
+                        <div className="session-time">{time}</div>
+                        <div className="session-duration">{session.duration_minutes} min</div>
+                      </div>
+                      <div className="session-details">
+                        <div className="session-title">
+                          {session.title || 'Session'}
+                        </div>
+                        {session.meeting_link && (
+                          <a 
+                            href={session.meeting_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="meeting-link-button"
+                          >
+                            🔗 Join Meeting
+                          </a>
+                        )}
+                      </div>
+                      <div className="session-status">
+                        {isPast ? (
+                          <span className="status-badge completed">✓ Completed</span>
+                        ) : (
+                          <span className="status-badge upcoming">Upcoming</span>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="info-banner">
+                <span className="info-icon">ℹ️</span>
+                <p>Your upcoming class sessions will appear here. Check back soon!</p>
+              </div>
+            )}
           </div>
         )}
         

@@ -30,9 +30,28 @@ function InstructorDashboard() {
       
       // Fetch enrollment statistics
       const enrollmentStats = await handleApiCall(api.enrollments.getStats, user.id)
-      setStats(enrollmentStats)
       
-      console.log('Dashboard data loaded:', { courses: coursesData, stats: enrollmentStats })
+      // Fetch all sessions for instructor's courses and count completed ones
+      let completedSessionsCount = 0
+      const now = new Date()
+      
+      for (const course of (coursesData || [])) {
+        try {
+          const sessionsData = await handleApiCall(api.sessions.getCourse, course.id, user.id)
+          // Count sessions that have passed (session_date < now)
+          const completed = (sessionsData || []).filter(s => new Date(s.session_date) < now).length
+          completedSessionsCount += completed
+        } catch (err) {
+          console.error(`Error fetching sessions for course ${course.id}:`, err)
+        }
+      }
+      
+      setStats({
+        ...enrollmentStats,
+        completedSessions: completedSessionsCount
+      })
+      
+      console.log('Dashboard data loaded:', { courses: coursesData, stats: enrollmentStats, completedSessions: completedSessionsCount })
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       setError('Failed to load dashboard data')
@@ -125,7 +144,7 @@ function InstructorDashboard() {
               <div className="stat-label">Active Students</div>
             </div>
             <div className="stat-card">
-              <div className="stat-value">{stats?.completedEnrollments || 0}</div>
+              <div className="stat-value">{stats?.completedSessions || 0}</div>
               <div className="stat-label">Sessions Completed</div>
             </div>
           </div>

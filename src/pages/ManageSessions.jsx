@@ -596,21 +596,6 @@ function ManageSessions() {
 
       {isGroupCourse ? (
         <>
-          <div className="course-stats">
-            <div className="stat-card">
-              <div className="stat-value">{enrolledCount}</div>
-              <div className="stat-label">Enrolled Students</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{maxCapacity - enrolledCount}</div>
-              <div className="stat-label">Spots Remaining</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-value">{sessions.length}</div>
-              <div className="stat-label">Upcoming Sessions</div>
-            </div>
-          </div>
-
           <div className="sessions-container">
             <div className="sessions-header-row">
               <h2>Group Sessions Schedule</h2>
