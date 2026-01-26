@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 import './LandingPage.css'
 
 function LandingPage() {
+  const { user } = useAuth()
   const [donationLink, setDonationLink] = useState('https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai')
 
   useEffect(() => {
@@ -53,7 +55,7 @@ function LandingPage() {
               Explore Courses
             </Link>
             <Link 
-              to="/register?role=instructor" 
+              to={user ? "/teach/create-course" : "/register?role=instructor"} 
               className="btn-primary-large"
             >
               Start Teaching
