@@ -58,8 +58,8 @@ BEGIN
         title,
         description,
         session_date,
-        duration,
-        meeting_link,
+        duration_minutes,
+        zoom_link,
         status
       ) VALUES (
         p_course_id,
