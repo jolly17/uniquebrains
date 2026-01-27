@@ -100,7 +100,6 @@ function Layout() {
             {user ? (
               <div className="user-menu">
                 <span className="user-name">{profile?.first_name} {profile?.last_name}</span>
-                <span className="user-role">({profile?.role})</span>
                 <Link to="/profile" className="btn-secondary">Profile</Link>
                 <button onClick={handleLogout} className="btn-secondary">Logout</button>
               </div>
