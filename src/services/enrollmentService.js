@@ -204,9 +204,21 @@ export async function getCourseEnrollments(courseId, instructorId) {
         profiles!student_id(
           id,
           full_name,
+          first_name,
+          last_name,
           avatar_url,
           bio,
-          neurodiversity_profile
+          neurodiversity_profile,
+          learning_preferences
+        ),
+        students!student_profile_id(
+          id,
+          first_name,
+          last_name,
+          date_of_birth,
+          neurodiversity_profile,
+          learning_preferences,
+          parent_id
         )
       `)
       .eq('course_id', courseId)

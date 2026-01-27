@@ -734,11 +734,6 @@ function ManageSessions() {
               <div className="student-header">
                 <div>
                   <h2>{student.first_name} {student.last_name}</h2>
-                  <div className="student-profile">
-                    {student.neurodiversity_profile && student.neurodiversity_profile.map((need, idx) => (
-                      <span key={idx} className="profile-badge">{need}</span>
-                    ))}
-                  </div>
                 </div>
                 <div className="student-actions">
                   <button 

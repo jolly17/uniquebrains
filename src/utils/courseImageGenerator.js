@@ -1,12 +1,13 @@
 // Generate a consistent color gradient based on course category
 export function generateCourseImage(category) {
   const gradients = {
-    parenting: ['#667eea', '#764ba2'],
-    music: ['#f093fb', '#f5576c'],
-    dance: ['#4facfe', '#00f2fe'],
-    drama: ['#43e97b', '#38f9d7'],
-    art: ['#fa709a', '#fee140'],
-    language: ['#ff6b6b', '#feca57'],
+    'performing-arts': ['#f093fb', '#f5576c'],
+    'visual-arts': ['#fa709a', '#fee140'],
+    'parenting': ['#667eea', '#764ba2'],
+    'academics': ['#4facfe', '#00f2fe'],
+    'language': ['#ff6b6b', '#feca57'],
+    'spirituality': ['#43e97b', '#38f9d7'],
+    'lifeskills': ['#feca57', '#ff6b6b'],
     default: ['#667eea', '#764ba2']
   }
 
@@ -27,12 +28,13 @@ export function generateCourseImage(category) {
 // Generate category icon emoji
 export function getCategoryIcon(category) {
   const icons = {
-    parenting: '👨‍👩‍👧‍👦',
-    music: '🎵',
-    dance: '💃',
-    drama: '🎭',
-    art: '🎨',
-    language: '🌍',
+    'performing-arts': '🎭',
+    'visual-arts': '🎨',
+    'parenting': '👨‍👩‍👧‍👦',
+    'academics': '📚',
+    'language': '🌍',
+    'spirituality': '🧘',
+    'lifeskills': '🐷',
     default: '📚'
   }
   

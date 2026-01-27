@@ -32,12 +32,27 @@ function CourseStudents({ course }) {
       const students = enrollmentsData.map(enrollment => {
         let studentData = {}
         
-        if (enrollment.student_profile_id) {
-          // Parent-managed enrollment - use student profile data
-          studentData = enrollment.students || {}
-        } else {
+        if (enrollment.student_profile_id && enrollment.students) {
+          // Parent-managed enrollment - use student profile data from students table
+          studentData = {
+            id: enrollment.students.id,
+            first_name: enrollment.students.first_name,
+            last_name: enrollment.students.last_name,
+            neurodiversity_profile: enrollment.students.neurodiversity_profile || [],
+            learning_preferences: enrollment.students.learning_preferences,
+            date_of_birth: enrollment.students.date_of_birth
+          }
+        } else if (enrollment.student_id && enrollment.profiles) {
           // Direct enrollment - use profile data
-          studentData = enrollment.profiles || {}
+          studentData = {
+            id: enrollment.profiles.id,
+            first_name: enrollment.profiles.first_name,
+            last_name: enrollment.profiles.last_name,
+            full_name: enrollment.profiles.full_name,
+            neurodiversity_profile: enrollment.profiles.neurodiversity_profile || [],
+            learning_preferences: enrollment.profiles.learning_preferences,
+            avatar_url: enrollment.profiles.avatar_url
+          }
         }
         
         // Add enrollment info
