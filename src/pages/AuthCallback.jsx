@@ -91,7 +91,7 @@ export function AuthCallback() {
               }
               
               // Check if there's a role preference in localStorage (from OAuth flow)
-              const preferredRole = localStorage.getItem('oauth_role_preference') || 'parent'
+              const preferredRole = localStorage.getItem('oauth_role_preference') || 'student'
               console.log('🔍 OAuth role preference from localStorage:', preferredRole)
               localStorage.removeItem('oauth_role_preference') // Clean up
               
@@ -111,7 +111,7 @@ export function AuthCallback() {
                   email: session.user.email,
                   first_name: firstName,
                   last_name: lastName,
-                  role: preferredRole, // Use preferred role or default to parent
+                  role: preferredRole, // Use preferred role or default to student
                   avatar_url: metadata.avatar_url || metadata.picture || null,
                   neurodiversity_profile: [], // Initialize as empty array
                   expertise: [] // Initialize as empty array
@@ -157,7 +157,7 @@ export function AuthCallback() {
                 console.log('Profile data:', insertData)
                 console.log('Name:', firstName, lastName)
                 // Set profile from insert data
-                profile = insertData?.[0] || { role: 'parent' }
+                profile = insertData?.[0] || { role: 'student' }
                 
                 // NEW USER - Redirect to onboarding
                 console.log('Redirecting new user to onboarding...')
@@ -207,7 +207,7 @@ export function AuthCallback() {
           }
 
           // Check if user needs onboarding (profile exists but incomplete)
-          const userRole = profile?.role || 'parent'
+          const userRole = profile?.role || 'student'
           const needsOnboarding = !profile?.bio && !profile?.neurodiversity_profile?.length
           
           console.log('User role:', userRole)
