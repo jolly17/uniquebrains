@@ -70,6 +70,12 @@ function StudentChat({ courseId, course }) {
       onMessage: (newMessage) => {
         console.log('📨 Received new message:', newMessage)
 
+        // Don't add if it's our own message (we already added it locally)
+        if (newMessage.sender_id === user.id) {
+          console.log('Skipping own message from broadcast')
+          return
+        }
+
         // Add message if it's relevant to current view
         if (isGroupCourse && !newMessage.recipient_id) {
           // Group message
@@ -127,7 +133,12 @@ function StudentChat({ courseId, course }) {
         recipient_id: !isGroupCourse ? course.instructor_id : null
       }
 
-      await handleApiCall(api.messages.send, courseId, messageData, user.id)
+      const sentMessage = await handleApiCall(api.messages.send, courseId, messageData, user.id)
+
+      // Immediately add the sent message to the local state
+      if (sentMessage) {
+        setMessages(prev => [...prev, sentMessage])
+      }
 
       setNewMessage('')
     } catch (err) {
