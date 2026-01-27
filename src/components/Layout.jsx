@@ -62,9 +62,9 @@ function Layout() {
                 )}
                 
                 {/* Fallback for users not in a portal yet */}
-                {!activePortal && profile?.role === 'parent' && (
+                {!activePortal && profile?.role === 'student' && (
                   <>
-                    <Link to="/my-courses" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
+                    <Link to="/learn/dashboard" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
                   </>
                 )}
                 
@@ -99,57 +99,6 @@ function Layout() {
           <div className="desktop-header-actions">
             {user ? (
               <div className="user-menu">
-                {profile?.role === 'parent' && (
-                  <div className="student-switcher">
-                    <button 
-                      className="active-student-btn"
-                      onClick={() => setShowStudentSwitcher(!showStudentSwitcher)}
-                    >
-                      👤 {activeStudent ? capitalizeFirstLetter(activeStudent.first_name) : `${capitalizeFirstLetter(profile?.first_name)} (Me)`}
-                      <span className="dropdown-arrow">▼</span>
-                    </button>
-                    {showStudentSwitcher && (
-                      <div className="student-dropdown">
-                        {/* Parent option */}
-                        <button
-                          className={`student-option ${!activeStudent ? 'active' : ''}`}
-                          onClick={() => {
-                            switchStudent(null) // null means parent is active
-                            setShowStudentSwitcher(false)
-                          }}
-                        >
-                          👤 {capitalizeFirstLetter(profile?.first_name)} (Me) {!activeStudent && '✓'}
-                        </button>
-                        
-                        {/* Divider */}
-                        <div className="dropdown-divider"></div>
-                        
-                        {/* Students */}
-                        {students.map(student => (
-                          <button
-                            key={student.id}
-                            className={`student-option ${activeStudent?.id === student.id ? 'active' : ''}`}
-                            onClick={() => {
-                              switchStudent(student.id)
-                              setShowStudentSwitcher(false)
-                            }}
-                          >
-                            👶 {capitalizeFirstLetter(student.first_name)} {activeStudent?.id === student.id && '✓'}
-                          </button>
-                        ))}
-                        
-                        <div className="dropdown-divider"></div>
-                        <Link 
-                          to="/manage-students" 
-                          className="manage-students-link"
-                          onClick={() => setShowStudentSwitcher(false)}
-                        >
-                          + Manage Children
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
                 <span className="user-name">{profile?.first_name} {profile?.last_name}</span>
                 <span className="user-role">({profile?.role})</span>
                 <Link to="/profile" className="btn-secondary">Profile</Link>

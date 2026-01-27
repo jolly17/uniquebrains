@@ -50,47 +50,19 @@ export function AuthProvider({ children }) {
       }
       
       // Check if user has enrollments (learn capability)
-      // For parents: check if any of their students have enrollments
-      // For direct students: check if they have enrollments
       let hasEnrollments = false
       
-      if (userProfile.role === 'parent') {
-        // First get student IDs for this parent
-        const { data: studentProfiles, error: studentsError } = await supabase
-          .from('students')
-          .select('id')
-          .eq('parent_id', userId)
-        
-        if (studentsError) {
-          console.error('Error checking students:', studentsError)
-        } else if (studentProfiles && studentProfiles.length > 0) {
-          // Check if any student profiles have enrollments
-          const studentIds = studentProfiles.map(s => s.id)
-          const { data: studentEnrollments, error: enrollmentsError } = await supabase
-            .from('enrollments')
-            .select('id')
-            .in('student_profile_id', studentIds)
-            .limit(1)
-          
-          if (enrollmentsError) {
-            console.error('Error checking enrollments:', enrollmentsError)
-          } else if (studentEnrollments && studentEnrollments.length > 0) {
-            hasEnrollments = true
-          }
-        }
-      } else {
-        // For direct student enrollments
-        const { data: enrollments, error: enrollmentsError } = await supabase
-          .from('enrollments')
-          .select('id')
-          .eq('student_id', userId)
-          .limit(1)
-        
-        if (enrollmentsError) {
-          console.error('Error checking enrollments:', enrollmentsError)
-        } else if (enrollments && enrollments.length > 0) {
-          hasEnrollments = true
-        }
+      // Check for direct student enrollments
+      const { data: enrollments, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('id')
+        .eq('student_id', userId)
+        .limit(1)
+      
+      if (enrollmentsError) {
+        console.error('Error checking enrollments:', enrollmentsError)
+      } else if (enrollments && enrollments.length > 0) {
+        hasEnrollments = true
       }
       
       if (hasEnrollments) {
@@ -101,7 +73,7 @@ export function AuthProvider({ children }) {
       if (userProfile.role === 'instructor' && !portals.includes('teach')) {
         portals.push('teach')
       }
-      if (userProfile.role === 'parent' && !portals.includes('learn')) {
+      if (userProfile.role === 'student' && !portals.includes('learn')) {
         portals.push('learn')
       }
       
@@ -131,7 +103,7 @@ export function AuthProvider({ children }) {
     
     // Fallback to primary role default
     if (profile?.role === 'instructor') return 'teach'
-    if (profile?.role === 'parent') return 'learn'
+    if (profile?.role === 'student') return 'learn'
     
     return null
   }
@@ -171,11 +143,6 @@ export function AuthProvider({ children }) {
             // Set active portal
             const portal = getActivePortal()
             setActivePortal(portal)
-            
-            // If user is a parent, load their students
-            if (profile.role === 'parent') {
-              loadStudents(user.id)
-            }
           }
           setLoading(false)
         })
@@ -200,11 +167,6 @@ export function AuthProvider({ children }) {
             // Set active portal
             const portal = getActivePortal()
             setActivePortal(portal)
-            
-            // If user is a parent, load their students
-            if (profile.role === 'parent') {
-              loadStudents(session.user.id)
-            }
           }
         })
       } else {
@@ -449,9 +411,8 @@ export function AuthProvider({ children }) {
   }
 
   const refreshStudents = async () => {
-    if (user && profile?.role === 'parent') {
-      await loadStudents(user.id)
-    }
+    // No longer needed - students are not managed separately
+    return
   }
 
   const logout = async () => {
