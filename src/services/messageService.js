@@ -297,6 +297,8 @@ export async function getConversationThreads(courseId, instructorId) {
       throw new Error(`Failed to fetch enrollments: ${enrollmentError.message}`)
     }
 
+    console.log('📋 Fetched enrollments for threads:', enrollments)
+
     // Get last message for each student
     const threads = []
     for (const enrollment of enrollments || []) {
@@ -312,15 +314,17 @@ export async function getConversationThreads(courseId, instructorId) {
           full_name: `${enrollment.students.first_name} ${enrollment.students.last_name}`,
           avatar_url: null
         }
+        console.log('👶 Found child student:', studentData)
       } else if (enrollment.student_id && enrollment.profiles) {
         // Direct enrollment - use profile data
         studentId = enrollment.student_id
         studentData = enrollment.profiles
+        console.log('👤 Found direct student:', studentData)
       }
 
       // Skip if we couldn't get student data
       if (!studentData || !studentId) {
-        console.warn('Skipping enrollment with missing student data:', enrollment)
+        console.warn('⚠️ Skipping enrollment with missing student data:', enrollment)
         continue
       }
 
