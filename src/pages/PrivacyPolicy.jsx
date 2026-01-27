@@ -28,7 +28,7 @@ function PrivacyPolicy() {
           </ul>
 
           <h3>2.2 Student Information</h3>
-          <p>For parent accounts managing student profiles, we collect:</p>
+          <p>For student accounts, we collect:</p>
           <ul>
             <li>Student names and ages</li>
             <li>Grade levels and educational information</li>
@@ -52,7 +52,7 @@ function PrivacyPolicy() {
           <ul>
             <li>Provide, maintain, and improve our educational services</li>
             <li>Process enrollments and manage course access</li>
-            <li>Facilitate communication between students, parents, and instructors</li>
+            <li>Facilitate communication between students and instructors</li>
             <li>Personalize learning experiences based on individual needs</li>
             <li>Process payments and prevent fraud</li>
             <li>Send important updates, notifications, and educational content</li>
@@ -97,8 +97,7 @@ function PrivacyPolicy() {
             UniqueBrains is designed to serve students of all ages, including children under 13. We comply with the Children's Online Privacy Protection Act (COPPA) and similar regulations:
           </p>
           <ul>
-            <li>We require parental consent before collecting information from children under 13</li>
-            <li>Parents can review, modify, or delete their child's information at any time</li>
+            <li>We require parental consent before collecting information from users under 18</li>
             <li>We collect only the minimum information necessary to provide educational services</li>
             <li>Student data is never used for advertising or marketing purposes</li>
           </ul>

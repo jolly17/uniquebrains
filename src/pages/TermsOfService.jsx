@@ -13,7 +13,7 @@ function TermsOfService() {
             Welcome to UniqueBrains! By accessing or using our online learning platform at uniquebrains.org ("Platform"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Platform.
           </p>
           <p>
-            These Terms constitute a legally binding agreement between you and UniqueBrains ("we," "us," or "our"). If you are using the Platform on behalf of a minor, you represent that you are the parent or legal guardian and agree to these Terms on their behalf.
+            These Terms constitute a legally binding agreement between you and UniqueBrains ("we," "us," or "our").
           </p>
         </section>
 
@@ -27,7 +27,7 @@ function TermsOfService() {
             <li>Live online classes and recorded sessions</li>
             <li>Educational resources and materials</li>
             <li>Homework assignments and progress tracking</li>
-            <li>Communication tools between students, parents, and instructors</li>
+            <li>Communication tools between students and instructors</li>
             <li>Support for neurodiverse learners</li>
           </ul>
         </section>
@@ -46,16 +46,15 @@ function TermsOfService() {
           </ul>
 
           <h3>3.2 Account Types</h3>
-          <p>We offer three types of accounts:</p>
+          <p>We offer two types of accounts:</p>
           <ul>
-            <li><strong>Parent Accounts:</strong> For parents managing their children's learning</li>
-            <li><strong>Student Accounts:</strong> For individual learners (with parental consent if under 13)</li>
+            <li><strong>Student Accounts:</strong> For individual learners</li>
             <li><strong>Instructor Accounts:</strong> For educators creating and teaching courses</li>
           </ul>
 
           <h3>3.3 Age Requirements</h3>
           <p>
-            Users under 13 must have parental consent to use the Platform. Parents are responsible for monitoring their children's use of the Platform and ensuring compliance with these Terms.
+            Users under 18 should have parental consent to use the Platform.
           </p>
         </section>
 
@@ -112,7 +111,7 @@ function TermsOfService() {
           <ul>
             <li>Provide accurate course descriptions and information</li>
             <li>Deliver courses as described and scheduled</li>
-            <li>Maintain professional conduct with students and parents</li>
+            <li>Maintain professional conduct with students</li>
             <li>Protect student privacy and data</li>
             <li>Provide quality educational content</li>
             <li>Respond to student questions and concerns promptly</li>

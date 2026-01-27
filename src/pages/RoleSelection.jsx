@@ -7,7 +7,7 @@ import './Auth.css'
 function RoleSelection() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [selectedRole, setSelectedRole] = useState('parent')
+  const [selectedRole, setSelectedRole] = useState('student')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -33,7 +33,7 @@ function RoleSelection() {
       // Redirect based on selected role
       if (selectedRole === 'instructor') {
         navigate('/instructor/dashboard', { replace: true })
-      } else if (selectedRole === 'parent') {
+      } else if (selectedRole === 'student') {
         navigate('/onboarding', { replace: true })
       }
     } catch (error) {
@@ -57,12 +57,12 @@ function RoleSelection() {
         <div className="role-selection">
           <div className="role-cards">
             <div 
-              className={`role-card ${selectedRole === 'parent' ? 'selected' : ''}`}
-              onClick={() => setSelectedRole('parent')}
+              className={`role-card ${selectedRole === 'student' ? 'selected' : ''}`}
+              onClick={() => setSelectedRole('student')}
             >
-              <div className="role-icon">👨‍👩‍👧‍👦</div>
-              <h3>Parent</h3>
-              <p>Manage my children's learning</p>
+              <div className="role-icon">🎓</div>
+              <h3>Student</h3>
+              <p>Enroll in courses and learn</p>
             </div>
             <div 
               className={`role-card ${selectedRole === 'instructor' ? 'selected' : ''}`}
@@ -80,7 +80,7 @@ function RoleSelection() {
           disabled={loading}
           className="btn-primary btn-full"
         >
-          {loading ? 'Updating...' : `Continue as ${selectedRole === 'instructor' ? 'Instructor' : 'Parent'}`}
+          {loading ? 'Updating...' : `Continue as ${selectedRole === 'instructor' ? 'Instructor' : 'Student'}`}
         </button>
       </div>
     </div>

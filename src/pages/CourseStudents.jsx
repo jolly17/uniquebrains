@@ -28,30 +28,16 @@ function CourseStudents({ course }) {
       const enrollmentsData = await handleApiCall(api.enrollments.getCourse, courseId, user.id)
       
       // Extract student profiles from enrollments
-      // Handle both direct enrollments (profiles) and parent-managed enrollments (students)
       const students = enrollmentsData.map(enrollment => {
-        let studentData = {}
-        
-        if (enrollment.student_profile_id && enrollment.students) {
-          // Parent-managed enrollment - use student profile data from students table
-          studentData = {
-            id: enrollment.students.id,
-            first_name: enrollment.students.first_name,
-            last_name: enrollment.students.last_name,
-            neurodiversity_profile: enrollment.students.neurodiversity_profile || [],
-            date_of_birth: enrollment.students.date_of_birth
-          }
-        } else if (enrollment.student_id && enrollment.profiles) {
-          // Direct enrollment - use profile data
-          studentData = {
-            id: enrollment.profiles.id,
-            first_name: enrollment.profiles.first_name,
-            last_name: enrollment.profiles.last_name,
-            full_name: enrollment.profiles.full_name,
-            neurodiversity_profile: enrollment.profiles.neurodiversity_profile || [],
-            avatar_url: enrollment.profiles.avatar_url
-          }
-        }
+        // All enrollments now use profiles (student_id)
+        const studentData = enrollment.profiles ? {
+          id: enrollment.profiles.id,
+          first_name: enrollment.profiles.first_name,
+          last_name: enrollment.profiles.last_name,
+          full_name: enrollment.profiles.full_name,
+          neurodiversity_profile: enrollment.profiles.neurodiversity_profile || [],
+          avatar_url: enrollment.profiles.avatar_url
+        } : {}
         
         // Add enrollment info
         return {

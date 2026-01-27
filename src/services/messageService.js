@@ -63,8 +63,7 @@ export async function sendMessage(courseId, messageData, senderId) {
       .insert([dbMessageData])
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role),
-        students!sender_id(id, first_name, last_name, parent_id)
+        profiles!sender_id(id, full_name, avatar_url, role)
       `)
       .single()
 
@@ -72,6 +71,9 @@ export async function sendMessage(courseId, messageData, senderId) {
       console.error('Error sending message:', messageError)
       throw new Error(`Failed to send message: ${messageError.message}`)
     }
+
+    // Manually fetch student info if sender_id matches a student (no longer needed - removed students table)
+    // All users are now in profiles table
 
     // Broadcast message via Realtime Broadcast (doesn't require replication)
     console.log('📡 Broadcasting message to channel:', `course:${courseId}:messages`)
@@ -170,8 +172,7 @@ export async function getCourseMessages(courseId, userId, limit = 50, before = n
       .from('messages')
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role),
-        students!sender_id(id, first_name, last_name, parent_id)
+        profiles!sender_id(id, full_name, avatar_url, role)
       `)
       .eq('course_id', courseId)
       .is('recipient_id', null) // Only group messages (no recipient)
@@ -225,8 +226,7 @@ export async function getConversation(courseId, userId, otherUserId, limit = 50,
       .from('messages')
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role),
-        students!sender_id(id, first_name, last_name, parent_id)
+        profiles!sender_id(id, full_name, avatar_url, role)
       `)
       .eq('course_id', courseId)
       .or(`and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`)
@@ -280,14 +280,12 @@ export async function getConversationThreads(courseId, instructorId) {
       throw new Error('Unauthorized: You can only view conversations for your own courses')
     }
 
-    // Get all enrolled students (both direct and parent-managed)
+    // Get all enrolled students
     const { data: enrollments, error: enrollmentError } = await supabase
       .from('enrollments')
       .select(`
         student_id,
-        student_profile_id,
-        profiles!student_id(id, full_name, avatar_url),
-        students!student_profile_id(id, first_name, last_name, parent_id)
+        profiles!student_id(id, full_name, avatar_url)
       `)
       .eq('course_id', courseId)
       .eq('status', 'active')
@@ -302,25 +300,8 @@ export async function getConversationThreads(courseId, instructorId) {
     // Get last message for each student
     const threads = []
     for (const enrollment of enrollments || []) {
-      let studentData = null
-      let studentId = null
-
-      // Determine if this is a direct enrollment or parent-managed
-      if (enrollment.student_profile_id && enrollment.students) {
-        // Parent-managed enrollment - use student profile data
-        studentId = enrollment.students.id
-        studentData = {
-          id: enrollment.students.id,
-          full_name: `${enrollment.students.first_name} ${enrollment.students.last_name}`,
-          avatar_url: null
-        }
-        console.log('👶 Found child student:', studentData)
-      } else if (enrollment.student_id && enrollment.profiles) {
-        // Direct enrollment - use profile data
-        studentId = enrollment.student_id
-        studentData = enrollment.profiles
-        console.log('👤 Found direct student:', studentData)
-      }
+      const studentData = enrollment.profiles
+      const studentId = enrollment.student_id
 
       // Skip if we couldn't get student data
       if (!studentData || !studentId) {
@@ -333,8 +314,7 @@ export async function getConversationThreads(courseId, instructorId) {
         .from('messages')
         .select(`
           *,
-          profiles!sender_id(id, full_name, avatar_url, role),
-          students!sender_id(id, first_name, last_name, parent_id)
+          profiles!sender_id(id, full_name, avatar_url, role)
         `)
         .eq('course_id', courseId)
         .or(`and(sender_id.eq.${instructorId},recipient_id.eq.${studentId}),and(sender_id.eq.${studentId},recipient_id.eq.${instructorId})`)
@@ -527,7 +507,7 @@ async function checkCourseAccess(courseId, userId) {
       return true
     }
 
-    // Check if user is enrolled directly (student_id)
+    // Check if user is enrolled as a student
     const { data: directEnrollment } = await supabase
       .from('enrollments')
       .select('id')
@@ -535,28 +515,12 @@ async function checkCourseAccess(courseId, userId) {
       .eq('student_id', userId)
       .single()
 
-    console.log('Direct enrollment query result:', { directEnrollment })
-
     if (directEnrollment) {
-      console.log('User is directly enrolled - access granted')
+      console.log('User is enrolled as student - access granted')
       return true
     }
 
-    // Check if user is a parent with enrolled student profiles
-    const { data: parentEnrollments } = await supabase
-      .from('enrollments')
-      .select(`
-        id,
-        student_profile_id,
-        students!inner(parent_id)
-      `)
-      .eq('course_id', courseId)
-      .eq('students.parent_id', userId)
-      .limit(1)
-
-    console.log('Parent enrollment query result:', { parentEnrollments })
-
-    const hasAccess = !!parentEnrollments && parentEnrollments.length > 0
+    const hasAccess = false
     console.log('Access check result:', hasAccess)
     return hasAccess
   } catch (error) {

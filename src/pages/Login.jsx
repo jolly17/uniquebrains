@@ -29,7 +29,7 @@ function Login() {
         // Redirect based on user role
         if (result.profile.role === 'instructor') {
           navigate('/teach/dashboard')
-        } else if (result.profile.role === 'parent') {
+        } else if (result.profile.role === 'student') {
           navigate('/learn/dashboard')
         } else {
           // Fallback to marketplace

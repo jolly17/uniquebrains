@@ -7,14 +7,14 @@ import './Auth.css'
 function Register() {
   const [searchParams] = useSearchParams()
   const roleParam = searchParams.get('role')
-  const [selectedRole, setSelectedRole] = useState(roleParam === 'instructor' ? 'instructor' : 'parent')
+  const [selectedRole, setSelectedRole] = useState(roleParam === 'instructor' ? 'instructor' : 'student')
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: roleParam === 'instructor' ? 'instructor' : 'parent'
+    role: roleParam === 'instructor' ? 'instructor' : 'student'
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
@@ -104,12 +104,12 @@ function Register() {
             <p className="role-label">I want to sign up as:</p>
             <div className="role-cards">
               <div 
-                className={`role-card ${selectedRole === 'parent' ? 'selected' : ''}`}
-                onClick={() => setSelectedRole('parent')}
+                className={`role-card ${selectedRole === 'student' ? 'selected' : ''}`}
+                onClick={() => setSelectedRole('student')}
               >
-                <div className="role-icon">👨‍👩‍👧‍👦</div>
-                <h3>Parent</h3>
-                <p>Manage my children's learning</p>
+                <div className="role-icon">🎓</div>
+                <h3>Student</h3>
+                <p>Enroll in courses and learn</p>
               </div>
               <div 
                 className={`role-card ${selectedRole === 'instructor' ? 'selected' : ''}`}
@@ -120,9 +120,6 @@ function Register() {
                 <p>Teach and inspire</p>
               </div>
             </div>
-            <p className="role-note">
-              <small>Note: Student profiles are created by parents during onboarding</small>
-            </p>
           </div>
         
         <div className="oauth-section">
@@ -143,7 +140,7 @@ function Register() {
                   <path d="M3.964 10.712c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.96H.957C.347 6.175 0 7.55 0 9.002c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
                   <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
                 </svg>
-                Sign up with Google as {selectedRole === 'instructor' ? 'Instructor' : 'Parent'}
+                Sign up with Google as {selectedRole === 'instructor' ? 'Instructor' : 'Student'}
               </button>
               
               {/* Hidden OAuth button for actual functionality */}

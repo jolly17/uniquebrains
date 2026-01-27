@@ -202,21 +202,6 @@ function StudentProfile() {
         )}
       </form>
 
-      {(profile?.role === 'parent' || profile?.role === 'instructor') && (
-        <div className="profile-section">
-          <h2>Child Management</h2>
-          <p className="section-description">
-            Manage your children's profiles and learning preferences.
-          </p>
-          <button 
-            onClick={() => navigate('/learn/manage-students')} 
-            className="btn-primary"
-          >
-            📚 Manage Children
-          </button>
-        </div>
-      )}
-
       <div className="profile-section danger-zone">
         <h2>Account Settings</h2>
         <button className="btn-danger">Change Password</button>

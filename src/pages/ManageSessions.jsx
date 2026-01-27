@@ -61,12 +61,8 @@ function ManageSessions() {
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
     sessions: sessions.filter(s => {
-      // Match by student_id (direct enrollment) or student_profile_id (parent-managed)
-      if (student.enrollmentType === 'student_profile') {
-        return s.student_profile_id === student.id
-      } else {
-        return s.student_id === student.id
-      }
+      // Match by student_id only (simplified model)
+      return s.student_id === student.id
     })
   })) : null
 
@@ -110,28 +106,12 @@ function ManageSessions() {
       const enrollmentsData = await handleApiCall(api.enrollments.getCourse, courseId, user.id)
       
       // Extract student profiles from enrollments
-      // Handle both direct enrollments (profiles) and parent-managed enrollments (students)
       const students = enrollmentsData.map(enrollment => {
-        let studentData = {}
-        
-        if (enrollment.student_profile_id && enrollment.students) {
-          // Parent-managed enrollment - use student profile data from students table
-          studentData = {
-            ...enrollment.students,
-            enrollmentType: 'student_profile', // Track the type
-            student_profile_id: enrollment.student_profile_id // Keep the ID
-          }
-        } else if (enrollment.student_id && enrollment.profiles) {
-          // Direct enrollment - use profile data
-          studentData = {
-            ...enrollment.profiles,
-            enrollmentType: 'student', // Track the type
-            student_id: enrollment.student_id // Keep the ID
-          }
-        }
-        
-        return studentData
-      }).filter(student => student.id) // Filter out any null/undefined students
+        // All enrollments now use profiles (student_id)
+        return enrollment.profiles ? {
+          ...enrollment.profiles
+        } : null
+      }).filter(student => student !== null)
       
       setEnrolledStudents(students)
 
@@ -383,13 +363,9 @@ function ManageSessions() {
         meeting_link: newSession.meetingLink || courseMeetingLink
       }
       
-      // Set the appropriate student field based on enrollment type
+      // Set student_id for 1-on-1 courses
       if (!isGroupCourse && selectedStudent) {
-        if (selectedStudent.enrollmentType === 'student_profile') {
-          sessionData.student_profile_id = selectedStudent.id
-        } else {
-          sessionData.student_id = selectedStudent.id
-        }
+        sessionData.student_id = selectedStudent.id
       }
 
       const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
@@ -495,13 +471,9 @@ function ManageSessions() {
             meeting_link: courseMeetingLink
           }
           
-          // Set the appropriate student field based on enrollment type
+          // Set student_id for 1-on-1 courses
           if (!isGroupCourse && selectedStudent) {
-            if (selectedStudent.enrollmentType === 'student_profile') {
-              sessionData.student_profile_id = selectedStudent.id
-            } else {
-              sessionData.student_id = selectedStudent.id
-            }
+            sessionData.student_id = selectedStudent.id
           }
           
           const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)

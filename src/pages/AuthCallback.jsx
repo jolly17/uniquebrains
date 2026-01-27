@@ -132,7 +132,7 @@ export function AuthCallback() {
                   profile = existingProfile
                   
                   // If the existing profile has wrong role, try to update it
-                  if (profile && profile.role === 'student' && preferredRole !== 'student') {
+                  if (profile && profile.role !== 'instructor' && profile.role !== 'student' && preferredRole !== profile.role) {
                     console.log(`🔧 Updating existing profile role from '${profile.role}' to '${preferredRole}'`)
                     const { error: updateError } = await supabase
                       .from('profiles')
@@ -179,9 +179,9 @@ export function AuthCallback() {
             console.log('📋 Existing profile role:', profile?.role)
             
             // If existing profile has wrong role, update it
-            if (profile && profile.role === 'student') {
-              console.log('🔧 Existing profile has student role, checking for role preference...')
-              const preferredRole = localStorage.getItem('oauth_role_preference') || 'parent'
+            if (profile && profile.role !== 'instructor' && profile.role !== 'student') {
+              console.log('🔧 Existing profile has invalid role, checking for role preference...')
+              const preferredRole = localStorage.getItem('oauth_role_preference') || 'student'
               console.log('🔍 OAuth role preference from localStorage:', preferredRole)
               localStorage.removeItem('oauth_role_preference') // Clean up
               
@@ -232,7 +232,7 @@ export function AuthCallback() {
             // Redirect based on user role
             if (userRole === 'instructor') {
               navigate('/teach/dashboard', { replace: true })
-            } else if (userRole === 'parent') {
+            } else if (userRole === 'student') {
               navigate('/learn/dashboard', { replace: true })
             } else {
               // Fallback to marketplace

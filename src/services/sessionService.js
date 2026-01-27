@@ -147,8 +147,7 @@ export async function createSession(courseId, sessionData, instructorId) {
       meeting_link: sessionData.meeting_link || '',
       meeting_password: sessionData.meeting_password || '',
       meeting_platform: sessionData.meeting_platform || null,
-      student_id: sessionData.student_id || null, // For direct student enrollments
-      student_profile_id: sessionData.student_profile_id || null, // For parent-managed child profiles
+      student_id: sessionData.student_id || null, // For 1-on-1 courses
       status: 'scheduled'
     }
 
@@ -361,40 +360,8 @@ async function checkCourseAccess(courseId, userId) {
       return true
     }
 
-    // Check if user is a student profile enrolled via parent
-    const { data: studentProfile } = await supabase
-      .from('students')
-      .select('id, parent_id')
-      .eq('id', userId)
-      .single()
-
-    if (studentProfile) {
-      // Check if this student profile is enrolled
-      const { data: studentEnrollment } = await supabase
-        .from('enrollments')
-        .select('id')
-        .eq('course_id', courseId)
-        .eq('student_profile_id', studentProfile.id)
-        .single()
-
-      if (studentEnrollment) {
-        return true
-      }
-    }
-
-    // Check if user is a parent with enrolled student profiles
-    const { data: parentEnrollments } = await supabase
-      .from('enrollments')
-      .select(`
-        id,
-        student_profile_id,
-        students!inner(parent_id)
-      `)
-      .eq('course_id', courseId)
-      .eq('students.parent_id', userId)
-      .limit(1)
-
-    return !!parentEnrollments && parentEnrollments.length > 0
+    // No access found
+    return false
   } catch (error) {
     console.error('Error checking course access:', error)
     return false

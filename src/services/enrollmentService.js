@@ -8,17 +8,16 @@ import { supabase } from '../lib/supabase'
 /**
  * Enroll a student in a course
  * @param {string} courseId - Course ID
- * @param {string} studentId - Student user ID (for direct enrollments) - can be null if studentProfileId is provided
- * @param {string} studentProfileId - Student profile ID (for parent-managed enrollments) - can be null if studentId is provided
+ * @param {string} studentId - Student user ID
  * @returns {Promise<Object>} Created enrollment
  */
-export async function enrollStudent(courseId, studentId = null, studentProfileId = null) {
+export async function enrollStudent(courseId, studentId) {
   if (!courseId) {
     throw new Error('Course ID is required')
   }
 
-  if (!studentId && !studentProfileId) {
-    throw new Error('Either student ID or student profile ID is required')
+  if (!studentId) {
+    throw new Error('Student ID is required')
   }
 
   try {
@@ -43,18 +42,12 @@ export async function enrollStudent(courseId, studentId = null, studentProfileId
     }
 
     // Check if student is already enrolled
-    let existingEnrollmentQuery = supabase
+    const { data: existingEnrollment } = await supabase
       .from('enrollments')
       .select('id, status')
       .eq('course_id', courseId)
-
-    if (studentId) {
-      existingEnrollmentQuery = existingEnrollmentQuery.eq('student_id', studentId)
-    } else {
-      existingEnrollmentQuery = existingEnrollmentQuery.eq('student_profile_id', studentProfileId)
-    }
-
-    const { data: existingEnrollment, error: existingError } = await existingEnrollmentQuery.single()
+      .eq('student_id', studentId)
+      .single()
 
     if (existingEnrollment) {
       if (existingEnrollment.status === 'active') {
@@ -82,15 +75,13 @@ export async function enrollStudent(courseId, studentId = null, studentProfileId
     // Create enrollment
     const enrollmentData = {
       course_id: courseId,
-      student_id: studentId,  // Will be null for parent-managed enrollments
-      student_profile_id: studentProfileId,  // Will be null for direct enrollments
+      student_id: studentId,
       status: 'active',
       progress: 0,
       enrolled_at: new Date().toISOString()
     }
 
     console.log('Creating enrollment with data:', enrollmentData)
-    console.log('Current user from Supabase:', (await supabase.auth.getUser()).data.user?.id)
 
     const { data: enrollment, error: enrollmentError } = await supabase
       .from('enrollments')
@@ -104,7 +95,6 @@ export async function enrollStudent(courseId, studentId = null, studentProfileId
 
     if (enrollmentError) {
       console.error('Error creating enrollment:', enrollmentError)
-      console.error('Enrollment data attempted:', enrollmentData)
       throw new Error(`Failed to enroll in course: ${enrollmentError.message}`)
     }
 
@@ -117,12 +107,11 @@ export async function enrollStudent(courseId, studentId = null, studentProfileId
 
 /**
  * Get enrollments for a student
- * @param {string} studentId - Student user ID (for direct enrollments) OR student profile ID (for parent-managed)
- * @param {boolean} isStudentProfile - True if studentId is actually a student_profile_id
+ * @param {string} studentId - Student user ID
  * @param {string} status - Filter by status (optional)
  * @returns {Promise<Array>} List of student enrollments
  */
-export async function getStudentEnrollments(studentId, isStudentProfile = false, status = null) {
+export async function getStudentEnrollments(studentId, status = null) {
   if (!studentId) {
     throw new Error('Student ID is required')
   }
@@ -143,14 +132,8 @@ export async function getStudentEnrollments(studentId, isStudentProfile = false,
           profiles!instructor_id(id, full_name, avatar_url)
         )
       `)
+      .eq('student_id', studentId)
       .order('enrolled_at', { ascending: false })
-
-    // Query by student_id OR student_profile_id depending on the type
-    if (isStudentProfile) {
-      query = query.eq('student_profile_id', studentId)
-    } else {
-      query = query.eq('student_id', studentId)
-    }
 
     if (status) {
       query = query.eq('status', status)
@@ -209,14 +192,6 @@ export async function getCourseEnrollments(courseId, instructorId) {
           avatar_url,
           bio,
           neurodiversity_profile
-        ),
-        students!student_profile_id(
-          id,
-          first_name,
-          last_name,
-          date_of_birth,
-          neurodiversity_profile,
-          parent_id
         )
       `)
       .eq('course_id', courseId)
@@ -424,7 +399,7 @@ export async function getEnrollmentStats(instructorId) {
 /**
  * Check if a student is enrolled in a course
  * @param {string} courseId - Course ID
- * @param {string} studentId - Student user ID or student profile ID
+ * @param {string} studentId - Student user ID
  * @returns {Promise<Object|null>} Enrollment object or null if not enrolled
  */
 export async function checkEnrollment(courseId, studentId) {
@@ -433,35 +408,16 @@ export async function checkEnrollment(courseId, studentId) {
   }
 
   try {
-    // First check for direct enrollment (student_id)
-    const { data: directEnrollment, error: directError } = await supabase
+    const { data: enrollment } = await supabase
       .from('enrollments')
       .select('*')
       .eq('course_id', courseId)
       .eq('student_id', studentId)
       .single()
 
-    if (directEnrollment) {
-      return directEnrollment
-    }
-
-    // If not found, check for student profile enrollment (student_profile_id)
-    const { data: profileEnrollment, error: profileError } = await supabase
-      .from('enrollments')
-      .select('*')
-      .eq('course_id', courseId)
-      .eq('student_profile_id', studentId)
-      .single()
-
-    if (profileEnrollment) {
-      return profileEnrollment
-    }
-
-    // No enrollment found
-    return null
+    return enrollment || null
   } catch (error) {
     console.error('Error in checkEnrollment:', error)
-    // Return null instead of throwing to allow graceful handling
     return null
   }
 }
