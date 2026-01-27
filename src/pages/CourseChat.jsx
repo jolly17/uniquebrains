@@ -208,6 +208,15 @@ function CourseChat({ course }) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 
+  const getSenderName = (msg) => {
+    // If sender is a student (child profile), use their name
+    if (msg.students && msg.students.first_name) {
+      return `${msg.students.first_name} ${msg.students.last_name}`
+    }
+    // Otherwise use profile name
+    return msg.profiles?.full_name || 'Unknown'
+  }
+
   const getSelectedStudentName = () => {
     const thread = chatThreads.find(t => t.student.id === selectedStudent)
     return thread ? thread.student.full_name : ''
@@ -341,7 +350,7 @@ function CourseChat({ course }) {
               >
                 <div className="message-header">
                   <span className="sender-name">
-                    {msg.sender_id === user.id ? 'You' : msg.profiles?.full_name || 'Student'}
+                    {msg.sender_id === user.id ? 'You' : getSenderName(msg)}
                   </span>
                   <span className="message-time">{formatTime(msg.created_at)}</span>
                 </div>
@@ -402,7 +411,7 @@ function CourseChat({ course }) {
             >
               <div className="message-header">
                 <span className="sender-name">
-                  {msg.sender_id === user.id ? 'You (Instructor)' : msg.profiles?.full_name || 'Student'}
+                  {msg.sender_id === user.id ? 'You (Instructor)' : getSenderName(msg)}
                   {isUserOnline(msg.sender_id) && msg.sender_id !== user.id && (
                     <span className="online-indicator" title="Online">🟢</span>
                   )}

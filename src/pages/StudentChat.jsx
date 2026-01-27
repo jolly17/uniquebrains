@@ -159,6 +159,15 @@ function StudentChat({ courseId, course }) {
     }
   }
 
+  const getSenderName = (msg) => {
+    // If sender is a student (child profile), use their name
+    if (msg.students && msg.students.first_name) {
+      return `${msg.students.first_name} ${msg.students.last_name}`
+    }
+    // Otherwise use profile name
+    return msg.profiles?.full_name || 'Unknown'
+  }
+
   const isUserOnline = (userId) => {
     return onlineUsers.has(userId)
   }
@@ -219,7 +228,7 @@ function StudentChat({ courseId, course }) {
                 >
                   <div className="message-header">
                     <span className="message-sender">
-                      {msg.sender_id === user.id ? 'You' : msg.profiles?.full_name || 'Instructor'}
+                      {msg.sender_id === user.id ? 'You' : getSenderName(msg)}
                       {msg.sender_id === course.instructor_id && ' (Instructor)'}
                       {msg.sender_id !== user.id && isUserOnline(msg.sender_id) && (
                         <span className="online-indicator" title="Online">🟢</span>

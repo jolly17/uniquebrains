@@ -63,7 +63,8 @@ export async function sendMessage(courseId, messageData, senderId) {
       .insert([dbMessageData])
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role)
+        profiles!sender_id(id, full_name, avatar_url, role),
+        students!sender_id(id, first_name, last_name, parent_id)
       `)
       .single()
 
@@ -169,7 +170,8 @@ export async function getCourseMessages(courseId, userId, limit = 50, before = n
       .from('messages')
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role)
+        profiles!sender_id(id, full_name, avatar_url, role),
+        students!sender_id(id, first_name, last_name, parent_id)
       `)
       .eq('course_id', courseId)
       .is('recipient_id', null) // Only group messages (no recipient)
@@ -223,7 +225,8 @@ export async function getConversation(courseId, userId, otherUserId, limit = 50,
       .from('messages')
       .select(`
         *,
-        profiles!sender_id(id, full_name, avatar_url, role)
+        profiles!sender_id(id, full_name, avatar_url, role),
+        students!sender_id(id, first_name, last_name, parent_id)
       `)
       .eq('course_id', courseId)
       .or(`and(sender_id.eq.${userId},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${userId})`)
@@ -326,7 +329,8 @@ export async function getConversationThreads(courseId, instructorId) {
         .from('messages')
         .select(`
           *,
-          profiles!sender_id(id, full_name, avatar_url, role)
+          profiles!sender_id(id, full_name, avatar_url, role),
+          students!sender_id(id, first_name, last_name, parent_id)
         `)
         .eq('course_id', courseId)
         .or(`and(sender_id.eq.${instructorId},recipient_id.eq.${studentId}),and(sender_id.eq.${studentId},recipient_id.eq.${instructorId})`)
