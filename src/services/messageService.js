@@ -277,14 +277,17 @@ export async function getConversationThreads(courseId, instructorId) {
       throw new Error('Unauthorized: You can only view conversations for your own courses')
     }
 
-    // Get all enrolled students
+    // Get all enrolled students (both direct and parent-managed)
     const { data: enrollments, error: enrollmentError } = await supabase
       .from('enrollments')
       .select(`
         student_id,
-        profiles!student_id(id, full_name, avatar_url)
+        student_profile_id,
+        profiles!student_id(id, full_name, avatar_url),
+        students!student_profile_id(id, first_name, last_name, parent_id)
       `)
       .eq('course_id', courseId)
+      .eq('status', 'active')
 
     if (enrollmentError) {
       console.error('Error fetching enrollments:', enrollmentError)
@@ -294,7 +297,29 @@ export async function getConversationThreads(courseId, instructorId) {
     // Get last message for each student
     const threads = []
     for (const enrollment of enrollments || []) {
-      const studentId = enrollment.student_id
+      let studentData = null
+      let studentId = null
+
+      // Determine if this is a direct enrollment or parent-managed
+      if (enrollment.student_profile_id && enrollment.students) {
+        // Parent-managed enrollment - use student profile data
+        studentId = enrollment.students.id
+        studentData = {
+          id: enrollment.students.id,
+          full_name: `${enrollment.students.first_name} ${enrollment.students.last_name}`,
+          avatar_url: null
+        }
+      } else if (enrollment.student_id && enrollment.profiles) {
+        // Direct enrollment - use profile data
+        studentId = enrollment.student_id
+        studentData = enrollment.profiles
+      }
+
+      // Skip if we couldn't get student data
+      if (!studentData || !studentId) {
+        console.warn('Skipping enrollment with missing student data:', enrollment)
+        continue
+      }
 
       // Get the most recent message between instructor and this student
       const { data: lastMessage, error: messageError } = await supabase
@@ -310,7 +335,7 @@ export async function getConversationThreads(courseId, instructorId) {
         .single()
 
       threads.push({
-        student: enrollment.profiles,
+        student: studentData,
         lastMessage: messageError ? null : lastMessage,
         unreadCount: 0 // TODO: Implement unread count tracking
       })
