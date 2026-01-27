@@ -140,8 +140,7 @@ function Onboarding() {
           role: formData.role,
           neurodiversity_profile: neurodiversityProfile,
           expertise: formData.role === 'instructor' ? expertise : [],
-          bio: formData.bio.trim() || null,
-          onboarding_completed: true
+          bio: formData.bio.trim() || null
         })
         .eq('id', userId)
 

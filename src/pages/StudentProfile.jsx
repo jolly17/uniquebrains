@@ -15,20 +15,36 @@ function StudentProfile() {
     otherNeeds: profile?.other_needs || ''
   })
 
-  const [isEditing, setIsEditing] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
+  const [originalData, setOriginalData] = useState(null)
 
   // Update form data when profile loads
   useEffect(() => {
     if (profile) {
-      setFormData({
+      const data = {
         firstName: profile.first_name || '',
         lastName: profile.last_name || '',
         email: profile.email || user?.email || '',
         neurodiversityProfile: profile.neurodiversity_profile || [],
         otherNeeds: profile.other_needs || ''
-      })
+      }
+      setFormData(data)
+      setOriginalData(data)
     }
   }, [profile, user])
+
+  // Check if form has changes
+  useEffect(() => {
+    if (originalData) {
+      const changed = 
+        formData.firstName !== originalData.firstName ||
+        formData.lastName !== originalData.lastName ||
+        formData.email !== originalData.email ||
+        formData.otherNeeds !== originalData.otherNeeds ||
+        JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile)
+      setHasChanges(changed)
+    }
+  }, [formData, originalData])
 
   const neurodiversityOptions = [
     { value: 'autism', label: 'Autism Spectrum' },
@@ -65,18 +81,13 @@ function StudentProfile() {
     e.preventDefault()
     // In a real app, this would update the user profile via API
     alert('Profile updated successfully!')
-    setIsEditing(false)
+    setOriginalData(formData)
+    setHasChanges(false)
   }
 
   const handleCancel = () => {
-    setFormData({
-      firstName: profile?.first_name || '',
-      lastName: profile?.last_name || '',
-      email: profile?.email || user?.email || '',
-      neurodiversityProfile: profile?.neurodiversity_profile || [],
-      otherNeeds: profile?.other_needs || ''
-    })
-    setIsEditing(false)
+    setFormData(originalData)
+    setHasChanges(false)
   }
 
   const isInstructor = profile?.role === 'instructor'
@@ -92,11 +103,6 @@ function StudentProfile() {
               : 'Manage your personal information and learning preferences'}
           </p>
         </div>
-        {!isEditing && (
-          <button onClick={() => setIsEditing(true)} className="btn-primary">
-            Edit Profile
-          </button>
-        )}
       </div>
 
       <form onSubmit={handleSave} className="profile-form">
@@ -111,7 +117,6 @@ function StudentProfile() {
                 type="text"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 required
               />
             </div>
@@ -123,7 +128,6 @@ function StudentProfile() {
                 type="text"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 required
               />
             </div>
@@ -137,7 +141,6 @@ function StudentProfile() {
               type="email"
               value={formData.email}
               onChange={handleInputChange}
-              disabled={!isEditing}
               required
             />
           </div>
@@ -160,7 +163,6 @@ function StudentProfile() {
                     type="checkbox"
                     checked={formData.neurodiversityProfile.includes(option.value)}
                     onChange={() => handleCheckboxChange(option.value)}
-                    disabled={!isEditing}
                   />
                   <span>{option.label}</span>
                 </label>
@@ -180,7 +182,6 @@ function StudentProfile() {
                 name="otherNeeds"
                 value={formData.otherNeeds}
                 onChange={handleInputChange}
-                disabled={!isEditing}
                 rows="3"
                 placeholder={isInstructor 
                   ? 'Describe your teaching approach or any relevant information...'
@@ -190,7 +191,7 @@ function StudentProfile() {
           )}
         </div>
 
-        {isEditing && (
+        {hasChanges && (
           <div className="profile-actions">
             <button type="button" onClick={handleCancel} className="btn-secondary">
               Cancel
@@ -203,8 +204,22 @@ function StudentProfile() {
       </form>
 
       <div className="profile-section danger-zone">
-        <h2>Account Settings</h2>
-        <button className="btn-danger">Change Password</button>
+        <h2>Account Management</h2>
+        <p className="section-description">
+          Permanently delete your account and all associated data. This action cannot be undone.
+        </p>
+        <button 
+          type="button"
+          onClick={() => {
+            if (window.confirm('Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.')) {
+              // TODO: Implement account deletion
+              alert('Account deletion will be implemented soon.')
+            }
+          }}
+          className="btn-danger"
+        >
+          Delete Account
+        </button>
       </div>
     </div>
   )
