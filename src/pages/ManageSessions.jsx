@@ -435,11 +435,18 @@ function ManageSessions() {
     try {
       const newSessions = []
       const start = new Date(recurringSchedule.startDate)
-      const end = recurringSchedule.endDate ? new Date(recurringSchedule.endDate) : new Date(start.getTime() + 90 * 24 * 60 * 60 * 1000) // 90 days default
+      
+      // For courses without end date, generate 5 sessions
+      // For courses with end date, generate all sessions until end date
+      const hasEndDate = recurringSchedule.endDate && recurringSchedule.endDate.trim() !== ''
+      const end = hasEndDate ? new Date(recurringSchedule.endDate) : null
+      const maxSessions = hasEndDate ? 1000 : 5 // Limit to 5 for open-ended schedules
       
       let currentDate = new Date(start)
+      let sessionNumber = 1
+      let sessionsCreated = 0
 
-      while (currentDate <= end) {
+      while (sessionsCreated < maxSessions && (!end || currentDate <= end)) {
         const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
         
         if (recurringSchedule.selectedDays.includes(dayName)) {
@@ -448,7 +455,7 @@ function ManageSessions() {
           sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
           
           const sessionData = {
-            title: 'Session',
+            title: `Session ${sessionNumber}`,
             description: '',
             session_date: sessionDateTime.toISOString(),
             duration: recurringSchedule.duration,
@@ -458,6 +465,8 @@ function ManageSessions() {
           
           const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
           newSessions.push(createdSession)
+          sessionNumber++
+          sessionsCreated++
         }
         
         currentDate.setDate(currentDate.getDate() + 1)
@@ -475,6 +484,12 @@ function ManageSessions() {
       })
 
       setShowRecurringModal(false)
+      
+      // Show success message
+      const message = hasEndDate 
+        ? `Created ${newSessions.length} sessions from ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`
+        : `Created ${newSessions.length} initial sessions starting ${start.toLocaleDateString()}`
+      alert(message)
     } catch (err) {
       console.error('Error generating recurring sessions:', err)
       alert('Failed to generate sessions')
@@ -1034,7 +1049,7 @@ function ManageSessions() {
                     className="form-input"
                     min={recurringSchedule.startDate}
                   />
-                  <p className="form-hint">Leave blank for 3 months</p>
+                  <p className="form-hint">Leave blank to create 5 initial sessions</p>
                 </div>
               </div>
 
