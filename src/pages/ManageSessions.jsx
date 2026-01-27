@@ -211,7 +211,7 @@ function ManageSessions() {
             title: `Topic ${sessionNumber}`,
             description: '',
             session_date: sessionDateTime.toISOString(),
-            duration: course.session_duration || 60,
+            duration_minutes: course.session_duration || 60,
             meeting_link: course.meeting_link || '',
             student_id: null
           }
@@ -357,7 +357,7 @@ function ManageSessions() {
         title: newSession.topic || 'Session',
         description: '',
         session_date: sessionDateTime.toISOString(),
-        duration: 60,
+        duration_minutes: 60,
         meeting_link: newSession.meetingLink || courseMeetingLink,
         student_id: !isGroupCourse ? newSession.studentId : null
       }
@@ -458,7 +458,7 @@ function ManageSessions() {
             title: `Session ${sessionNumber}`,
             description: '',
             session_date: sessionDateTime.toISOString(),
-            duration: recurringSchedule.duration,
+            duration_minutes: recurringSchedule.duration,
             meeting_link: courseMeetingLink,
             student_id: !isGroupCourse ? recurringSchedule.studentId : null
           }
