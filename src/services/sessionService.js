@@ -143,10 +143,11 @@ export async function createSession(courseId, sessionData, instructorId) {
       title: sessionData.title.trim(),
       description: sessionData.description?.trim() || '',
       session_date: new Date(sessionData.session_date).toISOString(),
-      duration: sessionData.duration || 60,
+      duration_minutes: sessionData.duration_minutes || sessionData.duration || 60,
       meeting_link: sessionData.meeting_link || '',
       meeting_password: sessionData.meeting_password || '',
       meeting_platform: sessionData.meeting_platform || null,
+      student_id: sessionData.student_id || null,
       status: 'scheduled'
     }
 
