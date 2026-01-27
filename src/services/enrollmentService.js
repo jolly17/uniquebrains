@@ -216,7 +216,6 @@ export async function getCourseEnrollments(courseId, instructorId) {
           last_name,
           date_of_birth,
           neurodiversity_profile,
-          learning_preferences,
           parent_id
         )
       `)

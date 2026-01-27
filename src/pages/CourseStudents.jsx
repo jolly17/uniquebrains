@@ -39,11 +39,10 @@ function CourseStudents({ course }) {
             first_name: enrollment.students.first_name,
             last_name: enrollment.students.last_name,
             neurodiversity_profile: enrollment.students.neurodiversity_profile || [],
-            learning_preferences: enrollment.students.learning_preferences,
             date_of_birth: enrollment.students.date_of_birth
           }
         } else if (enrollment.student_id && enrollment.profiles) {
-          // Direct enrollment - use profile data (no learning_preferences in profiles table)
+          // Direct enrollment - use profile data
           studentData = {
             id: enrollment.profiles.id,
             first_name: enrollment.profiles.first_name,
@@ -160,13 +159,6 @@ function CourseStudents({ course }) {
                       {student.neurodiversity_profile.map((need, idx) => (
                         <span key={idx} className="profile-badge">🧩 {need}</span>
                       ))}
-                    </div>
-                  )}
-                  
-                  {student.learning_preferences && (
-                    <div className="student-preferences">
-                      <span className="preference-label">Learning Preferences:</span>
-                      <span className="preference-text">{student.learning_preferences}</span>
                     </div>
                   )}
                   
