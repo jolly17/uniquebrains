@@ -131,6 +131,52 @@
   white-space: nowrap;
 }
 
+.remove-btn {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.student-preferences {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.preference-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.preference-text {
+  color: var(--text-primary);
+}
+
+.student-meta {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.enrolled-date {
+  font-style: italic;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  padding: 2rem;
+}
+
 @media (max-width: 768px) {
   .student-card {
     flex-direction: column;
