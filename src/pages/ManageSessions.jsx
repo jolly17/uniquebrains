@@ -60,7 +60,14 @@ function ManageSessions() {
 
   const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
     student,
-    sessions: sessions.filter(s => s.student_id === student.id)
+    sessions: sessions.filter(s => {
+      // Match by student_id (direct enrollment) or student_profile_id (parent-managed)
+      if (student.enrollmentType === 'student_profile') {
+        return s.student_profile_id === student.id
+      } else {
+        return s.student_id === student.id
+      }
+    })
   })) : null
 
   // Load course data, sessions, and enrolled students
@@ -105,13 +112,25 @@ function ManageSessions() {
       // Extract student profiles from enrollments
       // Handle both direct enrollments (profiles) and parent-managed enrollments (students)
       const students = enrollmentsData.map(enrollment => {
-        if (enrollment.student_profile_id) {
-          // Parent-managed enrollment - need to fetch student profile
-          return enrollment.students || {}
-        } else {
+        let studentData = {}
+        
+        if (enrollment.student_profile_id && enrollment.students) {
+          // Parent-managed enrollment - use student profile data from students table
+          studentData = {
+            ...enrollment.students,
+            enrollmentType: 'student_profile', // Track the type
+            student_profile_id: enrollment.student_profile_id // Keep the ID
+          }
+        } else if (enrollment.student_id && enrollment.profiles) {
           // Direct enrollment - use profile data
-          return enrollment.profiles || {}
+          studentData = {
+            ...enrollment.profiles,
+            enrollmentType: 'student', // Track the type
+            student_id: enrollment.student_id // Keep the ID
+          }
         }
+        
+        return studentData
       }).filter(student => student.id) // Filter out any null/undefined students
       
       setEnrolledStudents(students)
@@ -353,13 +372,24 @@ function ManageSessions() {
       // Combine date and time into ISO string
       const sessionDateTime = new Date(`${newSession.date}T${newSession.time}`)
       
+      // Find the selected student to determine enrollment type
+      const selectedStudent = enrolledStudents.find(s => s.id === newSession.studentId)
+      
       const sessionData = {
         title: newSession.topic || 'Session',
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: 60,
-        meeting_link: newSession.meetingLink || courseMeetingLink,
-        student_id: !isGroupCourse ? newSession.studentId : null
+        meeting_link: newSession.meetingLink || courseMeetingLink
+      }
+      
+      // Set the appropriate student field based on enrollment type
+      if (!isGroupCourse && selectedStudent) {
+        if (selectedStudent.enrollmentType === 'student_profile') {
+          sessionData.student_profile_id = selectedStudent.id
+        } else {
+          sessionData.student_id = selectedStudent.id
+        }
       }
 
       const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
@@ -454,13 +484,24 @@ function ManageSessions() {
           const [hours, minutes] = recurringSchedule.time.split(':')
           sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
           
+          // Find the selected student to determine enrollment type
+          const selectedStudent = enrolledStudents.find(s => s.id === recurringSchedule.studentId)
+          
           const sessionData = {
             title: `Session ${sessionNumber}`,
             description: '',
             session_date: sessionDateTime.toISOString(),
             duration_minutes: recurringSchedule.duration,
-            meeting_link: courseMeetingLink,
-            student_id: !isGroupCourse ? recurringSchedule.studentId : null
+            meeting_link: courseMeetingLink
+          }
+          
+          // Set the appropriate student field based on enrollment type
+          if (!isGroupCourse && selectedStudent) {
+            if (selectedStudent.enrollmentType === 'student_profile') {
+              sessionData.student_profile_id = selectedStudent.id
+            } else {
+              sessionData.student_id = selectedStudent.id
+            }
           }
           
           const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)

@@ -147,7 +147,8 @@ export async function createSession(courseId, sessionData, instructorId) {
       meeting_link: sessionData.meeting_link || '',
       meeting_password: sessionData.meeting_password || '',
       meeting_platform: sessionData.meeting_platform || null,
-      student_id: sessionData.student_id || null,
+      student_id: sessionData.student_id || null, // For direct student enrollments
+      student_profile_id: sessionData.student_profile_id || null, // For parent-managed child profiles
       status: 'scheduled'
     }
 
