@@ -115,12 +115,6 @@ function CourseDetail() {
       
       // Show success popup with student info
       setShowEnrollmentSuccess(true)
-      
-      // Auto-close popup after 3 seconds
-      setTimeout(() => {
-        setShowEnrollmentSuccess(false)
-        navigate('/my-courses')
-      }, 3000)
     } catch (err) {
       console.error('Enrollment error:', err)
       alert(err.message || 'Failed to enroll in course. Please try again.')
@@ -298,14 +292,17 @@ function CourseDetail() {
               <button 
                 onClick={() => {
                   setShowEnrollmentSuccess(false)
-                  navigate('/my-courses')
+                  navigate('/learn/my-courses')
                 }}
                 className="btn-primary"
               >
                 View My Courses
               </button>
               <button 
-                onClick={() => setShowEnrollmentSuccess(false)}
+                onClick={() => {
+                  setShowEnrollmentSuccess(false)
+                  navigate('/learn/marketplace')
+                }}
                 className="btn-secondary"
               >
                 Continue Browsing
