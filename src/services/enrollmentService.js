@@ -299,15 +299,15 @@ export async function withdrawStudent(courseId, studentId) {
       throw new Error(`Enrollment not found: ${enrollmentError.message}`)
     }
 
-    if (enrollment.status === 'withdrawn') {
+    if (enrollment.status === 'dropped') {
       throw new Error('You have already withdrawn from this course')
     }
 
-    // Update enrollment status to withdrawn
+    // Update enrollment status to dropped
     const { error: updateError } = await supabase
       .from('enrollments')
       .update({
-        status: 'withdrawn'
+        status: 'dropped'
       })
       .eq('id', enrollment.id)
 
