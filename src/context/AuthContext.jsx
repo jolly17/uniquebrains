@@ -33,59 +33,12 @@ export function AuthProvider({ children }) {
   const detectAvailablePortals = async (userId, userProfile) => {
     if (!userId || !userProfile) return []
     
-    const portals = []
+    // Always allow users to access both portals
+    // They can switch between learning and teaching at any time
+    const portals = ['learn', 'teach']
     
-    try {
-      // Check if user has created courses (teach capability)
-      const { data: courses, error: coursesError } = await supabase
-        .from('courses')
-        .select('id')
-        .eq('instructor_id', userId)
-        .limit(1)
-      
-      if (coursesError) {
-        console.error('Error checking courses:', coursesError)
-      } else if (courses && courses.length > 0) {
-        portals.push('teach')
-      }
-      
-      // Check if user has enrollments (learn capability)
-      let hasEnrollments = false
-      
-      // Check for direct student enrollments
-      const { data: enrollments, error: enrollmentsError } = await supabase
-        .from('enrollments')
-        .select('id')
-        .eq('student_id', userId)
-        .limit(1)
-      
-      if (enrollmentsError) {
-        console.error('Error checking enrollments:', enrollmentsError)
-      } else if (enrollments && enrollments.length > 0) {
-        hasEnrollments = true
-      }
-      
-      if (hasEnrollments) {
-        portals.push('learn')
-      }
-      
-      // Always include primary role portal
-      if (userProfile.role === 'instructor' && !portals.includes('teach')) {
-        portals.push('teach')
-      }
-      if (userProfile.role === 'student' && !portals.includes('learn')) {
-        portals.push('learn')
-      }
-      
-      setAvailablePortals(portals)
-      return portals
-    } catch (err) {
-      console.error('Error detecting available portals:', err)
-      // Fallback to primary role
-      const fallback = userProfile.role === 'instructor' ? ['teach'] : ['learn']
-      setAvailablePortals(fallback)
-      return fallback
-    }
+    setAvailablePortals(portals)
+    return portals
   }
 
   // Get active portal from URL path

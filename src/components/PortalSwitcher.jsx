@@ -1,8 +1,8 @@
 import './PortalSwitcher.css'
 
 function PortalSwitcher({ currentPortal, availablePortals, compact = false }) {
-  // Only render if user has both portals available
-  if (!availablePortals || availablePortals.length < 2) {
+  // Always show portal switcher - users can switch between learning and teaching anytime
+  if (!availablePortals || availablePortals.length === 0) {
     return null
   }
 
