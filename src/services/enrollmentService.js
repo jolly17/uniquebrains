@@ -133,6 +133,7 @@ export async function getStudentEnrollments(studentId, status = null) {
         )
       `)
       .eq('student_id', studentId)
+      .neq('status', 'dropped') // Exclude dropped enrollments
       .order('enrolled_at', { ascending: false })
 
     if (status) {
@@ -195,6 +196,7 @@ export async function getCourseEnrollments(courseId, instructorId) {
         )
       `)
       .eq('course_id', courseId)
+      .neq('status', 'dropped') // Exclude dropped enrollments
       .order('enrolled_at', { ascending: false })
 
     if (error) {
@@ -412,6 +414,7 @@ export async function checkEnrollment(courseId, studentId) {
       .select('*')
       .eq('course_id', courseId)
       .eq('student_id', studentId)
+      .neq('status', 'dropped') // Exclude dropped enrollments
       .single()
 
     return enrollment || null
