@@ -262,6 +262,7 @@ export async function getCourseById(courseId) {
         ? `${course.profiles.first_name} ${course.profiles.last_name}`.trim()
         : 'Unknown Instructor',
       instructorBio: course.profiles?.bio || '',
+      instructorExpertise: course.profiles?.expertise || [],
       currentEnrollment: course.enrollments?.[0]?.count || 0,
       totalSessions: course.sessions?.length || 0,
       averageRating: course.average_rating || 0,

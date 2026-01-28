@@ -139,6 +139,11 @@ function CourseDetail() {
             <div className="meta-item">
               <span>👨‍🏫 Instructor: {course.instructorName}</span>
             </div>
+            {course.instructorExpertise && course.instructorExpertise.length > 0 && (
+              <div className="meta-item">
+                <span>🎯 Specializes in: {course.instructorExpertise.join(', ')}</span>
+              </div>
+            )}
             {!course.isSelfPaced && (
               <>
                 <div className="meta-item">
