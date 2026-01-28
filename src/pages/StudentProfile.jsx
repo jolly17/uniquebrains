@@ -14,7 +14,6 @@ function StudentProfile() {
     bio: profile?.bio || '',
     expertise: profile?.expertise || [],
     neurodiversityProfile: profile?.neurodiversity_profile || [],
-    otherNeeds: profile?.other_needs || '',
     otherExpertise: ''
   })
 
@@ -31,7 +30,6 @@ function StudentProfile() {
         bio: profile.bio || '',
         expertise: profile.expertise || [],
         neurodiversityProfile: profile.neurodiversity_profile || [],
-        otherNeeds: profile.other_needs || '',
         otherExpertise: ''
       }
       setFormData(data)
@@ -47,7 +45,6 @@ function StudentProfile() {
         formData.lastName !== originalData.lastName ||
         formData.email !== originalData.email ||
         formData.bio !== originalData.bio ||
-        formData.otherNeeds !== originalData.otherNeeds ||
         JSON.stringify(formData.expertise) !== JSON.stringify(originalData.expertise) ||
         JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile)
       setHasChanges(changed)
@@ -171,20 +168,19 @@ function StudentProfile() {
 
         {isInstructor && (
           <div className="profile-section">
-            <h2>Teaching Profile</h2>
+            <h2>About You</h2>
             <p className="section-description">
-              Complete your teaching profile to help families find you and understand your expertise.
+              Tell families about your teaching experience, approach, and any additional information that helps them understand your expertise.
             </p>
 
             <div className="form-group">
-              <label htmlFor="bio">About You</label>
               <textarea
                 id="bio"
                 name="bio"
                 value={formData.bio}
                 onChange={handleInputChange}
-                rows="4"
-                placeholder="Tell families about your teaching experience and approach..."
+                rows="6"
+                placeholder="e.g., I'm a certified special education teacher with 10 years of experience working with neurodivergent children. I specialize in creating inclusive learning environments and adapting teaching methods to each student's unique needs..."
               />
             </div>
 
@@ -221,6 +217,26 @@ function StudentProfile() {
           </div>
         )}
 
+        {!isInstructor && (
+          <div className="profile-section">
+            <h2>About You</h2>
+            <p className="section-description">
+              Tell us about yourself, your learning goals, and any additional information that helps instructors support you better.
+            </p>
+
+            <div className="form-group">
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                rows="4"
+                placeholder="e.g., I love art and music, and I'm excited to learn new things. I learn best with visual aids and hands-on activities..."
+              />
+            </div>
+          </div>
+        )}
+
         <div className="profile-section">
           <h2>{isInstructor ? 'Your Unique Mind' : 'Your Learning Style'}</h2>
           <p className="section-description">
@@ -244,26 +260,6 @@ function StudentProfile() {
               ))}
             </div>
           </div>
-
-          {formData.neurodiversityProfile.includes('other') && (
-            <div className="form-group">
-              <label htmlFor="otherNeeds">
-                {isInstructor 
-                  ? 'Please specify other information' 
-                  : 'Please specify other learning needs'}
-              </label>
-              <textarea
-                id="otherNeeds"
-                name="otherNeeds"
-                value={formData.otherNeeds}
-                onChange={handleInputChange}
-                rows="3"
-                placeholder={isInstructor 
-                  ? 'Describe your teaching approach or any relevant information...'
-                  : 'Describe any other learning needs or accommodations...'}
-              />
-            </div>
-          )}
         </div>
 
         {hasChanges && (
