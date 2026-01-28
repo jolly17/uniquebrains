@@ -390,11 +390,12 @@ export async function deleteCourse(courseId, instructorId) {
       throw new Error('Unauthorized: You can only delete your own courses')
     }
 
-    // Check if course has enrollments
+    // Check if course has active enrollments (exclude dropped)
     const { data: enrollments, error: enrollmentError } = await supabase
       .from('enrollments')
       .select('id')
       .eq('course_id', courseId)
+      .neq('status', 'dropped') // Exclude dropped enrollments
       .limit(1)
 
     if (enrollmentError) {
