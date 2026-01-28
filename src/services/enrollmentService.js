@@ -307,8 +307,7 @@ export async function withdrawStudent(courseId, studentId) {
     const { error: updateError } = await supabase
       .from('enrollments')
       .update({
-        status: 'withdrawn',
-        withdrawn_at: new Date().toISOString()
+        status: 'withdrawn'
       })
       .eq('id', enrollment.id)
 
