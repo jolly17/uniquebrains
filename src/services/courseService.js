@@ -241,7 +241,7 @@ export async function getCourseById(courseId) {
       .from('courses')
       .select(`
         *,
-        profiles!instructor_id(id, first_name, last_name, avatar_url, bio),
+        profiles!instructor_id(id, first_name, last_name, avatar_url, bio, expertise),
         enrollments(count),
         sessions(*)
       `)
