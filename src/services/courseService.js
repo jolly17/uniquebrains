@@ -167,10 +167,11 @@ export async function getInstructorCourses(instructorId) {
       .from('courses')
       .select(`
         *,
-        enrollments(count),
+        enrollments!inner(count),
         sessions(count)
       `)
       .eq('instructor_id', instructorId)
+      .neq('enrollments.status', 'dropped')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -196,11 +197,12 @@ export async function getAllPublishedCourses() {
       .select(`
         *,
         profiles!instructor_id(id, first_name, last_name, avatar_url),
-        enrollments(count),
+        enrollments!left(count),
         sessions(count)
       `)
       .eq('status', 'published')
       .eq('is_published', true)
+      .not('enrollments.status', 'eq', 'dropped')
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -244,10 +246,11 @@ export async function getCourseById(courseId) {
       .select(`
         *,
         profiles!instructor_id(id, first_name, last_name, avatar_url, bio, expertise),
-        enrollments(count),
+        enrollments!left(count),
         sessions(*)
       `)
       .eq('id', courseId)
+      .not('enrollments.status', 'eq', 'dropped')
       .single()
 
     if (error) {
