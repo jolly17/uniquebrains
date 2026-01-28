@@ -39,6 +39,7 @@ export async function createCourse(courseData, user) {
       status: 'published', // Auto-publish new courses
       is_published: true,
       timezone: courseData.timezone || 'America/New_York', // Store instructor's timezone
+      meeting_link: courseData.meetingLink || null, // Store course-level meeting link
       // Add missing date and schedule fields
       start_date: courseData.startDate || null,
       end_date: courseData.endDate || null,
