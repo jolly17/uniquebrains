@@ -108,12 +108,6 @@ function InstructorDashboard() {
                 showLabel={false}
               />
             )}
-            {(!profile?.bio || !profile?.neurodiversity_profile || profile.neurodiversity_profile.length === 0) && (
-              <div className="profile-incomplete-notice">
-                <span>📝 Complete your instructor profile to help parents find you</span>
-                <Link to="/onboarding" className="btn-link">Complete Profile</Link>
-              </div>
-            )}
           </div>
         </div>
         <Link to="/teach/create-course" className="btn-primary">

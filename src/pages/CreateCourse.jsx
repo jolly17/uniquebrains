@@ -17,6 +17,7 @@ function CreateCourse() {
     price: '',
     sessionDuration: '',
     sessionTime: '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Auto-detect instructor's timezone
     enrollmentLimit: '',
     meetingLink: '', // Optional meeting link for all sessions
     // Recurrence fields
@@ -75,6 +76,7 @@ function CreateCourse() {
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
         meetingLink: formData.meetingLink, // Optional meeting link
+        timezone: formData.timezone, // Store instructor's timezone
         // Schedule data for session creation
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
@@ -275,6 +277,36 @@ function CreateCourse() {
                       required
                       style={{ padding: '0.5rem' }}
                     />
+                  </div>
+
+                  <div className="form-group">
+                    <label htmlFor="timezone" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Timezone *</label>
+                    <select
+                      id="timezone"
+                      name="timezone"
+                      value={formData.timezone}
+                      onChange={handleChange}
+                      required
+                      style={{ padding: '0.5rem' }}
+                    >
+                      <option value="America/New_York">Eastern Time (ET)</option>
+                      <option value="America/Chicago">Central Time (CT)</option>
+                      <option value="America/Denver">Mountain Time (MT)</option>
+                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                      <option value="America/Anchorage">Alaska Time (AKT)</option>
+                      <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                      <option value="Europe/London">London (GMT/BST)</option>
+                      <option value="Europe/Paris">Paris (CET/CEST)</option>
+                      <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+                      <option value="Asia/Dubai">Dubai (GST)</option>
+                      <option value="Asia/Kolkata">India (IST)</option>
+                      <option value="Asia/Singapore">Singapore (SGT)</option>
+                      <option value="Asia/Tokyo">Tokyo (JST)</option>
+                      <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+                    </select>
+                    <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+                      Students will see times in their local timezone
+                    </p>
                   </div>
                 </div>
 

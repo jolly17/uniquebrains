@@ -11,8 +11,11 @@ function StudentProfile() {
     firstName: profile?.first_name || '',
     lastName: profile?.last_name || '',
     email: profile?.email || user?.email || '',
+    bio: profile?.bio || '',
+    expertise: profile?.expertise || [],
     neurodiversityProfile: profile?.neurodiversity_profile || [],
-    otherNeeds: profile?.other_needs || ''
+    otherNeeds: profile?.other_needs || '',
+    otherExpertise: ''
   })
 
   const [hasChanges, setHasChanges] = useState(false)
@@ -25,8 +28,11 @@ function StudentProfile() {
         firstName: profile.first_name || '',
         lastName: profile.last_name || '',
         email: profile.email || user?.email || '',
+        bio: profile.bio || '',
+        expertise: profile.expertise || [],
         neurodiversityProfile: profile.neurodiversity_profile || [],
-        otherNeeds: profile.other_needs || ''
+        otherNeeds: profile.other_needs || '',
+        otherExpertise: ''
       }
       setFormData(data)
       setOriginalData(data)
@@ -40,7 +46,9 @@ function StudentProfile() {
         formData.firstName !== originalData.firstName ||
         formData.lastName !== originalData.lastName ||
         formData.email !== originalData.email ||
+        formData.bio !== originalData.bio ||
         formData.otherNeeds !== originalData.otherNeeds ||
+        JSON.stringify(formData.expertise) !== JSON.stringify(originalData.expertise) ||
         JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile)
       setHasChanges(changed)
     }
@@ -66,6 +74,21 @@ function StudentProfile() {
       setFormData({
         ...formData,
         neurodiversityProfile: [...currentProfile, value]
+      })
+    }
+  }
+
+  const handleExpertiseChange = (value) => {
+    const currentExpertise = formData.expertise || []
+    if (currentExpertise.includes(value)) {
+      setFormData({
+        ...formData,
+        expertise: currentExpertise.filter(item => item !== value)
+      })
+    } else {
+      setFormData({
+        ...formData,
+        expertise: [...currentExpertise, value]
       })
     }
   }
@@ -145,6 +168,58 @@ function StudentProfile() {
             />
           </div>
         </div>
+
+        {isInstructor && (
+          <div className="profile-section">
+            <h2>Teaching Profile</h2>
+            <p className="section-description">
+              Complete your teaching profile to help families find you and understand your expertise.
+            </p>
+
+            <div className="form-group">
+              <label htmlFor="bio">About You</label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange}
+                rows="4"
+                placeholder="Tell families about your teaching experience and approach..."
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Your Teaching Specializations</label>
+              <p className="field-hint">What neurodiversity areas do you specialize in or have experience teaching?</p>
+              <div className="checkbox-grid">
+                {neurodiversityOptions.map(option => (
+                  <label key={option.value} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.expertise.includes(option.value)}
+                      onChange={() => handleExpertiseChange(option.value)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {formData.expertise.includes('other') && (
+              <div className="form-group">
+                <label htmlFor="otherExpertise">Please specify other expertise:</label>
+                <input
+                  type="text"
+                  id="otherExpertise"
+                  name="otherExpertise"
+                  value={formData.otherExpertise}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Sensory Processing Disorder"
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="profile-section">
           <h2>{isInstructor ? 'Your Unique Mind' : 'Your Learning Style'}</h2>

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
 import { api, handleApiCall } from '../services/api'
 import { mockReviews } from '../data/mockData'
+import { convertToLocalTime, formatTimeWithTimezone, getUserTimezone, isSameTimezone } from '../utils/timezoneUtils'
 import './CourseDetail.css'
 
 function CourseDetail() {
@@ -218,7 +219,22 @@ function CourseDetail() {
             </div>
             <div className="schedule-info-item">
               <span className="info-label">Time:</span>
-              <span className="info-value">{course.session_time || 'Not set'}</span>
+              <span className="info-value">
+                {course.session_time ? (
+                  <>
+                    {formatTimeWithTimezone(
+                      course.timezone && !isSameTimezone(course.timezone, getUserTimezone())
+                        ? convertToLocalTime(course.session_time, course.timezone)
+                        : course.session_time
+                    )}
+                    {course.timezone && !isSameTimezone(course.timezone, getUserTimezone()) && (
+                      <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '0.5rem' }}>
+                        (converted to your timezone)
+                      </span>
+                    )}
+                  </>
+                ) : 'Not set'}
+              </span>
             </div>
             <div className="schedule-info-item">
               <span className="info-label">Duration:</span>

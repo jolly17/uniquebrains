@@ -38,6 +38,7 @@ export async function createCourse(courseData, user) {
       instructor_id: user.id,
       status: 'published', // Auto-publish new courses
       is_published: true,
+      timezone: courseData.timezone || 'America/New_York', // Store instructor's timezone
       // Add missing date and schedule fields
       start_date: courseData.startDate || null,
       end_date: courseData.endDate || null,
