@@ -12,7 +12,16 @@ function Marketplace() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
-  const categories = ['all', 'parenting', 'music', 'dance', 'drama', 'art', 'language']
+  const categories = [
+    { value: 'all', label: 'All', icon: '🌟' },
+    { value: 'performing-arts', label: 'Performing Arts', icon: '🎭' },
+    { value: 'visual-arts', label: 'Visual Arts', icon: '🎨' },
+    { value: 'parenting', label: 'Parenting', icon: '👨‍👩‍👧‍👦' },
+    { value: 'academics', label: 'Academics', icon: '📚' },
+    { value: 'language', label: 'Language', icon: '🌍' },
+    { value: 'spirituality', label: 'Spirituality', icon: '🧘' },
+    { value: 'lifeskills', label: 'Life Skills', icon: '🐷' }
+  ]
 
   // Fetch all published courses
   useEffect(() => {
@@ -62,11 +71,11 @@ function Marketplace() {
         <div className="category-filters">
           {categories.map(category => (
             <button
-              key={category}
-              className={`category-btn ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(category)}
+              key={category.value}
+              className={`category-btn ${selectedCategory === category.value ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category.value)}
             >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
+              {category.icon} {category.label}
             </button>
           ))}
         </div>
