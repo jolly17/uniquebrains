@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import './StudentProfile.css'
 
 function StudentProfile() {
   const { user, profile } = useAuth()
-  const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     firstName: profile?.first_name || '',
@@ -97,12 +96,48 @@ function StudentProfile() {
     })
   }
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault()
-    // In a real app, this would update the user profile via API
-    alert('Profile updated successfully!')
-    setOriginalData(formData)
-    setHasChanges(false)
+    
+    if (!user) {
+      alert('You must be logged in to update your profile')
+      return
+    }
+
+    try {
+      // Prepare expertise array (handle "other" option)
+      let expertise = [...formData.expertise]
+      if (expertise.includes('other') && formData.otherExpertise.trim()) {
+        expertise = expertise.filter(item => item !== 'other')
+        expertise.push(formData.otherExpertise.trim())
+      }
+
+      // Update profile in database
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          bio: formData.bio,
+          expertise: expertise,
+          neurodiversity_profile: formData.neurodiversityProfile
+        })
+        .eq('id', user.id)
+
+      if (error) {
+        console.error('Error updating profile:', error)
+        alert('Failed to update profile. Please try again.')
+        return
+      }
+
+      alert('Profile updated successfully!')
+      setOriginalData(formData)
+      setHasChanges(false)
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      alert('An error occurred. Please try again.')
+    }
   }
 
   const handleCancel = () => {
