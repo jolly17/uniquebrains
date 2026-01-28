@@ -207,13 +207,11 @@ function MyCourses() {
         {enrolledCourses.length > 0 ? (
           <div className="student-courses-list">
             {enrolledCourses.map(course => {
-              // Mock progress - in real app this would come from user's progress data
-              const progress = 35 // Mock 35% completion
-
               return (
                 <div key={course.id} className="student-course-card">
                   <div className="course-details">
                     <h3>{course.title}</h3>
+                    <p className="course-description">{course.description}</p>
                     <div className="course-meta">
                       <span className="instructor-name">👨‍🏫 {course.instructorName}</span>
                       {!course.is_self_paced && course.session_duration && (
@@ -224,13 +222,6 @@ function MyCourses() {
                       {course.is_self_paced && (
                         <span className="session-info">⏰ Self-paced</span>
                       )}
-                    </div>
-                    
-                    <div className="progress-section">
-                      <div className="progress-bar">
-                        <div className="progress-fill" style={{ width: `${progress}%` }}></div>
-                      </div>
-                      <span className="progress-text">{Math.round(progress)}% Complete</span>
                     </div>
                   </div>
                   
