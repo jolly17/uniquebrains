@@ -4,6 +4,9 @@
 -- Drop existing enrollment count policies that might be too restrictive
 DROP POLICY IF EXISTS "Anyone can view enrollment counts" ON enrollments;
 DROP POLICY IF EXISTS "Public can view active enrollments" ON enrollments;
+DROP POLICY IF EXISTS "Anyone can view enrollment counts for published courses" ON enrollments;
+DROP POLICY IF EXISTS "Students can view their own enrollments" ON enrollments;
+DROP POLICY IF EXISTS "Instructors can view enrollments for their courses" ON enrollments;
 
 -- Create a policy that allows anyone to view enrollment counts (but not personal details)
 -- This is safe because we're only exposing counts, not student information
