@@ -51,6 +51,7 @@ function StudentProfile() {
   }, [formData, originalData])
 
   const neurodiversityOptions = [
+    { value: 'none', label: 'None / Neurotypical' },
     { value: 'autism', label: 'Autism Spectrum' },
     { value: 'adhd', label: 'ADHD' },
     { value: 'dyslexia', label: 'Dyslexia' },

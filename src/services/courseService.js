@@ -218,12 +218,41 @@ export async function getAllPublishedCourses() {
         : 'Unknown Instructor',
       currentEnrollment: course.enrollments?.[0]?.count || 0,
       totalSessions: course.sessions?.[0]?.count || 0,
-      averageRating: course.average_rating || 0,
-      totalRatings: course.total_ratings || 0,
       sessionFrequency: course.frequency || 'weekly' // Add default frequency
     }))
 
-    return transformedCourses
+    // Fetch ratings for all courses
+    const coursesWithRatings = await Promise.all(
+      transformedCourses.map(async (course) => {
+        try {
+          const { data: reviews } = await supabase
+            .from('reviews')
+            .select('rating')
+            .eq('course_id', course.id)
+            .eq('is_published', true)
+
+          const totalRatings = reviews?.length || 0
+          const averageRating = totalRatings > 0
+            ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / totalRatings) * 10) / 10
+            : 0
+
+          return {
+            ...course,
+            averageRating,
+            totalRatings
+          }
+        } catch (error) {
+          console.error(`Error fetching ratings for course ${course.id}:`, error)
+          return {
+            ...course,
+            averageRating: 0,
+            totalRatings: 0
+          }
+        }
+      })
+    )
+
+    return coursesWithRatings
   } catch (error) {
     console.error('Error in getAllPublishedCourses:', error)
     throw error
@@ -258,6 +287,18 @@ export async function getCourseById(courseId) {
       throw new Error(`Failed to fetch course: ${error.message}`)
     }
 
+    // Fetch ratings for this course
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('course_id', courseId)
+      .eq('is_published', true)
+
+    const totalRatings = reviews?.length || 0
+    const averageRating = totalRatings > 0
+      ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / totalRatings) * 10) / 10
+      : 0
+
     // Transform the data to match expected format
     const transformedCourse = {
       ...course,
@@ -268,8 +309,8 @@ export async function getCourseById(courseId) {
       instructorExpertise: course.profiles?.expertise || [],
       currentEnrollment: course.enrollments?.[0]?.count || 0,
       totalSessions: course.sessions?.length || 0,
-      averageRating: course.average_rating || 0,
-      totalRatings: course.total_ratings || 0,
+      averageRating,
+      totalRatings,
       sessionFrequency: course.frequency || 'weekly',
       selectedDays: course.selected_days || [],
       dayTimes: course.session_time ? [course.session_time] : [],

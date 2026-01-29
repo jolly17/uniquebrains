@@ -10,6 +10,7 @@ import * as homeworkService from './homeworkService'
 import * as resourceService from './resourceService'
 import * as messageService from './messageService'
 import * as enrollmentService from './enrollmentService'
+import * as ratingService from './ratingService'
 
 /**
  * Course Management API
@@ -129,6 +130,17 @@ export const enrollments = {
 }
 
 /**
+ * Rating Management API
+ * Functions for course ratings
+ */
+export const ratings = {
+  // Rating operations
+  submit: ratingService.submitRating,
+  getStudent: ratingService.getStudentRating,
+  getCourse: ratingService.getCourseRating
+}
+
+/**
  * Unified API object for easy importing
  * Usage: import { api } from './services/api'
  * Then: api.courses.create(courseData, user)
@@ -139,7 +151,8 @@ export const api = {
   homework,
   resources,
   messages,
-  enrollments
+  enrollments,
+  ratings
 }
 
 /**

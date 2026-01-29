@@ -1,12 +1,24 @@
 # UniqueBrains Platform - Project Board
 
-**Last Updated**: January 27, 2026
+**Last Updated**: January 28, 2026
 
 ---
 
 ## 🎯 BACKLOG
 
-### High Priority
+### High Priority (P0 - Pre-Launch)
+- [ ] **Email Notifications System** 🔥
+  - Set up Resend with custom domain email
+  - Configure DNS records (SPF, DKIM, DMARC)
+  - Create Supabase Edge Functions for email sending
+  - Database triggers for enrollment events
+  - Email templates:
+    - Student enrollment confirmation
+    - Instructor enrollment notification
+    - Unenrollment notifications
+    - Course updates/announcements
+  - Assigned: Next session (Jan 29)
+
 - [ ] **Security Hardening**
   - Enable CAPTCHA for sign-ups
   - Configure rate limiting
@@ -19,6 +31,7 @@
   - Configure error tracking
   - Set up alerts for critical issues
   - Monitor API usage and quotas
+  - Check Supabase free tier limits
   - Assigned: Pre-launch
 
 ### Medium Priority
@@ -45,12 +58,6 @@
   - Assigned: TBD
 
 ### Low Priority
-- [ ] **Notification System Enhancement**
-  - Toast notifications for new messages
-  - Email notifications
-  - Push notifications
-  - Assigned: TBD
-
 - [ ] **Accessibility Improvements**
   - Keyboard navigation
   - Screen reader support
@@ -66,6 +73,94 @@
 ---
 
 ## ✅ DONE
+
+### January 28, 2026 - Bug Fixes & Production Updates
+- [x] **Email Verification Check - COMPLETE** ✅
+  - Verified Supabase Auth email settings
+  - Tested confirmation email delivery
+  - Email verification working correctly
+
+- [x] **Enrollment Count Fix - COMPLETE**
+  - Fixed enrollment counts to exclude dropped students
+  - Updated courseService.js to filter out dropped enrollments in all queries
+  - Fixed course deletion check to exclude dropped enrollments
+  - Students properly removed from course after unenrollment
+  - Instructors can now delete courses after removing all students
+  - Deployed to production
+
+- [x] **UX Improvements - COMPLETE**
+  - Removed "Edit Profile" button from profile page
+  - Profile fields always editable
+  - Save/Cancel buttons appear automatically on form changes
+  - Replaced "Change Password" with "Delete Account" button
+  - Improved profile page user experience
+
+- [x] **Default Role Fix - COMPLETE**
+  - Changed default role from 'parent' to 'student' after signup
+  - Updated AuthCallback.jsx (3 places)
+  - Updated auth.js with correct valid roles
+  - New users now default to student role
+
+- [x] **Instructor Profile Fields - COMPLETE**
+  - Removed profile completion banner from InstructorDashboard
+  - Added instructor fields to StudentProfile page:
+    - Bio (About You) - consolidated from multiple fields
+    - Teaching Specializations (expertise checkboxes)
+  - Implemented actual database save functionality
+  - Profile information now saves to profiles table
+
+- [x] **Timezone Support - COMPLETE**
+  - Added timezone selector to course creation form
+  - Major timezones: US, Europe, Asia, Australia
+  - Auto-detects instructor's timezone as default
+  - Created timezoneUtils.js with conversion functions
+  - CourseDetail page displays times in student's local timezone
+  - Shows "(converted to your timezone)" note when applicable
+  - Added timezone column to courses table (migration 061)
+  - Updated courseService.js to store timezone
+
+- [x] **Instructor Expertise Display - COMPLETE**
+  - Course detail page shows "🎯 Specializes in: [expertise areas]"
+  - Updated courseService.js to fetch expertise from profiles
+  - Displays below instructor name on course pages
+
+- [x] **Marketplace Category Filters - COMPLETE**
+  - Updated filters to match course creation categories
+  - Categories: Performing Arts, Visual Arts, Parenting, Academics, Language, Spirituality, Life Skills
+  - Added icons to each category
+
+- [x] **Student Dashboard Updates - COMPLETE**
+  - Removed Course Progress bar from My Courses list
+  - Added course description display (similar to instructor dashboard)
+  - Progress bar remains in Sessions tab as requested
+
+- [x] **Enrollment Popup Navigation - COMPLETE**
+  - Removed 3-second auto-redirect
+  - "View My Courses" button → /learn/my-courses
+  - "Continue Browsing" button → /learn/marketplace
+  - Fixed both buttons leading to correct destinations
+
+- [x] **Unenroll/Remove Student Functionality - COMPLETE**
+  - Fixed unenroll button for students
+  - Fixed remove student button for instructors
+  - Removed non-existent withdrawn_at column
+  - Changed status from 'withdrawn' to 'dropped' (valid status)
+  - Added .neq('status', 'dropped') filter to all enrollment queries
+  - Updated course deletion check to exclude dropped enrollments
+  - Works from both student and instructor sides
+
+- [x] **Portal Switching - COMPLETE**
+  - Enabled portal switching for all users
+  - Simplified detectAvailablePortals to always return both portals
+  - Updated PortalSwitcher to always show switcher
+  - All users can switch between learning and teaching portals
+
+- [x] **Meeting Link Fixes - COMPLETE**
+  - Fixed meeting link not saving to courses table
+  - Added meeting_link to dbCourseData in createCourse
+  - Meeting link now appears in Manage Course page
+  - Allowed meeting link for 1:1 courses at creation time
+  - Field is optional for both group and 1:1 courses
 
 ### January 27, 2026 - MAJOR SIMPLIFICATION
 - [x] **Simplified to 1-Account-1-Student Model - COMPLETE**
@@ -317,18 +412,18 @@
 
 ### Overall Progress
 - **Total Features**: 100+
-- **Completed**: ~70 (70%)
+- **Completed**: ~85 (85%)
 - **In Progress**: 0
-- **Backlog**: ~30
+- **Backlog**: ~15
 
 ### By Category
 | Category | Complete | In Progress | Backlog | Total |
 |----------|----------|-------------|---------|-------|
-| Backend Infrastructure | 10 | 0 | 7 | 17 |
+| Backend Infrastructure | 12 | 0 | 5 | 17 |
 | Instructor Features | 22 | 0 | 0 | 22 |
 | Student Features | 16 | 0 | 0 | 16 |
 | Chat & Messaging | 5 | 0 | 0 | 5 |
-| Marketplace | 4 | 0 | 2 | 6 |
+| Marketplace | 5 | 0 | 1 | 6 |
 | Security & Testing | 0 | 0 | 8 | 8 |
 | Future Features | 0 | 0 | 40 | 40 |
 
@@ -337,37 +432,38 @@
 - **Week of Jan 22-23**: 8 features completed
 - **Week of Jan 26**: 8 features completed (Dual Role Support)
 - **Week of Jan 27**: 18 features completed (Simplification + Chat + Bug Fixes)
+- **Week of Jan 28**: 13 features completed (UX improvements + Bug fixes)
 - **Average**: ~12 features/week
 
 ---
 
 ## 🎯 NEXT SPRINT PRIORITIES
 
-### Sprint Goal: Pre-Launch Preparation
+### Sprint Goal: Email Notifications & Pre-Launch Preparation
 
-1. **Security Hardening** (Pre-Launch Blocker)
+1. **Email Notifications System** (P0 - NEXT UP)
+   - Set up Resend with custom domain
+   - Configure DNS records
+   - Create Supabase Edge Functions
+   - Implement enrollment notifications
+   - Test email delivery
+
+2. **Email Verification Check** (P0)
+   - Verify Supabase Auth settings
+   - Test confirmation emails
+   - Fix if needed
+
+3. **Security & Monitoring** (P0)
    - Enable CAPTCHA
    - Configure rate limiting
-   - Input validation
-   - Audit logging
+   - Set up monitoring
+   - Check Supabase limits
 
-2. **Monitoring Setup** (Pre-Launch Blocker)
-   - Supabase monitoring
-   - Error tracking
-   - Alerts
-   - Usage analytics
-
-3. **Testing & QA**
-   - End-to-end testing of all flows
+4. **Final Testing** (P0)
+   - End-to-end testing
    - Cross-browser testing
-   - Mobile responsiveness testing
+   - Mobile testing
    - Performance testing
-
-4. **Documentation**
-   - User guide
-   - Instructor onboarding
-   - Student onboarding
-   - FAQ
 
 ---
 
@@ -387,9 +483,34 @@
 
 ## 📝 NOTES
 
+### Launch Readiness Assessment (Jan 28, 2026)
+
+**✅ Ready for Soft Launch:**
+- User signup/login (email + Google OAuth)
+- ✅ Email verification working
+- Course creation (group and 1:1)
+- Course enrollment/unenrollment
+- Student/instructor portal switching
+- Profile management with instructor fields
+- Timezone support for courses
+- Course marketplace with filters
+- Real-time chat with presence tracking
+- Session management
+- Course deletion
+
+**⚠️ P0 Items Before Wide Launch:**
+1. **Email Notifications** - Users won't get enrollment confirmations (manual communication needed)
+2. **Security Hardening** - CAPTCHA, rate limiting
+3. **Monitoring** - Error tracking, alerts, usage monitoring
+
+**Recommendation:**
+- **Soft Launch Now**: Share with 1-2 small WhatsApp groups (10-20 people)
+- **Wide Launch Tomorrow**: After email notifications are set up
+
 ### Technical Debt
 - ✅ Simplified data model (removed parent-child complexity)
 - ✅ Cleaned up RLS policies
+- ✅ Fixed enrollment counting to exclude dropped students
 - Need to add comprehensive error handling across all API calls
 - Need to add loading states to all async operations
 - Need to optimize database queries (add indexes where needed)
@@ -400,6 +521,8 @@
 - Component documentation
 - Database schema documentation
 - Deployment guide updates
+- User guide for instructors
+- User guide for students
 
 ### Design Decisions
 - ✅ **Simplified to 1-account-1-student model** for v1.0 launch
@@ -408,13 +531,20 @@
   - Can add parent-child support as P1 based on user feedback
 - Decided to auto-publish courses instead of requiring manual publishing
 - Decided to use path-based portals (/teach and /learn) for dual-role support
+- Using 'dropped' status for unenrolled students (not 'withdrawn')
+- All enrollment queries exclude dropped students
+- Portal switcher always available for all users
 
-### Major Achievements Today (Jan 27)
+### Major Achievements This Week (Jan 27-28)
 - 🎉 **Completed major simplification** - removed complex parent-child system
 - 🎉 **Chat feature working** - real-time messaging with presence tracking
-- 🎉 **All critical bugs fixed** - navigation, roles, sessions
-- 🎉 **Codebase is clean and maintainable** - ready for launch
-- 🎉 **18 features completed in one day** - highest velocity yet!
+- 🎉 **All critical bugs fixed** - navigation, roles, sessions, enrollment
+- 🎉 **UX improvements** - profile page, enrollment popup, portal switching
+- 🎉 **Timezone support** - courses display in student's local timezone
+- 🎉 **Instructor profiles** - expertise display on course pages
+- 🎉 **Enrollment system robust** - proper unenroll, course deletion works
+- 🎉 **31 features completed in 2 days** - highest velocity yet!
+- 🎉 **Platform is 85% complete** - ready for soft launch!
 
 ---
 
@@ -427,390 +557,12 @@
 
 ---
 
-**Last Review**: January 27, 2026
-**Next Review**: Next session
-**Status**: Active Development - 70% Complete - Ready for Pre-Launch Testing
-
-
-
----
-
-## 🎯 BACKLOG
-
-### High Priority
-- [ ] **Security Hardening**
-  - Enable CAPTCHA for sign-ups
-  - Configure rate limiting
-  - Input validation and sanitization
-  - Audit logging
-  - Assigned: Pre-launch
-
-- [ ] **Monitoring & Observability**
-  - Set up Supabase monitoring
-  - Configure error tracking
-  - Set up alerts for critical issues
-  - Monitor API usage and quotas
-  - Assigned: Pre-launch
-
-### Medium Priority
-- [ ] **Search & Filtering**
-  - Full-text search across courses
-  - Category filtering
-  - Price range filtering
-  - Rating filtering
-  - Pagination
-  - Assigned: TBD
-
-- [ ] **Testing Suite**
-  - Write unit tests
-  - Write integration tests
-  - End-to-end testing
-  - Load testing
-  - Assigned: TBD
-
-- [ ] **Performance Optimization**
-  - Optimize database queries
-  - Add caching
-  - Optimize media delivery
-  - Lazy loading for frontend
-  - Assigned: TBD
-
-### Low Priority
-- [ ] **localStorage Persistence for Active Student**
-  - Remember selected student across sessions
-  - Improve parent UX
-  - Assigned: TBD
-
-- [ ] **Dynamic Enrollment Count in ManageStudents**
-  - Fetch actual enrollment count per student
-  - Currently shows 0
-  - Assigned: TBD
-
-- [ ] **Notification System Enhancement**
-  - Toast notifications for new messages
-  - Email notifications
-  - Push notifications
-  - Assigned: TBD
-
-- [ ] **Accessibility Improvements**
-  - Keyboard navigation
-  - Screen reader support
-  - WCAG compliance
-  - Assigned: TBD
-
----
-
-## 🚧 IN PROGRESS
-
-- [ ] **Student Management System (NEXT UP)**
-  - Status: Queued for next session
-  - Features needed:
-    - View enrolled students under manage courses
-    - View student profiles and neurodiversity needs
-    - Ability to unenroll a student from the course
-  - Priority: High
-
-- [ ] **UI fixes before launch**
-  - Add Contact Us button
-  - Change category of courses
-  - Put "Coming Soon" for homework, feedback, resources and chat tabs
-
----
-
-## ✅ DONE
-
-### January 27, 2026
-- [x] **Session Management & Display - COMPLETE**
-  - Moved stats cards to ManageCourse page (visible across all tabs)
-  - Fixed stats counters: Enrolled Students, Spots Remaining, Upcoming Sessions
-  - Updated Instructor Dashboard "Sessions Completed" to count actual completed sessions
-  - Added sessions display in Student portal (read-only)
-  - Added course progress bar showing completion % based on sessions passed
-  - Students can see all sessions with date, time, duration, and meeting links
-  - Sessions marked as Completed or Upcoming based on current date/time
-  - Auto-create 5 session placeholders for new group courses
-  - Fixed sessions visibility for child profiles
-  - Meeting links now show for all sessions (fallback to course meeting link)
-  - Enhanced session editing: date, time, duration, topic
-  - Added delete session functionality
-  - Removed meeting link editing from individual sessions (managed at course level)
-
-- [x] **Meeting Link Management - COMPLETE**
-  - Added meeting_link column to courses table (migration 051)
-  - Updated backfill migration to use course meeting links (migration 050)
-  - Added optional meeting link field in course creation form
-  - Fixed meeting link update API call with instructor ID
-  - Meeting link now managed centrally at course level
-  - All sessions inherit course's meeting link
-
-- [x] **Bug Fixes & API Improvements**
-  - Fixed course deletion (missing instructor ID parameter)
-  - Fixed unenroll functionality (use withdraw API instead of delete)
-  - Fixed enrollment status for child profiles (check both student_id and student_profile_id)
-  - Fixed sessions not appearing for students (updated checkCourseAccess)
-  - Audited all API calls for correct parameter passing
-
-### January 26, 2026
-- [x] **Dual Role Support - COMPLETE**
-  - Path-based routing (/teach and /learn portals)
-  - Portal detection based on user activities
-  - Portal switcher component in footer
-  - AuthContext enhanced with portal management
-  - Updated all dashboards with portal-aware navigation
-  - Marketplace supports both portals with different CTAs
-  - Login simplified (no role selection)
-  - Registration supports role pre-selection from landing page
-  - Landing page updated with "Start Teaching" CTA
-  - Renamed "Student Management" to "Child Management"
-  - Documentation updated (README, PROJECT_BOARD)
-  - All phases complete and tested
-
-### January 23, 2026
-- [x] **Student Dashboard Redesign**
-  - Dashboard-style layout with stat cards
-  - Stats: Enrolled Courses, Instructors, Sessions Completed
-  - Two action buttons: "View Details" and "Continue Learning"
-  - Neurodiversity badge display
-  - Responsive design
-
-- [x] **Instructor Session Management - Initial Implementation**
-  - Replaced mock data with real API calls
-  - Fetch real course details, sessions, and enrolled students
-  - Create and update sessions via API
-  - Generate recurring sessions
-  - Note: Has bugs, moved to backlog
-
-### January 22, 2026
-- [x] **Privacy Policy & Terms of Service**
-  - Created comprehensive legal pages
-  - Added footer links
-  - Google OAuth verification ready
-
-- [x] **Backend Services Update**
-  - Updated all services for dual enrollment support
-  - homeworkService.js, resourceService.js, messageService.js, sessionService.js
-  - Support both student_id and student_profile_id
-
-- [x] **Database Migration 048**
-  - Added student_profile_id to submissions table
-  - Updated RLS policies
-
-- [x] **Smart Donation Button**
-  - Geolocation-based routing
-  - India → Milaap, Others → GoFundMe
-
-### January 21, 2026
-- [x] **Parent Multi-Student Feature - COMPLETE**
-  - Parent registration with role selection
-  - Student profile management (CRUD)
-  - Profile switcher in navigation
-  - Active student context
-  - Enrollment flow with student selection
-  - "My Courses" filtered by active student
-
-- [x] **Marketplace & Course Display Fixes**
-  - Removed dev mode check
-  - Fixed instructor names display
-  - Fixed course detail page errors
-  - Added safe defaults
-
-- [x] **Course Auto-Publishing**
-  - Migration 040: Default is_published = true
-  - Courses auto-publish on creation
-
-- [x] **Database Cleanup**
-  - Migration 041: Removed unused columns
-  - Updated course_stats view
-
-- [x] **Enrollment System - Dual Support**
-  - Migration 044: Added student_profile_id to enrollments
-  - Migration 047: Made student_id nullable
-  - RLS policies updated
-  - Support both direct and parent-managed enrollments
-
-### Earlier
-- [x] **Core Platform**
-  - User authentication (email + OAuth)
-  - Profile management with neurodiversity profiles
-  - Course creation and publishing
-  - Course marketplace
-  - File storage (profiles, courses, resources)
-  - Real-time messaging
-
-- [x] **Instructor Features**
-  - Course management dashboard
-  - Session scheduling (recurring and single)
-  - Homework creation and grading
-  - Resource management
-  - Student roster with profiles
-  - Chat with students
-  - Submission review and feedback
-
-- [x] **Student Features**
-  - Browse and enroll in courses
-  - View course materials
-  - Submit homework
-  - Access resources
-  - Chat with instructor and classmates
-  - Track homework completion
-  - View feedback
-
-- [x] **Technical Infrastructure**
-  - Supabase backend (database, auth, storage, realtime)
-  - Row Level Security (RLS) policies
-  - GitHub Pages deployment
-  - Responsive design
-
----
-
-## 🔮 FUTURE FEATURES (Post-Launch)
-
-### Payment Integration
-- [ ] Stripe integration
-- [ ] Multiple payment methods
-- [ ] Instructor payouts
-- [ ] Platform fees
-- [ ] Subscription tiers
-
-### Advanced Course Features
-- [ ] Course modules and lessons
-- [ ] Self-paced courses
-- [ ] Assessments and grading
-- [ ] Completion certificates
-- [ ] Progress analytics
-
-### Video Conferencing
-- [ ] Integrated video calls (WebRTC)
-- [ ] In-app video interface
-- [ ] Recording capabilities
-- [ ] Attendance tracking
-
-### Enterprise Features
-- [ ] Multi-tenancy
-- [ ] Custom branding per tenant
-- [ ] Analytics dashboards
-- [ ] White-label solution
-
-### Community Features
-- [ ] **Course Ratings and Reviews**
-  - Course rating submission (1-5 stars)
-  - Review text with ratings
-  - Course average rating calculation
-  - Instructor rating aggregation
-  - Rating display in marketplace
-  - Review moderation
-- [ ] Student achievements
-- [ ] Learning history
-- [ ] Social features
-
-### Offline Support
-- [ ] Offline course access
-- [ ] Content download
-- [ ] Offline progress tracking
-- [ ] DRM protection
-
----
-
-## 📊 METRICS
-
-### Overall Progress
-- **Total Features**: 100+
-- **Completed**: ~58 (58%)
-- **In Progress**: 1
-- **Backlog**: ~41
-
-### By Category
-| Category | Complete | In Progress | Backlog | Total |
-|----------|----------|-------------|---------|-------|
-| Backend Infrastructure | 8 | 0 | 9 | 17 |
-| Instructor Features | 22 | 0 | 0 | 22 |
-| Student Features | 15 | 1 | 0 | 16 |
-| Parent Features | 5 | 0 | 2 | 7 |
-| Marketplace | 3 | 0 | 3 | 6 |
-| Security & Testing | 0 | 0 | 8 | 8 |
-| Future Features | 0 | 0 | 39 | 39 |
-
-### Sprint Velocity
-- **Week of Jan 15-21**: 15 features completed
-- **Week of Jan 22-23**: 8 features completed
-- **Week of Jan 26**: 8 features completed (Dual Role Support)
-- **Week of Jan 27**: 10 features completed (Session Management & Bug Fixes)
-- **Average**: ~10 features/week
-
----
-
-## 🎯 NEXT SPRINT PRIORITIES
-
-### Sprint Goal: Student Management & UI Polish
-
-1. **Student Management System** (High Priority - NEXT UP)
-   - View all students across all courses
-   - Filter students by course
-   - View student profiles and neurodiversity needs
-   - Track student progress and attendance
-   - Communication tools
-
-2. **UI Enhancements** (Quick Wins)
-   - Add Contact Us button
-   - Update course categories
-   - Add "Coming Soon" placeholders for Homework, Feedback, and Chat tabs
-
-3. **Security Hardening** (Pre-Launch Blocker)
-   - Enable CAPTCHA
-   - Configure rate limiting
-   - Input validation
-
-4. **Monitoring Setup** (Pre-Launch Blocker)
-   - Supabase monitoring
-   - Error tracking
-   - Alerts
-
----
-
-## 🐛 KNOWN ISSUES
-
-### Critical
-- None currently
-
-### Medium
-- None currently
-
-### Low
-- ℹ️ **OAuth Branding**: Shows Supabase URL instead of UniqueBrains
-- ℹ️ **Email Templates**: Supabase branding in confirmation emails
-
----
-
-## 📝 NOTES
-
-### Technical Debt
-- Need to add comprehensive error handling across all API calls
-- Need to add loading states to all async operations
-- Need to optimize database queries (add indexes where needed)
-- Need to implement proper caching strategy
-
-### Documentation Needed
-- API documentation
-- Component documentation
-- Database schema documentation
-- Deployment guide updates
-
-### Design Decisions
-- Decided to support both direct student enrollments and parent-managed enrollments
-- Decided to auto-publish courses instead of requiring manual publishing
-- Decided to use profile switcher instead of separate logins for students
-
----
-
-## 🔗 QUICK LINKS
-
-- **Live Site**: https://uniquebrains.org
-- **GitHub Repo**: https://github.com/jolly17/uniquebrains
-- **Supabase Dashboard**: https://supabase.com/dashboard/project/wxfxvuvlpjxnyxhpquyw
-- **Google Cloud Console**: https://console.cloud.google.com/
-
----
-
-**Last Review**: January 26, 2026
-**Next Review**: Next session
-**Status**: Active Development - 48% Complete
+**Last Review**: January 28, 2026
+**Next Review**: Next session (Email Notifications Setup)
+**Status**: Active Development - 85% Complete - Ready for Soft Launch 🚀
+
+**Launch Status**: 
+- ✅ Core features complete
+- ⚠️ Email notifications pending (P0)
+- ⚠️ Security hardening pending (P0)
+- 📊 Recommended: Soft launch with 1-2 small groups, wide launch after email setup
