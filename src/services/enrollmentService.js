@@ -6,6 +6,28 @@ import { supabase } from '../lib/supabase'
  */
 
 /**
+ * Send enrollment email notification via Edge Function
+ * @param {Object} emailData - Email notification data
+ */
+async function sendEnrollmentEmail(emailData) {
+  try {
+    const { data, error } = await supabase.functions.invoke('send-enrollment-email', {
+      body: emailData
+    })
+
+    if (error) {
+      console.error('Error sending enrollment email:', error)
+      // Don't throw - we don't want email failures to block enrollment
+    } else {
+      console.log('Enrollment email sent successfully:', data)
+    }
+  } catch (error) {
+    console.error('Failed to send enrollment email:', error)
+    // Don't throw - email is not critical for enrollment
+  }
+}
+
+/**
  * Enroll a student in a course
  * @param {string} courseId - Course ID
  * @param {string} studentId - Student user ID
@@ -96,6 +118,48 @@ export async function enrollStudent(courseId, studentId) {
     if (enrollmentError) {
       console.error('Error creating enrollment:', enrollmentError)
       throw new Error(`Failed to enroll in course: ${enrollmentError.message}`)
+    }
+
+    // Send enrollment emails (student confirmation + instructor notification)
+    try {
+      // Get student and instructor details for emails
+      const { data: studentProfile } = await supabase
+        .from('profiles')
+        .select('email, first_name, last_name')
+        .eq('id', studentId)
+        .single()
+
+      const { data: instructorProfile } = await supabase
+        .from('profiles')
+        .select('email, first_name, last_name')
+        .eq('id', course.instructor_id)
+        .single()
+
+      if (studentProfile) {
+        // Send student enrollment confirmation
+        await sendEnrollmentEmail({
+          type: 'student_enrolled',
+          studentEmail: studentProfile.email,
+          studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+          courseTitle: course.title,
+          courseId: course.id
+        })
+      }
+
+      if (instructorProfile) {
+        // Send instructor notification
+        await sendEnrollmentEmail({
+          type: 'instructor_notification',
+          instructorEmail: instructorProfile.email,
+          instructorName: `${instructorProfile.first_name} ${instructorProfile.last_name}`,
+          studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+          courseTitle: course.title,
+          courseId: course.id
+        })
+      }
+    } catch (emailError) {
+      console.error('Error sending enrollment emails:', emailError)
+      // Don't fail enrollment if emails fail
     }
 
     return enrollment
@@ -316,6 +380,33 @@ export async function withdrawStudent(courseId, studentId) {
     if (updateError) {
       console.error('Error withdrawing from course:', updateError)
       throw new Error(`Failed to withdraw from course: ${updateError.message}`)
+    }
+
+    // Send unenrollment email
+    try {
+      const { data: studentProfile } = await supabase
+        .from('profiles')
+        .select('email, first_name, last_name')
+        .eq('id', studentId)
+        .single()
+
+      const { data: course } = await supabase
+        .from('courses')
+        .select('title')
+        .eq('id', courseId)
+        .single()
+
+      if (studentProfile && course) {
+        await sendEnrollmentEmail({
+          type: 'student_unenrolled',
+          studentEmail: studentProfile.email,
+          studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+          courseTitle: course.title
+        })
+      }
+    } catch (emailError) {
+      console.error('Error sending unenrollment email:', emailError)
+      // Don't fail unenrollment if email fails
     }
 
     return true
