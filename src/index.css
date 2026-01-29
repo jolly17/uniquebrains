@@ -40,3 +40,67 @@ a {
   text-decoration: none;
   color: inherit;
 }
+
+/* Mobile Optimization */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.35rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  /* Optimize button sizes for mobile */
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    padding: 0.625rem 1rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  .btn-full {
+    padding: 0.75rem 1rem !important;
+  }
+
+  /* Reduce input/textarea sizes */
+  input,
+  textarea,
+  select {
+    font-size: 14px !important;
+    padding: 0.625rem !important;
+  }
+
+  /* Optimize card padding */
+  .course-card,
+  .student-course-card,
+  .stat-card {
+    padding: 1rem !important;
+  }
+
+  /* Reduce spacing */
+  .dashboard-header {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .stats-grid {
+    gap: 1rem !important;
+  }
+
+  /* Optimize stat cards */
+  .stat-value {
+    font-size: 2rem !important;
+  }
+
+  .stat-label {
+    font-size: 0.75rem !important;
+  }
+}
