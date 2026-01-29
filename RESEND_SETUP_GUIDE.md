@@ -92,7 +92,7 @@ Once DNS is verified and Supabase is configured, we'll test with:
 
 ## Email Addresses We'll Use:
 
-- **From Address**: `notifications@uniquebrains.org`
+- **From Address**: `hello@uniquebrains.org`
 - **Reply-To**: `hello@uniquebrains.org`
 - **Support**: `hello@uniquebrains.org`
 

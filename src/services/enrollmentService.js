@@ -11,18 +11,28 @@ import { supabase } from '../lib/supabase'
  */
 async function sendEnrollmentEmail(emailData) {
   try {
+    console.log('=== Sending Enrollment Email ===')
+    console.log('Email data:', emailData)
+    
     const { data, error } = await supabase.functions.invoke('send-enrollment-email', {
       body: emailData
     })
 
     if (error) {
-      console.error('Error sending enrollment email:', error)
+      console.error('=== Email Error ===')
+      console.error('Error object:', error)
+      console.error('Error message:', error.message)
+      console.error('Error details:', JSON.stringify(error, null, 2))
       // Don't throw - we don't want email failures to block enrollment
     } else {
-      console.log('Enrollment email sent successfully:', data)
+      console.log('=== Email Success ===')
+      console.log('Response data:', data)
     }
   } catch (error) {
-    console.error('Failed to send enrollment email:', error)
+    console.error('=== Email Exception ===')
+    console.error('Exception:', error)
+    console.error('Exception message:', error.message)
+    console.error('Exception stack:', error.stack)
     // Don't throw - email is not critical for enrollment
   }
 }
@@ -76,6 +86,67 @@ export async function enrollStudent(courseId, studentId) {
         throw new Error('You are already enrolled in this course')
       } else if (existingEnrollment.status === 'completed') {
         throw new Error('You have already completed this course')
+      } else if (existingEnrollment.status === 'dropped') {
+        // Re-activate the dropped enrollment instead of creating a new one
+        const { data: reactivatedEnrollment, error: reactivateError } = await supabase
+          .from('enrollments')
+          .update({
+            status: 'active',
+            progress: 0,
+            enrolled_at: new Date().toISOString()
+          })
+          .eq('id', existingEnrollment.id)
+          .select(`
+            *,
+            courses!inner(id, title, instructor_id, course_type),
+            profiles!student_id(id, full_name, avatar_url)
+          `)
+          .single()
+
+        if (reactivateError) {
+          console.error('Error reactivating enrollment:', reactivateError)
+          throw new Error(`Failed to re-enroll in course: ${reactivateError.message}`)
+        }
+
+        // Send enrollment emails for re-enrollment
+        try {
+          const { data: studentProfile } = await supabase
+            .from('profiles')
+            .select('email, first_name, last_name')
+            .eq('id', studentId)
+            .single()
+
+          const { data: instructorProfile } = await supabase
+            .from('profiles')
+            .select('email, first_name, last_name')
+            .eq('id', course.instructor_id)
+            .single()
+
+          if (studentProfile) {
+            await sendEnrollmentEmail({
+              type: 'student_enrolled',
+              studentEmail: studentProfile.email,
+              studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+              courseTitle: course.title,
+              courseId: course.id
+            })
+          }
+
+          if (instructorProfile) {
+            await sendEnrollmentEmail({
+              type: 'instructor_notification',
+              instructorEmail: instructorProfile.email,
+              instructorName: `${instructorProfile.first_name} ${instructorProfile.last_name}`,
+              studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+              courseTitle: course.title,
+              courseId: course.id
+            })
+          }
+        } catch (emailError) {
+          console.error('Error sending re-enrollment emails:', emailError)
+        }
+
+        return reactivatedEnrollment
       }
     }
 
