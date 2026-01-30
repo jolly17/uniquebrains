@@ -206,6 +206,8 @@ export async function enrollStudent(courseId, studentId) {
         .eq('id', course.instructor_id)
         .single()
 
+      console.log('Instructor profile:', instructorProfile)
+
       if (studentProfile) {
         // Send student enrollment confirmation
         await sendEnrollmentEmail({
@@ -215,10 +217,13 @@ export async function enrollStudent(courseId, studentId) {
           courseTitle: course.title,
           courseId: course.id
         })
+      } else {
+        console.log('Student profile not found, skipping student email')
       }
 
       if (instructorProfile) {
         // Send instructor notification
+        console.log('Sending instructor notification email to:', instructorProfile.email)
         await sendEnrollmentEmail({
           type: 'instructor_notification',
           instructorEmail: instructorProfile.email,
@@ -227,6 +232,8 @@ export async function enrollStudent(courseId, studentId) {
           courseTitle: course.title,
           courseId: course.id
         })
+      } else {
+        console.log('Instructor profile not found, skipping instructor email')
       }
     } catch (emailError) {
       console.error('Error sending enrollment emails:', emailError)
@@ -455,11 +462,15 @@ export async function withdrawStudent(courseId, studentId) {
 
     // Send unenrollment email
     try {
+      console.log('=== Fetching student and course data for unenrollment email ===')
+      
       const { data: studentProfile } = await supabase
         .from('profiles')
         .select('email, first_name, last_name')
         .eq('id', studentId)
         .single()
+
+      console.log('Student profile:', studentProfile)
 
       const { data: course } = await supabase
         .from('courses')
@@ -467,13 +478,19 @@ export async function withdrawStudent(courseId, studentId) {
         .eq('id', courseId)
         .single()
 
+      console.log('Course data:', course)
+
       if (studentProfile && course) {
+        console.log('=== Sending unenrollment email ===')
         await sendEnrollmentEmail({
           type: 'student_unenrolled',
           studentEmail: studentProfile.email,
           studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
           courseTitle: course.title
         })
+        console.log('=== Unenrollment email sent successfully ===')
+      } else {
+        console.log('=== Missing student profile or course data, skipping email ===')
       }
     } catch (emailError) {
       console.error('Error sending unenrollment email:', emailError)
