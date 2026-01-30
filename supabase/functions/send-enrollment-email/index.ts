@@ -13,7 +13,7 @@ interface EnrollmentEmailData {
   instructorEmail?: string
   instructorName?: string
   courseTitle: string
-  courseId: string
+  courseId?: string  // Optional for unenrollment emails
 }
 
 serve(async (req) => {

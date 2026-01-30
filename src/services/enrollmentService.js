@@ -486,7 +486,8 @@ export async function withdrawStudent(courseId, studentId) {
           type: 'student_unenrolled',
           studentEmail: studentProfile.email,
           studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
-          courseTitle: course.title
+          courseTitle: course.title,
+          courseId: courseId
         })
         console.log('=== Unenrollment email sent successfully ===')
       } else {
