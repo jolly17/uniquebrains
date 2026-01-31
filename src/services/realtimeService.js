@@ -193,7 +193,7 @@ export function setupPresenceTracking(courseId, userId, userInfo = {}, callbacks
       }
     })
     .subscribe(async (status) => {
-      console.log(`Presence channel ${channelName} status:`, status)
+      console.log('Presence channel %s status:', channelName, status)
       
       // Track user presence when subscribed
       if (status === 'SUBSCRIBED') {
