@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import CourseCard from '../components/CourseCard'
-import { api, handleApiCall } from '../services/api'
+import { getAllPublishedCourses } from '../services/courseService'
+import { getUserFriendlyMessage } from '../lib/errorHandler'
+import { addBreadcrumb } from '../lib/sentry'
 import './Marketplace.css'
 
 function Marketplace() {
@@ -11,6 +13,7 @@ function Marketplace() {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [retryCount, setRetryCount] = useState(0)
 
   const categories = [
     { value: 'all', label: 'All', icon: '🌟' },
@@ -28,20 +31,36 @@ function Marketplace() {
     const fetchCourses = async () => {
       try {
         setLoading(true)
-        const coursesData = await handleApiCall(api.courses.getAll)
-        // Filter to only show published courses
-        const publishedCourses = coursesData.filter(course => course.status === 'published')
-        setCourses(publishedCourses)
+        setError('')
+        
+        // Add breadcrumb for user action
+        addBreadcrumb({
+          category: 'navigation',
+          message: 'Marketplace page loaded',
+          level: 'info',
+          data: {
+            userId: user?.id,
+            retryCount,
+          },
+        });
+
+        const coursesData = await getAllPublishedCourses()
+        setCourses(coursesData)
       } catch (err) {
         console.error('Error fetching courses:', err)
-        setError('Failed to load courses')
+        const friendlyMessage = getUserFriendlyMessage(err)
+        setError(friendlyMessage)
       } finally {
         setLoading(false)
       }
     }
 
     fetchCourses()
-  }, [])
+  }, [user, retryCount])
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1)
+  }
 
   const filteredCourses = courses.filter(course => {
     const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -86,8 +105,33 @@ function Marketplace() {
           <p>Loading courses...</p>
         </div>
       ) : error ? (
-        <div className="error-state" style={{ textAlign: 'center', padding: '3rem' }}>
-          <p>{error}</p>
+        <div className="error-state" style={{ 
+          textAlign: 'center', 
+          padding: '3rem',
+          background: '#fff',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          maxWidth: '500px',
+          margin: '2rem auto'
+        }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>😕</div>
+          <h2 style={{ marginBottom: '1rem', color: '#333' }}>Failed to load courses</h2>
+          <p style={{ color: '#666', marginBottom: '2rem' }}>{error}</p>
+          <button 
+            onClick={handleRetry}
+            style={{
+              padding: '12px 24px',
+              fontSize: '1rem',
+              background: '#667eea',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontWeight: '500',
+            }}
+          >
+            Try Again
+          </button>
         </div>
       ) : (
         <div className="courses-grid">

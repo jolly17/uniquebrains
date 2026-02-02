@@ -46,15 +46,29 @@ serve(async (req) => {
     const emailData: EnrollmentEmailData = await req.json()
     console.log('Email data received:', JSON.stringify(emailData, null, 2))
 
-    // Validate required fields
-    if (!emailData.type || !emailData.studentEmail || !emailData.courseTitle) {
+    // Validate required fields based on email type
+    const isInstructorNotification = emailData.type === 'instructor_notification'
+    const emailAddress = isInstructorNotification ? emailData.instructorEmail : emailData.studentEmail
+    
+    if (!emailData.type || !emailAddress || !emailData.courseTitle) {
       console.log('Missing required fields:', { 
-        type: !!emailData.type, 
-        studentEmail: !!emailData.studentEmail, 
+        type: !!emailData.type,
+        emailAddress: !!emailAddress,
+        studentEmail: !!emailData.studentEmail,
+        instructorEmail: !!emailData.instructorEmail,
         courseTitle: !!emailData.courseTitle 
       })
+      console.log('Full email data:', JSON.stringify(emailData, null, 2))
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ 
+          error: 'Missing required fields',
+          received: {
+            type: emailData.type,
+            hasStudentEmail: !!emailData.studentEmail,
+            hasInstructorEmail: !!emailData.instructorEmail,
+            hasCourseTitle: !!emailData.courseTitle
+          }
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

@@ -2,12 +2,16 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
+import PageErrorBoundary from '../components/PageErrorBoundary'
+import ErrorState from '../components/ErrorState'
 import { api, handleApiCall } from '../services/api'
 import { mockReviews } from '../data/mockData'
 import { convertToLocalTime, formatTimeWithTimezone, getUserTimezone, isSameTimezone } from '../utils/timezoneUtils'
+import { getUserFriendlyMessage } from '../lib/errorHandler'
+import { addBreadcrumb } from '../lib/sentry'
 import './CourseDetail.css'
 
-function CourseDetail() {
+function CourseDetailContent() {
   const { courseId } = useParams()
   const { user, profile, activeStudent } = useAuth()
   const navigate = useNavigate()
@@ -17,6 +21,7 @@ function CourseDetail() {
   const [error, setError] = useState('')
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [isInstructor, setIsInstructor] = useState(false)
+  const [retryCount, setRetryCount] = useState(0)
   
   // Debug: Log activeStudent whenever it changes
   useEffect(() => {
@@ -31,6 +36,15 @@ function CourseDetail() {
     const fetchCourse = async () => {
       try {
         setLoading(true)
+        setError('')
+        
+        addBreadcrumb({
+          category: 'navigation',
+          message: 'Course detail page loaded',
+          level: 'info',
+          data: { courseId, userId: user?.id },
+        });
+        
         const courseData = await handleApiCall(api.courses.getById, courseId)
         setCourse(courseData)
         
@@ -53,7 +67,8 @@ function CourseDetail() {
         }
       } catch (err) {
         console.error('Error fetching course:', err)
-        setError('Failed to load course')
+        const friendlyMessage = getUserFriendlyMessage(err)
+        setError(friendlyMessage)
       } finally {
         setLoading(false)
       }
@@ -62,7 +77,11 @@ function CourseDetail() {
     if (courseId) {
       fetchCourse()
     }
-  }, [courseId, user, activeStudent])
+  }, [courseId, user, activeStudent, retryCount])
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1)
+  }
 
   if (loading) {
     return <div className="course-detail"><div className="loading-state">Loading course...</div></div>
@@ -71,12 +90,10 @@ function CourseDetail() {
   if (error || !course) {
     return (
       <div className="course-detail">
-        <div className="error-state">
-          <p>{error || 'Course not found'}</p>
-          <button onClick={() => navigate('/marketplace')} className="btn-primary">
-            Back to Marketplace
-          </button>
-        </div>
+        <ErrorState 
+          message={error || 'Course not found'} 
+          onRetry={handleRetry}
+        />
       </div>
     )
   }
@@ -315,4 +332,10 @@ function CourseDetail() {
   )
 }
 
-export default CourseDetail
+export default function CourseDetail() {
+  return (
+    <PageErrorBoundary pageName="Course Detail">
+      <CourseDetailContent />
+    </PageErrorBoundary>
+  );
+}

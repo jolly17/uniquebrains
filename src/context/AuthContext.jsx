@@ -16,6 +16,7 @@ import {
   getCurrentUserProfile,
   onAuthStateChange
 } from '../lib/auth'
+import { setSentryUser } from '../lib/sentry'
 
 const AuthContext = createContext(null)
 
@@ -90,6 +91,13 @@ export function AuthProvider({ children }) {
           if (profile) {
             setProfile(profile)
             
+            // Set Sentry user context
+            setSentryUser({
+              id: user.id,
+              email: user.email,
+              role: profile.role,
+            })
+            
             // Detect available portals
             await detectAvailablePortals(user.id, profile)
             
@@ -113,6 +121,13 @@ export function AuthProvider({ children }) {
         getCurrentUserProfile().then(async ({ profile }) => {
           if (profile) {
             setProfile(profile)
+            
+            // Set Sentry user context
+            setSentryUser({
+              id: session.user.id,
+              email: session.user.email,
+              role: profile.role,
+            })
             
             // Detect available portals
             await detectAvailablePortals(session.user.id, profile)
@@ -375,6 +390,9 @@ export function AuthProvider({ children }) {
       console.error('Logout error:', error)
       return { error }
     }
+    
+    // Clear Sentry user context
+    setSentryUser(null)
     
     setUser(null)
     setSession(null)
