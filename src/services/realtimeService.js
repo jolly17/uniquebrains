@@ -29,19 +29,19 @@ export function setupCourseMessageChannel(courseId, callbacks = {}) {
     const existing = activeChannels.get(channelName)
     const channelState = existing.channel.state
     
-    console.log(`Channel ${channelName} exists with state: ${channelState}`)
+    console.log('Channel exists with state:', channelName, channelState)
     
     // If channel is closed or errored, remove it and create new one
     if (channelState === 'closed' || channelState === 'errored') {
-      console.log(`Removing closed/errored channel ${channelName}`)
+      console.log('Removing closed/errored channel', channelName)
       activeChannels.delete(channelName)
     } else {
-      console.log(`Returning existing active channel ${channelName}`)
+      console.log('Returning existing active channel', channelName)
       return existing
     }
   }
 
-  console.log(`Creating new channel: ${channelName}`)
+  console.log('Creating new channel:', channelName)
 
   // Create channel with broadcast - simplified config
   const channel = supabase
@@ -57,18 +57,18 @@ export function setupCourseMessageChannel(courseId, callbacks = {}) {
       }
     )
     .subscribe((status, err) => {
-      console.log(`Channel ${channelName} status:`, status)
+      console.log('Channel status:', channelName, status)
       if (err) {
-        console.error(`Channel ${channelName} error:`, err)
+        console.error('Channel error:', channelName, err)
       }
       if (status === 'SUBSCRIBED') {
-        console.log(`✅ Channel ${channelName} successfully subscribed!`)
+        console.log('✅ Channel successfully subscribed!', channelName)
       } else if (status === 'CLOSED') {
-        console.error(`❌ Channel ${channelName} closed unexpectedly`)
+        console.error('❌ Channel closed unexpectedly', channelName)
         // Remove from active channels
         activeChannels.delete(channelName)
       } else if (status === 'CHANNEL_ERROR') {
-        console.error(`❌ Channel ${channelName} error:`, err)
+        console.error('❌ Channel encountered error', channelName, err)
         activeChannels.delete(channelName)
       }
     })
@@ -79,7 +79,7 @@ export function setupCourseMessageChannel(courseId, callbacks = {}) {
     unsubscribe: async () => {
       await supabase.removeChannel(channel)
       activeChannels.delete(channelName)
-      console.log(`Channel ${channelName} unsubscribed`)
+      console.log('Channel unsubscribed:', channelName)
     }
   }
 
@@ -193,7 +193,7 @@ export function setupPresenceTracking(courseId, userId, userInfo = {}, callbacks
       }
     })
     .subscribe(async (status) => {
-      console.log(`Presence channel ${channelName} status:`, status)
+      console.log('Presence channel %s status:', channelName, status)
       
       // Track user presence when subscribed
       if (status === 'SUBSCRIBED') {
