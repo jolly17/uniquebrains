@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabase'
+import { handleSupabaseError } from '../lib/errorHandler'
+import * as Sentry from '@sentry/react'
 
 /**
  * Course Service - Backend API functions for course management
@@ -192,6 +194,13 @@ export async function getInstructorCourses(instructorId) {
  */
 export async function getAllPublishedCourses() {
   try {
+    // Add breadcrumb for debugging
+    Sentry.addBreadcrumb({
+      category: 'api',
+      message: 'Fetching published courses',
+      level: 'info',
+    });
+
     const { data: courses, error } = await supabase
       .from('courses')
       .select(`
@@ -206,8 +215,10 @@ export async function getAllPublishedCourses() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching published courses:', error)
-      throw new Error(`Failed to fetch courses: ${error.message}`)
+      throw handleSupabaseError(error, {
+        operation: 'getAllPublishedCourses',
+        table: 'courses',
+      });
     }
 
     // Transform the data to match expected format
