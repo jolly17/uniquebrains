@@ -47,8 +47,8 @@ function LandingPage() {
           </h1>
           <p className="hero-tagline">Where every brain learns differently</p>
           <p className="hero-description">
-            A free learning marketplace connecting neurodivergent children with specialized instructors 
-            who understand and celebrate their unique learning styles.
+            A free learning marketplace where anyone can teach and anyone can learn. 
+            Connect with passionate instructors who celebrate unique learning styles.
           </p>
           <div className="hero-actions">
             <Link to="/marketplace" className="btn-primary-large">
@@ -89,10 +89,10 @@ function LandingPage() {
 
           <div className="feature-card">
             <div className="feature-icon">👨‍🏫</div>
-            <h3>Specialized Instructors</h3>
+            <h3>Passionate Instructors</h3>
             <p>
-              Connect with educators trained in neurodiversity-affirming practices who understand 
-              ADHD, Autism, Dyslexia, and other learning differences.
+              Learn from caring educators, parents, and community members who love sharing their knowledge 
+              and understand different learning styles.
             </p>
           </div>
 
