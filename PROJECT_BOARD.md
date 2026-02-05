@@ -353,6 +353,31 @@
 
 ## 🔮 FUTURE FEATURES (Post-Launch)
 
+### Community Q&A Platform (P1)
+- [ ] **Neurodiversity Q&A Forum**
+  - Quora-style Q&A interface with topic tiles
+  - Curated topics: Book Recommendations, Special Foods, Schooling, Therapies, Activities, etc.
+  - Easy question posting and answering
+  - Rich media support: images, videos, external links
+  - Fun and quirky UI design
+  - Topic creation by users
+  - Upvoting/downvoting answers
+  - Best answer selection
+  - Search and filtering by topic
+  - User reputation system
+  - Moderation tools
+
+### Session Recording Library (P1)
+- [ ] **YouTube Recording Integration**
+  - Instructors can add YouTube links for session recordings
+  - Video thumbnails displayed on course pages
+  - Organized by session/date
+  - Accessible to enrolled students only
+  - Automatic thumbnail extraction from YouTube
+  - Video player embedded in course view
+  - Recording library tab in course dashboard
+  - Optional: Download links for offline viewing
+
 ### Parent-Child Profile System (P1)
 - [ ] **Multi-Student Support for Parents**
   - Parent accounts that can manage multiple children
