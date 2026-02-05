@@ -213,15 +213,15 @@ CREATE TRIGGER update_answers_updated_at
 CREATE OR REPLACE FUNCTION update_question_vote_count()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
+  IF TG_OP = 'INSERT' AND NEW.question_id IS NOT NULL THEN
     UPDATE questions
     SET vote_count = vote_count + CASE WHEN NEW.vote_type = 'up' THEN 1 ELSE -1 END
     WHERE id = NEW.question_id;
-  ELSIF TG_OP = 'UPDATE' THEN
+  ELSIF TG_OP = 'UPDATE' AND NEW.question_id IS NOT NULL THEN
     UPDATE questions
     SET vote_count = vote_count + CASE WHEN NEW.vote_type = 'up' THEN 2 ELSE -2 END
     WHERE id = NEW.question_id;
-  ELSIF TG_OP = 'DELETE' THEN
+  ELSIF TG_OP = 'DELETE' AND OLD.question_id IS NOT NULL THEN
     UPDATE questions
     SET vote_count = vote_count - CASE WHEN OLD.vote_type = 'up' THEN 1 ELSE -1 END
     WHERE id = OLD.question_id;
@@ -234,15 +234,15 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION update_answer_vote_count()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
+  IF TG_OP = 'INSERT' AND NEW.answer_id IS NOT NULL THEN
     UPDATE answers
     SET vote_count = vote_count + CASE WHEN NEW.vote_type = 'up' THEN 1 ELSE -1 END
     WHERE id = NEW.answer_id;
-  ELSIF TG_OP = 'UPDATE' THEN
+  ELSIF TG_OP = 'UPDATE' AND NEW.answer_id IS NOT NULL THEN
     UPDATE answers
     SET vote_count = vote_count + CASE WHEN NEW.vote_type = 'up' THEN 2 ELSE -2 END
     WHERE id = NEW.answer_id;
-  ELSIF TG_OP = 'DELETE' THEN
+  ELSIF TG_OP = 'DELETE' AND OLD.answer_id IS NOT NULL THEN
     UPDATE answers
     SET vote_count = vote_count - CASE WHEN OLD.vote_type = 'up' THEN 1 ELSE -1 END
     WHERE id = OLD.answer_id;
@@ -255,13 +255,11 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trigger_update_question_vote_count
   AFTER INSERT OR UPDATE OR DELETE ON votes
   FOR EACH ROW
-  WHEN (NEW.question_id IS NOT NULL OR OLD.question_id IS NOT NULL)
   EXECUTE FUNCTION update_question_vote_count();
 
 CREATE TRIGGER trigger_update_answer_vote_count
   AFTER INSERT OR UPDATE OR DELETE ON votes
   FOR EACH ROW
-  WHEN (NEW.answer_id IS NOT NULL OR OLD.answer_id IS NOT NULL)
   EXECUTE FUNCTION update_answer_vote_count();
 
 -- =====================================================
