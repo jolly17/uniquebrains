@@ -265,44 +265,63 @@ CREATE TRIGGER trigger_update_answer_vote_count
 -- =====================================================
 -- SEED DATA - Initial Topics
 -- =====================================================
-INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) VALUES
-(
+-- Note: Replace with actual user ID or run these inserts manually after migration
+INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) 
+SELECT 
   'Food & Recipe Ideas',
   'food-recipes',
   'Share your favorite neurodiversity-friendly recipes, meal planning tips, and food sensory accommodations. From picky eaters to texture preferences, let''s make mealtime easier!',
   'https://images.unsplash.com/premium_photo-1663100091589-3606b27215fc?w=800&h=400&fit=crop',
-  (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+  id,
   true
-),
-(
+FROM profiles 
+WHERE email = (SELECT email FROM auth.users ORDER BY created_at LIMIT 1)
+LIMIT 1;
+
+INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) 
+SELECT 
   'Traveling Tips',
   'traveling-tips',
   'Planning trips with neurodivergent family members? Share your travel hacks, sensory-friendly destinations, airport strategies, and accommodation recommendations.',
   'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=400&fit=crop',
-  (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+  id,
   true
-),
-(
+FROM profiles 
+WHERE email = (SELECT email FROM auth.users ORDER BY created_at LIMIT 1)
+LIMIT 1;
+
+INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) 
+SELECT 
   'School Suggestions',
   'school-suggestions',
   'Navigate the education system together! Discuss IEPs, 504 plans, school accommodations, homeschooling, and finding the right learning environment for your child.',
   'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&h=400&fit=crop',
-  (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+  id,
   true
-),
-(
+FROM profiles 
+WHERE email = (SELECT email FROM auth.users ORDER BY created_at LIMIT 1)
+LIMIT 1;
+
+INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) 
+SELECT 
   'Book Club',
   'book-club',
   'Recommend books about neurodiversity, parenting, self-advocacy, and more. Share what you''re reading and discover new perspectives from our community.',
   'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=400&fit=crop',
-  (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+  id,
   true
-),
-(
+FROM profiles 
+WHERE email = (SELECT email FROM auth.users ORDER BY created_at LIMIT 1)
+LIMIT 1;
+
+INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_featured) 
+SELECT 
   'Unfiltered Parenting',
   'unfiltered-parenting',
   'Real talk about the challenges and joys of parenting neurodivergent children. No judgment, just honest conversations and mutual support.',
   'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800&h=400&fit=crop',
-  (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
+  id,
   true
-);
+FROM profiles 
+WHERE email = (SELECT email FROM auth.users ORDER BY created_at LIMIT 1)
+LIMIT 1;
