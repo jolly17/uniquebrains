@@ -15,12 +15,29 @@
   - Assigned: Pre-launch
 
 ### Medium Priority
-- [ ] **Testing Suite**
-  - Write unit tests
-  - Write integration tests
-  - End-to-end testing
-  - Load testing
-  - Assigned: TBD
+- [ ] **Automated Testing Suite**
+  - **Instructor User Stories:**
+    - Sign up and create instructor profile
+    - Create a new course (group and 1:1)
+    - Add sessions to course
+    - View enrolled students
+    - Send messages to students
+    - Update course details
+    - Delete course
+  - **Student User Stories:**
+    - Sign up and create student profile
+    - Browse marketplace and search courses
+    - Enroll in a course
+    - View course details and sessions
+    - Send messages to instructor
+    - Unenroll from course
+    - View "My Courses" dashboard
+  - **Testing Framework:**
+    - E2E tests with Playwright or Cypress
+    - Integration tests for API calls
+    - Component tests for React components
+    - Test coverage reporting
+  - Assigned: Post-launch
 
 - [ ] **Performance Optimization**
   - Optimize database queries
