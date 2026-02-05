@@ -48,6 +48,7 @@
   color: inherit;
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .topic-card:hover {
@@ -59,6 +60,7 @@
   position: relative;
   height: 240px;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .topic-cover img {
@@ -79,6 +81,7 @@
   right: 0;
   background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
   padding: 24px;
+  pointer-events: none;
 }
 
 .topic-name {
@@ -87,6 +90,7 @@
   color: white;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  pointer-events: auto;
 }
 
 .topic-content {
@@ -94,6 +98,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: white;
+  position: relative;
+  z-index: 1;
 }
 
 .topic-card .topic-description {
