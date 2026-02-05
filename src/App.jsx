@@ -24,6 +24,7 @@ import BackendTestComponent from './components/BackendTestComponent'
 import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
 import NeurodiversityGuide from './pages/NeurodiversityGuide'
+import Community from './pages/Community'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -68,6 +69,7 @@ function App() {
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="neurodiversity" element={<NeurodiversityGuide />} />
+            <Route path="community" element={<Community />} />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">
