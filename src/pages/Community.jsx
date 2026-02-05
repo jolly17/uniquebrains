@@ -73,7 +73,7 @@ function Community() {
                   <h2 className="topic-name">{topic.name}</h2>
                 </div>
               </div>
-              <div className="topic-content">
+              <div className="topic-card-content">
                 <p className="topic-description">{topic.description}</p>
                 <div className="topic-stats">
                   <span className="stat">

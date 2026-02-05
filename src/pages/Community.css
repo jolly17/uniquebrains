@@ -93,11 +93,13 @@
   pointer-events: auto;
 }
 
-.topic-content {
+.topic-card-content {
   padding: 24px;
   flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
   background: white;
   position: relative;
   z-index: 1;
@@ -107,7 +109,6 @@
   font-size: 15px;
   line-height: 1.6;
   color: #5C7A99;
-  margin-bottom: 20px;
   flex: 1;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -115,30 +116,37 @@
 
 .topic-stats {
   display: flex;
-  gap: 24px;
-  padding-top: 16px;
-  border-top: 2px solid #f0f0f0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  min-width: 120px;
 }
 
 .stat {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .stat-icon {
-  font-size: 20px;
+  font-size: 24px;
 }
 
 .stat-value {
-  font-size: 20px;
+  font-size: 28px;
   font-weight: 700;
   color: #2C3744;
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: 13px;
   color: #5C7A99;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .community-cta {
@@ -216,6 +224,14 @@
 
   .topic-name {
     font-size: 24px;
+  }
+
+  .topic-card-content {
+    flex-direction: column;
+  }
+
+  .topic-stats {
+    width: 100%;
   }
 
   .cta-card {
