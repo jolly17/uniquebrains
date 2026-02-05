@@ -272,7 +272,7 @@ INSERT INTO topics (name, slug, description, cover_image_url, created_by, is_fea
   'Food & Recipe Ideas',
   'food-recipes',
   'Share your favorite neurodiversity-friendly recipes, meal planning tips, and food sensory accommodations. From picky eaters to texture preferences, let''s make mealtime easier!',
-  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=400&fit=crop',
+  'https://images.unsplash.com/premium_photo-1663100091589-3606b27215fc?w=800&h=400&fit=crop',
   (SELECT id FROM profiles WHERE role = 'admin' LIMIT 1),
   true
 ),
