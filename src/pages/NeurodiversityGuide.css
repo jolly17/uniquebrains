@@ -1,0 +1,289 @@
+.neurodiversity-guide {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.nd-container {
+  background: white;
+  border-radius: 24px;
+  padding: 48px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.neurodiversity-guide h1 {
+  text-align: center;
+  color: #2C3744;
+  font-size: 36px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.nd-subtitle {
+  text-align: center;
+  color: #5C7A99;
+  font-size: 18px;
+  margin-bottom: 40px;
+  line-height: 1.6;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nd-domain-selector {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.nd-domain-btn {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  border: 3px solid transparent;
+  border-radius: 16px;
+  padding: 18px 32px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #2C3744;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.nd-domain-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.nd-domain-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  transform: translateY(-4px);
+}
+
+.nd-icon {
+  font-size: 24px;
+}
+
+.nd-comparison-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.nd-comparison-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+  border-radius: 20px;
+  padding: 36px;
+  border-left: 8px solid;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nd-comparison-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.6) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nd-comparison-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+.nd-comparison-card:hover::before {
+  opacity: 1;
+}
+
+.nd-comparison-card.neurotypical {
+  border-color: #4ECDC4;
+}
+
+.nd-comparison-card.neurodivergent {
+  border-color: #9B59B6;
+}
+
+.nd-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.nd-card-icon {
+  font-size: 32px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.nd-card-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2C3744;
+}
+
+.nd-card-content {
+  position: relative;
+  z-index: 1;
+}
+
+.nd-section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2C3744;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nd-section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+.nd-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nd-feature-list li {
+  font-size: 15px;
+  color: #5C7A99;
+  line-height: 1.8;
+  margin-bottom: 12px;
+  padding-left: 28px;
+  position: relative;
+}
+
+.nd-feature-list li::before {
+  content: '●';
+  position: absolute;
+  left: 8px;
+  color: #667eea;
+  font-size: 20px;
+}
+
+.nd-comparison-card.neurotypical .nd-feature-list li::before {
+  color: #4ECDC4;
+}
+
+.nd-comparison-card.neurodivergent .nd-feature-list li::before {
+  color: #9B59B6;
+}
+
+.nd-strengths-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 2px solid rgba(0,0,0,0.05);
+}
+
+.nd-strength-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 4px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.nd-comparison-card.neurotypical .nd-strength-badge {
+  background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.3);
+}
+
+.nd-comparison-card.neurodivergent .nd-strength-badge {
+  background: linear-gradient(135deg, #9B59B6 0%, #8E44AD 100%);
+  box-shadow: 0 2px 8px rgba(155, 89, 182, 0.3);
+}
+
+.nd-note {
+  background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%);
+  border-left: 6px solid #F39C12;
+  border-radius: 16px;
+  padding: 28px;
+  font-size: 15px;
+  color: #2C3744;
+  line-height: 1.8;
+  box-shadow: 0 4px 16px rgba(243, 156, 18, 0.1);
+}
+
+.nd-note strong {
+  color: #E67E22;
+  font-size: 16px;
+}
+
+.nd-note-icon {
+  font-size: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+@media (max-width: 968px) {
+  .nd-container {
+    padding: 32px 24px;
+  }
+  
+  .neurodiversity-guide h1 {
+    font-size: 28px;
+  }
+  
+  .nd-subtitle {
+    font-size: 16px;
+  }
+  
+  .nd-domain-selector {
+    gap: 12px;
+  }
+  
+  .nd-domain-btn {
+    padding: 14px 24px;
+    font-size: 14px;
+  }
+  
+  .nd-comparison-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .nd-comparison-card {
+    padding: 28px;
+  }
+  
+  .nd-card-title {
+    font-size: 20px;
+  }
+}

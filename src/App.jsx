@@ -23,6 +23,7 @@ import RoleSelection from './pages/RoleSelection'
 import BackendTestComponent from './components/BackendTestComponent'
 import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
+import NeurodiversityGuide from './pages/NeurodiversityGuide'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -66,6 +67,7 @@ function App() {
             <Route path="courses/:courseId" element={<CourseDetail />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
+            <Route path="neurodiversity" element={<NeurodiversityGuide />} />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">
