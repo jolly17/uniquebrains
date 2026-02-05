@@ -25,6 +25,7 @@ import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
 import NeurodiversityGuide from './pages/NeurodiversityGuide'
 import Community from './pages/Community'
+import TopicDetail from './pages/TopicDetail'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -70,6 +71,7 @@ function App() {
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="neurodiversity" element={<NeurodiversityGuide />} />
             <Route path="community" element={<Community />} />
+            <Route path="community/:slug" element={<TopicDetail />} />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">

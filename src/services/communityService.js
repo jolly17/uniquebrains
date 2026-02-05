@@ -55,7 +55,16 @@ export async function createTopic(topicData) {
 // QUESTIONS
 // =====================================================
 
-export async function getQuestionsByTopic(topicId, sortBy = 'recent') {
+export async function getQuestionsByTopic(topicSlugOrId, sortBy = 'recent') {
+  // First get the topic to get its ID
+  let topicId = topicSlugOrId
+  
+  // If it looks like a slug (contains dashes), fetch the topic first
+  if (typeof topicSlugOrId === 'string' && topicSlugOrId.includes('-')) {
+    const topic = await getTopicBySlug(topicSlugOrId)
+    topicId = topic.id
+  }
+
   let query = supabase
     .from('questions')
     .select(`
