@@ -26,6 +26,9 @@ import ComingSoon from './pages/ComingSoon'
 import NeurodiversityGuide from './pages/NeurodiversityGuide'
 import Community from './pages/Community'
 import TopicDetail from './pages/TopicDetail'
+import AskQuestion from './pages/AskQuestion'
+import QuestionDetail from './pages/QuestionDetail'
+import CreateTopic from './pages/CreateTopic'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -71,7 +74,10 @@ function App() {
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="neurodiversity" element={<NeurodiversityGuide />} />
             <Route path="community" element={<Community />} />
+            <Route path="community/create-topic" element={<CreateTopic />} />
             <Route path="community/:slug" element={<TopicDetail />} />
+            <Route path="community/:slug/ask" element={<AskQuestion />} />
+            <Route path="community/:slug/question/:id" element={<QuestionDetail />} />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">

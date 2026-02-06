@@ -1,0 +1,47 @@
+.create-topic-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.create-topic-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.topic-form {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.image-preview {
+  margin-bottom: 28px;
+}
+
+.image-preview label {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2C3744;
+  margin-bottom: 12px;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+@media (max-width: 768px) {
+  .create-topic-page {
+    padding: 20px 16px;
+  }
+
+  .topic-form {
+    padding: 24px;
+  }
+}
