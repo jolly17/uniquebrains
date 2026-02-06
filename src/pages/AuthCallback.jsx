@@ -229,14 +229,24 @@ export function AuthCallback() {
           } else {
             console.log('Redirecting returning user with role:', userRole)
             
-            // Redirect based on user role
-            if (userRole === 'instructor') {
-              navigate('/teach/dashboard', { replace: true })
-            } else if (userRole === 'student') {
-              navigate('/learn/dashboard', { replace: true })
+            // Check if there's a stored OAuth redirect URL
+            const oauthRedirectUrl = localStorage.getItem('oauthRedirectUrl')
+            
+            if (oauthRedirectUrl) {
+              console.log('Found OAuth redirect URL:', oauthRedirectUrl)
+              localStorage.removeItem('oauthRedirectUrl')
+              sessionStorage.removeItem('redirectAfterLogin')
+              navigate(oauthRedirectUrl, { replace: true })
             } else {
-              // Fallback to marketplace
-              navigate('/marketplace', { replace: true })
+              // Redirect based on user role
+              if (userRole === 'instructor') {
+                navigate('/teach/dashboard', { replace: true })
+              } else if (userRole === 'student') {
+                navigate('/learn/dashboard', { replace: true })
+              } else {
+                // Fallback to marketplace
+                navigate('/marketplace', { replace: true })
+              }
             }
           }
         } else {

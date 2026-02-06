@@ -11,6 +11,16 @@ import './OAuthButton.css'
 export function OAuthButton({ provider, children, className = '' }) {
   const handleOAuthSignIn = async () => {
     try {
+      // Store the intended redirect URL in localStorage before OAuth flow
+      // This will be retrieved after OAuth callback
+      const currentPath = window.location.pathname
+      const redirectUrl = sessionStorage.getItem('redirectAfterLogin')
+      
+      if (redirectUrl) {
+        // If there's already a redirect URL stored (from login page state), keep it
+        localStorage.setItem('oauthRedirectUrl', redirectUrl)
+      }
+      
       const options = {
         redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: {

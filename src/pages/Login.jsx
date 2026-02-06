@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from '../components/Logo'
@@ -12,6 +12,14 @@ function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+
+  // Store redirect URL in sessionStorage for OAuth to access
+  useEffect(() => {
+    const redirectTo = location.state?.from
+    if (redirectTo) {
+      sessionStorage.setItem('redirectAfterLogin', redirectTo)
+    }
+  }, [location])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -29,6 +37,9 @@ function Login() {
       } else if (result.profile) {
         // Check if there's a redirect URL in the location state
         const redirectTo = location.state?.from || null
+        
+        // Clear the sessionStorage
+        sessionStorage.removeItem('redirectAfterLogin')
         
         if (redirectTo) {
           // Redirect to the page they were trying to access
