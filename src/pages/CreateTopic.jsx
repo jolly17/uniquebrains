@@ -17,7 +17,7 @@ function CreateTopic() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: '/community/create-topic' } })
     }
   }, [user])
 

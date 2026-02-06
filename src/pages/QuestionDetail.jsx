@@ -46,7 +46,7 @@ function QuestionDetail() {
 
   const handleVoteQuestion = async (voteType) => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
       return
     }
 
@@ -60,7 +60,7 @@ function QuestionDetail() {
 
   const handleVoteAnswer = async (answerId, voteType) => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
       return
     }
 
@@ -89,7 +89,7 @@ function QuestionDetail() {
     e.preventDefault()
 
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
       return
     }
 

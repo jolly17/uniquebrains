@@ -20,7 +20,7 @@ function AskQuestion() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/community/${slug}/ask` } })
       return
     }
     fetchTopic()

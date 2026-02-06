@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from '../components/Logo'
 import { OAuthButton } from '../components/OAuthButton'
@@ -11,6 +11,7 @@ function Login() {
   const [error, setError] = useState('')
   const { login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -26,14 +27,22 @@ function Login() {
           setError(result.error.message || 'Invalid credentials')
         }
       } else if (result.profile) {
-        // Redirect based on user role
-        if (result.profile.role === 'instructor') {
-          navigate('/teach/dashboard')
-        } else if (result.profile.role === 'student') {
-          navigate('/learn/dashboard')
+        // Check if there's a redirect URL in the location state
+        const redirectTo = location.state?.from || null
+        
+        if (redirectTo) {
+          // Redirect to the page they were trying to access
+          navigate(redirectTo)
         } else {
-          // Fallback to marketplace
-          navigate('/marketplace')
+          // Default redirect based on user role
+          if (result.profile.role === 'instructor') {
+            navigate('/teach/dashboard')
+          } else if (result.profile.role === 'student') {
+            navigate('/learn/dashboard')
+          } else {
+            // Fallback to marketplace
+            navigate('/marketplace')
+          }
         }
       }
     } catch (err) {

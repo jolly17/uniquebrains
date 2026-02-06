@@ -37,7 +37,7 @@ function TopicDetail() {
 
   const handleAskQuestion = () => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/community/${slug}/ask` } })
       return
     }
     navigate(`/community/${slug}/ask`)
