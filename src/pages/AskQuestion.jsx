@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getTopicBySlug, createQuestion } from '../services/communityService'
+import { supabase } from '../lib/supabase'
 import './AskQuestion.css'
 
 function AskQuestion() {
@@ -15,8 +16,10 @@ function AskQuestion() {
   const [formData, setFormData] = useState({
     title: '',
     content: '',
-    media_url: ''
+    imageFile: null
   })
+  const [imagePreview, setImagePreview] = useState(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     if (!user) {
@@ -47,6 +50,43 @@ function AskQuestion() {
     }))
   }
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB')
+        return
+      }
+      
+      setFormData(prev => ({
+        ...prev,
+        imageFile: file
+      }))
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const removeImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      imageFile: null
+    }))
+    setImagePreview(null)
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     
@@ -59,12 +99,38 @@ function AskQuestion() {
       setSubmitting(true)
       setError('')
 
+      let imageUrl = null
+
+      // Upload image if provided
+      if (formData.imageFile) {
+        setUploading(true)
+        const fileExt = formData.imageFile.name.split('.').pop()
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`
+        const filePath = `community/${fileName}`
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('course-materials')
+          .upload(filePath, formData.imageFile)
+
+        if (uploadError) {
+          throw new Error('Failed to upload image')
+        }
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('course-materials')
+          .getPublicUrl(filePath)
+
+        imageUrl = publicUrl
+        setUploading(false)
+      }
+
       const questionData = {
         topic_id: topic.id,
         author_id: user.id,
         title: formData.title.trim(),
         content: formData.content.trim(),
-        media_url: formData.media_url.trim() || null
+        image_url: imageUrl
       }
 
       const newQuestion = await createQuestion(questionData)
@@ -72,6 +138,7 @@ function AskQuestion() {
     } catch (err) {
       console.error('Error creating question:', err)
       setError('Failed to create question. Please try again.')
+      setUploading(false)
     } finally {
       setSubmitting(false)
     }
@@ -126,7 +193,7 @@ function AskQuestion() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="content">Details *</label>
+            <label htmlFor="content">Question Details *</label>
             <textarea
               id="content"
               name="content"
@@ -139,18 +206,29 @@ function AskQuestion() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="media_url">Image or Video URL (optional)</label>
+            <label htmlFor="image">Add Image (optional)</label>
             <input
-              type="url"
-              id="media_url"
-              name="media_url"
-              value={formData.media_url}
-              onChange={handleChange}
-              placeholder="https://example.com/image.jpg"
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ display: 'none' }}
             />
+            <label htmlFor="image" className="file-upload-label">
+              📷 Choose Image
+            </label>
             <span className="field-hint">
-              Add a link to an image or video to help illustrate your question
+              Upload an image to help illustrate your question (max 5MB)
             </span>
+            
+            {imagePreview && (
+              <div className="image-preview">
+                <img src={imagePreview} alt="Preview" />
+                <button type="button" onClick={removeImage} className="btn-remove-image">
+                  ✕ Remove
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="form-actions">
@@ -160,9 +238,9 @@ function AskQuestion() {
             <button 
               type="submit" 
               className="btn-submit"
-              disabled={submitting}
+              disabled={submitting || uploading}
             >
-              {submitting ? 'Posting...' : 'Post Question'}
+              {uploading ? 'Uploading Image...' : submitting ? 'Posting...' : 'Post Question'}
             </button>
           </div>
         </form>
