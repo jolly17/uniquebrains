@@ -103,7 +103,7 @@ function CourseDetailContent() {
 
   const handleEnroll = async () => {
     if (!user) {
-      navigate('/login')
+      navigate('/login', { state: { from: `/courses/${courseId}` } })
       return
     }
     if (isFull) {
