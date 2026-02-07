@@ -41,6 +41,22 @@ function AskQuestion() {
     }
   }
 
+  // Get topic-specific placeholder
+  const getPlaceholder = () => {
+    if (!topic) return 'Ask your question here...'
+    
+    const placeholders = {
+      'food-recipes': 'e.g., What are some easy lunch ideas for picky eaters?',
+      'traveling-tips': 'e.g., How do you handle airport security with a sensory-sensitive child?',
+      'school-suggestions': 'e.g., What accommodations helped your child succeed in school?',
+      'book-club': 'e.g., Looking for books about autism for 8-year-olds, any recommendations?',
+      'unfiltered-parenting': 'e.g., How do you deal with meltdowns in public places?',
+      'sensory-needs': 'e.g., My son has this rash on his skin, what could it be?'
+    }
+    
+    return placeholders[topic.slug] || `Ask your question about ${topic.name}...`
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -184,7 +200,7 @@ function AskQuestion() {
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="e.g., My son has this rash on his skin, what could it be?"
+              placeholder={getPlaceholder()}
               maxLength={300}
               required
             />
