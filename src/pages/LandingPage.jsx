@@ -134,6 +134,25 @@ function LandingPage() {
         </div>
       </section>
 
+      <section className="community-section">
+        <div className="community-content">
+          <div className="community-icon">💬</div>
+          <h2>Join Our Community</h2>
+          <p>
+            Connect with other parents, share experiences, and get support from people who understand. 
+            Ask questions, share tips, and learn from our vibrant neurodiversity community.
+          </p>
+          <div className="community-actions">
+            <Link to="/community" className="btn-community">
+              Ask a Question
+            </Link>
+            <Link to="/community" className="btn-community-secondary">
+              Browse Topics
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <section className="support-section">
         <div className="support-content">
           <h2>Help Us Keep UniqueBrains Free</h2>
