@@ -15,7 +15,6 @@ function AskQuestion() {
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     title: '',
-    content: '',
     imageFile: null
   })
   const [imagePreview, setImagePreview] = useState(null)
@@ -90,8 +89,8 @@ function AskQuestion() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.title.trim() || !formData.content.trim()) {
-      setError('Please fill in all required fields')
+    if (!formData.title.trim()) {
+      setError('Please enter a question')
       return
     }
 
@@ -129,7 +128,7 @@ function AskQuestion() {
         topic_id: topic.id,
         author_id: user.id,
         title: formData.title.trim(),
-        content: formData.content.trim(),
+        content: '', // Empty content since we only have title
         image_url: imageUrl
       }
 
@@ -178,31 +177,21 @@ function AskQuestion() {
           {error && <div className="form-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="title">Question Title *</label>
+            <label htmlFor="title">Your Question *</label>
             <input
               type="text"
               id="title"
               name="title"
               value={formData.title}
               onChange={handleChange}
-              placeholder="What's your question? Be specific."
-              maxLength={200}
+              placeholder="e.g., My son has this rash on his skin, what could it be?"
+              maxLength={300}
               required
             />
-            <span className="char-count">{formData.title.length}/200</span>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="content">Question Details *</label>
-            <textarea
-              id="content"
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              placeholder="Provide more details about your question. Include any relevant context that will help others understand and answer your question."
-              rows={10}
-              required
-            />
+            <span className="char-count">{formData.title.length}/300</span>
+            <span className="field-hint">
+              Ask your question in one clear sentence
+            </span>
           </div>
 
           <div className="form-group">

@@ -133,10 +133,12 @@ function TopicDetail() {
                 </div>
                 <div className="question-content">
                   <h3 className="question-title">{question.title}</h3>
-                  <p className="question-excerpt">
-                    {question.content.substring(0, 150)}
-                    {question.content.length > 150 ? '...' : ''}
-                  </p>
+                  {question.content && (
+                    <p className="question-excerpt">
+                      {question.content.substring(0, 150)}
+                      {question.content.length > 150 ? '...' : ''}
+                    </p>
+                  )}
                   <div className="question-meta">
                     <span className="author">
                       {question.profiles?.first_name} {question.profiles?.last_name}

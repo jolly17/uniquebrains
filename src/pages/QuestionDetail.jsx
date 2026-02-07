@@ -198,7 +198,7 @@ function QuestionDetail() {
             </div>
 
             <div className="question-content">
-              <p>{question.content}</p>
+              {question.content && <p>{question.content}</p>}
               {question.image_url && (
                 <div className="question-media">
                   <img src={question.image_url} alt="Question media" />
