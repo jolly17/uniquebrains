@@ -82,7 +82,7 @@ function Courses() {
             <Link to="/courses/my-courses" className="btn-my-courses">
               My Courses
             </Link>
-            <Link to="/create-course" className="btn-create-course">
+            <Link to="/teach/create-course" className="btn-create-course">
               Create Course
             </Link>
           </div>
