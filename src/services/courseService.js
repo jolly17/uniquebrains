@@ -32,6 +32,7 @@ export async function createCourse(courseData, user) {
       title: courseData.title.trim(),
       description: courseData.description.trim(),
       category: courseData.category,
+      age_group: courseData.ageGroup || 'All ages', // Default to 'All ages' if not provided
       course_type: courseData.courseType,
       price: 0, // Free for now
       session_duration: courseData.sessionDuration ? parseInt(courseData.sessionDuration) : null,

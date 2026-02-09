@@ -15,6 +15,7 @@ function CreateCourse() {
     title: '',
     description: '',
     category: 'performing-arts',
+    ageGroup: 'All ages',
     courseType: 'group', // 'group' or 'one-on-one'
     price: '',
     sessionDuration: '',
@@ -74,6 +75,7 @@ function CreateCourse() {
         title: formData.title,
         description: formData.description,
         category: formData.category,
+        ageGroup: formData.ageGroup,
         courseType: formData.courseType,
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
@@ -181,6 +183,26 @@ function CreateCourse() {
                 </select>
               </div>
 
+              <div className="form-group">
+                <label htmlFor="ageGroup" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Age Group *</label>
+                <select
+                  id="ageGroup"
+                  name="ageGroup"
+                  value={formData.ageGroup}
+                  onChange={handleChange}
+                  required
+                  style={{ padding: '0.5rem' }}
+                >
+                  <option value="All ages">👥 All ages</option>
+                  <option value="5-8 years">🧒 5-8 years</option>
+                  <option value="9-12 years">👦 9-12 years</option>
+                  <option value="13-18 years">🧑 13-18 years</option>
+                  <option value="Adults">👨 Adults</option>
+                </select>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
               <div className="form-group">
                 <label htmlFor="courseType" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Course Type *</label>
                 <select

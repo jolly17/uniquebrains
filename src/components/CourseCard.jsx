@@ -23,7 +23,12 @@ function CourseCard({ course }) {
       </div>
       
       <div className="course-content">
-        <div className="course-category">{course.category}</div>
+        <div className="course-metadata">
+          <div className="course-category">{course.category}</div>
+          {course.age_group && (
+            <div className="course-age-group">{course.age_group}</div>
+          )}
+        </div>
         <h3 className="course-title">{course.title}</h3>
         <p className="course-description">{course.description}</p>
         

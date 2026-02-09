@@ -104,11 +104,45 @@
   gap: 0.25rem;
 }
 
+.course-metadata {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .course-category {
   color: var(--primary-color);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.course-age-group {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: #f3f4f6;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+/* Responsive design for mobile devices */
+@media (max-width: 768px) {
+  .course-age-group {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-age-group {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.35rem;
+  }
 }
 
 .course-title {
