@@ -78,9 +78,14 @@ function Courses() {
         <p className="tagline">Here every brain learns differently</p>
         <p className="subtitle">Personalized live classes for unique learners</p>
         {user && (
-          <Link to="/courses/my-courses" className="btn-my-courses">
-            My Courses
-          </Link>
+          <div className="header-actions">
+            <Link to="/courses/my-courses" className="btn-my-courses">
+              My Courses
+            </Link>
+            <Link to="/create-course" className="btn-create-course">
+              Create Course
+            </Link>
+          </div>
         )}
       </div>
 

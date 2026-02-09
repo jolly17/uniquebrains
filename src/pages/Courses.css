@@ -25,20 +25,43 @@
   font-size: 1rem;
 }
 
-.btn-my-courses {
-  display: inline-block;
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
   margin-top: 1.5rem;
+}
+
+.btn-my-courses,
+.btn-create-course {
+  display: inline-block;
   padding: 0.75rem 2rem;
-  background: var(--primary-color);
-  color: white;
   border-radius: 0.5rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
 }
 
+.btn-my-courses {
+  background: var(--primary-color);
+  color: white;
+}
+
 .btn-my-courses:hover {
   background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-create-course {
+  background: white;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+}
+
+.btn-create-course:hover {
+  background: var(--primary-color);
+  color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
