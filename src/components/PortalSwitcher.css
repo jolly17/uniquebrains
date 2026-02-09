@@ -31,6 +31,9 @@
   font-weight: 500;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .portal-switch-link:hover {

@@ -42,7 +42,7 @@ function ComingSoon() {
         <div className="coming-soon-icon">🚀</div>
         <h1>Coming Soon!</h1>
         <p className="coming-soon-subtitle">
-          We're working hard to bring you an amazing learning marketplace for neurodivergent children.
+          We're working hard to bring you an amazing learning platform for neurodivergent children.
         </p>
         
         <div className="progress-section">
@@ -58,7 +58,7 @@ function ComingSoon() {
             </div>
             <div className="feature-item">
               <span className="progress-icon">🔨</span>
-              <span>Course marketplace with specialized instructors</span>
+              <span>Course platform with specialized instructors</span>
             </div>
             <div className="feature-item">
               <span className="progress-icon">🔨</span>

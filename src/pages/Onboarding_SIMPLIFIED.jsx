@@ -151,12 +151,8 @@ function Onboarding() {
         return
       }
 
-      // Navigate based on role
-      if (formData.role === 'instructor') {
-        navigate('/teach/dashboard')
-      } else {
-        navigate('/learn/dashboard')
-      }
+      // Navigate to unified dashboard
+      navigate('/courses/my-courses')
     } catch (error) {
       console.error('Onboarding error:', error)
       alert('An error occurred. Please try again.')

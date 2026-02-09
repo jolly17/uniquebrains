@@ -44,39 +44,8 @@ function Layout() {
           </button>
 
           <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
-            <Link to="/marketplace" className="nav-link" onClick={closeMobileMenu}>Marketplace</Link>
+            <Link to="/courses" className="nav-link" onClick={closeMobileMenu}>Courses</Link>
             <Link to="/community" className="nav-link" onClick={closeMobileMenu}>Community</Link>
-            
-            {user && (
-              <>
-                {/* Show portal-specific navigation based on active portal */}
-                {activePortal === 'teach' && (
-                  <>
-                    <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
-                  </>
-                )}
-                
-                {activePortal === 'learn' && (
-                  <>
-                    <Link to="/learn/dashboard" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
-                  </>
-                )}
-                
-                {/* Fallback for users not in a portal yet */}
-                {!activePortal && profile?.role === 'student' && (
-                  <>
-                    <Link to="/learn/dashboard" className="nav-link" onClick={closeMobileMenu}>My Courses</Link>
-                  </>
-                )}
-                
-                {!activePortal && profile?.role === 'instructor' && (
-                  <>
-                    <Link to="/teach/dashboard" className="nav-link" onClick={closeMobileMenu}>Dashboard</Link>
-                    <Link to="/teach/create-course" className="nav-link" onClick={closeMobileMenu}>Create Course</Link>
-                  </>
-                )}
-              </>
-            )}
 
             <div className="mobile-header-actions">
               {user ? (

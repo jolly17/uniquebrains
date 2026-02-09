@@ -47,15 +47,15 @@ function LandingPage() {
           </h1>
           <p className="hero-tagline">Where every brain learns differently</p>
           <p className="hero-description">
-            A free learning marketplace where anyone can teach and anyone can learn. 
+            A free learning platform where anyone can teach and anyone can learn. 
             Connect with passionate instructors who celebrate unique learning styles.
           </p>
           <div className="hero-actions">
-            <Link to="/marketplace" className="btn-primary-large">
+            <Link to="/courses" className="btn-primary-large">
               Explore Courses
             </Link>
             <Link 
-              to={user ? "/teach/create-course" : "/register?role=instructor"} 
+              to={user ? "/courses/my-courses" : "/register"} 
               className="btn-primary-large"
             >
               Start Teaching
@@ -200,7 +200,7 @@ function LandingPage() {
             <Link to="/register" className="btn-primary-large">
               Sign Up Free
             </Link>
-            <Link to="/marketplace" className="btn-secondary-large">
+            <Link to="/courses" className="btn-secondary-large">
               Browse Courses
             </Link>
           </div>

@@ -1,6 +1,9 @@
+import { useAuth } from '../context/AuthContext'
 import './PortalSwitcher.css'
 
 function PortalSwitcher({ currentPortal, availablePortals, compact = false }) {
+  const { switchPortal } = useAuth()
+  
   // Always show portal switcher - users can switch between learning and teaching anytime
   if (!availablePortals || availablePortals.length === 0) {
     return null
@@ -11,20 +14,19 @@ function PortalSwitcher({ currentPortal, availablePortals, compact = false }) {
   const oppositeLabel = oppositePortal === 'teach' ? 'Teaching Portal' : 'Learning Portal'
   const oppositeIcon = oppositePortal === 'teach' ? '👨‍🏫' : '📚'
 
-  // Handle portal switch with page reload
+  // Handle portal switch - updates state without navigation
   const handlePortalSwitch = (e) => {
     e.preventDefault()
-    // Use window.location to force a full page reload
-    window.location.href = `/${oppositePortal}/dashboard`
+    switchPortal(oppositePortal)
   }
 
   if (compact) {
     // Compact mode for footer
     return (
       <div className="portal-switcher compact">
-        <a href={`/${oppositePortal}/dashboard`} onClick={handlePortalSwitch} className="portal-switch-link">
+        <button onClick={handlePortalSwitch} className="portal-switch-link">
           Switch to {oppositeLabel} {oppositeIcon}
-        </a>
+        </button>
       </div>
     )
   }
@@ -33,11 +35,11 @@ function PortalSwitcher({ currentPortal, availablePortals, compact = false }) {
   return (
     <div className="portal-switcher">
       <span className="portal-switcher-label">Currently in {currentPortal === 'teach' ? 'Teaching' : 'Learning'} Portal</span>
-      <a href={`/${oppositePortal}/dashboard`} onClick={handlePortalSwitch} className="portal-switch-link">
+      <button onClick={handlePortalSwitch} className="portal-switch-link">
         <span className="portal-switch-icon">{oppositeIcon}</span>
         <span>Switch to {oppositeLabel}</span>
         <span className="portal-switch-arrow">→</span>
-      </a>
+      </button>
     </div>
   )
 }

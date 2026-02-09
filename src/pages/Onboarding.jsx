@@ -13,11 +13,8 @@ function Onboarding() {
 
   const [formData, setFormData] = useState({
     neurodiversityProfile: [],
-    expertise: [], // Teaching specializations for instructors
     bio: '',
-    otherNeurodiversity: '', // Separate field for "other" neurodiversity description
-    otherExpertise: '', // Separate field for "other" expertise description
-    role: 'student' // Default to student
+    otherNeurodiversity: '' // Separate field for "other" neurodiversity description
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -47,11 +44,8 @@ function Onboarding() {
         if (data) {
           setFormData({
             neurodiversityProfile: data.neurodiversity_profile || [],
-            expertise: data.expertise || [],
             bio: data.bio || '',
-            otherNeurodiversity: '',
-            otherExpertise: '',
-            role: data.role || 'student'
+            otherNeurodiversity: ''
           })
         }
       } catch (err) {
@@ -87,28 +81,6 @@ function Onboarding() {
     }
   }
 
-  const handleExpertiseChange = (value) => {
-    const currentExpertise = formData.expertise || []
-    if (currentExpertise.includes(value)) {
-      setFormData({
-        ...formData,
-        expertise: currentExpertise.filter(item => item !== value)
-      })
-    } else {
-      setFormData({
-        ...formData,
-        expertise: [...currentExpertise, value]
-      })
-    }
-  }
-
-  const handleRoleChange = (newRole) => {
-    setFormData({
-      ...formData,
-      role: newRole
-    })
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -127,20 +99,11 @@ function Onboarding() {
         neurodiversityProfile.push(formData.otherNeurodiversity.trim())
       }
 
-      // Prepare expertise (for instructors)
-      let expertise = [...(formData.expertise || [])]
-      if (expertise.includes('other') && formData.otherExpertise.trim()) {
-        expertise = expertise.filter(item => item !== 'other')
-        expertise.push(formData.otherExpertise.trim())
-      }
-
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
-          role: formData.role,
           neurodiversity_profile: neurodiversityProfile,
-          expertise: formData.role === 'instructor' ? expertise : [],
           bio: formData.bio.trim() || null
         })
         .eq('id', userId)
@@ -152,12 +115,8 @@ function Onboarding() {
         return
       }
 
-      // Navigate based on role
-      if (formData.role === 'instructor') {
-        navigate('/teach/dashboard')
-      } else {
-        navigate('/learn/dashboard')
-      }
+      // Navigate to unified dashboard
+      navigate('/courses/my-courses')
     } catch (error) {
       console.error('Onboarding error:', error)
       alert('An error occurred. Please try again.')
@@ -174,74 +133,11 @@ function Onboarding() {
         </div>
 
         <form onSubmit={handleSubmit} className="onboarding-form">
-          {/* Role Selection */}
-          <div className="form-section">
-            <h2>I am a...</h2>
-            <div className="role-cards">
-              <div 
-                className={`role-card ${formData.role === 'student' ? 'selected' : ''}`}
-                onClick={() => handleRoleChange('student')}
-              >
-                <div className="role-icon">🎓</div>
-                <h3>Student</h3>
-                <p>Enroll in courses and learn</p>
-              </div>
-
-              <div 
-                className={`role-card ${formData.role === 'instructor' ? 'selected' : ''}`}
-                onClick={() => handleRoleChange('instructor')}
-              >
-                <div className="role-icon">👨‍🏫</div>
-                <h3>Instructor</h3>
-                <p>Create and teach courses</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Teaching Specializations (for instructors) */}
-          {formData.role === 'instructor' && (
-            <div className="form-section">
-              <h2>Your Teaching Specializations</h2>
-              <p className="section-description">
-                What neurodiversity areas do you specialize in or have experience teaching?
-              </p>
-
-              <div className="checkbox-group">
-                {neurodiversityOptions.map(option => (
-                  <label key={option.value} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={formData.expertise.includes(option.value)}
-                      onChange={() => handleExpertiseChange(option.value)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-
-              {formData.expertise.includes('other') && (
-                <div className="form-group">
-                  <label htmlFor="otherExpertise">Please specify:</label>
-                  <input
-                    type="text"
-                    id="otherExpertise"
-                    value={formData.otherExpertise}
-                    onChange={(e) => setFormData({ ...formData, otherExpertise: e.target.value })}
-                    placeholder="e.g., Sensory Processing Disorder"
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Neurodiversity Profile (for all users) */}
+          {/* Neurodiversity Profile */}
           <div className="form-section">
             <h2>Your Neurodiversity Profile (Optional)</h2>
             <p className="section-description">
-              {formData.role === 'instructor' 
-                ? 'Share your own neurodiversity profile if you\'d like. This helps build trust with families.'
-                : 'Help us personalize your learning experience by sharing your neurodiversity profile.'
-              }
+              Help us personalize your experience by sharing your neurodiversity profile. This is completely optional.
             </p>
 
             <div className="checkbox-group">
@@ -275,20 +171,14 @@ function Onboarding() {
           <div className="form-section">
             <h2>About You</h2>
             <p className="section-description">
-              {formData.role === 'instructor'
-                ? 'Tell families about your teaching experience and approach.'
-                : 'Tell us a bit about yourself and your learning goals.'
-              }
+              Tell us a bit about yourself, your interests, and what you'd like to learn or teach.
             </p>
 
             <div className="form-group">
               <textarea
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                placeholder={formData.role === 'instructor' 
-                  ? "e.g., I'm a certified special education teacher with 10 years of experience..."
-                  : "e.g., I love art and music, and I'm excited to learn new things..."
-                }
+                placeholder="e.g., I love art and music, and I'm excited to explore new learning opportunities..."
                 rows="4"
               />
             </div>

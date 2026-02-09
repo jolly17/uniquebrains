@@ -1,14 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
+import { supabase } from '../lib/supabase'
 import './Auth.css'
 
 function CreateCourse() {
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showProfilePrompt, setShowProfilePrompt] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -89,8 +91,14 @@ function CreateCourse() {
       const result = await handleApiCall(api.courses.create, courseData, user)
       
       console.log('Course created successfully:', result.course)
-      alert(result.message)
-      navigate('/instructor/dashboard')
+      
+      // Check if instructor profile is complete (has expertise)
+      if (!profile?.expertise || profile.expertise.length === 0) {
+        setShowProfilePrompt(true)
+      } else {
+        alert(result.message)
+        navigate('/teach/dashboard')
+      }
       
     } catch (error) {
       console.error('Error creating course:', error)
@@ -441,6 +449,38 @@ function CreateCourse() {
           </button>
         </div>
       </form>
+
+      {/* Instructor Profile Completion Prompt */}
+      {showProfilePrompt && (
+        <div className="modal-overlay" onClick={() => setShowProfilePrompt(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <h2>🎉 Course Created Successfully!</h2>
+            <p style={{ marginTop: '1rem', marginBottom: '1.5rem' }}>
+              Help students learn more about you by completing your instructor profile with your teaching specializations.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => {
+                  setShowProfilePrompt(false)
+                  navigate('/teach/dashboard')
+                }} 
+                className="btn-secondary"
+              >
+                Later
+              </button>
+              <button 
+                onClick={() => {
+                  setShowProfilePrompt(false)
+                  navigate('/profile?section=instructor')
+                }} 
+                className="btn-primary"
+              >
+                Complete Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

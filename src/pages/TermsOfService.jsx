@@ -23,7 +23,7 @@ function TermsOfService() {
             UniqueBrains provides an online learning platform that connects students with instructors for educational courses. Our services include:
           </p>
           <ul>
-            <li>Course marketplace and enrollment</li>
+            <li>Course platform and enrollment</li>
             <li>Live online classes and recorded sessions</li>
             <li>Educational resources and materials</li>
             <li>Homework assignments and progress tracking</li>

@@ -711,6 +711,16 @@ function ManageSessions() {
                             )}
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
+                            {(session.meeting_link || courseMeetingLink) && (
+                              <a
+                                href={session.meeting_link || courseMeetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn-primary btn-sm"
+                              >
+                                Join Meeting
+                              </a>
+                            )}
                             <button 
                               onClick={() => handleEditSession(session)}
                               className="btn-secondary btn-sm"
@@ -835,6 +845,16 @@ function ManageSessions() {
                               )}
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
+                              {(session.meeting_link || courseMeetingLink) && (
+                                <a
+                                  href={session.meeting_link || courseMeetingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="btn-primary btn-sm"
+                                >
+                                  Join Meeting
+                                </a>
+                              )}
                               <button 
                                 onClick={() => handleEditSession(session)}
                                 className="btn-secondary btn-sm"

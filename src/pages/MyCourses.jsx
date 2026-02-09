@@ -223,7 +223,7 @@ function MyCourses() {
           </div>
         </div>
         <div className="dashboard-header-actions">
-          <Link to="/learn/marketplace" className="btn-primary">
+          <Link to="/courses" className="btn-primary">
             Browse More Courses
           </Link>
           {availablePortals && availablePortals.includes('teach') && (
@@ -316,7 +316,7 @@ function MyCourses() {
         ) : (
           <div className="empty-state">
             <p>You haven't enrolled in any courses yet.</p>
-            <Link to="/learn/marketplace" className="btn-primary">
+            <Link to="/courses" className="btn-primary">
               Browse Courses
             </Link>
           </div>

@@ -115,6 +115,35 @@ function InstructorDashboard() {
         </Link>
       </div>
 
+      {/* Incomplete Profile Reminder */}
+      {(!profile?.expertise || profile.expertise.length === 0) && (
+        <div className="profile-reminder" style={{
+          background: '#fef3c7',
+          border: '1px solid #fbbf24',
+          borderRadius: '8px',
+          padding: '1rem',
+          marginBottom: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '1rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <span style={{ fontSize: '1.5rem' }}>📝</span>
+            <p style={{ margin: 0, color: '#92400e' }}>
+              Complete your instructor profile to help students learn more about your teaching specializations
+            </p>
+          </div>
+          <Link 
+            to="/profile?section=instructor" 
+            className="btn-primary"
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            Complete Profile
+          </Link>
+        </div>
+      )}
+
       {loading ? (
         <div className="loading-state" style={{ textAlign: 'center', padding: '3rem' }}>
           <p>Loading dashboard...</p>

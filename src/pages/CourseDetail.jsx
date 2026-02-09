@@ -318,7 +318,7 @@ function CourseDetailContent() {
               <button 
                 onClick={() => {
                   setShowEnrollmentSuccess(false)
-                  navigate('/learn/marketplace')
+                  navigate('/courses')
                 }}
                 className="btn-secondary"
               >

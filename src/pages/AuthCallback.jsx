@@ -238,15 +238,8 @@ export function AuthCallback() {
               sessionStorage.removeItem('redirectAfterLogin')
               navigate(oauthRedirectUrl, { replace: true })
             } else {
-              // Redirect based on user role
-              if (userRole === 'instructor') {
-                navigate('/teach/dashboard', { replace: true })
-              } else if (userRole === 'student') {
-                navigate('/learn/dashboard', { replace: true })
-              } else {
-                // Fallback to marketplace
-                navigate('/marketplace', { replace: true })
-              }
+              // Redirect to unified dashboard
+              navigate('/courses/my-courses', { replace: true })
             }
           }
         } else {

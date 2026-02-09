@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import CourseCard from '../components/CourseCard'
 import { getAllPublishedCourses } from '../services/courseService'
 import { getUserFriendlyMessage } from '../lib/errorHandler'
 import { addBreadcrumb } from '../lib/sentry'
-import './Marketplace.css'
+import './Courses.css'
 
-function Marketplace() {
+function Courses() {
   const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -37,7 +38,7 @@ function Marketplace() {
         // Add breadcrumb for user action
         addBreadcrumb({
           category: 'navigation',
-          message: 'Marketplace page loaded',
+          message: 'Courses page loaded',
           level: 'info',
           data: {
             userId: user?.id,
@@ -71,14 +72,19 @@ function Marketplace() {
   })
 
   return (
-    <div className="marketplace">
-      <div className="marketplace-header">
+    <div className="courses">
+      <div className="courses-header">
         <h1>Discover Courses</h1>
         <p className="tagline">Here every brain learns differently</p>
         <p className="subtitle">Personalized live classes for unique learners</p>
+        {user && (
+          <Link to="/courses/my-courses" className="btn-my-courses">
+            My Courses
+          </Link>
+        )}
       </div>
 
-      <div className="marketplace-filters">
+      <div className="courses-filters">
         <div className="search-bar">
           <input
             type="text"
@@ -156,4 +162,4 @@ function Marketplace() {
   )
 }
 
-export default Marketplace
+export default Courses

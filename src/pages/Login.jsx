@@ -45,15 +45,8 @@ function Login() {
           // Redirect to the page they were trying to access
           navigate(redirectTo)
         } else {
-          // Default redirect based on user role
-          if (result.profile.role === 'instructor') {
-            navigate('/teach/dashboard')
-          } else if (result.profile.role === 'student') {
-            navigate('/learn/dashboard')
-          } else {
-            // Fallback to marketplace
-            navigate('/marketplace')
-          }
+          // Navigate to unified dashboard
+          navigate('/courses/my-courses')
         }
       }
     } catch (err) {

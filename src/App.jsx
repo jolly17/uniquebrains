@@ -5,9 +5,10 @@ import ScrollToTop from './components/ScrollToTop'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import Marketplace from './pages/Marketplace'
+import Courses from './pages/Courses'
 import CourseDetail from './pages/CourseDetail'
 import MyCourses from './pages/MyCourses'
+import MyCoursesUnified from './pages/MyCoursesUnified'
 import StudentCourseView from './pages/StudentCourseView'
 import ManageStudents from './pages/ManageStudents'
 import InstructorDashboard from './pages/InstructorDashboard'
@@ -68,8 +69,18 @@ function App() {
           {/* Main layout routes */}
           <Route path="/" element={<Layout />}>
             <Route index element={<LandingPage />} />
-            <Route path="marketplace" element={<Marketplace />} />
+            <Route path="courses" element={<Courses />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
+            
+            {/* Unified My Courses route */}
+            <Route path="courses/my-courses" element={
+              <ProtectedRoute>
+                <MyCoursesUnified />
+              </ProtectedRoute>
+            } />
+            
+            {/* Legacy redirect: marketplace -> courses */}
+            <Route path="marketplace" element={<Navigate to="/courses" replace />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="neurodiversity" element={<NeurodiversityGuide />} />
@@ -81,23 +92,15 @@ function App() {
             
             {/* Teaching Portal Routes */}
             <Route path="teach">
-              <Route path="dashboard" element={
-                <ProtectedRoute requirePortal="teach">
-                  <InstructorDashboard />
-                </ProtectedRoute>
-              } />
+              <Route path="dashboard" element={<Navigate to="/courses/my-courses" replace />} />
               
               <Route path="marketplace" element={
                 <ProtectedRoute requirePortal="teach">
-                  <Marketplace portal="teach" />
+                  <Courses portal="teach" />
                 </ProtectedRoute>
               } />
               
-              <Route path="my-courses" element={
-                <ProtectedRoute requirePortal="teach">
-                  <InstructorDashboard />
-                </ProtectedRoute>
-              } />
+              <Route path="my-courses" element={<Navigate to="/courses/my-courses" replace />} />
               
               <Route path="create-course" element={
                 <ProtectedRoute requirePortal="teach">
@@ -120,23 +123,15 @@ function App() {
             
             {/* Learning Portal Routes */}
             <Route path="learn">
-              <Route path="dashboard" element={
-                <ProtectedRoute requirePortal="learn">
-                  <MyCourses />
-                </ProtectedRoute>
-              } />
+              <Route path="dashboard" element={<Navigate to="/courses/my-courses" replace />} />
               
               <Route path="marketplace" element={
                 <ProtectedRoute requirePortal="learn">
-                  <Marketplace portal="learn" />
+                  <Courses portal="learn" />
                 </ProtectedRoute>
               } />
               
-              <Route path="my-courses" element={
-                <ProtectedRoute requirePortal="learn">
-                  <MyCourses />
-                </ProtectedRoute>
-              } />
+              <Route path="my-courses" element={<Navigate to="/courses/my-courses" replace />} />
               
               <Route path="course/:courseId/view" element={
                 <ProtectedRoute requirePortal="learn">
