@@ -175,7 +175,7 @@ function QuestionDetail() {
                 Asked by {question.profiles?.first_name} {question.profiles?.last_name}
               </span>
               <span className="date">
-                {new Date(question.created_at).toLocaleDateString()}
+                {new Date(question.created_at).toLocaleDateString('en-US')}
               </span>
             </div>
           </div>
@@ -268,7 +268,7 @@ function QuestionDetail() {
                       {answer.profiles?.first_name} {answer.profiles?.last_name}
                     </span>
                     <span className="date">
-                      {new Date(answer.created_at).toLocaleDateString()}
+                      {new Date(answer.created_at).toLocaleDateString('en-US')}
                     </span>
                     {user && user.id === question.author_id && !answer.is_best_answer && (
                       <button 

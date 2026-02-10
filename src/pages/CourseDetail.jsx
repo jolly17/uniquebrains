@@ -273,11 +273,11 @@ function CourseDetailContent() {
           {course.start_date && (
             <div className="schedule-dates-row">
               <span className="info-label">Start Date:</span>
-              <span className="info-value">{new Date(course.start_date).toLocaleDateString()}</span>
+              <span className="info-value">{new Date(course.start_date).toLocaleDateString('en-US')}</span>
               {course.has_end_date && course.end_date && (
                 <>
                   <span className="info-label">End Date:</span>
-                  <span className="info-value">{new Date(course.end_date).toLocaleDateString()}</span>
+                  <span className="info-value">{new Date(course.end_date).toLocaleDateString('en-US')}</span>
                 </>
               )}
             </div>

@@ -144,7 +144,7 @@ function TopicDetail() {
                       {question.profiles?.first_name} {question.profiles?.last_name}
                     </span>
                     <span className="date">
-                      {new Date(question.created_at).toLocaleDateString()}
+                      {new Date(question.created_at).toLocaleDateString('en-US')}
                     </span>
                   </div>
                 </div>

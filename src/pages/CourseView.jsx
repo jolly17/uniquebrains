@@ -175,7 +175,7 @@ function CourseView() {
                     </div>
                     <p className="homework-description">{hw.description}</p>
                     <div className="homework-meta">
-                      <span>📅 Due: {new Date(hw.dueDate).toLocaleDateString()}</span>
+                      <span>📅 Due: {new Date(hw.dueDate).toLocaleDateString('en-US')}</span>
                       <span>📎 Type: {hw.submissionType}</span>
                     </div>
                     {hw.status === 'pending' && (
@@ -215,7 +215,7 @@ function CourseView() {
                       <span className="grade-badge">{fb.grade}</span>
                     </div>
                     <p className="feedback-comment">{fb.comment}</p>
-                    <p className="feedback-date">Received: {new Date(fb.date).toLocaleDateString()}</p>
+                    <p className="feedback-date">Received: {new Date(fb.date).toLocaleDateString('en-US')}</p>
                   </div>
                 ))}
               </div>

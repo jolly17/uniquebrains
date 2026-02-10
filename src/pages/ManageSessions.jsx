@@ -500,8 +500,8 @@ function ManageSessions() {
       
       // Show success message
       const message = hasEndDate 
-        ? `Created ${newSessions.length} sessions from ${start.toLocaleDateString()} to ${end.toLocaleDateString()}`
-        : `Created ${newSessions.length} initial sessions starting ${start.toLocaleDateString()}`
+        ? `Created ${newSessions.length} sessions from ${start.toLocaleDateString('en-US')} to ${end.toLocaleDateString('en-US')}`
+        : `Created ${newSessions.length} initial sessions starting ${start.toLocaleDateString('en-US')}`
       alert(message)
     } catch (err) {
       console.error('Error generating recurring sessions:', err)
@@ -576,11 +576,11 @@ function ManageSessions() {
           {course.start_date && (
             <div className="schedule-dates">
               <span className="detail-label">Start Date:</span>
-              <span className="detail-value">{new Date(course.start_date).toLocaleDateString()}</span>
+              <span className="detail-value">{new Date(course.start_date).toLocaleDateString('en-US')}</span>
               {course.has_end_date && course.end_date && (
                 <>
                   <span className="detail-label" style={{ marginLeft: '2rem' }}>End Date:</span>
-                  <span className="detail-value">{new Date(course.end_date).toLocaleDateString()}</span>
+                  <span className="detail-value">{new Date(course.end_date).toLocaleDateString('en-US')}</span>
                 </>
               )}
             </div>
