@@ -416,6 +416,48 @@
   }
 }
 
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 1rem;
+  }
+
+  .auth-card {
+    padding: 1.5rem;
+  }
+
+  .auth-card h2 {
+    font-size: 1.5rem;
+  }
+
+  .role-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .day-time-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .time-input {
+    width: 100%;
+  }
+
+  .repeat-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .repeat-number,
+  .repeat-unit {
+    width: 100%;
+  }
+}
+
 .day-time-group {
   display: flex;
   flex-direction: column;
