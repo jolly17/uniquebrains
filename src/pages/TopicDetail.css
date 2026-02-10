@@ -134,7 +134,8 @@
 
 .question-card {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 16px;
   padding: 24px 32px;
   border-bottom: 1px solid #f0f0f0;
   text-decoration: none;
@@ -152,16 +153,17 @@
 
 .question-stats {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-width: 80px;
+  flex-direction: row;
+  gap: 16px;
+  min-width: auto;
 }
 
 .stat {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 8px;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 8px;
   background: #f5f7fa;
 }
@@ -172,7 +174,7 @@
 }
 
 .stat-number {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: #2C3744;
 }
@@ -184,7 +186,7 @@
 .stat-label {
   font-size: 12px;
   color: #5C7A99;
-  text-transform: uppercase;
+  text-transform: lowercase;
 }
 
 .question-content {
@@ -315,6 +317,7 @@
 
   .question-stats {
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }

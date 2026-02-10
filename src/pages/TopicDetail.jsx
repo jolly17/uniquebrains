@@ -117,20 +117,6 @@ function TopicDetail() {
                 to={`/community/${slug}/question/${question.id}`}
                 className="question-card"
               >
-                <div className="question-stats">
-                  <div className="stat">
-                    <span className="stat-number">{question.vote_count}</span>
-                    <span className="stat-label">votes</span>
-                  </div>
-                  <div className={`stat ${question.is_answered ? 'answered' : ''}`}>
-                    <span className="stat-number">{question.answer_count}</span>
-                    <span className="stat-label">answers</span>
-                  </div>
-                  <div className="stat">
-                    <span className="stat-number">{question.view_count}</span>
-                    <span className="stat-label">views</span>
-                  </div>
-                </div>
                 <div className="question-content">
                   <h3 className="question-title">{question.title}</h3>
                   {question.content && (
@@ -146,6 +132,20 @@ function TopicDetail() {
                     <span className="date">
                       {new Date(question.created_at).toLocaleDateString('en-US')}
                     </span>
+                  </div>
+                </div>
+                <div className="question-stats">
+                  <div className="stat">
+                    <span className="stat-number">{question.vote_count}</span>
+                    <span className="stat-label">votes</span>
+                  </div>
+                  <div className={`stat ${question.is_answered ? 'answered' : ''}`}>
+                    <span className="stat-number">{question.answer_count}</span>
+                    <span className="stat-label">answers</span>
+                  </div>
+                  <div className="stat">
+                    <span className="stat-number">{question.view_count}</span>
+                    <span className="stat-label">views</span>
                   </div>
                 </div>
               </Link>

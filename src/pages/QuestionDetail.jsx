@@ -181,22 +181,6 @@ function QuestionDetail() {
           </div>
 
           <div className="question-body">
-            <div className="vote-section">
-              <button 
-                className="vote-btn upvote"
-                onClick={() => handleVoteQuestion('up')}
-              >
-                ▲
-              </button>
-              <span className="vote-count">{question.vote_count}</span>
-              <button 
-                className="vote-btn downvote"
-                onClick={() => handleVoteQuestion('down')}
-              >
-                ▼
-              </button>
-            </div>
-
             <div className="question-content">
               {question.content && <p>{question.content}</p>}
               {question.image_url && (
@@ -205,6 +189,22 @@ function QuestionDetail() {
                 </div>
               )}
             </div>
+
+            <div className="vote-section">
+              <button 
+                className="vote-btn upvote"
+                onClick={() => handleVoteQuestion('up')}
+              >
+                👍 Upvote
+              </button>
+              <span className="vote-count">{question.vote_count}</span>
+              <button 
+                className="vote-btn downvote"
+                onClick={() => handleVoteQuestion('down')}
+              >
+                👎 Downvote
+              </button>
+            </div>
           </div>
 
           <div className="question-actions">
@@ -212,22 +212,29 @@ function QuestionDetail() {
               <span>{question.answer_count} answers</span>
               <span>{question.view_count} views</span>
             </div>
-            <div className="share-container">
-              <button 
-                className="btn-share"
-                onClick={() => setShowShareMenu(!showShareMenu)}
-              >
-                🔗 Share
-              </button>
-              {showShareMenu && (
-                <div className="share-menu">
-                  <button onClick={() => handleShare('facebook')}>Facebook</button>
-                  <button onClick={() => handleShare('twitter')}>Twitter</button>
-                  <button onClick={() => handleShare('linkedin')}>LinkedIn</button>
-                  <button onClick={() => handleShare('whatsapp')}>WhatsApp</button>
-                  <button onClick={() => handleShare('copy')}>Copy Link</button>
-                </div>
+            <div className="action-buttons">
+              {user && user.id === question.author_id && (
+                <button className="btn-edit">
+                  ✏️ Edit
+                </button>
               )}
+              <div className="share-container">
+                <button 
+                  className="btn-share"
+                  onClick={() => setShowShareMenu(!showShareMenu)}
+                >
+                  🔗 Share
+                </button>
+                {showShareMenu && (
+                  <div className="share-menu">
+                    <button onClick={() => handleShare('facebook')}>Facebook</button>
+                    <button onClick={() => handleShare('twitter')}>Twitter</button>
+                    <button onClick={() => handleShare('linkedin')}>LinkedIn</button>
+                    <button onClick={() => handleShare('whatsapp')}>WhatsApp</button>
+                    <button onClick={() => handleShare('copy')}>Copy Link</button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -245,22 +252,6 @@ function QuestionDetail() {
               )}
               
               <div className="answer-body">
-                <div className="vote-section">
-                  <button 
-                    className="vote-btn upvote"
-                    onClick={() => handleVoteAnswer(answer.id, 'up')}
-                  >
-                    ▲
-                  </button>
-                  <span className="vote-count">{answer.vote_count}</span>
-                  <button 
-                    className="vote-btn downvote"
-                    onClick={() => handleVoteAnswer(answer.id, 'down')}
-                  >
-                    ▼
-                  </button>
-                </div>
-
                 <div className="answer-content">
                   <p>{answer.content}</p>
                   <div className="answer-meta">
@@ -270,6 +261,11 @@ function QuestionDetail() {
                     <span className="date">
                       {new Date(answer.created_at).toLocaleDateString('en-US')}
                     </span>
+                    {user && user.id === answer.author_id && (
+                      <button className="btn-edit-answer">
+                        ✏️ Edit
+                      </button>
+                    )}
                     {user && user.id === question.author_id && !answer.is_best_answer && (
                       <button 
                         className="btn-mark-best"
@@ -279,6 +275,22 @@ function QuestionDetail() {
                       </button>
                     )}
                   </div>
+                </div>
+
+                <div className="vote-section">
+                  <button 
+                    className="vote-btn upvote"
+                    onClick={() => handleVoteAnswer(answer.id, 'up')}
+                  >
+                    👍 Upvote
+                  </button>
+                  <span className="vote-count">{answer.vote_count}</span>
+                  <button 
+                    className="vote-btn downvote"
+                    onClick={() => handleVoteAnswer(answer.id, 'down')}
+                  >
+                    👎 Downvote
+                  </button>
                 </div>
               </div>
             </div>

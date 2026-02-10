@@ -58,37 +58,47 @@
 .question-body,
 .answer-body {
   display: flex;
-  gap: 24px;
+  flex-direction: column;
+  gap: 16px;
   margin-top: 24px;
 }
 
 .vote-section {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
 .vote-btn {
   background: #f0f0f0;
   border: none;
-  width: 40px;
-  height: 40px;
+  padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.vote-btn:hover {
-  background: #667eea;
+.vote-btn.upvote:hover {
+  background: #4caf50;
+  color: white;
+}
+
+.vote-btn.downvote:hover {
+  background: #f44336;
   color: white;
 }
 
 .vote-count {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 700;
   color: #2C3744;
+  min-width: 40px;
+  text-align: center;
 }
 
 .question-content,
@@ -121,6 +131,30 @@
   margin-top: 24px;
   padding-top: 24px;
   border-top: 2px solid #f0f0f0;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-edit,
+.btn-edit-answer {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit:hover,
+.btn-edit-answer:hover {
+  background: #667eea;
+  color: white;
 }
 
 .question-stats {
