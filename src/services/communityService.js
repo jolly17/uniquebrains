@@ -266,13 +266,13 @@ export async function voteQuestion(questionId, voteType) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Must be logged in to vote')
 
-  // Check if user already voted
+  // Check if user already voted - use maybeSingle() instead of single()
   const { data: existingVote } = await supabase
     .from('votes')
     .select('*')
     .eq('user_id', user.id)
     .eq('question_id', questionId)
-    .single()
+    .maybeSingle()
 
   if (existingVote) {
     if (existingVote.vote_type === voteType) {
@@ -317,13 +317,13 @@ export async function voteAnswer(answerId, voteType) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Must be logged in to vote')
 
-  // Check if user already voted
+  // Check if user already voted - use maybeSingle() instead of single()
   const { data: existingVote } = await supabase
     .from('votes')
     .select('*')
     .eq('user_id', user.id)
     .eq('answer_id', answerId)
-    .single()
+    .maybeSingle()
 
   if (existingVote) {
     if (existingVote.vote_type === voteType) {
