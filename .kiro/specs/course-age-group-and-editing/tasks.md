@@ -63,14 +63,14 @@ This implementation plan breaks down the course age group and editing features i
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 6. Create EditCourse component
-  - [ ] 6.1 Create EditCourse.jsx file
+  - [x] 6.1 Create EditCourse.jsx file
     - Set up component structure with routing hooks (useParams, useNavigate)
     - Add state management for formData, loading, saving, and error states
     - Implement useEffect to load course data on mount
     - Add authorization check to verify user is course instructor
     - _Requirements: 3.1, 3.2, 6.1, 6.2_
   
-  - [ ] 6.2 Implement loadCourseData function
+  - [x] 6.2 Implement loadCourseData function
     - Fetch course by ID using api.courses.getById
     - Verify current user matches course instructor_id
     - Transform course data to match form structure
@@ -86,14 +86,14 @@ This implementation plan breaks down the course age group and editing features i
     - _Requirements: 3.2, 6.2, 6.3_
 
 - [ ] 7. Implement edit form UI
-  - [ ] 7.1 Copy form structure from CreateCourse.jsx to EditCourse.jsx
+  - [x] 7.1 Copy form structure from CreateCourse.jsx to EditCourse.jsx
     - Include all editable fields: title, description, category, age group, course type, enrollment limit, session duration, session time, timezone, start date, repeat settings, selected days, end date, meeting link
     - Update page heading to "Edit Course"
     - Update submit button text to "Update Course"
     - Maintain two-column grid layout
     - _Requirements: 3.3, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 7.1, 7.4_
   
-  - [ ] 7.2 Implement form change handlers
+  - [x] 7.2 Implement form change handlers
     - Add handleChange function for text inputs and selects
     - Add toggleDay function for day selection
     - Ensure all form interactions update formData state
@@ -104,7 +104,7 @@ This implementation plan breaks down the course age group and editing features i
     - **Validates: Requirements 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7**
 
 - [ ] 8. Implement course update submission
-  - [ ] 8.1 Create handleSubmit function in EditCourse.jsx
+  - [x] 8.1 Create handleSubmit function in EditCourse.jsx
     - Validate all required fields
     - Transform formData to API format
     - Call api.courses.update with courseId, updates, and user.id
@@ -121,7 +121,7 @@ This implementation plan breaks down the course age group and editing features i
     - **Validates: Requirements 7.2**
 
 - [ ] 9. Add routing for edit course page
-  - [ ] 9.1 Add route in App.jsx or main routing file
+  - [x] 9.1 Add route in App.jsx or main routing file
     - Add route path "/courses/:courseId/edit" pointing to EditCourse component
     - Ensure route is protected (requires authentication)
     - _Requirements: 3.1_
@@ -132,13 +132,13 @@ This implementation plan breaks down the course age group and editing features i
     - _Requirements: 3.1_
 
 - [ ] 10. Add navigation to edit page from instructor dashboard
-  - [ ] 10.1 Update instructor dashboard course list
+  - [x] 10.1 Update instructor dashboard course list
     - Add "Edit Course" button/link for each course
     - Link to /courses/:id/edit route
     - Style button consistently with existing UI
     - _Requirements: 3.4_
   
-  - [ ] 10.2 Add edit button to course detail page
+  - [x] 10.2 Add edit button to course detail page
     - Show edit button only when current user is course instructor
     - Add conditional rendering based on user.id === course.instructor_id
     - Link to edit page on click
@@ -160,7 +160,7 @@ This implementation plan breaks down the course age group and editing features i
     - _Requirements: 6.1, 6.3, 6.4_
 
 - [ ] 12. Handle schedule updates for existing courses
-  - [ ] 12.1 Update EditCourse to handle schedule modifications
+  - [x] 12.1 Update EditCourse to handle schedule modifications
     - Ensure schedule fields are editable for group courses
     - Display appropriate UI for one-on-one courses
     - Include schedule data in update API call
@@ -176,17 +176,17 @@ This implementation plan breaks down the course age group and editing features i
     - Test schedule changes are included in update
     - _Requirements: 8.1, 8.2_
 
-- [ ] 13. Final checkpoint - Integration testing
+- [x] 13. Final checkpoint - Integration testing
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 14. Polish and error handling
-  - [ ] 14.1 Add comprehensive error messages
+  - [x] 14.1 Add comprehensive error messages
     - Add user-friendly error messages for all failure scenarios
     - Display validation errors inline on form fields
     - Show network error messages with retry options
     - _Requirements: 5.5_
   
-  - [ ] 14.2 Add loading states and feedback
+  - [x] 14.2 Add loading states and feedback
     - Show loading spinner while fetching course data
     - Show saving indicator during form submission
     - Display success confirmation after successful update

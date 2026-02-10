@@ -13,6 +13,7 @@ import StudentCourseView from './pages/StudentCourseView'
 import ManageStudents from './pages/ManageStudents'
 import InstructorDashboard from './pages/InstructorDashboard'
 import CreateCourse from './pages/CreateCourse'
+import EditCourse from './pages/EditCourse'
 import ManageSessions from './pages/ManageSessions'
 import ManageCourse from './pages/ManageCourse'
 import StudentProfile from './pages/StudentProfile'
@@ -71,6 +72,11 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="courses" element={<Courses />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
+            <Route path="courses/:courseId/edit" element={
+              <ProtectedRoute>
+                <EditCourse />
+              </ProtectedRoute>
+            } />
             
             {/* Unified My Courses route */}
             <Route path="courses/my-courses" element={

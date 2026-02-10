@@ -200,12 +200,21 @@ function CourseDetailContent() {
               Class Full
             </button>
           ) : isInstructor ? (
-            <button 
-              onClick={() => navigate(`/teach/course/${courseId}/manage`)} 
-              className="btn-secondary btn-full"
-            >
-              Manage Course
-            </button>
+            <>
+              <button 
+                onClick={() => navigate(`/courses/${courseId}/edit`)} 
+                className="btn-primary btn-full"
+              >
+                Edit Course
+              </button>
+              <button 
+                onClick={() => navigate(`/teach/course/${courseId}/manage`)} 
+                className="btn-secondary btn-full"
+                style={{ marginTop: '0.5rem' }}
+              >
+                Manage Course
+              </button>
+            </>
           ) : isEnrolled ? (
             <button className="btn-secondary btn-full" disabled>
               ✓ Enrolled
