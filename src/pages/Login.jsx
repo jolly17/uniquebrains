@@ -50,9 +50,9 @@ function Login() {
           console.log('Login: Redirecting to:', redirectTo)
           navigate(redirectTo)
         } else {
-          // Navigate to unified dashboard
-          console.log('Login: No redirect URL, going to my-courses')
-          navigate('/courses/my-courses')
+          // Navigate to home page
+          console.log('Login: No redirect URL, going to home page')
+          navigate('/')
         }
       }
     } catch (err) {

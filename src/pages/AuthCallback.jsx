@@ -238,8 +238,8 @@ export function AuthCallback() {
               sessionStorage.removeItem('redirectAfterLogin')
               navigate(oauthRedirectUrl, { replace: true })
             } else {
-              // Redirect to unified dashboard
-              navigate('/courses/my-courses', { replace: true })
+              // Redirect to home page
+              navigate('/', { replace: true })
             }
           }
         } else {
