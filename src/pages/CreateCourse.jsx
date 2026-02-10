@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import { supabase } from '../lib/supabase'
 import './Auth.css'
+import './CreateCourse.css'
 
 function CreateCourse() {
   const navigate = useNavigate()
@@ -127,9 +128,9 @@ function CreateCourse() {
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="auth-form" style={{ maxWidth: '100%' }}>
+      <form onSubmit={handleSubmit} className="auth-form create-course-form">
         {/* Two-column grid layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+        <div className="form-grid-2col">
           
           {/* Left Column */}
           <div>
@@ -161,7 +162,7 @@ function CreateCourse() {
               />
             </div>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label htmlFor="category" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Category *</label>
                 <select
@@ -202,7 +203,7 @@ function CreateCourse() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label htmlFor="courseType" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Course Type *</label>
                 <select
@@ -219,7 +220,7 @@ function CreateCourse() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+            <div className="form-row-2col">
               <div className="form-group">
                 <label htmlFor="price" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Price ($)</label>
                 <input
@@ -280,7 +281,7 @@ function CreateCourse() {
               <>
                 <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#374151' }}>Schedule</h3>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-row-2col">
                   <div className="form-group">
                     <label htmlFor="sessionDuration" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Duration (min) *</label>
                     <input
@@ -341,7 +342,7 @@ function CreateCourse() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div className="form-row-2col">
                   <div className="form-group">
                     <label htmlFor="startDate" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Start Date *</label>
                     <input
@@ -462,11 +463,11 @@ function CreateCourse() {
         </div>
         
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-          <button type="button" onClick={() => navigate(-1)} className="btn-secondary" style={{ minWidth: '120px' }}>
+        <div className="form-actions">
+          <button type="button" onClick={() => navigate(-1)} className="btn-secondary">
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={loading} style={{ minWidth: '120px' }}>
+          <button type="submit" className="btn-primary" disabled={loading}>
             {loading ? 'Creating...' : 'Create Course'}
           </button>
         </div>
