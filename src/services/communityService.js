@@ -220,6 +220,18 @@ export async function createAnswer(answerData) {
   return data
 }
 
+export async function updateAnswer(answerId, updates) {
+  const { data, error } = await supabase
+    .from('answers')
+    .update(updates)
+    .eq('id', answerId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function markBestAnswer(questionId, answerId) {
   // Remove best answer from other answers
   await supabase

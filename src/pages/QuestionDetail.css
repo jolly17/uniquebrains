@@ -157,6 +157,63 @@
   color: white;
 }
 
+.edit-form {
+  width: 100%;
+}
+
+.edit-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.edit-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-save {
+  padding: 8px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-save:hover {
+  background: #45a049;
+}
+
+.btn-cancel {
+  padding: 8px 20px;
+  background: #f0f0f0;
+  color: #2C3744;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e0e0e0;
+}
+
 .question-stats {
   display: flex;
   gap: 20px;

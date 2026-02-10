@@ -5,6 +5,8 @@ import {
   getQuestionById, 
   getAnswersByQuestion, 
   createAnswer,
+  updateQuestion,
+  updateAnswer,
   voteQuestion,
   voteAnswer,
   markBestAnswer
@@ -22,6 +24,10 @@ function QuestionDetail() {
   const [answerContent, setAnswerContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [editingQuestion, setEditingQuestion] = useState(false)
+  const [editedQuestionContent, setEditedQuestionContent] = useState('')
+  const [editingAnswerId, setEditingAnswerId] = useState(null)
+  const [editedAnswerContent, setEditedAnswerContent] = useState('')
 
   useEffect(() => {
     fetchQuestionAndAnswers()
@@ -145,6 +151,59 @@ function QuestionDetail() {
     setShowShareMenu(false)
   }
 
+  const handleEditQuestion = () => {
+    setEditingQuestion(true)
+    setEditedQuestionContent(question.content || '')
+  }
+
+  const handleSaveQuestion = async () => {
+    if (!editedQuestionContent.trim()) {
+      alert('Question content cannot be empty')
+      return
+    }
+
+    try {
+      await updateQuestion(id, { content: editedQuestionContent.trim() })
+      setEditingQuestion(false)
+      await fetchQuestionAndAnswers()
+    } catch (err) {
+      console.error('Error updating question:', err)
+      alert('Failed to update question: ' + err.message)
+    }
+  }
+
+  const handleCancelEditQuestion = () => {
+    setEditingQuestion(false)
+    setEditedQuestionContent('')
+  }
+
+  const handleEditAnswer = (answer) => {
+    setEditingAnswerId(answer.id)
+    setEditedAnswerContent(answer.content)
+  }
+
+  const handleSaveAnswer = async (answerId) => {
+    if (!editedAnswerContent.trim()) {
+      alert('Answer content cannot be empty')
+      return
+    }
+
+    try {
+      await updateAnswer(answerId, { content: editedAnswerContent.trim() })
+      setEditingAnswerId(null)
+      setEditedAnswerContent('')
+      await fetchQuestionAndAnswers()
+    } catch (err) {
+      console.error('Error updating answer:', err)
+      alert('Failed to update answer: ' + err.message)
+    }
+  }
+
+  const handleCancelEditAnswer = () => {
+    setEditingAnswerId(null)
+    setEditedAnswerContent('')
+  }
+
   if (loading) {
     return (
       <div className="question-detail-page">
@@ -188,11 +247,32 @@ function QuestionDetail() {
 
           <div className="question-body">
             <div className="question-content">
-              {question.content && <p>{question.content}</p>}
-              {question.image_url && (
-                <div className="question-media">
-                  <img src={question.image_url} alt="Question media" />
+              {editingQuestion ? (
+                <div className="edit-form">
+                  <textarea
+                    value={editedQuestionContent}
+                    onChange={(e) => setEditedQuestionContent(e.target.value)}
+                    rows={6}
+                    className="edit-textarea"
+                  />
+                  <div className="edit-actions">
+                    <button onClick={handleSaveQuestion} className="btn-save">
+                      Save
+                    </button>
+                    <button onClick={handleCancelEditQuestion} className="btn-cancel">
+                      Cancel
+                    </button>
+                  </div>
                 </div>
+              ) : (
+                <>
+                  {question.content && <p>{question.content}</p>}
+                  {question.image_url && (
+                    <div className="question-media">
+                      <img src={question.image_url} alt="Question media" />
+                    </div>
+                  )}
+                </>
               )}
             </div>
 
@@ -227,8 +307,8 @@ function QuestionDetail() {
               <span>{question.view_count} views</span>
             </div>
             <div className="action-buttons">
-              {user && user.id === question.author_id && (
-                <button className="btn-edit">
+              {user && user.id === question.author_id && !editingQuestion && (
+                <button className="btn-edit" onClick={handleEditQuestion}>
                   ✏️ Edit
                 </button>
               )}
@@ -267,28 +347,49 @@ function QuestionDetail() {
               
               <div className="answer-body">
                 <div className="answer-content">
-                  <p>{answer.content}</p>
-                  <div className="answer-meta">
-                    <span className="author">
-                      {answer.profiles?.first_name} {answer.profiles?.last_name}
-                    </span>
-                    <span className="date">
-                      {new Date(answer.created_at).toLocaleDateString('en-US')}
-                    </span>
-                    {user && user.id === answer.author_id && (
-                      <button className="btn-edit-answer">
-                        ✏️ Edit
-                      </button>
-                    )}
-                    {user && user.id === question.author_id && !answer.is_best_answer && (
-                      <button 
-                        className="btn-mark-best"
-                        onClick={() => handleMarkBestAnswer(answer.id)}
-                      >
-                        Mark as Best Answer
-                      </button>
-                    )}
-                  </div>
+                  {editingAnswerId === answer.id ? (
+                    <div className="edit-form">
+                      <textarea
+                        value={editedAnswerContent}
+                        onChange={(e) => setEditedAnswerContent(e.target.value)}
+                        rows={6}
+                        className="edit-textarea"
+                      />
+                      <div className="edit-actions">
+                        <button onClick={() => handleSaveAnswer(answer.id)} className="btn-save">
+                          Save
+                        </button>
+                        <button onClick={handleCancelEditAnswer} className="btn-cancel">
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p>{answer.content}</p>
+                      <div className="answer-meta">
+                        <span className="author">
+                          {answer.profiles?.first_name} {answer.profiles?.last_name}
+                        </span>
+                        <span className="date">
+                          {new Date(answer.created_at).toLocaleDateString('en-US')}
+                        </span>
+                        {user && user.id === answer.author_id && (
+                          <button className="btn-edit-answer" onClick={() => handleEditAnswer(answer)}>
+                            ✏️ Edit
+                          </button>
+                        )}
+                        {user && user.id === question.author_id && !answer.is_best_answer && (
+                          <button 
+                            className="btn-mark-best"
+                            onClick={() => handleMarkBestAnswer(answer.id)}
+                          >
+                            Mark as Best Answer
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="vote-section">
