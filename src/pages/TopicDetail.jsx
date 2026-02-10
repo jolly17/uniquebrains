@@ -132,15 +132,15 @@ function TopicDetail() {
                 </div>
                 <div className="question-stats">
                   <div className="stat">
-                    <span className="stat-number">{question.vote_count}</span>
+                    <span className="stat-number">{question.vote_count || 0}</span>
                     <span className="stat-label">votes</span>
                   </div>
                   <div className={`stat ${question.is_answered ? 'answered' : ''}`}>
-                    <span className="stat-number">{question.answer_count}</span>
+                    <span className="stat-number">{question.answer_count || 0}</span>
                     <span className="stat-label">answers</span>
                   </div>
                   <div className="stat">
-                    <span className="stat-number">{question.view_count}</span>
+                    <span className="stat-number">{question.view_count || 0}</span>
                     <span className="stat-label">views</span>
                   </div>
                 </div>
