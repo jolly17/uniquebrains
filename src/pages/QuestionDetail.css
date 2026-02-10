@@ -161,6 +161,22 @@
   width: 100%;
 }
 
+.edit-title-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: 600;
+  font-family: inherit;
+  margin-bottom: 12px;
+}
+
+.edit-title-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
 .edit-textarea {
   width: 100%;
   padding: 12px;

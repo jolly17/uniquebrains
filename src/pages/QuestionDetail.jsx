@@ -24,6 +24,8 @@ function QuestionDetail() {
   const [answerContent, setAnswerContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [editingQuestion, setEditingQuestion] = useState(false)
+  const [editedQuestionTitle, setEditedQuestionTitle] = useState('')
   const [editingAnswerId, setEditingAnswerId] = useState(null)
   const [editedAnswerContent, setEditedAnswerContent] = useState('')
 
@@ -149,6 +151,32 @@ function QuestionDetail() {
     setShowShareMenu(false)
   }
 
+  const handleEditQuestion = () => {
+    setEditingQuestion(true)
+    setEditedQuestionTitle(question.title || '')
+  }
+
+  const handleSaveQuestion = async () => {
+    if (!editedQuestionTitle.trim()) {
+      alert('Question title cannot be empty')
+      return
+    }
+
+    try {
+      await updateQuestion(id, { title: editedQuestionTitle.trim() })
+      setEditingQuestion(false)
+      await fetchQuestionAndAnswers()
+    } catch (err) {
+      console.error('Error updating question:', err)
+      alert('Failed to update question: ' + err.message)
+    }
+  }
+
+  const handleCancelEditQuestion = () => {
+    setEditingQuestion(false)
+    setEditedQuestionTitle('')
+  }
+
   const handleEditAnswer = (answer) => {
     setEditingAnswerId(answer.id)
     setEditedAnswerContent(answer.content)
@@ -206,15 +234,38 @@ function QuestionDetail() {
 
         <div className="question-card">
           <div className="question-header">
-            <h1>{question.title}</h1>
-            <div className="question-meta">
-              <span className="author">
-                Asked by {question.profiles?.first_name} {question.profiles?.last_name}
-              </span>
-              <span className="date">
-                {new Date(question.created_at).toLocaleDateString('en-US')}
-              </span>
-            </div>
+            {editingQuestion ? (
+              <div className="edit-form">
+                <input
+                  type="text"
+                  value={editedQuestionTitle}
+                  onChange={(e) => setEditedQuestionTitle(e.target.value)}
+                  maxLength={300}
+                  className="edit-title-input"
+                  placeholder="Enter question title"
+                />
+                <div className="edit-actions">
+                  <button onClick={handleSaveQuestion} className="btn-save">
+                    Save
+                  </button>
+                  <button onClick={handleCancelEditQuestion} className="btn-cancel">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h1>{question.title}</h1>
+                <div className="question-meta">
+                  <span className="author">
+                    Asked by {question.profiles?.first_name} {question.profiles?.last_name}
+                  </span>
+                  <span className="date">
+                    {new Date(question.created_at).toLocaleDateString('en-US')}
+                  </span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="question-body">
@@ -255,6 +306,11 @@ function QuestionDetail() {
               <span>{question.view_count} views</span>
             </div>
             <div className="action-buttons">
+              {user && user.id === question.author_id && !editingQuestion && (
+                <button className="btn-edit" onClick={handleEditQuestion}>
+                  ✏️ Edit Title
+                </button>
+              )}
               <div className="share-container">
                 <button 
                   className="btn-share"
