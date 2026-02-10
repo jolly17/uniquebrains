@@ -54,7 +54,9 @@ function QuestionDetail() {
 
   const handleVoteQuestion = async (voteType) => {
     if (!user) {
-      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
+      const redirectUrl = `/community/${slug}/question/${id}`
+      sessionStorage.setItem('redirectAfterLogin', redirectUrl)
+      navigate('/login', { state: { from: redirectUrl } })
       return
     }
 
@@ -71,7 +73,9 @@ function QuestionDetail() {
 
   const handleVoteAnswer = async (answerId, voteType) => {
     if (!user) {
-      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
+      const redirectUrl = `/community/${slug}/question/${id}`
+      sessionStorage.setItem('redirectAfterLogin', redirectUrl)
+      navigate('/login', { state: { from: redirectUrl } })
       return
     }
 
@@ -103,7 +107,9 @@ function QuestionDetail() {
     e.preventDefault()
 
     if (!user) {
-      navigate('/login', { state: { from: `/community/${slug}/question/${id}` } })
+      const redirectUrl = `/community/${slug}/question/${id}`
+      sessionStorage.setItem('redirectAfterLogin', redirectUrl)
+      navigate('/login', { state: { from: redirectUrl } })
       return
     }
 

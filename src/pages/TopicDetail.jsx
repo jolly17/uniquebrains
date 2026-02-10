@@ -37,7 +37,9 @@ function TopicDetail() {
 
   const handleAskQuestion = () => {
     if (!user) {
-      navigate('/login', { state: { from: `/community/${slug}/ask` } })
+      const redirectUrl = `/community/${slug}/ask`
+      sessionStorage.setItem('redirectAfterLogin', redirectUrl)
+      navigate('/login', { state: { from: redirectUrl } })
       return
     }
     navigate(`/community/${slug}/ask`)

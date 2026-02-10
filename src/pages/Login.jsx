@@ -35,10 +35,12 @@ function Login() {
           setError(result.error.message || 'Invalid credentials')
         }
       } else if (result.profile) {
-        // Check if there's a redirect URL in the location state
-        const redirectTo = location.state?.from || null
+        // Check if there's a redirect URL in the location state or sessionStorage
+        const redirectTo = location.state?.from || sessionStorage.getItem('redirectAfterLogin') || null
         
-        console.log('Login: Redirect URL from location.state:', redirectTo)
+        console.log('Login: Redirect URL from location.state:', location.state?.from)
+        console.log('Login: Redirect URL from sessionStorage:', sessionStorage.getItem('redirectAfterLogin'))
+        console.log('Login: Final redirect URL:', redirectTo)
         
         // Clear the sessionStorage
         sessionStorage.removeItem('redirectAfterLogin')
