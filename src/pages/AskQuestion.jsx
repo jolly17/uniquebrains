@@ -144,7 +144,6 @@ function AskQuestion() {
         topic_id: topic.id,
         author_id: user.id,
         title: formData.title.trim(),
-        content: '', // Empty content since we only have title
         image_url: imageUrl
       }
 

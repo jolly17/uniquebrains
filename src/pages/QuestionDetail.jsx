@@ -24,8 +24,6 @@ function QuestionDetail() {
   const [answerContent, setAnswerContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
-  const [editingQuestion, setEditingQuestion] = useState(false)
-  const [editedQuestionContent, setEditedQuestionContent] = useState('')
   const [editingAnswerId, setEditingAnswerId] = useState(null)
   const [editedAnswerContent, setEditedAnswerContent] = useState('')
 
@@ -151,32 +149,6 @@ function QuestionDetail() {
     setShowShareMenu(false)
   }
 
-  const handleEditQuestion = () => {
-    setEditingQuestion(true)
-    setEditedQuestionContent(question.content || '')
-  }
-
-  const handleSaveQuestion = async () => {
-    if (!editedQuestionContent.trim()) {
-      alert('Question content cannot be empty')
-      return
-    }
-
-    try {
-      await updateQuestion(id, { content: editedQuestionContent.trim() })
-      setEditingQuestion(false)
-      await fetchQuestionAndAnswers()
-    } catch (err) {
-      console.error('Error updating question:', err)
-      alert('Failed to update question: ' + err.message)
-    }
-  }
-
-  const handleCancelEditQuestion = () => {
-    setEditingQuestion(false)
-    setEditedQuestionContent('')
-  }
-
   const handleEditAnswer = (answer) => {
     setEditingAnswerId(answer.id)
     setEditedAnswerContent(answer.content)
@@ -246,35 +218,11 @@ function QuestionDetail() {
           </div>
 
           <div className="question-body">
-            <div className="question-content">
-              {editingQuestion ? (
-                <div className="edit-form">
-                  <textarea
-                    value={editedQuestionContent}
-                    onChange={(e) => setEditedQuestionContent(e.target.value)}
-                    rows={6}
-                    className="edit-textarea"
-                  />
-                  <div className="edit-actions">
-                    <button onClick={handleSaveQuestion} className="btn-save">
-                      Save
-                    </button>
-                    <button onClick={handleCancelEditQuestion} className="btn-cancel">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {question.content && <p>{question.content}</p>}
-                  {question.image_url && (
-                    <div className="question-media">
-                      <img src={question.image_url} alt="Question media" />
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+            {question.image_url && (
+              <div className="question-media">
+                <img src={question.image_url} alt="Question media" />
+              </div>
+            )}
 
             <div className="vote-section">
               <button 
@@ -307,11 +255,6 @@ function QuestionDetail() {
               <span>{question.view_count} views</span>
             </div>
             <div className="action-buttons">
-              {user && user.id === question.author_id && !editingQuestion && (
-                <button className="btn-edit" onClick={handleEditQuestion}>
-                  ✏️ Edit
-                </button>
-              )}
               <div className="share-container">
                 <button 
                   className="btn-share"
