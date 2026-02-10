@@ -7,6 +7,8 @@ import {
   createAnswer,
   updateQuestion,
   updateAnswer,
+  deleteQuestion,
+  deleteAnswer,
   voteQuestion,
   voteAnswer,
   markBestAnswer
@@ -177,6 +179,20 @@ function QuestionDetail() {
     setEditedQuestionTitle('')
   }
 
+  const handleDeleteQuestion = async () => {
+    if (!window.confirm('Are you sure you want to delete this question? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await deleteQuestion(id)
+      navigate(`/community/${slug}`)
+    } catch (err) {
+      console.error('Error deleting question:', err)
+      alert('Failed to delete question: ' + err.message)
+    }
+  }
+
   const handleEditAnswer = (answer) => {
     setEditingAnswerId(answer.id)
     setEditedAnswerContent(answer.content)
@@ -202,6 +218,20 @@ function QuestionDetail() {
   const handleCancelEditAnswer = () => {
     setEditingAnswerId(null)
     setEditedAnswerContent('')
+  }
+
+  const handleDeleteAnswer = async (answerId) => {
+    if (!window.confirm('Are you sure you want to delete this answer? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await deleteAnswer(answerId)
+      await fetchQuestionAndAnswers()
+    } catch (err) {
+      console.error('Error deleting answer:', err)
+      alert('Failed to delete answer: ' + err.message)
+    }
   }
 
   if (loading) {
@@ -307,9 +337,14 @@ function QuestionDetail() {
             </div>
             <div className="action-buttons">
               {user && user.id === question.author_id && !editingQuestion && (
-                <button className="btn-edit" onClick={handleEditQuestion}>
-                  ✏️ Edit Title
-                </button>
+                <>
+                  <button className="btn-edit" onClick={handleEditQuestion}>
+                    ✏️ Edit Title
+                  </button>
+                  <button className="btn-delete" onClick={handleDeleteQuestion}>
+                    🗑️ Delete
+                  </button>
+                </>
               )}
               <div className="share-container">
                 <button 
@@ -374,9 +409,14 @@ function QuestionDetail() {
                           {new Date(answer.created_at).toLocaleDateString('en-US')}
                         </span>
                         {user && user.id === answer.author_id && (
-                          <button className="btn-edit-answer" onClick={() => handleEditAnswer(answer)}>
-                            ✏️ Edit
-                          </button>
+                          <>
+                            <button className="btn-edit-answer" onClick={() => handleEditAnswer(answer)}>
+                              ✏️ Edit
+                            </button>
+                            <button className="btn-delete-answer" onClick={() => handleDeleteAnswer(answer.id)}>
+                              🗑️ Delete
+                            </button>
+                          </>
                         )}
                         {user && user.id === question.author_id && !answer.is_best_answer && (
                           <button 

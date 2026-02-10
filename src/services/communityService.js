@@ -167,12 +167,35 @@ export async function updateQuestion(questionId, updates) {
 }
 
 export async function deleteQuestion(questionId) {
+  // Get question data first to decrement topic count
+  const { data: questionData } = await supabase
+    .from('questions')
+    .select('topic_id')
+    .eq('id', questionId)
+    .single()
+
   const { error } = await supabase
     .from('questions')
     .delete()
     .eq('id', questionId)
 
   if (error) throw error
+
+  // Decrement topic question count
+  if (questionData?.topic_id) {
+    const { data: topicData } = await supabase
+      .from('topics')
+      .select('question_count')
+      .eq('id', questionData.topic_id)
+      .single()
+
+    await supabase
+      .from('topics')
+      .update({ 
+        question_count: Math.max(0, (topicData?.question_count || 0) - 1)
+      })
+      .eq('id', questionData.topic_id)
+  }
 }
 
 // =====================================================
@@ -236,6 +259,41 @@ export async function updateAnswer(answerId, updates) {
 
   if (error) throw error
   return data
+}
+
+export async function deleteAnswer(answerId) {
+  // Get answer data first to decrement question count
+  const { data: answerData } = await supabase
+    .from('answers')
+    .select('question_id')
+    .eq('id', answerId)
+    .single()
+
+  const { error } = await supabase
+    .from('answers')
+    .delete()
+    .eq('id', answerId)
+
+  if (error) throw error
+
+  // Decrement question answer count
+  if (answerData?.question_id) {
+    const { data: questionData } = await supabase
+      .from('questions')
+      .select('answer_count')
+      .eq('id', answerData.question_id)
+      .single()
+
+    const newCount = Math.max(0, (questionData?.answer_count || 0) - 1)
+
+    await supabase
+      .from('questions')
+      .update({ 
+        answer_count: newCount,
+        is_answered: newCount > 0
+      })
+      .eq('id', answerData.question_id)
+  }
 }
 
 export async function markBestAnswer(questionId, answerId) {

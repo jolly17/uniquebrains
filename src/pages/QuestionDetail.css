@@ -157,6 +157,25 @@
   color: white;
 }
 
+.btn-delete,
+.btn-delete-answer {
+  padding: 8px 16px;
+  background: #ffebee;
+  color: #c62828;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover,
+.btn-delete-answer:hover {
+  background: #c62828;
+  color: white;
+}
+
 .edit-form {
   width: 100%;
 }
