@@ -208,11 +208,17 @@ export async function createAnswer(answerData) {
 
   if (error) throw error
 
-  // Increment question answer count
+  // Increment question answer count - fetch current count first
+  const { data: questionData } = await supabase
+    .from('questions')
+    .select('answer_count')
+    .eq('id', answerData.question_id)
+    .single()
+
   await supabase
     .from('questions')
     .update({ 
-      answer_count: supabase.raw('answer_count + 1'),
+      answer_count: (questionData?.answer_count || 0) + 1,
       is_answered: true 
     })
     .eq('id', answerData.question_id)
