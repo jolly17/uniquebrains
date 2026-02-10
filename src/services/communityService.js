@@ -13,13 +13,19 @@ export async function getAllTopics() {
         id,
         first_name,
         last_name
-      )
+      ),
+      questions:questions(count)
     `)
     .order('is_featured', { ascending: false })
     .order('question_count', { ascending: false })
 
   if (error) throw error
-  return data
+  
+  // Map the actual question count from the join
+  return data.map(topic => ({
+    ...topic,
+    question_count: topic.questions?.[0]?.count || 0
+  }))
 }
 
 export async function getTopicBySlug(slug) {
