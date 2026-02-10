@@ -38,14 +38,18 @@ function Login() {
         // Check if there's a redirect URL in the location state
         const redirectTo = location.state?.from || null
         
+        console.log('Login: Redirect URL from location.state:', redirectTo)
+        
         // Clear the sessionStorage
         sessionStorage.removeItem('redirectAfterLogin')
         
         if (redirectTo) {
           // Redirect to the page they were trying to access
+          console.log('Login: Redirecting to:', redirectTo)
           navigate(redirectTo)
         } else {
           // Navigate to unified dashboard
+          console.log('Login: No redirect URL, going to my-courses')
           navigate('/courses/my-courses')
         }
       }
