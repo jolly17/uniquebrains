@@ -13,12 +13,14 @@ export function OAuthButton({ provider, children, className = '' }) {
     try {
       // Store the intended redirect URL in localStorage before OAuth flow
       // This will be retrieved after OAuth callback
-      const currentPath = window.location.pathname
       const redirectUrl = sessionStorage.getItem('redirectAfterLogin')
       
+      console.log('OAuth: Checking for redirect URL:', redirectUrl)
+      
       if (redirectUrl) {
-        // If there's already a redirect URL stored (from login page state), keep it
+        // If there's a redirect URL stored (from login page state), use it
         localStorage.setItem('oauthRedirectUrl', redirectUrl)
+        console.log('OAuth: Stored redirect URL in localStorage:', redirectUrl)
       }
       
       const options = {
