@@ -107,19 +107,6 @@ function CourseStudents({ course }) {
 
   return (
     <div className="course-students">
-      {isGroupCourse && (
-        <div className="course-stats-grid">
-          <div className="stat-card">
-            <div className="stat-value">{enrolledCount}</div>
-            <div className="stat-label">Enrolled Students</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-value">{spotsRemaining}</div>
-            <div className="stat-label">Spots Remaining</div>
-          </div>
-        </div>
-      )}
-
       <div className="students-section">
         <div className="students-header">
           <h2>{isGroupCourse ? '👥 Enrolled Students' : '👤 Individual Students'}</h2>
