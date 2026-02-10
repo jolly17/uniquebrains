@@ -304,6 +304,15 @@
     font-size: 16px;
   }
 
+  .btn-ask-question {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  .topic-content {
+    margin-top: 20px;
+  }
+
   .questions-header {
     flex-direction: column;
     gap: 16px;
