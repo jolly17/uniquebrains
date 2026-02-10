@@ -711,9 +711,9 @@ function ManageSessions() {
                             )}
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            {(session.meeting_link || courseMeetingLink) && (
+                            {courseMeetingLink && (
                               <a
-                                href={session.meeting_link || courseMeetingLink}
+                                href={courseMeetingLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn-primary btn-sm"
@@ -845,9 +845,9 @@ function ManageSessions() {
                               )}
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              {(session.meeting_link || courseMeetingLink) && (
+                              {courseMeetingLink && (
                                 <a
-                                  href={session.meeting_link || courseMeetingLink}
+                                  href={courseMeetingLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="btn-primary btn-sm"
