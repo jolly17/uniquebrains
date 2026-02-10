@@ -308,11 +308,32 @@
     flex-direction: column;
     gap: 16px;
     align-items: flex-start;
+    padding: 20px;
+  }
+
+  .questions-header h2 {
+    font-size: 20px;
+  }
+
+  .sort-buttons {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-btn {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 13px;
   }
 
   .question-card {
     flex-direction: column;
     gap: 16px;
+    padding: 20px;
+  }
+
+  .question-title {
+    font-size: 18px;
   }
 
   .question-stats {
