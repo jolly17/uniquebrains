@@ -51,10 +51,13 @@ function QuestionDetail() {
     }
 
     try {
-      await voteQuestion(id, voteType)
+      console.log('Voting on question:', id, 'type:', voteType)
+      const result = await voteQuestion(id, voteType)
+      console.log('Vote result:', result)
       await fetchQuestionAndAnswers()
     } catch (err) {
       console.error('Error voting:', err)
+      alert('Failed to vote: ' + err.message)
     }
   }
 
@@ -65,10 +68,13 @@ function QuestionDetail() {
     }
 
     try {
-      await voteAnswer(answerId, voteType)
+      console.log('Voting on answer:', answerId, 'type:', voteType)
+      const result = await voteAnswer(answerId, voteType)
+      console.log('Vote result:', result)
       await fetchQuestionAndAnswers()
     } catch (err) {
       console.error('Error voting:', err)
+      alert('Failed to vote: ' + err.message)
     }
   }
 
@@ -193,14 +199,22 @@ function QuestionDetail() {
             <div className="vote-section">
               <button 
                 className="vote-btn upvote"
-                onClick={() => handleVoteQuestion('up')}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleVoteQuestion('up')
+                }}
               >
                 👍 Upvote
               </button>
               <span className="vote-count">{question.vote_count}</span>
               <button 
                 className="vote-btn downvote"
-                onClick={() => handleVoteQuestion('down')}
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleVoteQuestion('down')
+                }}
               >
                 👎 Downvote
               </button>
@@ -280,14 +294,22 @@ function QuestionDetail() {
                 <div className="vote-section">
                   <button 
                     className="vote-btn upvote"
-                    onClick={() => handleVoteAnswer(answer.id, 'up')}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleVoteAnswer(answer.id, 'up')
+                    }}
                   >
                     👍 Upvote
                   </button>
                   <span className="vote-count">{answer.vote_count}</span>
                   <button 
                     className="vote-btn downvote"
-                    onClick={() => handleVoteAnswer(answer.id, 'down')}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleVoteAnswer(answer.id, 'down')
+                    }}
                   >
                     👎 Downvote
                   </button>
