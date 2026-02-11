@@ -3,6 +3,7 @@ import { Outlet, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 import PortalSwitcher from './PortalSwitcher'
+import FeedbackButton from './FeedbackButton'
 import './Layout.css'
 
 function Layout() {
@@ -86,6 +87,8 @@ function Layout() {
       <main className="main-content">
         <Outlet />
       </main>
+
+      <FeedbackButton />
 
       <footer className="footer">
         <div className="footer-content">
