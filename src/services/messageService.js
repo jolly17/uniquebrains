@@ -79,8 +79,8 @@ export async function sendMessage(courseId, messageData, senderId) {
     console.log('📡 Broadcast complete')
     
     // Send email notifications to course participants (don't wait for it)
-    // Only for group messages from instructors
-    if (!messageData.recipient_id && message.profiles.role === 'instructor') {
+    // For all group messages (both instructor and student messages)
+    if (!messageData.recipient_id) {
       sendChatNotificationEmails(courseId, message).catch(error => {
         console.error('Failed to send chat notification emails:', error)
         // Don't throw - message is already sent
@@ -102,16 +102,23 @@ export async function sendMessage(courseId, messageData, senderId) {
  */
 async function sendChatNotificationEmails(courseId, message) {
   try {
-    // Get course details
+    // Get course details including instructor
     const { data: course } = await supabase
       .from('courses')
-      .select('title')
+      .select('title, instructor_id, profiles!instructor_id(email, full_name)')
       .eq('id', courseId)
       .single()
 
     if (!course) return
 
-    // Get all enrolled students' emails
+    const recipientEmails = []
+
+    // If sender is a student, notify the instructor
+    if (message.profiles.role !== 'instructor' && course.profiles?.email) {
+      recipientEmails.push(course.profiles.email)
+    }
+
+    // Get all enrolled students' emails (excluding the sender)
     const { data: enrollments } = await supabase
       .from('enrollments')
       .select(`
@@ -122,9 +129,11 @@ async function sendChatNotificationEmails(courseId, message) {
       .eq('status', 'active')
       .neq('student_id', message.sender_id) // Don't send to sender
 
-    const recipientEmails = enrollments
+    const studentEmails = enrollments
       ?.map(e => e.profiles?.email)
       .filter(email => email) || []
+
+    recipientEmails.push(...studentEmails)
 
     if (recipientEmails.length === 0) return
 
