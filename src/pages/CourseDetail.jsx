@@ -22,6 +22,7 @@ function CourseDetailContent() {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const [isInstructor, setIsInstructor] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
+  const [otherCourses, setOtherCourses] = useState([])
   
   // Debug: Log activeStudent whenever it changes
   useEffect(() => {
@@ -47,6 +48,19 @@ function CourseDetailContent() {
         
         const courseData = await handleApiCall(api.courses.getById, courseId)
         setCourse(courseData)
+        
+        // Fetch other courses by the same instructor
+        if (courseData.instructor_id) {
+          try {
+            const allCourses = await handleApiCall(api.courses.getAll)
+            const instructorCourses = allCourses
+              .filter(c => c.instructor_id === courseData.instructor_id && c.id !== courseId && c.is_published)
+              .slice(0, 3) // Show max 3 other courses
+            setOtherCourses(instructorCourses)
+          } catch (err) {
+            console.log('Error fetching instructor courses:', err)
+          }
+        }
         
         // Check if user is the instructor
         if (user && courseData.instructor_id === user.id) {
@@ -334,6 +348,37 @@ function CourseDetailContent() {
                 Continue Browsing
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Other Courses by This Instructor */}
+      {otherCourses.length > 0 && (
+        <div className="other-courses-section">
+          <h2>More Courses by {course.instructorName}</h2>
+          <div className="other-courses-grid">
+            {otherCourses.map((otherCourse) => (
+              <div 
+                key={otherCourse.id} 
+                className="other-course-card"
+                onClick={() => navigate(`/courses/${otherCourse.id}`)}
+              >
+                <div className="other-course-category">{otherCourse.category}</div>
+                <h3>{otherCourse.title}</h3>
+                <p className="other-course-description">{otherCourse.description}</p>
+                <div className="other-course-meta">
+                  <span className="other-course-price">
+                    {otherCourse.price === 0 ? 'Free' : `${otherCourse.price}`}
+                  </span>
+                  {otherCourse.enrollmentLimit && (
+                    <span className="other-course-enrollment">
+                      {otherCourse.currentEnrollment || 0}/{otherCourse.enrollmentLimit} enrolled
+                    </span>
+                  )}
+                </div>
+                <button className="btn-secondary btn-sm">View Course</button>
+              </div>
+            ))}
           </div>
         </div>
       )}
