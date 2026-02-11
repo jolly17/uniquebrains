@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
+import CourseCard from '../components/CourseCard'
 import PageErrorBoundary from '../components/PageErrorBoundary'
 import ErrorState from '../components/ErrorState'
 import { api, handleApiCall } from '../services/api'
@@ -358,26 +359,7 @@ function CourseDetailContent() {
           <h2>More Courses by {course.instructorName}</h2>
           <div className="other-courses-grid">
             {otherCourses.map((otherCourse) => (
-              <div 
-                key={otherCourse.id} 
-                className="other-course-card"
-                onClick={() => navigate(`/courses/${otherCourse.id}`)}
-              >
-                <div className="other-course-category">{otherCourse.category}</div>
-                <h3>{otherCourse.title}</h3>
-                <p className="other-course-description">{otherCourse.description}</p>
-                <div className="other-course-meta">
-                  <span className="other-course-price">
-                    {otherCourse.price === 0 ? 'Free' : `${otherCourse.price}`}
-                  </span>
-                  {otherCourse.enrollmentLimit && (
-                    <span className="other-course-enrollment">
-                      {otherCourse.currentEnrollment || 0}/{otherCourse.enrollmentLimit} enrolled
-                    </span>
-                  )}
-                </div>
-                <button className="btn-secondary btn-sm">View Course</button>
-              </div>
+              <CourseCard key={otherCourse.id} course={otherCourse} />
             ))}
           </div>
         </div>
