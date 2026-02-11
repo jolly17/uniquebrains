@@ -234,7 +234,7 @@ export async function createAnswer(answerData) {
   // Increment question answer count - fetch current count first
   const { data: questionData } = await supabase
     .from('questions')
-    .select('answer_count')
+    .select('answer_count, author_id, title, topic_id, topics(slug), profiles:author_id(email, first_name, last_name)')
     .eq('id', answerData.question_id)
     .single()
 
@@ -246,7 +246,65 @@ export async function createAnswer(answerData) {
     })
     .eq('id', answerData.question_id)
 
+  // Send notification email to question author (don't wait for it)
+  if (questionData && questionData.profiles?.email && questionData.author_id !== answerData.author_id) {
+    // Get answer author name
+    const { data: answerAuthor } = await supabase
+      .from('profiles')
+      .select('first_name, last_name')
+      .eq('id', answerData.author_id)
+      .single()
+
+    if (answerAuthor) {
+      sendAnswerNotificationEmail({
+        questionTitle: questionData.title,
+        questionId: answerData.question_id,
+        topicSlug: questionData.topics.slug,
+        answerAuthorName: `${answerAuthor.first_name} ${answerAuthor.last_name}`,
+        answerContent: answerData.content,
+        questionAuthorEmail: questionData.profiles.email
+      }).catch(error => {
+        console.error('Failed to send answer notification email:', error)
+        // Don't throw - answer is already created
+      })
+    }
+  }
+
   return data
+}
+
+/**
+ * Send answer notification email
+ * @param {Object} data - Answer notification data
+ * @returns {Promise<void>}
+ */
+async function sendAnswerNotificationEmail(data) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-answer-notification-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(data)
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    console.log('Answer notification email sent successfully')
+  } catch (error) {
+    console.error('Error sending answer notification email:', error)
+    throw error
+  }
 }
 
 export async function updateAnswer(answerId, updates) {

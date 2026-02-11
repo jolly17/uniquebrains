@@ -252,14 +252,19 @@ export async function deleteSession(sessionId, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course for this session
+    // Verify instructor owns the course for this session and get full details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select(`
         id,
         course_id,
         title,
-        courses!inner(instructor_id)
+        session_date,
+        courses!inner(
+          instructor_id,
+          title,
+          profiles!instructor_id(full_name)
+        )
       `)
       .eq('id', sessionId)
       .single()
@@ -272,6 +277,21 @@ export async function deleteSession(sessionId, instructorId) {
       throw new Error('Unauthorized: You can only delete sessions for your own courses')
     }
 
+    // Get all enrolled students' emails before deleting
+    const { data: enrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        student_id,
+        profiles!student_id(email)
+      `)
+      .eq('course_id', session.course_id)
+      .eq('status', 'active')
+
+    const studentEmails = enrollments
+      ?.map(e => e.profiles?.email)
+      .filter(email => email) || []
+
+    // Delete the session
     const { error: deleteError } = await supabase
       .from('sessions')
       .delete()
@@ -282,9 +302,58 @@ export async function deleteSession(sessionId, instructorId) {
       throw new Error(`Failed to delete session: ${deleteError.message}`)
     }
 
+    // Send notification emails to students (don't wait for it)
+    if (studentEmails.length > 0) {
+      sendSessionDeletedEmails({
+        sessionTitle: session.title,
+        sessionDate: session.session_date,
+        courseTitle: session.courses.title,
+        courseId: session.course_id,
+        instructorName: session.courses.profiles.full_name,
+        studentEmails
+      }).catch(error => {
+        console.error('Failed to send session deletion emails:', error)
+        // Don't throw - session is already deleted
+      })
+    }
+
     return true
   } catch (error) {
     console.error('Error in deleteSession:', error)
+    throw error
+  }
+}
+
+/**
+ * Send session deletion notification emails
+ * @param {Object} data - Session deletion data
+ * @returns {Promise<void>}
+ */
+async function sendSessionDeletedEmails(data) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-session-deleted-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(data)
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    console.log('Session deletion emails sent successfully')
+  } catch (error) {
+    console.error('Error sending session deletion emails:', error)
     throw error
   }
 }

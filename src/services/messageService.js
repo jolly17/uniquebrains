@@ -72,18 +72,92 @@ export async function sendMessage(courseId, messageData, senderId) {
       throw new Error(`Failed to send message: ${messageError.message}`)
     }
 
-    // Manually fetch student info if sender_id matches a student (no longer needed - removed students table)
-    // All users are now in profiles table
-
     // Broadcast message via Realtime Broadcast (doesn't require replication)
     console.log('📡 Broadcasting message to channel:', `course:${courseId}:messages`)
     console.log('📡 Message payload:', message)
     await broadcastMessageToChannel(courseId, 'new_message', message)
     console.log('📡 Broadcast complete')
     
+    // Send email notifications to course participants (don't wait for it)
+    // Only for group messages from instructors
+    if (!messageData.recipient_id && message.profiles.role === 'instructor') {
+      sendChatNotificationEmails(courseId, message).catch(error => {
+        console.error('Failed to send chat notification emails:', error)
+        // Don't throw - message is already sent
+      })
+    }
+    
     return message
   } catch (error) {
     console.error('Error in sendMessage:', error)
+    throw error
+  }
+}
+
+/**
+ * Send chat notification emails to course participants
+ * @param {string} courseId - Course ID
+ * @param {Object} message - Message object with sender info
+ * @returns {Promise<void>}
+ */
+async function sendChatNotificationEmails(courseId, message) {
+  try {
+    // Get course details
+    const { data: course } = await supabase
+      .from('courses')
+      .select('title')
+      .eq('id', courseId)
+      .single()
+
+    if (!course) return
+
+    // Get all enrolled students' emails
+    const { data: enrollments } = await supabase
+      .from('enrollments')
+      .select(`
+        student_id,
+        profiles!student_id(email)
+      `)
+      .eq('course_id', courseId)
+      .eq('status', 'active')
+      .neq('student_id', message.sender_id) // Don't send to sender
+
+    const recipientEmails = enrollments
+      ?.map(e => e.profiles?.email)
+      .filter(email => email) || []
+
+    if (recipientEmails.length === 0) return
+
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-chat-notification-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify({
+          senderName: message.profiles.full_name,
+          messageContent: message.content,
+          courseTitle: course.title,
+          courseId: courseId,
+          recipientEmails: recipientEmails,
+          isInstructor: message.profiles.role === 'instructor'
+        })
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    console.log('Chat notification emails sent successfully')
+  } catch (error) {
+    console.error('Error sending chat notification emails:', error)
     throw error
   }
 }
