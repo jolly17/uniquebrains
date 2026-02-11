@@ -8,9 +8,10 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
+// Use service role key to bypass RLS policies for admin operations
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 )
 
 async function fixAnswerCounts() {
