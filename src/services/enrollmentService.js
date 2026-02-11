@@ -460,7 +460,7 @@ export async function withdrawStudent(courseId, studentId) {
       throw new Error(`Failed to withdraw from course: ${updateError.message}`)
     }
 
-    // Send unenrollment email
+    // Send unenrollment emails (to both student and instructor)
     try {
       console.log('=== Fetching student and course data for unenrollment email ===')
       
@@ -474,14 +474,15 @@ export async function withdrawStudent(courseId, studentId) {
 
       const { data: course } = await supabase
         .from('courses')
-        .select('title')
+        .select('title, instructor_id, profiles!instructor_id(email, full_name)')
         .eq('id', courseId)
         .single()
 
       console.log('Course data:', course)
 
       if (studentProfile && course) {
-        console.log('=== Sending unenrollment email ===')
+        // Send email to student
+        console.log('=== Sending unenrollment email to student ===')
         await sendEnrollmentEmail({
           type: 'student_unenrolled',
           studentEmail: studentProfile.email,
@@ -489,7 +490,21 @@ export async function withdrawStudent(courseId, studentId) {
           courseTitle: course.title,
           courseId: courseId
         })
-        console.log('=== Unenrollment email sent successfully ===')
+        console.log('=== Student unenrollment email sent successfully ===')
+
+        // Send notification to instructor
+        if (course.profiles?.email) {
+          console.log('=== Sending unenrollment notification to instructor ===')
+          await sendEnrollmentEmail({
+            type: 'instructor_unenrollment_notification',
+            instructorEmail: course.profiles.email,
+            instructorName: course.profiles.full_name,
+            studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
+            courseTitle: course.title,
+            courseId: courseId
+          })
+          console.log('=== Instructor notification email sent successfully ===')
+        }
       } else {
         console.log('=== Missing student profile or course data, skipping email ===')
       }

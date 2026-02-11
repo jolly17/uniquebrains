@@ -7,8 +7,8 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
 interface EnrollmentEmailData {
-  type: 'student_enrolled' | 'student_unenrolled' | 'instructor_notification'
-  studentEmail: string
+  type: 'student_enrolled' | 'student_unenrolled' | 'instructor_notification' | 'instructor_unenrollment_notification'
+  studentEmail?: string
   studentName: string
   instructorEmail?: string
   instructorName?: string
@@ -47,7 +47,7 @@ serve(async (req) => {
     console.log('Email data received:', JSON.stringify(emailData, null, 2))
 
     // Validate required fields based on email type
-    const isInstructorNotification = emailData.type === 'instructor_notification'
+    const isInstructorNotification = emailData.type === 'instructor_notification' || emailData.type === 'instructor_unenrollment_notification'
     const emailAddress = isInstructorNotification ? emailData.instructorEmail : emailData.studentEmail
     
     if (!emailData.type || !emailAddress || !emailData.courseTitle) {
@@ -85,6 +85,9 @@ serve(async (req) => {
         break
       case 'instructor_notification':
         emailResponse = await sendInstructorNotificationEmail(emailData)
+        break
+      case 'instructor_unenrollment_notification':
+        emailResponse = await sendInstructorUnenrollmentNotificationEmail(emailData)
         break
       default:
         console.log('Invalid email type:', emailData.type)
@@ -256,6 +259,61 @@ async function sendInstructorNotificationEmail(data: EnrollmentEmailData) {
   return await sendEmail({
     to: data.instructorEmail!,
     subject: `New Student Enrolled in ${data.courseTitle}`,
+    html,
+  })
+}
+
+async function sendInstructorUnenrollmentNotificationEmail(data: EnrollmentEmailData) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f59e0b; color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
+        .info-box { background: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #f59e0b; }
+        .button { display: inline-block; background: #10b981; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+        .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>📋 Student Unenrolled</h1>
+        </div>
+        <div class="content">
+          <p>Hi ${data.instructorName},</p>
+          
+          <p>This is to inform you that <strong>${data.studentName}</strong> has unenrolled from your course <strong>${data.courseTitle}</strong>.</p>
+          
+          <div class="info-box">
+            <p style="margin: 0;"><strong>Student:</strong> ${data.studentName}</p>
+            <p style="margin: 5px 0 0;"><strong>Course:</strong> ${data.courseTitle}</p>
+          </div>
+          
+          <p>You can view your current student roster in your course dashboard.</p>
+          
+          <a href="https://uniquebrains.org/teach/course/${data.courseId}/students" class="button" style="color: #ffffff !important;">View Course Students</a>
+          
+          <p>If you have any questions, please reach out to us at <a href="mailto:hello@uniquebrains.org">hello@uniquebrains.org</a></p>
+          
+          <p>Best regards,</p>
+          <p>The UniqueBrains Team</p>
+        </div>
+        <div class="footer">
+          <p>UniqueBrains - Celebrating Neurodiversity in Learning</p>
+          <p><a href="https://uniquebrains.org">uniquebrains.org</a></p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  return await sendEmail({
+    to: data.instructorEmail!,
+    subject: `Student Unenrolled from ${data.courseTitle}`,
     html,
   })
 }
