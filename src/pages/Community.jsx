@@ -47,7 +47,7 @@ function Community() {
         <div className="hero-content">
           <h1>🌟 Community Hub</h1>
           <p className="hero-subtitle">
-            Connect, share, and learn from our vibrant neurodiversity community. 
+            Connect, share, and learn from our vibrant neurodiverse community. 
             Ask questions, share experiences, and find support from people who understand.
           </p>
         </div>

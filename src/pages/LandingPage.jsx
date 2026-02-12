@@ -140,7 +140,7 @@ function LandingPage() {
           <h2>Join Our Community</h2>
           <p>
             Connect with other parents, share experiences, and get support from people who understand. 
-            Ask questions, share tips, and learn from our vibrant neurodiversity community.
+            Ask questions, share tips, and learn from our vibrant neurodiverse community.
           </p>
           <div className="community-actions">
             <Link to="/community" className="btn-community">
