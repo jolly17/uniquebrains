@@ -231,11 +231,11 @@ function Onboarding() {
 
           {/* Neurodiversity Profile (for all users) */}
           <div className="form-section">
-            <h2>Your Neurodiversity Profile (Optional)</h2>
+            <h2>Your / Your Kid's Neurodiversity Profile (Optional)</h2>
             <p className="section-description">
               {formData.role === 'instructor' 
                 ? 'Share your own neurodiversity profile if you\'d like. This helps build trust with families.'
-                : 'Help us personalize your learning experience by sharing your neurodiversity profile.'
+                : 'Help us personalize the learning experience by sharing your or your kid\'s neurodiversity profile.'
               }
             </p>
 
@@ -268,11 +268,11 @@ function Onboarding() {
 
           {/* Bio */}
           <div className="form-section">
-            <h2>About You</h2>
+            <h2>About You / Your Kid</h2>
             <p className="section-description">
               {formData.role === 'instructor'
                 ? 'Tell families about your teaching experience and approach.'
-                : 'Tell us a bit about yourself and your learning goals.'
+                : 'Tell us a bit about yourself (or your kid if you\'re creating this account on their behalf) and learning goals.'
               }
             </p>
 
