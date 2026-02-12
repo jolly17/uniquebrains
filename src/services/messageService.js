@@ -46,7 +46,7 @@ export async function sendMessage(courseId, messageData, senderId) {
       content: messageData.content.trim(),
       recipient_id: messageData.recipient_id || null, // For one-on-one messages
       is_announcement: messageData.is_announcement || false,
-      attachments: messageData.attachments || null
+      attachment_url: messageData.attachment_url || null
     }
 
     // For one-on-one courses, validate recipient

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import { setupCourseMessageChannel, setupPresenceTracking } from '../services/realtimeService'
+import { supabase } from '../lib/supabase'
 import './CourseChat.css'
 
 function CourseChat({ course }) {
@@ -16,9 +17,12 @@ function CourseChat({ course }) {
   const [selectedStudent, setSelectedStudent] = useState(null)
   const [chatThreads, setChatThreads] = useState([])
   const [onlineUsers, setOnlineUsers] = useState(new Set())
+  const [selectedFile, setSelectedFile] = useState(null)
+  const [uploading, setUploading] = useState(false)
   const messagesEndRef = useRef(null)
   const messageChannelRef = useRef(null)
   const presenceChannelRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const isGroupCourse = course?.course_type === 'group'
 
@@ -145,14 +149,37 @@ function CourseChat({ course }) {
   const handleSendMessage = async (e) => {
     e.preventDefault()
 
-    if (!newMessage.trim() || sending) return
+    if ((!newMessage.trim() && !selectedFile) || sending) return
 
     try {
       setSending(true)
+      setUploading(true)
+
+      let attachmentUrl = null
+
+      // Upload file if selected
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop()
+        const fileName = `${Math.random()}.${fileExt}`
+        const filePath = `course-chat/${courseId}/${fileName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('course-attachments')
+          .upload(filePath, selectedFile)
+
+        if (uploadError) throw uploadError
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('course-attachments')
+          .getPublicUrl(filePath)
+        attachmentUrl = urlData.publicUrl
+      }
 
       const messageData = {
-        content: newMessage.trim(),
-        recipient_id: !isGroupCourse && selectedStudent ? selectedStudent : null
+        content: newMessage.trim() || (selectedFile ? `Shared a file: ${selectedFile.name}` : ''),
+        recipient_id: !isGroupCourse && selectedStudent ? selectedStudent : null,
+        attachment_url: attachmentUrl
       }
 
       const sentMessage = await handleApiCall(api.messages.send, courseId, messageData, user.id)
@@ -163,11 +190,35 @@ function CourseChat({ course }) {
       }
 
       setNewMessage('')
+      setSelectedFile(null)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     } catch (err) {
       console.error('Error sending message:', err)
       alert('Failed to send message. Please try again.')
     } finally {
       setSending(false)
+      setUploading(false)
+    }
+  }
+
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      // Check file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB')
+        return
+      }
+      setSelectedFile(file)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
@@ -367,6 +418,19 @@ function CourseChat({ course }) {
                 </div>
                 <div className="message-content">
                   {msg.content}
+                  {msg.attachment_url && (
+                    <div className="message-attachment">
+                      {msg.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
+                          <img src={msg.attachment_url} alt="Attachment" className="attachment-image" />
+                        </a>
+                      ) : (
+                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                          📎 View Attachment
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -376,21 +440,47 @@ function CourseChat({ course }) {
 
         <form onSubmit={handleSendMessage} className="chat-input-form">
           <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type your message..."
-            className="chat-input"
-            aria-label="Message input"
-            disabled={sending}
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            accept="image/*,.pdf,.doc,.docx,.txt"
           />
-          <button
-            type="submit"
-            className="btn btn-primary send-button"
-            disabled={!newMessage.trim() || sending}
-          >
-            {sending ? 'Sending...' : 'Send'}
-          </button>
+          {selectedFile && (
+            <div className="selected-file-preview">
+              <span>📎 {selectedFile.name}</span>
+              <button type="button" onClick={handleRemoveFile} className="remove-file-btn">
+                ✕
+              </button>
+            </div>
+          )}
+          <div className="input-row">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="attach-button"
+              title="Attach file"
+              disabled={sending}
+            >
+              📎
+            </button>
+            <input
+              type="text"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type your message..."
+              className="chat-input"
+              aria-label="Message input"
+              disabled={sending}
+            />
+            <button
+              type="submit"
+              className="btn btn-primary send-button"
+              disabled={(!newMessage.trim() && !selectedFile) || sending}
+            >
+              {uploading ? 'Uploading...' : sending ? 'Sending...' : 'Send'}
+            </button>
+          </div>
         </form>
       </div>
     )
@@ -431,6 +521,19 @@ function CourseChat({ course }) {
               </div>
               <div className="message-content">
                 {msg.content}
+                {msg.attachment_url && (
+                  <div className="message-attachment">
+                    {msg.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                      <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
+                        <img src={msg.attachment_url} alt="Attachment" className="attachment-image" />
+                      </a>
+                    ) : (
+                      <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                        📎 View Attachment
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))
@@ -440,21 +543,47 @@ function CourseChat({ course }) {
 
       <form onSubmit={handleSendMessage} className="chat-input-form">
         <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
-          className="chat-input"
-          aria-label="Message input"
-          disabled={sending}
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+          accept="image/*,.pdf,.doc,.docx,.txt"
         />
-        <button
-          type="submit"
-          className="btn btn-primary send-button"
-          disabled={!newMessage.trim() || sending}
-        >
-          {sending ? 'Sending...' : 'Send'}
-        </button>
+        {selectedFile && (
+          <div className="selected-file-preview">
+            <span>📎 {selectedFile.name}</span>
+            <button type="button" onClick={handleRemoveFile} className="remove-file-btn">
+              ✕
+            </button>
+          </div>
+        )}
+        <div className="input-row">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="attach-button"
+            title="Attach file"
+            disabled={sending}
+          >
+            📎
+          </button>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type your message..."
+            className="chat-input"
+            aria-label="Message input"
+            disabled={sending}
+          />
+          <button
+            type="submit"
+            className="btn btn-primary send-button"
+            disabled={(!newMessage.trim() && !selectedFile) || sending}
+          >
+            {uploading ? 'Uploading...' : sending ? 'Sending...' : 'Send'}
+          </button>
+        </div>
       </form>
     </div>
   )
