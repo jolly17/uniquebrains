@@ -35,23 +35,21 @@ serve(async (req) => {
       )
     }
 
-    let emailsSent = 0
-    let emailsFailed = 0
-
-    for (const email of data.studentEmails) {
-      try {
-        await sendSessionDeletedEmail(data, email)
-        emailsSent++
-      } catch (error) {
-        console.error(`Failed to send email to ${email}:`, error)
-        emailsFailed++
-      }
+    // Send a single email with BCC to all students to avoid rate limits
+    try {
+      await sendSessionDeletedEmail(data)
+      
+      return new Response(
+        JSON.stringify({ success: true, emailsSent: data.studentEmails.length }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    } catch (error) {
+      console.error('Failed to send email:', error)
+      return new Response(
+        JSON.stringify({ error: error.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
-
-    return new Response(
-      JSON.stringify({ success: true, emailsSent, emailsFailed }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
   } catch (error) {
     console.error('Error:', error)
     return new Response(
@@ -61,7 +59,7 @@ serve(async (req) => {
   }
 })
 
-async function sendSessionDeletedEmail(data: SessionDeletedData, studentEmail: string) {
+async function sendSessionDeletedEmail(data: SessionDeletedData) {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -118,16 +116,31 @@ async function sendSessionDeletedEmail(data: SessionDeletedData, studentEmail: s
     </html>
   `
 
+  // Send single email with BCC to all students
   return await sendEmail({
-    to: studentEmail,
+    to: 'hello@uniquebrains.org', // Primary recipient (required by Resend)
+    bcc: data.studentEmails, // All students in BCC
     subject: `Session Cancelled: ${data.sessionTitle}`,
     html,
   })
 }
 
-async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+async function sendEmail({ to, bcc, subject, html }: { to: string; bcc?: string[]; subject: string; html: string }) {
   if (!RESEND_API_KEY) {
     throw new Error('RESEND_API_KEY environment variable is not set')
+  }
+
+  const emailData: any = {
+    from: 'UniqueBrains <hello@uniquebrains.org>',
+    to: [to],
+    subject,
+    html,
+    reply_to: 'hello@uniquebrains.org',
+  }
+
+  // Add BCC if provided
+  if (bcc && bcc.length > 0) {
+    emailData.bcc = bcc
   }
 
   const response = await fetch('https://api.resend.com/emails', {
@@ -136,13 +149,7 @@ async function sendEmail({ to, subject, html }: { to: string; subject: string; h
       'Content-Type': 'application/json',
       Authorization: `Bearer ${RESEND_API_KEY}`,
     },
-    body: JSON.stringify({
-      from: 'UniqueBrains <hello@uniquebrains.org>',
-      to: [to],
-      subject,
-      html,
-      reply_to: 'hello@uniquebrains.org',
-    }),
+    body: JSON.stringify(emailData),
   })
 
   if (!response.ok) {
