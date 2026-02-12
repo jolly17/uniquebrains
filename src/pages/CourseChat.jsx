@@ -19,6 +19,7 @@ function CourseChat({ course }) {
   const [onlineUsers, setOnlineUsers] = useState(new Set())
   const [selectedFile, setSelectedFile] = useState(null)
   const [uploading, setUploading] = useState(false)
+  const [attachmentUrls, setAttachmentUrls] = useState({}) // Cache for signed URLs
   const messagesEndRef = useRef(null)
   const messageChannelRef = useRef(null)
   const presenceChannelRef = useRef(null)
@@ -43,6 +44,38 @@ function CourseChat({ course }) {
       }
     }
   }, [courseId, user, selectedStudent])
+
+  // Generate signed URLs for attachments
+  useEffect(() => {
+    const generateSignedUrls = async () => {
+      const urlsToGenerate = messages
+        .filter(msg => msg.attachment_url && !attachmentUrls[msg.attachment_url])
+        .map(msg => msg.attachment_url)
+
+      if (urlsToGenerate.length === 0) return
+
+      const newUrls = {}
+      for (const path of urlsToGenerate) {
+        try {
+          const { data, error } = await supabase.storage
+            .from('course-attachments')
+            .createSignedUrl(path, 3600) // 1 hour expiry
+
+          if (!error && data) {
+            newUrls[path] = data.signedUrl
+          }
+        } catch (err) {
+          console.error('Error generating signed URL:', err)
+        }
+      }
+
+      if (Object.keys(newUrls).length > 0) {
+        setAttachmentUrls(prev => ({ ...prev, ...newUrls }))
+      }
+    }
+
+    generateSignedUrls()
+  }, [messages])
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -169,11 +202,8 @@ function CourseChat({ course }) {
 
         if (uploadError) throw uploadError
 
-        // Get public URL
-        const { data: urlData } = supabase.storage
-          .from('course-attachments')
-          .getPublicUrl(filePath)
-        attachmentUrl = urlData.publicUrl
+        // Store the file path (we'll generate signed URLs when displaying)
+        attachmentUrl = filePath
       }
 
       const messageData = {
@@ -418,14 +448,14 @@ function CourseChat({ course }) {
                 </div>
                 <div className="message-content">
                   {msg.content}
-                  {msg.attachment_url && (
+                  {msg.attachment_url && attachmentUrls[msg.attachment_url] && (
                     <div className="message-attachment">
                       {msg.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
-                          <img src={msg.attachment_url} alt="Attachment" className="attachment-image" />
+                        <a href={attachmentUrls[msg.attachment_url]} target="_blank" rel="noopener noreferrer">
+                          <img src={attachmentUrls[msg.attachment_url]} alt="Attachment" className="attachment-image" />
                         </a>
                       ) : (
-                        <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                        <a href={attachmentUrls[msg.attachment_url]} target="_blank" rel="noopener noreferrer" className="attachment-link">
                           📎 View Attachment
                         </a>
                       )}
@@ -521,14 +551,14 @@ function CourseChat({ course }) {
               </div>
               <div className="message-content">
                 {msg.content}
-                {msg.attachment_url && (
+                {msg.attachment_url && attachmentUrls[msg.attachment_url] && (
                   <div className="message-attachment">
                     {msg.attachment_url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
-                      <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer">
-                        <img src={msg.attachment_url} alt="Attachment" className="attachment-image" />
+                      <a href={attachmentUrls[msg.attachment_url]} target="_blank" rel="noopener noreferrer">
+                        <img src={attachmentUrls[msg.attachment_url]} alt="Attachment" className="attachment-image" />
                       </a>
                     ) : (
-                      <a href={msg.attachment_url} target="_blank" rel="noopener noreferrer" className="attachment-link">
+                      <a href={attachmentUrls[msg.attachment_url]} target="_blank" rel="noopener noreferrer" className="attachment-link">
                         📎 View Attachment
                       </a>
                     )}

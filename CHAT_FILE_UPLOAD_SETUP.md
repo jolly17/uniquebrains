@@ -20,10 +20,11 @@ Run the migration in Supabase SQL Editor:
 ```
 
 This migration:
-1. Creates the `course-attachments` storage bucket
+1. Creates the `course-attachments` **private** storage bucket
 2. Sets up storage policies for upload/view/delete permissions
 3. Allows authenticated course participants to upload files
-4. Makes attachments publicly viewable
+4. **Restricts viewing to course participants only** (instructors and enrolled students)
+5. Uses signed URLs with 1-hour expiry for secure access
 
 ## How to Apply
 
@@ -54,16 +55,19 @@ This migration:
 - `src/services/messageService.js`: Updated to support `attachment_url` field
 
 ### Storage:
-- Bucket: `course-attachments`
+- Bucket: `course-attachments` (private)
 - Path structure: `course-chat/{courseId}/{randomId}.{ext}`
-- Public read access
-- Authenticated upload for course participants
+- Signed URLs with 1-hour expiry for secure access
+- Only course participants can view attachments
 
 ### Security:
+- **Private bucket** - files not publicly accessible
 - Only enrolled students and course instructors can upload
+- Only course participants can view (via signed URLs)
 - File size limited to 10MB
 - File types restricted to images and common documents
 - Users can delete their own attachments
+- Signed URLs expire after 1 hour for added security
 
 ## Testing
 

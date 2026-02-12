@@ -7,7 +7,7 @@ INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 VALUES (
   'course-attachments',
   'course-attachments',
-  true,  -- Public read access for chat attachments
+  false,  -- Private bucket - only course participants can access
   10485760,  -- 10MB limit
   ARRAY[
     'image/jpeg', 'image/png', 'image/webp', 'image/gif',  -- Images
@@ -41,11 +41,24 @@ WITH CHECK (
   )
 );
 
--- Allow anyone to view attachments (public bucket)
-CREATE POLICY "Anyone can view course attachments"
+-- Allow only course participants to view attachments
+CREATE POLICY "Course participants can view attachments"
 ON storage.objects FOR SELECT
-TO public
-USING (bucket_id = 'course-attachments');
+TO authenticated
+USING (
+  bucket_id = 'course-attachments' AND
+  (storage.foldername(name))[1] = 'course-chat' AND
+  EXISTS (
+    SELECT 1 FROM enrollments
+    WHERE course_id::text = (storage.foldername(name))[2]
+    AND student_id = auth.uid()
+    AND status = 'active'
+    UNION
+    SELECT 1 FROM courses
+    WHERE id::text = (storage.foldername(name))[2]
+    AND instructor_id = auth.uid()
+  )
+);
 
 -- Allow users to delete their own attachments
 CREATE POLICY "Users can delete their own attachments"
