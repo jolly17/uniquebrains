@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
+import TimeInput from '../components/TimeInput'
 import './ManageSessions.css'
 
 function ManageSessions() {
@@ -19,6 +20,14 @@ function ManageSessions() {
   const [courseMeetingLink, setCourseMeetingLink] = useState('')
   const [isEditingMeetingLink, setIsEditingMeetingLink] = useState(false)
   const [meetingLinkInput, setMeetingLinkInput] = useState('')
+
+  // Course schedule editing state
+  const [isEditingSchedule, setIsEditingSchedule] = useState(false)
+  const [scheduleData, setScheduleData] = useState({
+    sessionTime: '',
+    selectedDays: [],
+    sessionDuration: ''
+  })
 
   // Session editing state
   const [editingSession, setEditingSession] = useState(null)
@@ -83,6 +92,13 @@ function ManageSessions() {
       setCourse(courseData)
       setCourseMeetingLink(courseData.meeting_link || '')
       setMeetingLinkInput(courseData.meeting_link || '')
+      
+      // Initialize schedule data
+      setScheduleData({
+        sessionTime: courseData.session_time || '',
+        selectedDays: courseData.selected_days || [],
+        sessionDuration: courseData.session_duration || ''
+      })
 
       // Fetch sessions
       const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
@@ -298,6 +314,62 @@ function ManageSessions() {
   const handleCancelMeetingLink = () => {
     setMeetingLinkInput(courseMeetingLink)
     setIsEditingMeetingLink(false)
+  }
+
+  const toggleScheduleDay = (day) => {
+    const currentDays = scheduleData.selectedDays
+    if (currentDays.includes(day)) {
+      setScheduleData({
+        ...scheduleData,
+        selectedDays: currentDays.filter(d => d !== day)
+      })
+    } else {
+      setScheduleData({
+        ...scheduleData,
+        selectedDays: [...currentDays, day]
+      })
+    }
+  }
+
+  const handleSaveSchedule = async () => {
+    try {
+      // Validate required fields
+      if (!scheduleData.sessionTime || !scheduleData.sessionDuration || scheduleData.selectedDays.length === 0) {
+        alert('Please fill in all schedule fields')
+        return
+      }
+
+      // Update course with new settings
+      await handleApiCall(api.courses.update, courseId, {
+        session_time: scheduleData.sessionTime,
+        selected_days: scheduleData.selectedDays,
+        session_duration: scheduleData.sessionDuration
+      }, user.id)
+
+      // Update local state
+      setCourse({
+        ...course,
+        session_time: scheduleData.sessionTime,
+        selected_days: scheduleData.selectedDays,
+        session_duration: scheduleData.sessionDuration
+      })
+
+      setIsEditingSchedule(false)
+      alert('Course schedule updated successfully')
+    } catch (err) {
+      console.error('Error updating course schedule:', err)
+      alert('Failed to update course schedule')
+    }
+  }
+
+  const handleCancelSchedule = () => {
+    // Reset to current course data
+    setScheduleData({
+      sessionTime: course.session_time || '',
+      selectedDays: course.selected_days || [],
+      sessionDuration: course.session_duration || ''
+    })
+    setIsEditingSchedule(false)
   }
 
   const handleSaveSession = async (sessionId) => {
@@ -569,35 +641,101 @@ function ManageSessions() {
       {isGroupCourse && course.selected_days && course.selected_days.length > 0 && (
         <div className="course-schedule-info">
           <h3>📅 Course Schedule</h3>
-          <div className="schedule-details-grid">
-            <div className="schedule-detail">
-              <span className="detail-label">Days:</span>
-              <span className="detail-value">{course.selected_days.join(', ')}</span>
+          {isEditingSchedule ? (
+            <div className="meeting-link-edit">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Session Time *</label>
+                  <TimeInput
+                    value={scheduleData.sessionTime}
+                    onChange={(e) => setScheduleData({ ...scheduleData, sessionTime: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Duration (minutes) *</label>
+                  <input
+                    type="number"
+                    value={scheduleData.sessionDuration}
+                    onChange={(e) => setScheduleData({ ...scheduleData, sessionDuration: e.target.value })}
+                    min="15"
+                    step="15"
+                    placeholder="60"
+                    className="meeting-link-input"
+                  />
+                </div>
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Days *</label>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                    <button
+                      key={day}
+                      type="button"
+                      onClick={() => toggleScheduleDay(day)}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.5rem',
+                        border: '2px solid',
+                        borderColor: scheduleData.selectedDays.includes(day) ? '#3b82f6' : '#d1d5db',
+                        background: scheduleData.selectedDays.includes(day) ? '#3b82f6' : 'white',
+                        color: scheduleData.selectedDays.includes(day) ? 'white' : '#374151',
+                        cursor: 'pointer',
+                        fontSize: '0.9rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {day.substring(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="meeting-link-actions">
+                <button onClick={handleSaveSchedule} className="btn-primary btn-sm">
+                  Save Schedule
+                </button>
+                <button onClick={handleCancelSchedule} className="btn-secondary btn-sm">
+                  Cancel
+                </button>
+              </div>
             </div>
-            <div className="schedule-detail">
-              <span className="detail-label">Time:</span>
-              <span className="detail-value">{course.session_time || 'Not set'}</span>
-            </div>
-            <div className="schedule-detail">
-              <span className="detail-label">Duration:</span>
-              <span className="detail-value">{course.session_duration} minutes</span>
-            </div>
-            <div className="schedule-detail">
-              <span className="detail-label">Frequency:</span>
-              <span className="detail-value">{course.frequency || 'Weekly'}</span>
-            </div>
-          </div>
-          {course.start_date && (
-            <div className="schedule-dates">
-              <span className="detail-label">Start Date:</span>
-              <span className="detail-value">{new Date(course.start_date).toLocaleDateString('en-US')}</span>
-              {course.has_end_date && course.end_date && (
-                <>
-                  <span className="detail-label" style={{ marginLeft: '2rem' }}>End Date:</span>
-                  <span className="detail-value">{new Date(course.end_date).toLocaleDateString('en-US')}</span>
-                </>
+          ) : (
+            <>
+              <div className="schedule-details-grid">
+                <div className="schedule-detail">
+                  <span className="detail-label">Days:</span>
+                  <span className="detail-value">{course.selected_days.join(', ')}</span>
+                </div>
+                <div className="schedule-detail">
+                  <span className="detail-label">Time:</span>
+                  <span className="detail-value">{course.session_time || 'Not set'}</span>
+                </div>
+                <div className="schedule-detail">
+                  <span className="detail-label">Duration:</span>
+                  <span className="detail-value">{course.session_duration} minutes</span>
+                </div>
+                <div className="schedule-detail">
+                  <span className="detail-label">Frequency:</span>
+                  <span className="detail-value">{course.frequency || 'Weekly'}</span>
+                </div>
+              </div>
+              {course.start_date && (
+                <div className="schedule-dates">
+                  <span className="detail-label">Start Date:</span>
+                  <span className="detail-value">{new Date(course.start_date).toLocaleDateString('en-US')}</span>
+                  {course.has_end_date && course.end_date && (
+                    <>
+                      <span className="detail-label" style={{ marginLeft: '2rem' }}>End Date:</span>
+                      <span className="detail-value">{new Date(course.end_date).toLocaleDateString('en-US')}</span>
+                    </>
+                  )}
+                </div>
               )}
-            </div>
+              <div style={{ marginTop: '1rem' }}>
+                <button onClick={() => setIsEditingSchedule(true)} className="btn-secondary btn-sm">
+                  Edit Schedule
+                </button>
+              </div>
+            </>
           )}
         </div>
       )}
