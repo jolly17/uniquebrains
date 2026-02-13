@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
 import './StudentProfile.css'
 
 function StudentProfile() {
   const { user, profile } = useAuth()
+  const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
     firstName: profile?.first_name || '',
@@ -159,6 +161,16 @@ function StudentProfile() {
               : 'Manage your personal information and learning preferences'}
           </p>
         </div>
+        {isInstructor && (
+          <button
+            type="button"
+            onClick={() => navigate('/teach/courses')}
+            className="btn-primary"
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            📚 My Courses
+          </button>
+        )}
       </div>
 
       <form onSubmit={handleSave} className="profile-form">

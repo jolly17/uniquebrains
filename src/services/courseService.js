@@ -355,7 +355,7 @@ export async function updateCourse(courseId, updates, instructorId) {
     // Verify instructor owns the course
     const { data: course, error: fetchError } = await supabase
       .from('courses')
-      .select('instructor_id')
+      .select('instructor_id, session_time')
       .eq('id', courseId)
       .single()
 
@@ -366,6 +366,9 @@ export async function updateCourse(courseId, updates, instructorId) {
     if (course.instructor_id !== instructorId) {
       throw new Error('Unauthorized: You can only update your own courses')
     }
+
+    // Check if session_time is being updated
+    const isTimeUpdated = updates.session_time && updates.session_time !== course.session_time
 
     // Prepare update data
     const updateData = {
@@ -384,6 +387,25 @@ export async function updateCourse(courseId, updates, instructorId) {
     if (updateError) {
       console.error('Error updating course:', updateError)
       throw new Error(`Failed to update course: ${updateError.message}`)
+    }
+
+    // If session time was updated, update all future sessions
+    if (isTimeUpdated) {
+      const now = new Date().toISOString()
+      
+      const { error: sessionsUpdateError } = await supabase
+        .from('sessions')
+        .update({ 
+          session_time: updates.session_time,
+          updated_at: new Date().toISOString()
+        })
+        .eq('course_id', courseId)
+        .gte('session_date', now) // Only update future sessions
+
+      if (sessionsUpdateError) {
+        console.error('Error updating session times:', sessionsUpdateError)
+        // Don't throw - course was updated successfully, just log the error
+      }
     }
 
     return updatedCourse

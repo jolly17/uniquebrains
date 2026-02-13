@@ -101,6 +101,20 @@ function EditCourse() {
       return
     }
 
+    // Validate meeting link if provided
+    if (formData.meetingLink && formData.meetingLink.trim()) {
+      try {
+        new URL(formData.meetingLink)
+        if (!formData.meetingLink.startsWith('http://') && !formData.meetingLink.startsWith('https://')) {
+          setError('Meeting link must start with http:// or https://')
+          return
+        }
+      } catch {
+        setError('Please enter a valid meeting link URL (e.g., https://zoom.us/j/...)')
+        return
+      }
+    }
+
     setSaving(true)
     setError('')
 
