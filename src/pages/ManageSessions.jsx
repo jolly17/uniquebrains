@@ -339,7 +339,7 @@ function ManageSessions() {
         return
       }
 
-      // Update course with new settings
+      // Update course with new settings (this will auto-update future session times via courseService)
       await handleApiCall(api.courses.update, courseId, {
         session_time: scheduleData.sessionTime,
         selected_days: scheduleData.selectedDays,
@@ -354,8 +354,12 @@ function ManageSessions() {
         session_duration: scheduleData.sessionDuration
       })
 
+      // Refresh sessions to show updated times
+      const updatedSessions = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+      setSessions(updatedSessions || [])
+
       setIsEditingSchedule(false)
-      alert('Course schedule updated successfully')
+      alert('Course schedule updated successfully. All future session times have been updated.')
     } catch (err) {
       console.error('Error updating course schedule:', err)
       alert('Failed to update course schedule')

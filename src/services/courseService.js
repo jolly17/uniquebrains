@@ -369,6 +369,7 @@ export async function updateCourse(courseId, updates, instructorId) {
 
     // Check if session_time is being updated
     const isTimeUpdated = updates.session_time && updates.session_time !== course.session_time
+    const isDurationUpdated = updates.session_duration && updates.session_duration !== course.session_duration
 
     // Prepare update data
     const updateData = {
@@ -389,22 +390,54 @@ export async function updateCourse(courseId, updates, instructorId) {
       throw new Error(`Failed to update course: ${updateError.message}`)
     }
 
-    // If session time was updated, update all future sessions
-    if (isTimeUpdated) {
+    // If session time or duration was updated, update all future sessions
+    if (isTimeUpdated || isDurationUpdated) {
       const now = new Date().toISOString()
       
-      const { error: sessionsUpdateError } = await supabase
+      // Fetch all future sessions
+      const { data: futureSessions, error: fetchError } = await supabase
         .from('sessions')
-        .update({ 
-          session_time: updates.session_time,
-          updated_at: new Date().toISOString()
-        })
+        .select('*')
         .eq('course_id', courseId)
-        .gte('session_date', now) // Only update future sessions
+        .gte('session_date', now)
 
-      if (sessionsUpdateError) {
-        console.error('Error updating session times:', sessionsUpdateError)
-        // Don't throw - course was updated successfully, just log the error
+      if (fetchError) {
+        console.error('Error fetching sessions:', fetchError)
+      } else if (futureSessions && futureSessions.length > 0) {
+        // Update each session's date/time and duration
+        const updatePromises = futureSessions.map(session => {
+          const sessionDate = new Date(session.session_date)
+          
+          // If time was updated, apply new time to the session date
+          if (isTimeUpdated) {
+            const [hours, minutes] = updates.session_time.split(':')
+            sessionDate.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+          }
+          
+          const sessionUpdates = {
+            session_date: sessionDate.toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          
+          // If duration was updated, apply new duration
+          if (isDurationUpdated) {
+            sessionUpdates.duration_minutes = updates.session_duration
+          }
+          
+          return supabase
+            .from('sessions')
+            .update(sessionUpdates)
+            .eq('id', session.id)
+        })
+
+        const results = await Promise.all(updatePromises)
+        const errors = results.filter(r => r.error)
+        
+        if (errors.length > 0) {
+          console.error('Some sessions failed to update:', errors)
+        } else {
+          console.log(`Updated ${futureSessions.length} future sessions`)
+        }
       }
     }
 
