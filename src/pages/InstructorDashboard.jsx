@@ -194,7 +194,16 @@ function InstructorDashboard() {
                   return (
                     <div key={course.id} className="instructor-course-card">
                       <div className="course-details">
-                        <h3>{course.title}</h3>
+                        <h3>
+                          <a 
+                            href={`/courses/${course.id}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}
+                          >
+                            {course.title}
+                          </a>
+                        </h3>
                         <div className="course-stats">
                           <span>
                             {enrollmentCount} active
@@ -209,22 +218,12 @@ function InstructorDashboard() {
                         )}
                       </div>
                       <div className="course-actions">
-                        <Link to={`/courses/${course.id}`} className="btn-secondary">
-                          View
+                        <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
+                          Manage
                         </Link>
                         <Link to={`/courses/${course.id}/edit`} className="btn-secondary">
-                          Edit Course
+                          Edit
                         </Link>
-                        <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
-                          Manage Course
-                        </Link>
-                        <button 
-                          onClick={() => handleDeleteCourse(course.id, course.title)}
-                          className="btn-danger"
-                          disabled={deletingCourseId === course.id}
-                        >
-                          {deletingCourseId === course.id ? 'Deleting...' : 'Delete'}
-                        </button>
                       </div>
                     </div>
                   )

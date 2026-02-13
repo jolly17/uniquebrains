@@ -24,6 +24,7 @@ function CourseDetailContent() {
   const [isInstructor, setIsInstructor] = useState(false)
   const [retryCount, setRetryCount] = useState(0)
   const [otherCourses, setOtherCourses] = useState([])
+  const [isUnenrolling, setIsUnenrolling] = useState(false)
   
   // Debug: Log activeStudent whenever it changes
   useEffect(() => {
@@ -153,6 +154,40 @@ function CourseDetailContent() {
     }
   }
 
+  const handleUnenroll = async () => {
+    if (!window.confirm(`Are you sure you want to unenroll from "${course.title}"?`)) {
+      return
+    }
+
+    try {
+      setIsUnenrolling(true)
+      const studentId = activeStudent ? activeStudent.id : user.id
+      await handleApiCall(api.enrollments.withdraw, courseId, studentId)
+      setIsEnrolled(false)
+      alert('Successfully unenrolled from the course')
+    } catch (error) {
+      console.error('Error unenrolling:', error)
+      alert('Failed to unenroll. Please try again.')
+    } finally {
+      setIsUnenrolling(false)
+    }
+  }
+
+  const handleDeleteCourse = async () => {
+    if (!window.confirm(`Are you sure you want to delete "${course.title}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      await handleApiCall(api.courses.delete, courseId, user.id)
+      alert('Course deleted successfully')
+      navigate('/teach/dashboard')
+    } catch (error) {
+      console.error('Error deleting course:', error)
+      alert(error.message || 'Failed to delete course. Please try again.')
+    }
+  }
+
   return (
     <div className="course-detail">
       <div className="course-hero">
@@ -217,22 +252,27 @@ function CourseDetailContent() {
           ) : isInstructor ? (
             <>
               <button 
-                onClick={() => navigate(`/courses/${courseId}/edit`)} 
-                className="btn-primary btn-full"
-              >
-                Edit Course
-              </button>
-              <button 
                 onClick={() => navigate(`/teach/course/${courseId}/manage`)} 
-                className="btn-secondary btn-full"
-                style={{ marginTop: '0.5rem' }}
+                className="btn-primary btn-full"
               >
                 Manage Course
               </button>
+              <button 
+                onClick={handleDeleteCourse} 
+                className="btn-danger btn-full"
+                style={{ marginTop: '0.5rem' }}
+              >
+                Delete Course
+              </button>
             </>
           ) : isEnrolled ? (
-            <button className="btn-secondary btn-full" disabled>
-              ✓ Enrolled
+            <button 
+              onClick={handleUnenroll} 
+              className="btn-enrolled btn-full"
+              disabled={isUnenrolling}
+            >
+              <span className="enrolled-text">✓ Enrolled</span>
+              <span className="unenroll-text">{isUnenrolling ? 'Unenrolling...' : 'Unenroll'}</span>
             </button>
           ) : (
             <button onClick={handleEnroll} className="btn-primary btn-full">

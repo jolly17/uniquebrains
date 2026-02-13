@@ -475,3 +475,44 @@ button:disabled {
     gap: 1.5rem;
   }
 }
+
+/* Enrolled button with hover to unenroll */
+.btn-enrolled {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.btn-enrolled .enrolled-text,
+.btn-enrolled .unenroll-text {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.btn-enrolled .unenroll-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.btn-enrolled:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+  color: white;
+}
+
+.btn-enrolled:hover .enrolled-text {
+  opacity: 0;
+}
+
+.btn-enrolled:hover .unenroll-text {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.btn-enrolled:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

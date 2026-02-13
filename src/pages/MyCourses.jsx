@@ -257,7 +257,16 @@ function MyCourses() {
               return (
                 <div key={course.id} className="student-course-card">
                   <div className="course-details">
-                    <h3>{course.title}</h3>
+                    <h3>
+                      <a 
+                        href={`/courses/${course.id}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}
+                      >
+                        {course.title}
+                      </a>
+                    </h3>
                     <p className="course-description">{course.description}</p>
                     <div className="course-meta">
                       <span className="instructor-name">👨‍🏫 {course.instructorName}</span>
@@ -295,19 +304,9 @@ function MyCourses() {
                   </div>
                   
                   <div className="course-actions">
-                    <Link to={`/courses/${course.id}`} className="btn-secondary">
-                      View Details
-                    </Link>
                     <Link to={`/learn/course/${course.id}/view`} className="btn-primary">
                       Continue Learning
                     </Link>
-                    <button 
-                      onClick={() => handleUnenroll(course.id, course.title)}
-                      className="btn-danger"
-                      disabled={unenrollingCourseId === course.id}
-                    >
-                      {unenrollingCourseId === course.id ? 'Unenrolling...' : 'Unenroll'}
-                    </button>
                   </div>
                 </div>
               )
