@@ -161,16 +161,14 @@ function StudentProfile() {
               : 'Manage your personal information and learning preferences'}
           </p>
         </div>
-        {isInstructor && (
-          <button
-            type="button"
-            onClick={() => navigate('/teach/courses')}
-            className="btn-primary"
-            style={{ whiteSpace: 'nowrap' }}
-          >
-            📚 My Courses
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => navigate('/courses/my-courses')}
+          className="btn-primary"
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          📚 My Courses
+        </button>
       </div>
 
       <form onSubmit={handleSave} className="profile-form">

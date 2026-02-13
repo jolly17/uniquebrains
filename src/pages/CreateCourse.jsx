@@ -472,6 +472,19 @@ function CreateCourse() {
                 💡 This link will be used for all sessions. You can add or update it later.
               </p>
             </div>
+
+            <div style={{ 
+              background: '#f0f9ff', 
+              borderLeft: '4px solid #3b82f6', 
+              padding: '0.75rem', 
+              borderRadius: '0.5rem', 
+              marginTop: '1rem',
+              fontSize: '0.85rem'
+            }}>
+              <p style={{ margin: 0, color: '#1e40af' }}>
+                ℹ️ Session topics can be edited later under "Manage Course" after creation.
+              </p>
+            </div>
           </div>
         </div>
         

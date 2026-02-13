@@ -26,7 +26,7 @@ function ManageSessions() {
     title: '',
     date: '',
     time: '',
-    duration: 60
+    duration: course?.session_duration || 60
   })
   
   // New session creation state
@@ -45,7 +45,7 @@ function ManageSessions() {
     studentId: '',
     selectedDays: [],
     time: '',
-    duration: 60,
+    duration: course?.session_duration || 60,
     startDate: '',
     endDate: '',
     frequency: 'weekly'
@@ -150,7 +150,7 @@ function ManageSessions() {
         sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
         
         const sessionData = {
-          title: `Topic ${sessionNumber}`,
+          title: `Session ${sessionNumber} Topics`,
           description: '',
           session_date: sessionDateTime.toISOString(),
           duration: courseData.session_duration || 60,
@@ -207,7 +207,7 @@ function ManageSessions() {
           sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
           
           const sessionData = {
-            title: `Topic ${sessionNumber}`,
+            title: `Session ${sessionNumber} Topics`,
             description: '',
             session_date: sessionDateTime.toISOString(),
             duration_minutes: course.session_duration || 60,
@@ -271,6 +271,20 @@ function ManageSessions() {
 
   const handleSaveMeetingLink = async () => {
     try {
+      // Validate meeting link if provided
+      if (meetingLinkInput && meetingLinkInput.trim()) {
+        try {
+          new URL(meetingLinkInput)
+          if (!meetingLinkInput.startsWith('http://') && !meetingLinkInput.startsWith('https://')) {
+            alert('Meeting link must start with http:// or https://')
+            return
+          }
+        } catch {
+          alert('Please enter a valid meeting link URL (e.g., https://zoom.us/j/...)')
+          return
+        }
+      }
+
       // Update course meeting link with instructor ID
       await handleApiCall(api.courses.update, courseId, { meeting_link: meetingLinkInput }, user.id)
       setCourseMeetingLink(meetingLinkInput)
@@ -307,7 +321,7 @@ function ManageSessions() {
       ))
       
       setEditingSession(null)
-      setSessionEditData({ title: '', date: '', time: '', duration: 60 })
+      setSessionEditData({ title: '', date: '', time: '', duration: course?.session_duration || 60 })
     } catch (err) {
       console.error('Error updating session:', err)
       alert('Failed to update session')
@@ -316,7 +330,7 @@ function ManageSessions() {
 
   const handleCancelEdit = () => {
     setEditingSession(null)
-    setSessionEditData({ title: '', date: '', time: '', duration: 60 })
+    setSessionEditData({ title: '', date: '', time: '', duration: course?.session_duration || 60 })
   }
 
   const handleDeleteSession = async (sessionId) => {
@@ -409,7 +423,7 @@ function ManageSessions() {
         studentId: studentId || '',
         selectedDays: [],
         time: '',
-        duration: 60,
+        duration: course?.session_duration || 60,
         startDate: new Date().toISOString().split('T')[0],
         endDate: '',
         frequency: 'weekly'

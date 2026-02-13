@@ -119,7 +119,7 @@ async function createCourseSessions(courseId, scheduleData) {
 
       sessions.push({
         course_id: courseId,
-        title: `Topic ${sessionNumber}`,
+        title: `Session ${sessionNumber} Topics`,
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: parseInt(scheduleData.sessionDuration),
