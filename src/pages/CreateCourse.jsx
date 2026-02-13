@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import { supabase } from '../lib/supabase'
+import TimeInput from '../components/TimeInput'
 import './Auth.css'
 import './CreateCourse.css'
 
@@ -300,14 +301,12 @@ function CreateCourse() {
 
                   <div className="form-group">
                     <label htmlFor="sessionTime" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Time *</label>
-                    <input
+                    <TimeInput
                       id="sessionTime"
                       name="sessionTime"
-                      type="time"
                       value={formData.sessionTime}
                       onChange={handleChange}
                       required
-                      style={{ padding: '0.5rem' }}
                     />
                   </div>
 
