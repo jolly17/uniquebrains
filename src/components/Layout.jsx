@@ -47,6 +47,7 @@ function Layout() {
           <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
             <Link to="/courses" className="nav-link" onClick={closeMobileMenu}>Courses</Link>
             <Link to="/community" className="nav-link" onClick={closeMobileMenu}>Community</Link>
+            <Link to="/content" className="nav-link" onClick={closeMobileMenu}>Content</Link>
 
             <div className="mobile-header-actions">
               {user ? (

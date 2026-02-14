@@ -13,6 +13,7 @@ import {
   voteAnswer,
   markBestAnswer
 } from '../services/communityService'
+import { formatLinksInText } from '../utils/linkFormatter.jsx'
 import './QuestionDetail.css'
 
 function QuestionDetail() {
@@ -406,7 +407,7 @@ function QuestionDetail() {
                     </div>
                   ) : (
                     <>
-                      <p>{answer.content}</p>
+                      <p>{formatLinksInText(answer.content)}</p>
                       <div className="answer-meta">
                         <span className="author">
                           {answer.profiles?.first_name} {answer.profiles?.last_name}
