@@ -48,6 +48,38 @@ function ManageSessions() {
     meetingLink: ''
   })
 
+  // Calculate next session date based on course schedule
+  const calculateNextSessionDate = () => {
+    if (!course?.selected_days || course.selected_days.length === 0) {
+      return ''
+    }
+
+    // Find the last session date
+    const lastSession = sessions.length > 0 
+      ? sessions.sort((a, b) => new Date(b.session_date) - new Date(a.session_date))[0]
+      : null
+    
+    const startDate = lastSession 
+      ? new Date(new Date(lastSession.session_date).getTime() + 24 * 60 * 60 * 1000) // Day after last session
+      : new Date() // Today if no sessions exist
+    
+    // Find the next day that matches the course schedule
+    let currentDate = new Date(startDate)
+    const maxDaysToCheck = 14 // Check up to 2 weeks ahead
+    
+    for (let i = 0; i < maxDaysToCheck; i++) {
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
+      
+      if (course.selected_days.includes(dayName)) {
+        return currentDate.toISOString().split('T')[0]
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+    
+    return '' // Fallback if no matching day found
+  }
+
   const enrolledCount = enrolledStudents.length
   const maxCapacity = course?.enrollment_limit || 0
 
@@ -662,7 +694,18 @@ function ManageSessions() {
         <div className="sessions-header-row">
           <h2>Group Sessions Schedule</h2>
           <div className="header-actions">
-            <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+            <button 
+              onClick={() => {
+                setNewSession({
+                  date: calculateNextSessionDate(),
+                  time: course?.session_time || '',
+                  topic: '',
+                  meetingLink: ''
+                })
+                setShowCreateModal(true)
+              }} 
+              className="btn-primary"
+            >
               + Create Single Session
             </button>
           </div>
@@ -799,17 +842,16 @@ function ManageSessions() {
                     className="form-input"
                     min={new Date().toISOString().split('T')[0]}
                   />
+                  <p className="form-hint">Prefilled based on course schedule</p>
                 </div>
 
                 <div className="form-group">
                   <label htmlFor="time">Time *</label>
-                  <input
-                    id="time"
-                    type="time"
+                  <TimeInput
                     value={newSession.time}
                     onChange={(e) => setNewSession({ ...newSession, time: e.target.value })}
-                    className="form-input"
                   />
+                  <p className="form-hint">Prefilled from course schedule</p>
                 </div>
               </div>
 
