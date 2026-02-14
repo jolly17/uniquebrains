@@ -44,8 +44,7 @@ function ManageSessions() {
   const [newSession, setNewSession] = useState({
     date: '',
     time: '',
-    topic: '',
-    meetingLink: ''
+    topic: ''
   })
 
   // Calculate next session date based on course schedule
@@ -453,7 +452,7 @@ function ManageSessions() {
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: 60,
-        meeting_link: newSession.meetingLink || courseMeetingLink,
+        meeting_link: courseMeetingLink, // Always use course meeting link
         student_id: null // All courses are group courses now
       }
 
@@ -468,8 +467,7 @@ function ManageSessions() {
       setNewSession({
         date: '',
         time: '',
-        topic: '',
-        meetingLink: ''
+        topic: ''
       })
     } catch (err) {
       console.error('Error creating session:', err)
@@ -482,8 +480,7 @@ function ManageSessions() {
     setNewSession({
       date: '',
       time: '',
-      topic: '',
-      meetingLink: ''
+      topic: ''
     })
   }
 
@@ -699,8 +696,7 @@ function ManageSessions() {
                 setNewSession({
                   date: calculateNextSessionDate(),
                   time: course?.session_time || '',
-                  topic: '',
-                  meetingLink: ''
+                  topic: ''
                 })
                 setShowCreateModal(true)
               }} 
@@ -867,22 +863,9 @@ function ManageSessions() {
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="meetingLink">Meeting Link (Optional)</label>
-                <input
-                  id="meetingLink"
-                  type="url"
-                  value={newSession.meetingLink}
-                  onChange={(e) => setNewSession({ ...newSession, meetingLink: e.target.value })}
-                  placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-                  className="form-input"
-                />
-                <p className="form-hint">Leave blank to use course default: {courseMeetingLink}</p>
-              </div>
-
               <div className="info-banner-modal">
                 <span className="info-icon">ℹ️</span>
-                <p>This session will be visible to all enrolled students.</p>
+                <p>This session will be visible to all enrolled students. Meeting link will use the course default.</p>
               </div>
             </div>
 
