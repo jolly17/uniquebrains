@@ -42,39 +42,14 @@ function ManageSessions() {
   // New session creation state
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newSession, setNewSession] = useState({
-    studentId: '',
     date: '',
     time: '',
     topic: '',
     meetingLink: ''
   })
 
-  // Recurring schedule state
-  const [showRecurringModal, setShowRecurringModal] = useState(false)
-  const [recurringSchedule, setRecurringSchedule] = useState({
-    studentId: '',
-    selectedDays: [],
-    time: '',
-    duration: course?.session_duration || 60,
-    startDate: '',
-    endDate: '',
-    frequency: 'weekly'
-  })
-  
-  // Store recurring schedules per student (for 1:1) or course (for group)
-  const [recurringSchedules, setRecurringSchedules] = useState({})
-
-  const isGroupCourse = course?.course_type === 'group'
   const enrolledCount = enrolledStudents.length
   const maxCapacity = course?.enrollment_limit || 0
-
-  const groupedSessions = !isGroupCourse ? enrolledStudents.map(student => ({
-    student,
-    sessions: sessions.filter(s => {
-      // Match by student_id only (simplified model)
-      return s.student_id === student.id
-    })
-  })) : null
 
   // Load course data, sessions, and enrolled students
   useEffect(() => {
@@ -105,15 +80,14 @@ function ManageSessions() {
       // Fetch sessions
       const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
       
-      // Auto-generate sessions for group courses if none exist
-      if (courseData.course_type === 'group' && 
-          (!sessionsData || sessionsData.length === 0) &&
+      // Auto-generate sessions if none exist
+      if ((!sessionsData || sessionsData.length === 0) &&
           courseData.selected_days && 
           courseData.selected_days.length > 0 &&
           courseData.session_time &&
           courseData.start_date) {
         
-        console.log('Auto-generating sessions for group course...')
+        console.log('Auto-generating sessions...')
         const generatedSessions = await autoGenerateSessions(courseData)
         setSessions(generatedSessions)
       } else {
@@ -438,29 +412,17 @@ function ManageSessions() {
       return
     }
 
-    if (!isGroupCourse && !newSession.studentId) {
-      alert('Please select a student')
-      return
-    }
-
     try {
       // Combine date and time into ISO string
       const sessionDateTime = new Date(`${newSession.date}T${newSession.time}`)
-      
-      // Find the selected student to determine enrollment type
-      const selectedStudent = enrolledStudents.find(s => s.id === newSession.studentId)
       
       const sessionData = {
         title: newSession.topic || 'Session',
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: 60,
-        meeting_link: newSession.meetingLink || courseMeetingLink
-      }
-      
-      // Set student_id for 1-on-1 courses
-      if (!isGroupCourse && selectedStudent) {
-        sessionData.student_id = selectedStudent.id
+        meeting_link: newSession.meetingLink || courseMeetingLink,
+        student_id: null // All courses are group courses now
       }
 
       const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
@@ -472,7 +434,6 @@ function ManageSessions() {
       
       setShowCreateModal(false)
       setNewSession({
-        studentId: '',
         date: '',
         time: '',
         topic: '',
@@ -487,125 +448,11 @@ function ManageSessions() {
   const handleCancelCreate = () => {
     setShowCreateModal(false)
     setNewSession({
-      studentId: '',
       date: '',
       time: '',
       topic: '',
       meetingLink: ''
     })
-  }
-
-  const handleOpenRecurringModal = (studentId = null) => {
-    const existing = studentId ? recurringSchedules[studentId] : recurringSchedules['group']
-    if (existing) {
-      setRecurringSchedule(existing)
-    } else {
-      setRecurringSchedule({
-        studentId: studentId || '',
-        selectedDays: [],
-        time: '',
-        duration: course?.session_duration || 60,
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: '',
-        frequency: 'weekly'
-      })
-    }
-    setShowRecurringModal(true)
-  }
-
-  const handleToggleDay = (day) => {
-    setRecurringSchedule(prev => ({
-      ...prev,
-      selectedDays: prev.selectedDays.includes(day)
-        ? prev.selectedDays.filter(d => d !== day)
-        : [...prev.selectedDays, day]
-    }))
-  }
-
-  const generateRecurringSessions = async () => {
-    if (!recurringSchedule.selectedDays.length || !recurringSchedule.time || !recurringSchedule.startDate) {
-      alert('Please fill in all required fields')
-      return
-    }
-
-    if (!isGroupCourse && !recurringSchedule.studentId) {
-      alert('Please select a student')
-      return
-    }
-
-    try {
-      const newSessions = []
-      const start = new Date(recurringSchedule.startDate)
-      
-      // For courses without end date, generate 5 sessions
-      // For courses with end date, generate all sessions until end date
-      const hasEndDate = recurringSchedule.endDate && recurringSchedule.endDate.trim() !== ''
-      const end = hasEndDate ? new Date(recurringSchedule.endDate) : null
-      const maxSessions = hasEndDate ? 1000 : 5 // Limit to 5 for open-ended schedules
-      
-      let currentDate = new Date(start)
-      let sessionNumber = 1
-      let sessionsCreated = 0
-
-      while (sessionsCreated < maxSessions && (!end || currentDate <= end)) {
-        const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()]
-        
-        if (recurringSchedule.selectedDays.includes(dayName)) {
-          const sessionDateTime = new Date(currentDate)
-          const [hours, minutes] = recurringSchedule.time.split(':')
-          sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-          
-          // Find the selected student to determine enrollment type
-          const selectedStudent = enrolledStudents.find(s => s.id === recurringSchedule.studentId)
-          
-          const sessionData = {
-            title: `Session ${sessionNumber}`,
-            description: '',
-            session_date: sessionDateTime.toISOString(),
-            duration_minutes: recurringSchedule.duration,
-            meeting_link: courseMeetingLink
-          }
-          
-          // Set student_id for 1-on-1 courses
-          if (!isGroupCourse && selectedStudent) {
-            sessionData.student_id = selectedStudent.id
-          }
-          
-          const createdSession = await handleApiCall(api.sessions.create, courseId, sessionData, user.id)
-          newSessions.push(createdSession)
-          sessionNumber++
-          sessionsCreated++
-        }
-        
-        currentDate.setDate(currentDate.getDate() + 1)
-      }
-
-      setSessions([...sessions, ...newSessions].sort((a, b) => 
-        new Date(a.session_date) - new Date(b.session_date)
-      ))
-      
-      // Save recurring schedule
-      const scheduleKey = isGroupCourse ? 'group' : recurringSchedule.studentId
-      setRecurringSchedules({
-        ...recurringSchedules,
-        [scheduleKey]: recurringSchedule
-      })
-
-      setShowRecurringModal(false)
-      
-      // Show success message
-      const message = hasEndDate 
-        ? `Created ${newSessions.length} sessions from ${start.toLocaleDateString('en-US')} to ${end.toLocaleDateString('en-US')}`
-        : `Created ${newSessions.length} initial sessions starting ${start.toLocaleDateString('en-US')}`
-      alert(message)
-    } catch (err) {
-      console.error('Error generating recurring sessions:', err)
-      alert('Failed to generate sessions')
-    }
-  }
-
-  const handleCancelRecurring = () => {
-    setShowRecurringModal(false)
   }
 
   // Helper function to format session date and time
@@ -640,14 +487,11 @@ function ManageSessions() {
       </div>
 
       <div className="sessions-info-banner">
-        <p>💡 {isGroupCourse 
-          ? 'Set session topics for your group classes. All enrolled students will see the same schedule.'
-          : 'Set session topics based on each student\'s progress and learning needs. Topics help students prepare for upcoming classes.'
-        }</p>
+        <p>💡 Set session topics for your classes. All enrolled students will see the same schedule.</p>
       </div>
 
       {/* Course Schedule Information */}
-      {isGroupCourse && course.selected_days && course.selected_days.length > 0 && (
+      {course.selected_days && course.selected_days.length > 0 && (
         <div className="course-schedule-info">
           <h3>📅 Course Schedule</h3>
           {isEditingSchedule ? (
@@ -814,264 +658,125 @@ function ManageSessions() {
         )}
       </div>
 
-      {isGroupCourse ? (
-        <>
-          <div className="sessions-container">
-            <div className="sessions-header-row">
-              <h2>Group Sessions Schedule</h2>
-              <div className="header-actions">
-                <button onClick={() => setShowCreateModal(true)} className="btn-primary">
-                  + Create Single Session
-                </button>
-              </div>
-            </div>
-            <div className="sessions-list">
-              {sessions.map(session => {
-                const { date, time } = formatSessionDateTime(session)
-                return (
-                  <div key={session.id} className="session-item">
-                    <div className="session-date-time">
-                      <div className="session-date">{date}</div>
-                      <div className="session-time">{time}</div>
-                      <div className="session-attendees">👥 {enrolledCount} students</div>
-                    </div>
-
-                    <div className="session-topic-area">
-                      {editingSession === session.id ? (
-                        <div className="topic-edit">
-                          <div className="edit-fields">
-                            <input
-                              type="text"
-                              value={sessionEditData.title}
-                              onChange={(e) => setSessionEditData({ ...sessionEditData, title: e.target.value })}
-                              placeholder="Enter session topic..."
-                              className="topic-input"
-                              autoFocus
-                            />
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
-                              <input
-                                type="date"
-                                value={sessionEditData.date}
-                                onChange={(e) => setSessionEditData({ ...sessionEditData, date: e.target.value })}
-                                className="topic-input"
-                              />
-                              <input
-                                type="time"
-                                value={sessionEditData.time}
-                                onChange={(e) => setSessionEditData({ ...sessionEditData, time: e.target.value })}
-                                className="topic-input"
-                              />
-                              <input
-                                type="number"
-                                value={sessionEditData.duration}
-                                onChange={(e) => setSessionEditData({ ...sessionEditData, duration: e.target.value })}
-                                placeholder="Duration (min)"
-                                className="topic-input"
-                                min="15"
-                                step="15"
-                              />
-                            </div>
-                          </div>
-                          <div className="topic-actions">
-                            <button 
-                              onClick={() => handleSaveSession(session.id)}
-                              className="btn-primary btn-sm"
-                            >
-                              Save
-                            </button>
-                            <button 
-                              onClick={handleCancelEdit}
-                              className="btn-secondary btn-sm"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="topic-display">
-                          <div className="topic-info">
-                            {session.title && session.title.trim() ? (
-                              <>
-                                <div className="topic-text">{session.title}</div>
-                                <span className="topic-status set">✓ Ready</span>
-                              </>
-                            ) : (
-                              <>
-                                <div className="topic-text empty">No topic set yet</div>
-                                <span className="topic-status pending">⚠ Pending</span>
-                              </>
-                            )}
-                          </div>
-                          <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            {courseMeetingLink && (
-                              <a
-                                href={courseMeetingLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-primary btn-sm"
-                              >
-                                Join Meeting
-                              </a>
-                            )}
-                            <button 
-                              onClick={() => handleEditSession(session)}
-                              className="btn-secondary btn-sm"
-                            >
-                              {session.title ? 'Edit' : 'Set Details'}
-                            </button>
-                            <button 
-                              onClick={() => handleDeleteSession(session.id)}
-                              className="btn-secondary btn-sm"
-                              style={{ color: '#dc2626' }}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-      </div>
-        </>
-      ) : (
-        <div className="students-sessions">
-          <div className="create-session-section">
+      <div className="sessions-container">
+        <div className="sessions-header-row">
+          <h2>Group Sessions Schedule</h2>
+          <div className="header-actions">
             <button onClick={() => setShowCreateModal(true)} className="btn-primary">
               + Create Single Session
             </button>
           </div>
-          
-          {groupedSessions.map(({ student, sessions: studentSessions }) => (
-            <div key={student.id} className="student-section">
-              <div className="student-header">
-                <div>
-                  <h2>{student.first_name} {student.last_name}</h2>
+        </div>
+        <div className="sessions-list">
+          {sessions.map(session => {
+            const { date, time } = formatSessionDateTime(session)
+            return (
+              <div key={session.id} className="session-item">
+                <div className="session-date-time">
+                  <div className="session-date">{date}</div>
+                  <div className="session-time">{time}</div>
+                  <div className="session-attendees">👥 {enrolledCount} students</div>
                 </div>
-                <div className="student-actions">
-                  <button 
-                    onClick={() => handleOpenRecurringModal(student.id)} 
-                    className="btn-secondary btn-sm"
-                  >
-                    {recurringSchedules[student.id] ? '⚙️ Edit Schedule' : '📅 Set Schedule'}
-                  </button>
-                </div>
-              </div>
 
-              <div className="sessions-list">
-                {studentSessions.map(session => {
-                  const { date, time } = formatSessionDateTime(session)
-                  return (
-                    <div key={session.id} className="session-item">
-                      <div className="session-date-time">
-                        <div className="session-date">{date}</div>
-                        <div className="session-time">{time}</div>
+                <div className="session-topic-area">
+                  {editingSession === session.id ? (
+                    <div className="topic-edit">
+                      <div className="edit-fields">
+                        <input
+                          type="text"
+                          value={sessionEditData.title}
+                          onChange={(e) => setSessionEditData({ ...sessionEditData, title: e.target.value })}
+                          placeholder="Enter session topic..."
+                          className="topic-input"
+                          autoFocus
+                        />
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
+                          <input
+                            type="date"
+                            value={sessionEditData.date}
+                            onChange={(e) => setSessionEditData({ ...sessionEditData, date: e.target.value })}
+                            className="topic-input"
+                          />
+                          <input
+                            type="time"
+                            value={sessionEditData.time}
+                            onChange={(e) => setSessionEditData({ ...sessionEditData, time: e.target.value })}
+                            className="topic-input"
+                          />
+                          <input
+                            type="number"
+                            value={sessionEditData.duration}
+                            onChange={(e) => setSessionEditData({ ...sessionEditData, duration: e.target.value })}
+                            placeholder="Duration (min)"
+                            className="topic-input"
+                            min="15"
+                            step="15"
+                          />
+                        </div>
                       </div>
-
-                      <div className="session-topic-area">
-                        {editingSession === session.id ? (
-                          <div className="topic-edit">
-                            <div className="edit-fields">
-                              <input
-                                type="text"
-                                value={sessionEditData.title}
-                                onChange={(e) => setSessionEditData({ ...sessionEditData, title: e.target.value })}
-                                placeholder="Enter session topic..."
-                                className="topic-input"
-                                autoFocus
-                              />
-                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem' }}>
-                                <input
-                                  type="date"
-                                  value={sessionEditData.date}
-                                  onChange={(e) => setSessionEditData({ ...sessionEditData, date: e.target.value })}
-                                  className="topic-input"
-                                />
-                                <input
-                                  type="time"
-                                  value={sessionEditData.time}
-                                  onChange={(e) => setSessionEditData({ ...sessionEditData, time: e.target.value })}
-                                  className="topic-input"
-                                />
-                                <input
-                                  type="number"
-                                  value={sessionEditData.duration}
-                                  onChange={(e) => setSessionEditData({ ...sessionEditData, duration: e.target.value })}
-                                  placeholder="Duration (min)"
-                                  className="topic-input"
-                                  min="15"
-                                  step="15"
-                                />
-                              </div>
-                            </div>
-                            <div className="topic-actions">
-                              <button 
-                                onClick={() => handleSaveSession(session.id)}
-                                className="btn-primary btn-sm"
-                              >
-                                Save
-                              </button>
-                              <button 
-                                onClick={handleCancelEdit}
-                                className="btn-secondary btn-sm"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="topic-display">
-                            <div className="topic-info">
-                              {session.title && session.title.trim() ? (
-                                <>
-                                  <div className="topic-text">{session.title}</div>
-                                  <span className="topic-status set">✓ Ready</span>
-                                </>
-                              ) : (
-                                <>
-                                  <div className="topic-text empty">No topic set yet</div>
-                                  <span className="topic-status pending">⚠ Pending</span>
-                                </>
-                              )}
-                            </div>
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                              {courseMeetingLink && (
-                                <a
-                                  href={courseMeetingLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="btn-primary btn-sm"
-                                >
-                                  Join Meeting
-                                </a>
-                              )}
-                              <button 
-                                onClick={() => handleEditSession(session)}
-                                className="btn-secondary btn-sm"
-                              >
-                                {session.title ? 'Edit' : 'Set Details'}
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteSession(session.id)}
-                                className="btn-secondary btn-sm"
-                                style={{ color: '#dc2626' }}
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                      <div className="topic-actions">
+                        <button 
+                          onClick={() => handleSaveSession(session.id)}
+                          className="btn-primary btn-sm"
+                        >
+                          Save
+                        </button>
+                        <button 
+                          onClick={handleCancelEdit}
+                          className="btn-secondary btn-sm"
+                        >
+                          Cancel
+                        </button>
                       </div>
                     </div>
-                  )
-                })}
+                  ) : (
+                    <div className="topic-display">
+                      <div className="topic-info">
+                        {session.title && session.title.trim() ? (
+                          <>
+                            <div className="topic-text">{session.title}</div>
+                            <span className="topic-status set">✓ Ready</span>
+                          </>
+                        ) : (
+                          <>
+                            <div className="topic-text empty">No topic set yet</div>
+                            <span className="topic-status pending">⚠ Pending</span>
+                          </>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        {courseMeetingLink && (
+                          <a
+                            href={courseMeetingLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-primary btn-sm"
+                          >
+                            Join Meeting
+                          </a>
+                        )}
+                        <button 
+                          onClick={() => handleEditSession(session)}
+                          className="btn-secondary btn-sm"
+                        >
+                          {session.title ? 'Edit' : 'Set Details'}
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteSession(session.id)}
+                          className="btn-secondary btn-sm"
+                          style={{ color: '#dc2626' }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
-      )}
+      </div>
 
       {/* Create Session Modal */}
       {showCreateModal && (
@@ -1083,25 +788,6 @@ function ManageSessions() {
             </div>
 
             <div className="modal-body">
-              {!isGroupCourse && (
-                <div className="form-group">
-                  <label htmlFor="student">Student *</label>
-                  <select
-                    id="student"
-                    value={newSession.studentId}
-                    onChange={(e) => setNewSession({ ...newSession, studentId: e.target.value })}
-                    className="form-input"
-                  >
-                    <option value="">Select a student</option>
-                    {enrolledStudents.map(student => (
-                      <option key={student.id} value={student.id}>
-                        {student.first_name} {student.last_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="date">Date *</label>
@@ -1154,11 +840,7 @@ function ManageSessions() {
 
               <div className="info-banner-modal">
                 <span className="info-icon">ℹ️</span>
-                <p>
-                  {isGroupCourse 
-                    ? 'This session will be visible to all enrolled students.'
-                    : 'After creating the session, you can discuss details with the student via chat.'}
-                </p>
+                <p>This session will be visible to all enrolled students.</p>
               </div>
             </div>
 
@@ -1168,145 +850,6 @@ function ManageSessions() {
               </button>
               <button className="btn-primary" onClick={handleCreateSession}>
                 Create Session
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Recurring Schedule Modal */}
-      {showRecurringModal && (
-        <div className="modal-overlay" onClick={handleCancelRecurring}>
-          <div className="modal-content modal-large" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{recurringSchedules[recurringSchedule.studentId || 'group'] ? 'Edit Recurring Schedule' : 'Set up Recurring Schedule'}</h2>
-              <button className="close-button" onClick={handleCancelRecurring}>×</button>
-            </div>
-
-            <div className="modal-body">
-              {!isGroupCourse && (
-                <div className="form-group">
-                  <label htmlFor="recurring-student">Student *</label>
-                  <select
-                    id="recurring-student"
-                    value={recurringSchedule.studentId}
-                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, studentId: e.target.value })}
-                    className="form-input"
-                  >
-                    <option value="">Select a student</option>
-                    {enrolledStudents.map(student => (
-                      <option key={student.id} value={student.id}>
-                        {student.first_name} {student.last_name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-
-              <div className="form-group">
-                <label>On These Days *</label>
-                <div className="day-selector">
-                  {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
-                    <button
-                      key={day}
-                      type="button"
-                      className={`day-button ${recurringSchedule.selectedDays.includes(day) ? 'selected' : ''}`}
-                      onClick={() => handleToggleDay(day)}
-                    >
-                      {day.substring(0, 3)}
-                    </button>
-                  ))}
-                </div>
-                <p className="form-hint">Select the days of the week when sessions will occur</p>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="recurring-time">Session Time *</label>
-                  <input
-                    id="recurring-time"
-                    type="time"
-                    value={recurringSchedule.time}
-                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, time: e.target.value })}
-                    className="form-input"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="duration">Duration (minutes)</label>
-                  <input
-                    id="duration"
-                    type="number"
-                    value={recurringSchedule.duration}
-                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, duration: parseInt(e.target.value) })}
-                    className="form-input"
-                    min="15"
-                    step="15"
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="start-date">Start Date *</label>
-                  <input
-                    id="start-date"
-                    type="date"
-                    value={recurringSchedule.startDate}
-                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, startDate: e.target.value })}
-                    className="form-input"
-                    min={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="end-date">End Date (Optional)</label>
-                  <input
-                    id="end-date"
-                    type="date"
-                    value={recurringSchedule.endDate}
-                    onChange={(e) => setRecurringSchedule({ ...recurringSchedule, endDate: e.target.value })}
-                    className="form-input"
-                    min={recurringSchedule.startDate}
-                  />
-                  <p className="form-hint">Leave blank to create 5 initial sessions</p>
-                </div>
-              </div>
-
-              <div className="info-banner-modal">
-                <span className="info-icon">ℹ️</span>
-                <p>
-                  {isGroupCourse 
-                    ? 'This will create recurring sessions for all enrolled students on the selected days and time.'
-                    : 'This will create recurring sessions for the selected student. You can set different schedules for each student.'}
-                </p>
-              </div>
-
-              {recurringSchedule.selectedDays.length > 0 && recurringSchedule.time && recurringSchedule.startDate && (
-                <div className="schedule-preview">
-                  <h4>Schedule Preview:</h4>
-                  <p>
-                    <strong>{recurringSchedule.selectedDays.join(', ')}</strong> at <strong>{recurringSchedule.time}</strong>
-                    {!isGroupCourse && recurringSchedule.studentId && (
-                      <> for <strong>{enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.first_name} {enrolledStudents.find(s => s.id === recurringSchedule.studentId)?.last_name}</strong></>
-                    )}
-                  </p>
-                  <p className="preview-detail">
-                    Starting {new Date(recurringSchedule.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                    {recurringSchedule.endDate && (
-                      <> until {new Date(recurringSchedule.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</>
-                    )}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={handleCancelRecurring}>
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={generateRecurringSessions}>
-                {recurringSchedules[recurringSchedule.studentId || 'group'] ? 'Update Schedule' : 'Generate Sessions'}
               </button>
             </div>
           </div>
