@@ -127,30 +127,28 @@ function CreateCourse() {
   }
 
   return (
-    <div className="create-course" style={{ padding: '1.5rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <h1 style={{ marginBottom: '1rem', fontSize: '1.75rem' }}>Create New Course</h1>
+    <div className="create-course">
+      <div className="create-course-header">
+        <button onClick={() => navigate(-1)} className="back-button">
+          ← Back
+        </button>
+        <h1>Create New Course</h1>
+        <p className="course-subtitle">Set up your course details and schedule</p>
+      </div>
       
       {error && (
-        <div className="error-message" style={{ 
-          background: '#fee2e2', 
-          border: '1px solid #fecaca', 
-          color: '#dc2626', 
-          padding: '0.75rem', 
-          borderRadius: '0.5rem', 
-          marginBottom: '1rem' 
-        }}>
+        <div className="error-message">
           {error}
         </div>
       )}
       
-      <form onSubmit={handleSubmit} className="auth-form create-course-form">
-        {/* Two-column grid layout */}
-        <div className="form-grid-2col">
+      <form onSubmit={handleSubmit} className="course-form">
+        <div className="form-card">
+          <h2>Course Information</h2>
           
-          {/* Left Column */}
-          <div>
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label htmlFor="title" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Course Title *</label>
+          <div className="form-content">
+            <div className="form-section">
+              <label htmlFor="title">Course Title *</label>
               <input
                 id="title"
                 name="title"
@@ -159,34 +157,34 @@ function CreateCourse() {
                 onChange={handleChange}
                 required
                 placeholder="e.g., Introduction to Positive Parenting"
-                style={{ padding: '0.5rem' }}
+                className="form-input"
               />
             </div>
             
-            <div className="form-group" style={{ marginBottom: '1rem' }}>
-              <label htmlFor="description" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Description *</label>
+            <div className="form-section">
+              <label htmlFor="description">Description *</label>
               <textarea
                 id="description"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 required
-                rows="3"
+                rows="4"
                 placeholder="Describe what students will learn..."
-                style={{ padding: '0.5rem' }}
+                className="form-input"
               />
             </div>
             
-            <div className="form-row-2col">
-              <div className="form-group">
-                <label htmlFor="category" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Category *</label>
+            <div className="form-row">
+              <div className="form-section">
+                <label htmlFor="category">Category *</label>
                 <select
                   id="category"
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
                   required
-                  style={{ padding: '0.5rem' }}
+                  className="form-input"
                 >
                   <option value="performing-arts">Performing Arts 🎭</option>
                   <option value="visual-arts">Visual Arts 🎨</option>
@@ -199,15 +197,15 @@ function CreateCourse() {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="ageGroup" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Age Group *</label>
+              <div className="form-section">
+                <label htmlFor="ageGroup">Age Group *</label>
                 <select
                   id="ageGroup"
                   name="ageGroup"
                   value={formData.ageGroup}
                   onChange={handleChange}
                   required
-                  style={{ padding: '0.5rem' }}
+                  className="form-input"
                 >
                   <option value="All ages">👥 All ages</option>
                   <option value="5-8 years">🧒 5-8 years</option>
@@ -216,34 +214,9 @@ function CreateCourse() {
                   <option value="Adults">👨 Adults</option>
                 </select>
               </div>
-            </div>
 
-            <div className="form-row-2col">
-              <div className="form-group">
-                <label htmlFor="price" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Price ($)</label>
-                <input
-                  id="price"
-                  name="price"
-                  type="number"
-                  value="0.00"
-                  disabled
-                  style={{ 
-                    backgroundColor: '#f3f4f6', 
-                    cursor: 'not-allowed',
-                    color: '#6b7280',
-                    padding: '0.5rem'
-                  }}
-                  placeholder="0.00"
-                />
-                <p style={{ fontSize: '0.75rem', color: '#10b981', margin: '0.25rem 0 0 0' }}>
-                  ✨ Free for all
-                </p>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="enrollmentLimit" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>
-                  Max Students
-                </label>
+              <div className="form-section">
+                <label htmlFor="enrollmentLimit">Max Students</label>
                 <input
                   id="enrollmentLimit"
                   name="enrollmentLimit"
@@ -252,180 +225,136 @@ function CreateCourse() {
                   onChange={handleChange}
                   min="1"
                   placeholder="Unlimited"
-                  style={{ padding: '0.5rem' }}
+                  className="form-input"
                 />
-                <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
-                  💡 Set to 1 for one-on-one classes
-                </p>
+                <p className="form-hint">💡 Set to 1 for one-on-one classes</p>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Column - Schedule Section */}
-          <div>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#374151' }}>Schedule</h3>
-                
-                <div className="form-row-2col">
-                  <div className="form-group">
-                    <label htmlFor="sessionDuration" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Duration (min) *</label>
-                    <input
-                      id="sessionDuration"
-                      name="sessionDuration"
-                      type="number"
-                      value={formData.sessionDuration}
-                      onChange={handleChange}
-                      required
-                      min="15"
-                      step="15"
-                      placeholder="60"
-                      style={{ padding: '0.5rem' }}
-                    />
-                  </div>
+        <div className="form-card">
+          <h2>Schedule</h2>
+          
+          <div className="form-content">
+            <div className="form-row">
+              <div className="form-section">
+                <label htmlFor="sessionTime">Session Time *</label>
+                <TimeInput
+                  id="sessionTime"
+                  name="sessionTime"
+                  value={formData.sessionTime}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-                  <div className="form-group">
-                    <label htmlFor="sessionTime" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Time *</label>
-                    <TimeInput
-                      id="sessionTime"
-                      name="sessionTime"
-                      value={formData.sessionTime}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
+              <div className="form-section">
+                <label htmlFor="sessionDuration">Duration (minutes) *</label>
+                <input
+                  id="sessionDuration"
+                  name="sessionDuration"
+                  type="number"
+                  value={formData.sessionDuration}
+                  onChange={handleChange}
+                  required
+                  min="15"
+                  step="15"
+                  placeholder="60"
+                  className="form-input"
+                />
+              </div>
 
-                  <div className="form-group">
-                    <label htmlFor="timezone" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Timezone *</label>
-                    <select
-                      id="timezone"
-                      name="timezone"
-                      value={formData.timezone}
-                      onChange={handleChange}
-                      required
-                      style={{ padding: '0.5rem' }}
-                    >
-                      <option value="America/New_York">Eastern Time (ET)</option>
-                      <option value="America/Chicago">Central Time (CT)</option>
-                      <option value="America/Denver">Mountain Time (MT)</option>
-                      <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                      <option value="America/Anchorage">Alaska Time (AKT)</option>
-                      <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
-                      <option value="Europe/London">London (GMT/BST)</option>
-                      <option value="Europe/Paris">Paris (CET/CEST)</option>
-                      <option value="Europe/Berlin">Berlin (CET/CEST)</option>
-                      <option value="Asia/Dubai">Dubai (GST)</option>
-                      <option value="Asia/Kolkata">India (IST)</option>
-                      <option value="Asia/Singapore">Singapore (SGT)</option>
-                      <option value="Asia/Tokyo">Tokyo (JST)</option>
-                      <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
-                    </select>
-                    <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
-                      Students will see times in their local timezone
-                    </p>
-                  </div>
+              <div className="form-section">
+                <label htmlFor="timezone">Timezone *</label>
+                <select
+                  id="timezone"
+                  name="timezone"
+                  value={formData.timezone}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                >
+                  <option value="America/New_York">Eastern Time (ET)</option>
+                  <option value="America/Chicago">Central Time (CT)</option>
+                  <option value="America/Denver">Mountain Time (MT)</option>
+                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  <option value="America/Anchorage">Alaska Time (AKT)</option>
+                  <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                  <option value="Europe/London">London (GMT/BST)</option>
+                  <option value="Europe/Paris">Paris (CET/CEST)</option>
+                  <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+                  <option value="Asia/Dubai">Dubai (GST)</option>
+                  <option value="Asia/Kolkata">India (IST)</option>
+                  <option value="Asia/Singapore">Singapore (SGT)</option>
+                  <option value="Asia/Tokyo">Tokyo (JST)</option>
+                  <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+                </select>
+                <p className="form-hint">Students will see times in their local timezone</p>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <label>Days *</label>
+              <div className="days-selector">
+                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                  <button
+                    key={day}
+                    type="button"
+                    className={`day-button ${formData.selectedDays.includes(day) ? 'active' : ''}`}
+                    onClick={() => toggleDay(day)}
+                  >
+                    {day.substring(0, 3)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-section">
+                <label htmlFor="startDate">Start Date *</label>
+                <input
+                  id="startDate"
+                  name="startDate"
+                  type="date"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                />
+              </div>
+
+              {formData.hasEndDate && (
+                <div className="form-section">
+                  <label htmlFor="endDate">End Date *</label>
+                  <input
+                    id="endDate"
+                    name="endDate"
+                    type="date"
+                    value={formData.endDate}
+                    onChange={handleChange}
+                    min={formData.startDate}
+                    required={formData.hasEndDate}
+                    className="form-input"
+                  />
                 </div>
+              )}
+            </div>
 
-                <div className="form-row-2col">
-                  <div className="form-group">
-                    <label htmlFor="startDate" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Start Date *</label>
-                    <input
-                      id="startDate"
-                      name="startDate"
-                      type="date"
-                      value={formData.startDate}
-                      onChange={handleChange}
-                      required
-                      style={{ padding: '0.5rem' }}
-                    />
-                  </div>
-
-                  {formData.hasEndDate && (
-                    <div className="form-group">
-                      <label htmlFor="endDate" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>End Date *</label>
-                      <input
-                        id="endDate"
-                        name="endDate"
-                        type="date"
-                        value={formData.endDate}
-                        onChange={handleChange}
-                        min={formData.startDate}
-                        required={formData.hasEndDate}
-                        style={{ padding: '0.5rem' }}
-                      />
-                    </div>
-                  )}
-                </div>
-
-                <div className="form-group" style={{ marginBottom: '1rem' }}>
-                  <label style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Repeat Every *</label>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <input
-                      type="number"
-                      name="repeatEvery"
-                      value={formData.repeatEvery}
-                      onChange={handleChange}
-                      min="1"
-                      max="52"
-                      required
-                      style={{ width: '80px', padding: '0.5rem' }}
-                    />
-                    <select
-                      name="repeatUnit"
-                      value={formData.repeatUnit}
-                      onChange={handleChange}
-                      required
-                      style={{ flex: 1, padding: '0.5rem' }}
-                    >
-                      <option value="day">Day(s)</option>
-                      <option value="week">Week(s)</option>
-                      <option value="month">Month(s)</option>
-                    </select>
-                  </div>
-                </div>
-
-                {formData.repeatUnit === 'week' && (
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>On These Days *</label>
-                    <div className="days-selector">
-                      {[
-                        { short: 'M', full: 'Monday' },
-                        { short: 'T', full: 'Tuesday' },
-                        { short: 'W', full: 'Wednesday' },
-                        { short: 'T', full: 'Thursday' },
-                        { short: 'F', full: 'Friday' },
-                        { short: 'S', full: 'Saturday' },
-                        { short: 'S', full: 'Sunday' }
-                      ].map((day, index) => (
-                        <button
-                          key={index}
-                          type="button"
-                          className={`day-button ${formData.selectedDays.includes(day.full) ? 'active' : ''}`}
-                          onClick={() => toggleDay(day.full)}
-                          style={{ padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}
-                        >
-                          {day.short}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', fontSize: '0.9rem' }}>
-                    <input
-                      type="checkbox"
-                      name="hasEndDate"
-                      checked={formData.hasEndDate}
-                      onChange={handleChange}
-                      style={{ marginRight: '0.5rem' }}
-                    />
-                    Set an end date
-                  </label>
-                </div>
-
-            <div className="form-group" style={{ marginTop: '1rem' }}>
-              <label htmlFor="meetingLink" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>
-                Meeting Link (Optional)
+            <div className="form-section">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="hasEndDate"
+                  checked={formData.hasEndDate}
+                  onChange={handleChange}
+                />
+                Set an end date
               </label>
+            </div>
+
+            <div className="form-section">
+              <label htmlFor="meetingLink">Meeting Link (Optional)</label>
               <input
                 id="meetingLink"
                 name="meetingLink"
@@ -433,29 +362,13 @@ function CreateCourse() {
                 value={formData.meetingLink}
                 onChange={handleChange}
                 placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-                style={{ padding: '0.5rem' }}
+                className="form-input"
               />
-              <p style={{ fontSize: '0.75rem', color: '#6b7280', margin: '0.25rem 0 0 0' }}>
-                💡 This link will be used for all sessions. You can add or update it later.
-              </p>
-            </div>
-
-            <div style={{ 
-              background: '#f0f9ff', 
-              borderLeft: '4px solid #3b82f6', 
-              padding: '0.75rem', 
-              borderRadius: '0.5rem', 
-              marginTop: '1rem',
-              fontSize: '0.85rem'
-            }}>
-              <p style={{ margin: 0, color: '#1e40af' }}>
-                ℹ️ Session topics can be edited later under "Manage Course" after creation.
-              </p>
+              <p className="form-hint">💡 This link will be used for all sessions</p>
             </div>
           </div>
         </div>
         
-        {/* Action Buttons */}
         <div className="form-actions">
           <button type="button" onClick={() => navigate(-1)} className="btn-secondary">
             Cancel
