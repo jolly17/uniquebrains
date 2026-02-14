@@ -229,6 +229,25 @@ function CreateCourse() {
                 />
                 <p className="form-hint">💡 Set to 1 for one-on-one classes</p>
               </div>
+
+              <div className="form-section">
+                <label htmlFor="price">Price ($)</label>
+                <input
+                  id="price"
+                  name="price"
+                  type="number"
+                  value="0.00"
+                  disabled
+                  className="form-input"
+                  style={{ 
+                    backgroundColor: '#f3f4f6', 
+                    cursor: 'not-allowed',
+                    color: '#6b7280'
+                  }}
+                  placeholder="0.00"
+                />
+                <p className="form-hint" style={{ color: '#10b981' }}>✨ Free for all</p>
+              </div>
             </div>
           </div>
         </div>
@@ -307,6 +326,35 @@ function CreateCourse() {
                     {day.substring(0, 3)}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="form-section">
+              <label>Repeat Every *</label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input
+                  type="number"
+                  name="repeatEvery"
+                  value={formData.repeatEvery}
+                  onChange={handleChange}
+                  min="1"
+                  max="52"
+                  required
+                  className="form-input"
+                  style={{ width: '80px' }}
+                />
+                <select
+                  name="repeatUnit"
+                  value={formData.repeatUnit}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                  style={{ flex: 1 }}
+                >
+                  <option value="day">Day(s)</option>
+                  <option value="week">Week(s)</option>
+                  <option value="month">Month(s)</option>
+                </select>
               </div>
             </div>
 
