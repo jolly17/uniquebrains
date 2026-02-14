@@ -26,6 +26,7 @@ import BackendTestComponent from './components/BackendTestComponent'
 import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
 import NeurodiversityGuide from './pages/NeurodiversityGuide'
+import Content from './pages/Content'
 import Community from './pages/Community'
 import TopicDetail from './pages/TopicDetail'
 import AskQuestion from './pages/AskQuestion'
@@ -89,7 +90,8 @@ function App() {
             <Route path="marketplace" element={<Navigate to="/courses" replace />} />
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
-            <Route path="neurodiversity" element={<NeurodiversityGuide />} />
+            <Route path="content" element={<Content />} />
+            <Route path="neurodiversity" element={<Navigate to="/content" replace />} />
             <Route path="community" element={<Community />} />
             <Route path="community/create-topic" element={<CreateTopic />} />
             <Route path="community/:slug" element={<TopicDetail />} />

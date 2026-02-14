@@ -105,7 +105,7 @@ function Layout() {
           
           <p>&copy; 2025 UniqueBrains. Where every brain learns differently.</p>
           <div className="footer-links">
-            <Link to="/neurodiversity" className="footer-link">Understanding Neurodiversity</Link>
+            <Link to="/content" className="footer-link">Content & Resources</Link>
             <span className="footer-separator">•</span>
             <Link to="/privacy-policy" className="footer-link">Privacy Policy</Link>
             <span className="footer-separator">•</span>
