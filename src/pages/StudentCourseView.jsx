@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
+import { convertToLocalTime, formatTimeWithTimezone } from '../utils/timezoneUtils'
 import StudentHomework from './StudentHomework'
 import StudentResources from './StudentResources'
 import StudentChat from './StudentChat'
@@ -286,7 +287,13 @@ function StudentCourseView() {
                   </div>
                   <div className="schedule-detail">
                     <span className="detail-label">Time:</span>
-                    <span className="detail-value">{course.session_time || 'To be announced'}</span>
+                    <span className="detail-value">
+                      {course.session_time && course.timezone 
+                        ? formatTimeWithTimezone(
+                            convertToLocalTime(course.session_time, course.timezone)
+                          )
+                        : course.session_time || 'To be announced'}
+                    </span>
                   </div>
                   <div className="schedule-detail">
                     <span className="detail-label">Duration:</span>
