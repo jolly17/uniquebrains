@@ -27,6 +27,8 @@ import RLSSecurityTest from './components/RLSSecurityTest'
 import ComingSoon from './pages/ComingSoon'
 import NeurodiversityGuide from './pages/NeurodiversityGuide'
 import Content from './pages/Content'
+import Neurodiversity from './pages/Neurodiversity'
+import SensoryDifferences from './pages/SensoryDifferences'
 import Community from './pages/Community'
 import TopicDetail from './pages/TopicDetail'
 import AskQuestion from './pages/AskQuestion'
@@ -91,6 +93,8 @@ function App() {
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="terms-of-service" element={<TermsOfService />} />
             <Route path="content" element={<Content />} />
+            <Route path="content/neurodiversity" element={<Neurodiversity />} />
+            <Route path="content/sensory-differences" element={<SensoryDifferences />} />
             <Route path="neurodiversity" element={<Navigate to="/content" replace />} />
             <Route path="community" element={<Community />} />
             <Route path="community/create-topic" element={<CreateTopic />} />
