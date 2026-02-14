@@ -18,7 +18,7 @@ function CreateCourse() {
     description: '',
     category: 'performing-arts',
     ageGroup: 'All ages',
-    courseType: 'group', // 'group' or 'one-on-one'
+    courseType: 'group', // Always group - instructors can set enrollmentLimit to 1 for 1:1
     price: '',
     sessionDuration: '',
     sessionTime: '',
@@ -220,23 +220,6 @@ function CreateCourse() {
 
             <div className="form-row-2col">
               <div className="form-group">
-                <label htmlFor="courseType" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Course Type *</label>
-                <select
-                  id="courseType"
-                  name="courseType"
-                  value={formData.courseType}
-                  onChange={handleChange}
-                  required
-                  style={{ padding: '0.5rem' }}
-                >
-                  <option value="group">Group Class 👥</option>
-                  <option value="one-on-one">One-on-One 👤</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="form-row-2col">
-              <div className="form-group">
                 <label htmlFor="price" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>Price ($)</label>
                 <input
                   id="price"
@@ -271,30 +254,16 @@ function CreateCourse() {
                   placeholder="Unlimited"
                   style={{ padding: '0.5rem' }}
                 />
+                <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+                  💡 Set to 1 for one-on-one classes
+                </p>
               </div>
             </div>
           </div>
 
           {/* Right Column - Schedule Section */}
           <div>
-            {formData.courseType === 'one-on-one' && (
-              <div style={{ 
-                background: '#dbeafe', 
-                borderLeft: '4px solid #3b82f6', 
-                padding: '0.75rem', 
-                borderRadius: '0.5rem', 
-                marginBottom: '1rem',
-                fontSize: '0.85rem'
-              }}>
-                <p style={{ margin: 0, color: '#1e40af' }}>
-                  ℹ️ Schedule individual sessions with each student after enrollment.
-                </p>
-              </div>
-            )}
-
-            {formData.courseType === 'group' && (
-              <>
-                <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#374151' }}>Schedule</h3>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '0.75rem', color: '#374151' }}>Schedule</h3>
                 
                 <div className="form-row-2col">
                   <div className="form-group">
@@ -452,8 +421,6 @@ function CreateCourse() {
                     Set an end date
                   </label>
                 </div>
-              </>
-            )}
 
             <div className="form-group" style={{ marginTop: '1rem' }}>
               <label htmlFor="meetingLink" style={{ fontSize: '0.9rem', marginBottom: '0.25rem' }}>
