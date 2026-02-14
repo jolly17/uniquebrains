@@ -26,7 +26,8 @@ function ManageSessions() {
   const [scheduleData, setScheduleData] = useState({
     sessionTime: '',
     selectedDays: [],
-    sessionDuration: ''
+    sessionDuration: '',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
   })
 
   // Session editing state
@@ -97,7 +98,8 @@ function ManageSessions() {
       setScheduleData({
         sessionTime: courseData.session_time || '',
         selectedDays: courseData.selected_days || [],
-        sessionDuration: courseData.session_duration || ''
+        sessionDuration: courseData.session_duration || '',
+        timezone: courseData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
       })
 
       // Fetch sessions
@@ -343,7 +345,8 @@ function ManageSessions() {
       await handleApiCall(api.courses.update, courseId, {
         session_time: scheduleData.sessionTime,
         selected_days: scheduleData.selectedDays,
-        session_duration: scheduleData.sessionDuration
+        session_duration: scheduleData.sessionDuration,
+        timezone: scheduleData.timezone
       }, user.id)
 
       // Update local state
@@ -351,7 +354,8 @@ function ManageSessions() {
         ...course,
         session_time: scheduleData.sessionTime,
         selected_days: scheduleData.selectedDays,
-        session_duration: scheduleData.sessionDuration
+        session_duration: scheduleData.sessionDuration,
+        timezone: scheduleData.timezone
       })
 
       // Refresh sessions to show updated times
@@ -371,7 +375,8 @@ function ManageSessions() {
     setScheduleData({
       sessionTime: course.session_time || '',
       selectedDays: course.selected_days || [],
-      sessionDuration: course.session_duration || ''
+      sessionDuration: course.session_duration || '',
+      timezone: course.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone
     })
     setIsEditingSchedule(false)
   }
@@ -669,6 +674,33 @@ function ManageSessions() {
                 </div>
               </div>
               <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Timezone *</label>
+                <select
+                  value={scheduleData.timezone}
+                  onChange={(e) => setScheduleData({ ...scheduleData, timezone: e.target.value })}
+                  className="meeting-link-input"
+                  style={{ width: '100%' }}
+                >
+                  <option value="America/New_York">Eastern Time (ET)</option>
+                  <option value="America/Chicago">Central Time (CT)</option>
+                  <option value="America/Denver">Mountain Time (MT)</option>
+                  <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                  <option value="America/Anchorage">Alaska Time (AKT)</option>
+                  <option value="Pacific/Honolulu">Hawaii Time (HT)</option>
+                  <option value="Europe/London">London (GMT/BST)</option>
+                  <option value="Europe/Paris">Paris (CET/CEST)</option>
+                  <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+                  <option value="Asia/Dubai">Dubai (GST)</option>
+                  <option value="Asia/Kolkata">India (IST)</option>
+                  <option value="Asia/Singapore">Singapore (SGT)</option>
+                  <option value="Asia/Tokyo">Tokyo (JST)</option>
+                  <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+                </select>
+                <p style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.25rem' }}>
+                  Students will see times in their local timezone
+                </p>
+              </div>
+              <div style={{ marginBottom: '1rem' }}>
                 <label style={{ fontSize: '0.9rem', marginBottom: '0.5rem', display: 'block' }}>Days *</label>
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
@@ -716,6 +748,10 @@ function ManageSessions() {
                 <div className="schedule-detail">
                   <span className="detail-label">Duration:</span>
                   <span className="detail-value">{course.session_duration} minutes</span>
+                </div>
+                <div className="schedule-detail">
+                  <span className="detail-label">Timezone:</span>
+                  <span className="detail-value">{course.timezone || 'Not set'}</span>
                 </div>
                 <div className="schedule-detail">
                   <span className="detail-label">Frequency:</span>
