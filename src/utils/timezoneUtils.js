@@ -6,72 +6,53 @@
 /**
  * Convert a time from instructor's timezone to user's local timezone
  * @param {string} time - Time in HH:MM format (e.g., "14:30")
- * @param {string} instructorTimezone - IANA timezone (e.g., "America/New_York")
- * @param {Date} referenceDate - Reference date for the time (to handle DST correctly)
+ * @param {string} instructorTimezone - IANA timezone (e.g., "America/New_York" or "Asia/Kolkata")
  * @returns {string} Time in user's local timezone in HH:MM format
  */
-export function convertToLocalTime(time, instructorTimezone, referenceDate = new Date()) {
+export function convertToLocalTime(time, instructorTimezone) {
   if (!time || !instructorTimezone) return time
 
   try {
     const [hours, minutes] = time.split(':').map(Number)
     
-    // Create a date object in the instructor's timezone
-    const dateStr = referenceDate.toISOString().split('T')[0]
-    const instructorDateTime = new Date(`${dateStr}T${time}:00`)
+    // Use today's date as reference (to handle DST correctly)
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = (today.getMonth() + 1).toString().padStart(2, '0')
+    const day = today.getDate().toString().padStart(2, '0')
     
-    // Format the time string with timezone
-    const instructorTimeStr = instructorDateTime.toLocaleString('en-US', {
+    // Create an ISO string representing the time in the instructor's timezone
+    // Format: YYYY-MM-DDTHH:MM:SS
+    const isoString = `${year}-${month}-${day}T${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:00`
+    
+    // Parse this string as if it's in the instructor's timezone
+    // We use toLocaleString to interpret the time in the instructor's timezone
+    const dateInInstructorTZ = new Date(isoString + 'Z') // Add Z to treat as UTC first
+    
+    // Get what this UTC time looks like in the instructor's timezone
+    const instructorTimeStr = dateInInstructorTZ.toLocaleString('en-US', {
       timeZone: instructorTimezone,
       hour12: false,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit'
     })
     
-    // Parse back to create a proper date in instructor's timezone
-    const [datePart, timePart] = instructorTimeStr.split(', ')
-    const [month, day, year] = datePart.split('/')
-    const [hour, minute] = timePart.split(':')
+    // Calculate the offset needed
+    const [instrHours, instrMinutes] = instructorTimeStr.split(':').map(Number)
+    const offsetMinutes = (hours * 60 + minutes) - (instrHours * 60 + instrMinutes)
     
-    // Create UTC date from instructor's local time
-    const utcDate = new Date(Date.UTC(
-      parseInt(year),
-      parseInt(month) - 1,
-      parseInt(day),
-      parseInt(hour),
-      parseInt(minute)
-    ))
+    // Apply offset to get the correct UTC time
+    const correctUTC = new Date(dateInInstructorTZ.getTime() + offsetMinutes * 60 * 1000)
     
-    // Get offset for instructor timezone
-    const instructorOffset = getTimezoneOffset(instructorTimezone, utcDate)
-    
-    // Adjust for instructor timezone offset
-    const adjustedDate = new Date(utcDate.getTime() - instructorOffset * 60000)
-    
-    // Convert to user's local timezone
-    const localHours = adjustedDate.getHours().toString().padStart(2, '0')
-    const localMinutes = adjustedDate.getMinutes().toString().padStart(2, '0')
+    // Now convert to user's local timezone (browser does this automatically)
+    const localHours = correctUTC.getHours().toString().padStart(2, '0')
+    const localMinutes = correctUTC.getMinutes().toString().padStart(2, '0')
     
     return `${localHours}:${localMinutes}`
   } catch (error) {
-    console.error('Error converting time:', error)
+    console.error('Error converting time from', instructorTimezone, ':', error)
     return time
   }
-}
-
-/**
- * Get timezone offset in minutes
- * @param {string} timezone - IANA timezone
- * @param {Date} date - Reference date
- * @returns {number} Offset in minutes
- */
-function getTimezoneOffset(timezone, date) {
-  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }))
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone: timezone }))
-  return (tzDate.getTime() - utcDate.getTime()) / 60000
 }
 
 /**
