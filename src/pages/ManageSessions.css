@@ -369,6 +369,28 @@
     width: 100%;
   }
 
+  .topic-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .topic-info {
+    width: 100%;
+  }
+
+  .topic-display > div:last-child {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .topic-display > div:last-child a,
+  .topic-display > div:last-child button {
+    width: 100%;
+  }
+
   .topic-edit {
     flex-direction: column;
   }
