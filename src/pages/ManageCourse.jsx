@@ -34,7 +34,8 @@ function ManageCourse() {
     sessionTime: '',
     selectedDays: [],
     timezone: '',
-    meetingLink: ''
+    meetingLink: '',
+    endDate: ''
   })
   
   const activeTab = searchParams.get('tab') || 'details'
@@ -58,7 +59,8 @@ function ManageCourse() {
           sessionTime: courseData.session_time || '',
           selectedDays: courseData.selected_days || [],
           timezone: courseData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-          meetingLink: courseData.meeting_link || ''
+          meetingLink: courseData.meeting_link || '',
+          endDate: courseData.end_date || ''
         })
         
         // Fetch sessions
@@ -164,7 +166,8 @@ function ManageCourse() {
         session_time: detailsData.sessionTime,
         selected_days: detailsData.selectedDays,
         timezone: detailsData.timezone,
-        meeting_link: detailsData.meetingLink
+        meeting_link: detailsData.meetingLink,
+        end_date: detailsData.endDate || null
       }, user.id)
 
       // Update local state
@@ -179,7 +182,8 @@ function ManageCourse() {
         session_time: detailsData.sessionTime,
         selected_days: detailsData.selectedDays,
         timezone: detailsData.timezone,
-        meeting_link: detailsData.meetingLink
+        meeting_link: detailsData.meetingLink,
+        end_date: detailsData.endDate
       })
 
       setIsEditingDetails(false)
@@ -202,7 +206,8 @@ function ManageCourse() {
       sessionTime: course.session_time || '',
       selectedDays: course.selected_days || [],
       timezone: course.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-      meetingLink: course.meeting_link || ''
+      meetingLink: course.meeting_link || '',
+      endDate: course.end_date || ''
     })
     setIsEditingDetails(false)
   }
@@ -478,6 +483,25 @@ function ManageCourse() {
                   </div>
                 ) : (
                   <p>{course.selected_days?.join(', ') || 'Not set'}</p>
+                )}
+              </div>
+
+              <div className="detail-section">
+                <label>End Date (Optional)</label>
+                {isEditingDetails ? (
+                  <>
+                    <input
+                      type="date"
+                      value={detailsData.endDate}
+                      onChange={(e) => setDetailsData({ ...detailsData, endDate: e.target.value })}
+                      className="detail-input"
+                    />
+                    <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                      💡 Leave empty for ongoing course
+                    </p>
+                  </>
+                ) : (
+                  <p>{course.end_date ? new Date(course.end_date).toLocaleDateString('en-US') : 'Ongoing'}</p>
                 )}
               </div>
 

@@ -30,8 +30,7 @@ function CreateCourse() {
     repeatEvery: 1,
     repeatUnit: 'week',
     selectedDays: [],
-    endDate: '',
-    hasEndDate: false
+    endDate: ''
   })
 
   const handleChange = (e) => {
@@ -101,8 +100,7 @@ function CreateCourse() {
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
         selectedDays: formData.selectedDays,
-        hasEndDate: formData.hasEndDate,
-        endDate: formData.endDate
+        endDate: formData.endDate || null // Optional end date
       }
 
       // Use the new API service to create the course
@@ -372,33 +370,19 @@ function CreateCourse() {
                 />
               </div>
 
-              {formData.hasEndDate && (
-                <div className="form-section">
-                  <label htmlFor="endDate">End Date *</label>
-                  <input
-                    id="endDate"
-                    name="endDate"
-                    type="date"
-                    value={formData.endDate}
-                    onChange={handleChange}
-                    min={formData.startDate}
-                    required={formData.hasEndDate}
-                    className="form-input"
-                  />
-                </div>
-              )}
-            </div>
-
-            <div className="form-section">
-              <label className="checkbox-label">
+              <div className="form-section">
+                <label htmlFor="endDate">End Date (Optional)</label>
                 <input
-                  type="checkbox"
-                  name="hasEndDate"
-                  checked={formData.hasEndDate}
+                  id="endDate"
+                  name="endDate"
+                  type="date"
+                  value={formData.endDate}
                   onChange={handleChange}
+                  min={formData.startDate}
+                  className="form-input"
                 />
-                Set an end date
-              </label>
+                <p className="form-hint">💡 Leave empty for ongoing course</p>
+              </div>
             </div>
 
             <div className="form-section">
