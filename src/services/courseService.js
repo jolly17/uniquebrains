@@ -95,9 +95,40 @@ export async function createCourse(courseData, user) {
 async function createCourseSessions(courseId, scheduleData) {
   const sessions = []
   const startDate = new Date(scheduleData.startDate)
+  const frequency = scheduleData.frequency || 'weekly'
   
-  // For courses without end date, generate 5 sessions
-  // For courses with end date, generate all sessions until end date
+  // Handle one-time events (frequency = 'never')
+  if (frequency === 'never') {
+    const sessionDateTime = new Date(startDate)
+    const [hours, minutes] = scheduleData.sessionTime.split(':')
+    sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+
+    sessions.push({
+      course_id: courseId,
+      title: 'Session Topics',
+      description: '',
+      session_date: sessionDateTime.toISOString(),
+      duration_minutes: parseInt(scheduleData.sessionDuration),
+      meeting_link: scheduleData.meetingLink || '',
+      status: 'scheduled'
+    })
+
+    // Insert the single session
+    const { data: createdSessions, error: sessionsError } = await supabase
+      .from('sessions')
+      .insert(sessions)
+      .select()
+
+    if (sessionsError) {
+      console.error('Error creating session:', sessionsError)
+      return []
+    }
+
+    console.log(`Created 1 one-time session for course ${courseId}`)
+    return createdSessions
+  }
+  
+  // For recurring courses (weekly or monthly)
   const hasEndDate = scheduleData.hasEndDate && scheduleData.endDate
   const endDate = hasEndDate
     ? new Date(scheduleData.endDate)
@@ -131,8 +162,14 @@ async function createCourseSessions(courseId, scheduleData) {
       sessionsCreated++
     }
     
-    // Move to next day
-    currentDate.setDate(currentDate.getDate() + 1)
+    // Move to next occurrence based on frequency
+    if (frequency === 'monthly') {
+      // Move to next month, same day
+      currentDate.setMonth(currentDate.getMonth() + 1)
+    } else {
+      // Default to weekly - move to next day
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
   }
 
   // Insert sessions if any were created

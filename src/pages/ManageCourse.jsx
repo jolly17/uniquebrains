@@ -35,7 +35,8 @@ function ManageCourse() {
     selectedDays: [],
     timezone: '',
     meetingLink: '',
-    endDate: ''
+    endDate: '',
+    frequency: 'weekly'
   })
   
   const activeTab = searchParams.get('tab') || 'details'
@@ -60,7 +61,8 @@ function ManageCourse() {
           selectedDays: courseData.selected_days || [],
           timezone: courseData.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
           meetingLink: courseData.meeting_link || '',
-          endDate: courseData.end_date || ''
+          endDate: courseData.end_date || '',
+          frequency: courseData.frequency || 'weekly'
         })
         
         // Fetch sessions
@@ -160,7 +162,8 @@ function ManageCourse() {
         detailsData.sessionTime !== course.session_time ||
         detailsData.sessionDuration !== course.session_duration ||
         JSON.stringify(detailsData.selectedDays) !== JSON.stringify(course.selected_days) ||
-        detailsData.endDate !== course.end_date
+        detailsData.endDate !== course.end_date ||
+        detailsData.frequency !== course.frequency
 
       // Update course
       await handleApiCall(api.courses.update, courseId, {
@@ -174,7 +177,8 @@ function ManageCourse() {
         selected_days: detailsData.selectedDays,
         timezone: detailsData.timezone,
         meeting_link: detailsData.meetingLink,
-        end_date: detailsData.endDate || null
+        end_date: detailsData.endDate || null,
+        frequency: detailsData.frequency
       }, user.id)
 
       // Update local state
@@ -190,7 +194,8 @@ function ManageCourse() {
         selected_days: detailsData.selectedDays,
         timezone: detailsData.timezone,
         meeting_link: detailsData.meetingLink,
-        end_date: detailsData.endDate
+        end_date: detailsData.endDate,
+        frequency: detailsData.frequency
       })
 
       // Refresh sessions if schedule changed
@@ -226,7 +231,8 @@ function ManageCourse() {
       selectedDays: course.selected_days || [],
       timezone: course.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
       meetingLink: course.meeting_link || '',
-      endDate: course.end_date || ''
+      endDate: course.end_date || '',
+      frequency: course.frequency || 'weekly'
     })
     setIsEditingDetails(false)
   }
@@ -505,6 +511,33 @@ function ManageCourse() {
                   </div>
                 ) : (
                   <p>{course.selected_days?.join(', ') || 'Not set'}</p>
+                )}
+              </div>
+
+              <div className="detail-section">
+                <label>Repeat Every</label>
+                {isEditingDetails ? (
+                  <>
+                    <select
+                      value={detailsData.frequency}
+                      onChange={(e) => setDetailsData({ ...detailsData, frequency: e.target.value })}
+                      className="detail-input"
+                    >
+                      <option value="weekly">Weekly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="never">Never (One-time event)</option>
+                    </select>
+                    <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                      💡 Choose "Never" for single-session workshops
+                    </p>
+                  </>
+                ) : (
+                  <p>
+                    {course.frequency === 'weekly' && 'Weekly'}
+                    {course.frequency === 'monthly' && 'Monthly'}
+                    {course.frequency === 'never' && 'Never (One-time event)'}
+                    {!course.frequency && 'Weekly'}
+                  </p>
                 )}
               </div>
 

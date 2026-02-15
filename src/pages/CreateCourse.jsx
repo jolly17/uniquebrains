@@ -27,8 +27,7 @@ function CreateCourse() {
     meetingLink: '', // Optional meeting link for all sessions
     // Recurrence fields
     startDate: '',
-    repeatEvery: 1,
-    repeatUnit: 'week',
+    frequency: 'weekly', // weekly, monthly, or never
     selectedDays: [],
     endDate: ''
   })
@@ -96,6 +95,7 @@ function CreateCourse() {
         enrollmentLimit: formData.enrollmentLimit,
         meetingLink: formData.meetingLink, // Optional meeting link
         timezone: formData.timezone, // Store instructor's timezone
+        frequency: formData.frequency, // weekly, monthly, or never
         // Schedule data for session creation
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
@@ -330,32 +330,20 @@ function CreateCourse() {
             </div>
 
             <div className="form-section">
-              <label>Repeat Every *</label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="number"
-                  name="repeatEvery"
-                  value={formData.repeatEvery}
-                  onChange={handleChange}
-                  min="1"
-                  max="52"
-                  required
-                  className="form-input"
-                  style={{ width: '80px' }}
-                />
-                <select
-                  name="repeatUnit"
-                  value={formData.repeatUnit}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  style={{ flex: 1 }}
-                >
-                  <option value="day">Day(s)</option>
-                  <option value="week">Week(s)</option>
-                  <option value="month">Month(s)</option>
-                </select>
-              </div>
+              <label htmlFor="frequency">Repeat Every *</label>
+              <select
+                id="frequency"
+                name="frequency"
+                value={formData.frequency}
+                onChange={handleChange}
+                required
+                className="form-input"
+              >
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="never">Never (One-time event)</option>
+              </select>
+              <p className="form-hint">💡 Choose "Never" for single-session workshops</p>
             </div>
 
             <div className="form-row">
