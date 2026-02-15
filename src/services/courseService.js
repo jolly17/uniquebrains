@@ -352,10 +352,10 @@ export async function updateCourse(courseId, updates, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course
+    // Verify instructor owns the course and fetch current schedule data
     const { data: course, error: fetchError } = await supabase
       .from('courses')
-      .select('instructor_id, session_time')
+      .select('instructor_id, session_time, session_duration, start_date, end_date, selected_days, frequency')
       .eq('id', courseId)
       .single()
 
@@ -367,9 +367,19 @@ export async function updateCourse(courseId, updates, instructorId) {
       throw new Error('Unauthorized: You can only update your own courses')
     }
 
-    // Check if session_time is being updated
+    // Check if any schedule-related fields are being updated
     const isTimeUpdated = updates.session_time && updates.session_time !== course.session_time
     const isDurationUpdated = updates.session_duration && updates.session_duration !== course.session_duration
+    const isStartDateUpdated = updates.start_date && updates.start_date !== course.start_date
+    const isEndDateUpdated = 'end_date' in updates && updates.end_date !== course.end_date
+    const isDaysUpdated = updates.selected_days && JSON.stringify(updates.selected_days) !== JSON.stringify(course.selected_days)
+    const isFrequencyUpdated = updates.frequency && updates.frequency !== course.frequency
+
+    // Determine if we need to regenerate all sessions (major schedule change)
+    const needsSessionRegeneration = isStartDateUpdated || isEndDateUpdated || isDaysUpdated || isFrequencyUpdated
+    
+    // Determine if we just need to update existing sessions (minor schedule change)
+    const needsSessionUpdate = !needsSessionRegeneration && (isTimeUpdated || isDurationUpdated)
 
     // Prepare update data
     const updateData = {
@@ -390,8 +400,40 @@ export async function updateCourse(courseId, updates, instructorId) {
       throw new Error(`Failed to update course: ${updateError.message}`)
     }
 
-    // If session time or duration was updated, update all future sessions
-    if (isTimeUpdated || isDurationUpdated) {
+    // Handle session updates based on what changed
+    if (needsSessionRegeneration) {
+      // Major schedule change - delete all future sessions and regenerate
+      const now = new Date().toISOString()
+      
+      // Delete all future sessions
+      const { error: deleteError } = await supabase
+        .from('sessions')
+        .delete()
+        .eq('course_id', courseId)
+        .gte('session_date', now)
+
+      if (deleteError) {
+        console.error('Error deleting future sessions:', deleteError)
+      } else {
+        // Regenerate sessions with new schedule
+        const scheduleData = {
+          startDate: updates.start_date || course.start_date,
+          endDate: updates.end_date !== undefined ? updates.end_date : course.end_date,
+          hasEndDate: updates.end_date !== undefined ? !!updates.end_date : !!course.end_date,
+          selectedDays: updates.selected_days || course.selected_days,
+          sessionTime: updates.session_time || course.session_time,
+          sessionDuration: updates.session_duration || course.session_duration,
+          meetingLink: updates.meeting_link || updatedCourse.meeting_link,
+          frequency: updates.frequency || course.frequency
+        }
+
+        if (scheduleData.startDate && scheduleData.selectedDays?.length > 0) {
+          const newSessions = await createCourseSessions(courseId, scheduleData)
+          console.log(`Regenerated ${newSessions.length} sessions with new schedule`)
+        }
+      }
+    } else if (needsSessionUpdate) {
+      // Minor schedule change - just update existing future sessions
       const now = new Date().toISOString()
       
       // Fetch all future sessions

@@ -155,6 +155,13 @@ function ManageCourse() {
         return
       }
 
+      // Check if schedule-related fields changed (for appropriate feedback message)
+      const scheduleChanged = 
+        detailsData.sessionTime !== course.session_time ||
+        detailsData.sessionDuration !== course.session_duration ||
+        JSON.stringify(detailsData.selectedDays) !== JSON.stringify(course.selected_days) ||
+        detailsData.endDate !== course.end_date
+
       // Update course
       await handleApiCall(api.courses.update, courseId, {
         title: detailsData.title,
@@ -186,8 +193,20 @@ function ManageCourse() {
         end_date: detailsData.endDate
       })
 
+      // Refresh sessions if schedule changed
+      if (scheduleChanged) {
+        const sessionsData = await handleApiCall(api.sessions.getCourse, courseId, user.id)
+        setSessions(sessionsData || [])
+      }
+
       setIsEditingDetails(false)
-      alert('Course details updated successfully')
+      
+      // Show appropriate success message
+      if (scheduleChanged) {
+        alert('Course details updated successfully! All future sessions have been updated to match the new schedule.')
+      } else {
+        alert('Course details updated successfully!')
+      }
     } catch (err) {
       console.error('Error updating course details:', err)
       alert('Failed to update course details')
