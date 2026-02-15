@@ -268,18 +268,20 @@ function CreateCourse() {
 
               <div className="form-section">
                 <label htmlFor="sessionDuration">Duration (minutes) *</label>
-                <input
+                <select
                   id="sessionDuration"
                   name="sessionDuration"
-                  type="number"
                   value={formData.sessionDuration}
                   onChange={handleChange}
                   required
-                  min="15"
-                  step="15"
-                  placeholder="60"
                   className="form-input"
-                />
+                >
+                  <option value="">Select duration</option>
+                  <option value="15">15 minutes</option>
+                  <option value="30">30 minutes</option>
+                  <option value="45">45 minutes</option>
+                  <option value="60">60 minutes</option>
+                </select>
               </div>
 
               <div className="form-section">

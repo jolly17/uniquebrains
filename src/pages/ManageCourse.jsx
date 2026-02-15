@@ -414,14 +414,17 @@ function ManageCourse() {
                 <div className="detail-section">
                   <label>Duration (minutes)</label>
                   {isEditingDetails ? (
-                    <input
-                      type="number"
+                    <select
                       value={detailsData.sessionDuration}
                       onChange={(e) => setDetailsData({ ...detailsData, sessionDuration: e.target.value })}
                       className="detail-input"
-                      min="15"
-                      step="15"
-                    />
+                    >
+                      <option value="">Select duration</option>
+                      <option value="15">15 minutes</option>
+                      <option value="30">30 minutes</option>
+                      <option value="45">45 minutes</option>
+                      <option value="60">60 minutes</option>
+                    </select>
                   ) : (
                     <p>{course.session_duration} minutes</p>
                   )}
