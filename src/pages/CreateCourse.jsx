@@ -340,7 +340,7 @@ function CreateCourse() {
                 className="form-input"
               >
                 <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
+                <option value="biweekly">Bi-weekly (Every 2 weeks)</option>
                 <option value="never">Never (One-time event)</option>
               </select>
               {formData.frequency === 'never' ? (

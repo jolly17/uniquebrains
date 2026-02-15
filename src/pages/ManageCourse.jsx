@@ -524,7 +524,7 @@ function ManageCourse() {
                       className="detail-input"
                     >
                       <option value="weekly">Weekly</option>
-                      <option value="monthly">Monthly</option>
+                      <option value="biweekly">Bi-weekly (Every 2 weeks)</option>
                       <option value="never">Never (One-time event)</option>
                     </select>
                     {detailsData.frequency === 'never' ? (
@@ -540,7 +540,7 @@ function ManageCourse() {
                 ) : (
                   <p>
                     {course.frequency === 'weekly' && 'Weekly'}
-                    {course.frequency === 'monthly' && 'Monthly'}
+                    {course.frequency === 'biweekly' && 'Bi-weekly (Every 2 weeks)'}
                     {course.frequency === 'never' && 'Never (One-time event)'}
                     {!course.frequency && 'Weekly'}
                   </p>

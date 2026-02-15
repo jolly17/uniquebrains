@@ -169,7 +169,7 @@ async function createCourseSessions(courseId, scheduleData) {
     return []
   }
   
-  // For recurring courses (weekly or monthly)
+  // For recurring courses (weekly or bi-weekly)
   const hasEndDate = scheduleData.hasEndDate && scheduleData.endDate
   const endDate = hasEndDate
     ? new Date(scheduleData.endDate)
@@ -180,11 +180,20 @@ async function createCourseSessions(courseId, scheduleData) {
   let currentDate = new Date(startDate)
   let sessionNumber = 1
   let sessionsCreated = 0
+  let weekCount = 0
+  let lastWeekStart = new Date(startDate)
+  lastWeekStart.setDate(lastWeekStart.getDate() - lastWeekStart.getDay()) // Get Sunday of start week
 
   while (sessionsCreated < maxSessions && (!endDate || currentDate <= endDate)) {
     const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' })
     
-    if (scheduleData.selectedDays.includes(dayName)) {
+    // For bi-weekly, check if we're in an active week
+    const currentWeekStart = new Date(currentDate)
+    currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay())
+    const weeksSinceStart = Math.floor((currentWeekStart - lastWeekStart) / (7 * 24 * 60 * 60 * 1000))
+    const isActiveWeek = frequency === 'weekly' || (frequency === 'biweekly' && weeksSinceStart % 2 === 0)
+    
+    if (isActiveWeek && scheduleData.selectedDays.includes(dayName)) {
       const sessionDateTime = new Date(currentDate)
       const [hours, minutes] = scheduleData.sessionTime.split(':')
       sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
@@ -203,14 +212,8 @@ async function createCourseSessions(courseId, scheduleData) {
       sessionsCreated++
     }
     
-    // Move to next occurrence based on frequency
-    if (frequency === 'monthly') {
-      // Move to next month, same day
-      currentDate.setMonth(currentDate.getMonth() + 1)
-    } else {
-      // Default to weekly - move to next day
-      currentDate.setDate(currentDate.getDate() + 1)
-    }
+    // Move to next day
+    currentDate.setDate(currentDate.getDate() + 1)
   }
 
   // Insert sessions if any were created
