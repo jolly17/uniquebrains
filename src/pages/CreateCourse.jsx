@@ -343,7 +343,11 @@ function CreateCourse() {
                 <option value="monthly">Monthly</option>
                 <option value="never">Never (One-time event)</option>
               </select>
-              <p className="form-hint">💡 Choose "Never" for single-session workshops</p>
+              {formData.frequency === 'never' ? (
+                <p className="form-hint">💡 One session will be created for each selected day above</p>
+              ) : (
+                <p className="form-hint">💡 Choose "Never" for single-session workshops</p>
+              )}
             </div>
 
             <div className="form-row">

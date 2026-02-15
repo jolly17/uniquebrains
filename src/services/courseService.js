@@ -98,34 +98,75 @@ async function createCourseSessions(courseId, scheduleData) {
   const frequency = scheduleData.frequency || 'weekly'
   
   // Handle one-time events (frequency = 'never')
+  // Create one session for each selected day starting from start date
   if (frequency === 'never') {
-    const sessionDateTime = new Date(startDate)
-    const [hours, minutes] = scheduleData.sessionTime.split(':')
-    sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+    const selectedDays = scheduleData.selectedDays || []
+    
+    if (selectedDays.length === 0) {
+      // If no days selected, create one session on start date
+      const sessionDateTime = new Date(startDate)
+      const [hours, minutes] = scheduleData.sessionTime.split(':')
+      sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
 
-    sessions.push({
-      course_id: courseId,
-      title: 'Session Topics',
-      description: '',
-      session_date: sessionDateTime.toISOString(),
-      duration_minutes: parseInt(scheduleData.sessionDuration),
-      meeting_link: scheduleData.meetingLink || '',
-      status: 'scheduled'
-    })
+      sessions.push({
+        course_id: courseId,
+        title: 'Session Topics',
+        description: '',
+        session_date: sessionDateTime.toISOString(),
+        duration_minutes: parseInt(scheduleData.sessionDuration),
+        meeting_link: scheduleData.meetingLink || '',
+        status: 'scheduled'
+      })
+    } else {
+      // Create one session for each selected day
+      let currentDate = new Date(startDate)
+      let sessionNumber = 1
+      const maxDaysToCheck = 7 // Check up to 7 days from start date
+      let daysChecked = 0
+      
+      while (sessions.length < selectedDays.length && daysChecked < maxDaysToCheck) {
+        const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' })
+        
+        if (selectedDays.includes(dayName)) {
+          const sessionDateTime = new Date(currentDate)
+          const [hours, minutes] = scheduleData.sessionTime.split(':')
+          sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
 
-    // Insert the single session
-    const { data: createdSessions, error: sessionsError } = await supabase
-      .from('sessions')
-      .insert(sessions)
-      .select()
-
-    if (sessionsError) {
-      console.error('Error creating session:', sessionsError)
-      return []
+          sessions.push({
+            course_id: courseId,
+            title: `Session ${sessionNumber} Topics`,
+            description: '',
+            session_date: sessionDateTime.toISOString(),
+            duration_minutes: parseInt(scheduleData.sessionDuration),
+            meeting_link: scheduleData.meetingLink || '',
+            status: 'scheduled'
+          })
+          
+          sessionNumber++
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1)
+        daysChecked++
+      }
     }
 
-    console.log(`Created 1 one-time session for course ${courseId}`)
-    return createdSessions
+    // Insert the sessions
+    if (sessions.length > 0) {
+      const { data: createdSessions, error: sessionsError } = await supabase
+        .from('sessions')
+        .insert(sessions)
+        .select()
+
+      if (sessionsError) {
+        console.error('Error creating sessions:', sessionsError)
+        return []
+      }
+
+      console.log(`Created ${createdSessions.length} one-time session(s) for course ${courseId}`)
+      return createdSessions
+    }
+
+    return []
   }
   
   // For recurring courses (weekly or monthly)
