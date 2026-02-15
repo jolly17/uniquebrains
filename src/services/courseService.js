@@ -68,10 +68,15 @@ export async function createCourse(courseData, user) {
     let sessions = []
     if (courseData.courseType === 'group' && 
         !courseData.isSelfPaced && 
-        courseData.startDate && 
-        courseData.selectedDays?.length > 0) {
+        courseData.startDate) {
       
-      sessions = await createCourseSessions(course.id, courseData)
+      // For 'never' frequency, we can create sessions even without selected days
+      // For recurring frequencies, we need selected days
+      const canCreateSessions = courseData.frequency === 'never' || courseData.selectedDays?.length > 0
+      
+      if (canCreateSessions) {
+        sessions = await createCourseSessions(course.id, courseData)
+      }
     }
 
     return {

@@ -95,7 +95,7 @@ function CreateCourse() {
         enrollmentLimit: formData.enrollmentLimit,
         meetingLink: formData.meetingLink, // Optional meeting link
         timezone: formData.timezone, // Store instructor's timezone
-        frequency: formData.frequency, // weekly, monthly, or never
+        frequency: formData.frequency, // weekly, biweekly, or never
         // Schedule data for session creation
         startDate: formData.startDate,
         sessionTime: formData.sessionTime,
