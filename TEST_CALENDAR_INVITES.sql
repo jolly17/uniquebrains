@@ -48,22 +48,13 @@ ORDER BY tgname;
 
 -- STEP 4: Check recent HTTP requests (calendar invites)
 -- =====================================================
+-- First, let's see what columns exist in the table
 SELECT 
   'Recent Calendar Invites' as test_name,
-  id,
-  url,
-  method,
-  CASE 
-    WHEN status_code = 200 THEN '✓ Success'
-    WHEN status_code IS NULL THEN '⏳ Pending'
-    ELSE '✗ Failed (' || status_code || ')'
-  END as result,
-  created_at,
-  error_msg
+  *
 FROM net._http_response
-WHERE url LIKE '%send-calendar-invite%'
-ORDER BY created_at DESC
-LIMIT 10;
+ORDER BY created DESC
+LIMIT 5;
 
 -- STEP 5: Test enrollment (OPTIONAL - uncomment to test)
 -- =====================================================
@@ -84,8 +75,7 @@ LIMIT 10;
 --   'Test Enrollment Result' as test_name,
 --   COUNT(*) as calendar_invites_queued
 -- FROM net._http_response
--- WHERE url LIKE '%send-calendar-invite%'
---   AND created_at > NOW() - INTERVAL '1 minute';
+-- WHERE created > NOW() - INTERVAL '1 minute';
 -- 
 -- -- Rollback to avoid creating test enrollment
 -- ROLLBACK;
