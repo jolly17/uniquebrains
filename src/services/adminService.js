@@ -48,13 +48,10 @@ export async function fetchAllCourses() {
  */
 export async function fetchAllInstructors() {
   try {
+    // First, fetch all instructors
     const { data: instructors, error } = await supabase
       .from('profiles')
-      .select(`
-        *,
-        courses(count),
-        courses!inner(enrollments(count))
-      `)
+      .select('*')
       .eq('role', 'instructor')
       .order('created_at', { ascending: false })
 
@@ -63,24 +60,55 @@ export async function fetchAllInstructors() {
       throw new Error(`Failed to fetch instructors: ${error.message}`)
     }
 
-    // Calculate statistics for each instructor
-    const transformedInstructors = (instructors || []).map(instructor => {
-      const coursesCount = instructor.courses?.[0]?.count || 0
-      
-      // Calculate total students taught (sum of enrollments across all courses)
-      let totalStudents = 0
-      if (instructor.courses && Array.isArray(instructor.courses)) {
-        instructor.courses.forEach(course => {
-          if (course.enrollments && course.enrollments[0]) {
-            totalStudents += course.enrollments[0].count || 0
-          }
-        })
+    if (!instructors || instructors.length === 0) {
+      return []
+    }
+
+    // Fetch courses count for each instructor
+    const instructorIds = instructors.map(i => i.id)
+    const { data: courses, error: coursesError } = await supabase
+      .from('courses')
+      .select('instructor_id, id')
+      .in('instructor_id', instructorIds)
+
+    if (coursesError) {
+      console.error('Error fetching courses:', coursesError)
+    }
+
+    // Fetch enrollments for all courses
+    const courseIds = courses?.map(c => c.id) || []
+    let enrollments = []
+    if (courseIds.length > 0) {
+      const { data: enrollmentsData, error: enrollmentsError } = await supabase
+        .from('enrollments')
+        .select('course_id, student_id')
+        .in('course_id', courseIds)
+
+      if (enrollmentsError) {
+        console.error('Error fetching enrollments:', enrollmentsError)
+      } else {
+        enrollments = enrollmentsData || []
       }
+    }
+
+    // Calculate statistics for each instructor
+    const transformedInstructors = instructors.map(instructor => {
+      // Count courses for this instructor
+      const instructorCourses = courses?.filter(c => c.instructor_id === instructor.id) || []
+      const coursesCount = instructorCourses.length
+
+      // Count unique students across all instructor's courses
+      const instructorCourseIds = instructorCourses.map(c => c.id)
+      const uniqueStudents = new Set(
+        enrollments
+          .filter(e => instructorCourseIds.includes(e.course_id))
+          .map(e => e.student_id)
+      )
 
       return {
         ...instructor,
         courses_count: coursesCount,
-        students_taught: totalStudents
+        students_taught: uniqueStudents.size
       }
     })
 
