@@ -8,6 +8,11 @@ import ErrorBoundary from './components/ErrorBoundary'
 // Initialize Sentry error tracking
 initSentry()
 
+// Import admin utility for development
+if (import.meta.env.DEV) {
+  import('./utils/makeAdmin.js')
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>

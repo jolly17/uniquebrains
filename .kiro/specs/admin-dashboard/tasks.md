@@ -272,7 +272,7 @@
 - [x] 32.1 Import AdminRoute component
 - [x] 32.2 Add routes for all admin pages
 - [x] 32.3 Add /admin base route with AdminLayout
-- [ ] 32.4 Test route protection
+- [x] 32.4 Test route protection
 - [x] 32.5 Add admin link to main navigation (for admin users only)
 
 ### Task 33: Final testing and documentation
