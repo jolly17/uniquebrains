@@ -434,6 +434,69 @@ export async function deleteSession(sessionId) {
 }
 
 /**
+ * Fetch course enrollments with student neurodiversity information
+ * @returns {Promise<Array>} List of enrollments with student details
+ */
+export async function fetchCourseEnrollments() {
+  try {
+    const { data: enrollments, error } = await supabase
+      .from('enrollments')
+      .select(`
+        *,
+        profiles!student_id(
+          id,
+          first_name,
+          last_name,
+          email,
+          age,
+          grade_level,
+          neurodiversity_profile,
+          other_needs,
+          interests
+        ),
+        courses(
+          id,
+          title,
+          profiles!instructor_id(first_name, last_name)
+        )
+      `)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching course enrollments:', error)
+      throw new Error(`Failed to fetch enrollments: ${error.message}`)
+    }
+
+    // Transform data to flatten structure
+    const transformedEnrollments = (enrollments || []).map(enrollment => ({
+      id: enrollment.id,
+      course_id: enrollment.course_id,
+      student_id: enrollment.student_id,
+      status: enrollment.status,
+      created_at: enrollment.created_at,
+      course_title: enrollment.courses?.title || 'Unknown Course',
+      instructor_name: enrollment.courses?.profiles 
+        ? `${enrollment.courses.profiles.first_name} ${enrollment.courses.profiles.last_name}`.trim()
+        : 'Unknown',
+      student_name: enrollment.profiles 
+        ? `${enrollment.profiles.first_name} ${enrollment.profiles.last_name}`.trim()
+        : 'Unknown',
+      student_email: enrollment.profiles?.email || '',
+      age: enrollment.profiles?.age,
+      grade_level: enrollment.profiles?.grade_level,
+      neurodiversity_profile: enrollment.profiles?.neurodiversity_profile || [],
+      other_needs: enrollment.profiles?.other_needs,
+      interests: enrollment.profiles?.interests || []
+    }))
+
+    return transformedEnrollments
+  } catch (error) {
+    console.error('Error in fetchCourseEnrollments:', error)
+    throw error
+  }
+}
+
+/**
  * Fetch dashboard statistics
  * @returns {Promise<Object>} Dashboard statistics
  */
