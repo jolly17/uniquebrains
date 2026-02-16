@@ -37,7 +37,7 @@
 - [x] 4.6 Style dashboard with responsive grid layout
 
 ### Task 5: Implement activity feed
-- [ ] 5.1 Create activity feed component
+- [x] 5.1 Create activity feed component
 - [ ] 5.2 Fetch 20 most recent platform events
 - [ ] 5.3 Display events with timestamps and user info
 - [ ] 5.4 Add icons for different event types

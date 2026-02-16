@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { fetchDashboardStats } from '../../services/adminService'
+import ActivityFeed from '../../components/admin/ActivityFeed'
 import './AdminDashboard.css'
 
 function AdminDashboard() {
@@ -127,12 +128,10 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Activity Feed Placeholder */}
+      {/* Activity Feed */}
       <div className="activity-section">
         <h2>Recent Activity</h2>
-        <div className="activity-feed">
-          <p className="activity-placeholder">Activity feed coming soon...</p>
-        </div>
+        <ActivityFeed />
       </div>
     </div>
   )
