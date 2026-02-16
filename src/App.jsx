@@ -33,6 +33,12 @@ import TopicDetail from './pages/TopicDetail'
 import AskQuestion from './pages/AskQuestion'
 import QuestionDetail from './pages/QuestionDetail'
 import CreateTopic from './pages/CreateTopic'
+import AdminRoute from './components/AdminRoute'
+import AdminLayout from './pages/admin/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminCourses from './pages/admin/AdminCourses'
+import AdminInstructors from './pages/admin/AdminInstructors'
+import AdminStudents from './pages/admin/AdminStudents'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -201,6 +207,18 @@ function App() {
                 <RLSSecurityTest />
               </ProtectedRoute>
             } />
+          </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="courses" element={<AdminCourses />} />
+            <Route path="instructors" element={<AdminInstructors />} />
+            <Route path="students" element={<AdminStudents />} />
           </Route>
         </Routes>
       </Router>

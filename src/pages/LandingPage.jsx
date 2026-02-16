@@ -6,6 +6,21 @@ import './LandingPage.css'
 function LandingPage() {
   const { user } = useAuth()
   const [donationLink, setDonationLink] = useState('https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai')
+  const [unauthorizedMessage, setUnauthorizedMessage] = useState('')
+
+  useEffect(() => {
+    // Check for unauthorized message
+    const message = sessionStorage.getItem('unauthorized_message')
+    if (message) {
+      setUnauthorizedMessage(message)
+      sessionStorage.removeItem('unauthorized_message')
+      
+      // Clear message after 5 seconds
+      setTimeout(() => {
+        setUnauthorizedMessage('')
+      }, 5000)
+    }
+  }, [])
 
   useEffect(() => {
     // Detect user's country based on timezone or use a geolocation API
@@ -40,6 +55,25 @@ function LandingPage() {
 
   return (
     <div className="landing-page">
+      {unauthorizedMessage && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: '#fee2e2',
+          border: '2px solid #ef4444',
+          borderRadius: '0.5rem',
+          padding: '1rem 1.5rem',
+          zIndex: 1000,
+          maxWidth: '90%',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}>
+          <p style={{ margin: 0, color: '#991b1b', fontWeight: 500 }}>
+            ⚠️ {unauthorizedMessage}
+          </p>
+        </div>
+      )}
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
