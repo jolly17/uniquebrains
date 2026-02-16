@@ -7,7 +7,6 @@ function AdminEnrollments() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedCourse, setSelectedCourse] = useState(null)
-  const [expandedStudent, setExpandedStudent] = useState(null)
 
   useEffect(() => {
     loadEnrollments()
@@ -40,9 +39,7 @@ function AdminEnrollments() {
     return acc
   }, {})
 
-  const toggleStudentDetails = (studentId) => {
-    setExpandedStudent(expandedStudent === studentId ? null : studentId)
-  }
+
 
   if (loading) {
     return (
@@ -103,10 +100,7 @@ function AdminEnrollments() {
                 <div className="students-list">
                   {courseData.students.map((enrollment) => (
                     <div key={enrollment.id} className="student-card">
-                      <div 
-                        className="student-header"
-                        onClick={() => toggleStudentDetails(enrollment.student_id)}
-                      >
+                      <div className="student-header">
                         <div className="student-basic-info">
                           <h3>{enrollment.student_name}</h3>
                           <p className="student-email">{enrollment.student_email}</p>
@@ -123,77 +117,72 @@ function AdminEnrollments() {
                             </span>
                           </div>
                         </div>
-                        <button className="details-toggle">
-                          {expandedStudent === enrollment.student_id ? 'Hide Details' : 'Show Details'}
-                        </button>
                       </div>
 
-                      {expandedStudent === enrollment.student_id && (
-                        <div className="student-details">
+                      <div className="student-details">
+                        <div className="detail-section">
+                          <h4>Neurodiversity Profile</h4>
+                          <div className="neurodiversity-tags">
+                            {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
+                              enrollment.neurodiversity_profile.map((item, index) => (
+                                <span key={index} className="neurodiversity-tag">
+                                  {item}
+                                </span>
+                              ))
+                            ) : (
+                              <p className="no-data">None specified</p>
+                            )}
+                          </div>
+                        </div>
+
+                        {enrollment.other_needs && (
                           <div className="detail-section">
-                            <h4>Neurodiversity Profile</h4>
-                            <div className="neurodiversity-tags">
-                              {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
-                                enrollment.neurodiversity_profile.map((item, index) => (
-                                  <span key={index} className="neurodiversity-tag">
-                                    {item}
-                                  </span>
-                                ))
-                              ) : (
-                                <p className="no-data">None specified</p>
-                              )}
+                            <h4>Additional Needs & Accommodations</h4>
+                            <p className="other-needs">{enrollment.other_needs}</p>
+                          </div>
+                        )}
+
+                        {enrollment.interests && enrollment.interests.length > 0 && (
+                          <div className="detail-section">
+                            <h4>Interests</h4>
+                            <div className="interests-tags">
+                              {enrollment.interests.map((interest, index) => (
+                                <span key={index} className="interest-tag">
+                                  {interest}
+                                </span>
+                              ))}
                             </div>
                           </div>
+                        )}
 
-                          {enrollment.other_needs && (
-                            <div className="detail-section">
-                              <h4>Additional Needs & Accommodations</h4>
-                              <p className="other-needs">{enrollment.other_needs}</p>
-                            </div>
-                          )}
-
-                          {enrollment.interests && enrollment.interests.length > 0 && (
-                            <div className="detail-section">
-                              <h4>Interests</h4>
-                              <div className="interests-tags">
-                                {enrollment.interests.map((interest, index) => (
-                                  <span key={index} className="interest-tag">
-                                    {interest}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="detail-section">
-                            <h4>Student Information</h4>
-                            <div className="info-grid">
-                              {enrollment.age && (
-                                <div className="info-item">
-                                  <span className="info-label">Age:</span>
-                                  <span className="info-value">{enrollment.age}</span>
-                                </div>
-                              )}
-                              {enrollment.grade_level && (
-                                <div className="info-item">
-                                  <span className="info-label">Grade Level:</span>
-                                  <span className="info-value">{enrollment.grade_level}</span>
-                                </div>
-                              )}
+                        <div className="detail-section">
+                          <h4>Student Information</h4>
+                          <div className="info-grid">
+                            {enrollment.age && (
                               <div className="info-item">
-                                <span className="info-label">Enrolled:</span>
-                                <span className="info-value">
-                                  {new Date(enrollment.created_at).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  })}
-                                </span>
+                                <span className="info-label">Age:</span>
+                                <span className="info-value">{enrollment.age}</span>
                               </div>
+                            )}
+                            {enrollment.grade_level && (
+                              <div className="info-item">
+                                <span className="info-label">Grade Level:</span>
+                                <span className="info-value">{enrollment.grade_level}</span>
+                              </div>
+                            )}
+                            <div className="info-item">
+                              <span className="info-label">Enrolled:</span>
+                              <span className="info-value">
+                                {new Date(enrollment.created_at).toLocaleDateString('en-US', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric'
+                                })}
+                              </span>
                             </div>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
                   ))}
                 </div>
