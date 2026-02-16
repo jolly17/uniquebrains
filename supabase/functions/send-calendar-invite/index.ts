@@ -46,14 +46,47 @@ function generateICS(
   student: Profile,
   action: 'REQUEST' | 'CANCEL' = 'REQUEST'
 ): string {
-  // Parse session date and time
-  const sessionDateTime = new Date(`${session.session_date}T${session.session_time}`)
-  const endDateTime = new Date(sessionDateTime.getTime() + session.session_duration * 60000)
-
   // Format dates for iCalendar (YYYYMMDDTHHMMSSZ)
   const formatICalDate = (date: Date) => {
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid date: ${date}`)
+    }
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
   }
+
+  // Parse session date and time more carefully
+  // session_date format: YYYY-MM-DD
+  // session_time format: HH:MM:SS or HH:MM
+  let sessionDateTime: Date
+  
+  try {
+    // Combine date and time properly
+    const dateStr = session.session_date.split('T')[0] // Get just the date part
+    const timeStr = session.session_time.substring(0, 8) // Get HH:MM:SS
+    const dateTimeStr = `${dateStr}T${timeStr}`
+    
+    sessionDateTime = new Date(dateTimeStr)
+    
+    // If still invalid, try without timezone
+    if (isNaN(sessionDateTime.getTime())) {
+      // Try parsing as UTC
+      sessionDateTime = new Date(`${dateStr}T${timeStr}Z`)
+    }
+    
+    // If still invalid, throw error with details
+    if (isNaN(sessionDateTime.getTime())) {
+      throw new Error(`Could not parse date/time: ${dateStr} ${timeStr}`)
+    }
+  } catch (error) {
+    console.error('Date parsing error:', {
+      session_date: session.session_date,
+      session_time: session.session_time,
+      error: error.message
+    })
+    throw new Error(`Invalid session date/time: ${session.session_date} ${session.session_time}`)
+  }
+  
+  const endDateTime = new Date(sessionDateTime.getTime() + session.session_duration * 60000)
 
   const dtStart = formatICalDate(sessionDateTime)
   const dtEnd = formatICalDate(endDateTime)
