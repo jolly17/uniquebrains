@@ -1,4 +1,31 @@
-## Calendar Invites Setup Instructions
+## Quick Fix for Enrollment Error
+
+If you're getting an enrollment error about "null value in column url", it means the calendar invite feature needs to be configured. You have two options:
+
+### Option A: Disable Calendar Invites (Quick Fix)
+
+Run this in Supabase SQL Editor to disable the triggers temporarily:
+
+```sql
+-- Disable calendar invite triggers
+DROP TRIGGER IF EXISTS trigger_send_calendar_invite_on_enrollment ON enrollments;
+DROP TRIGGER IF EXISTS trigger_send_calendar_update_on_session_update ON sessions;
+DROP TRIGGER IF EXISTS trigger_send_calendar_update_on_session_delete ON sessions;
+```
+
+### Option B: Apply the Fix Migration (Recommended)
+
+Apply migration `073_fix_calendar_trigger_error.sql` which makes the triggers fail gracefully:
+
+1. Go to Supabase Dashboard → SQL Editor
+2. Copy contents of `supabase/migrations/073_fix_calendar_trigger_error.sql`
+3. Paste and run
+
+This allows enrollments to work even without calendar configuration. Calendar invites will be skipped until you complete the setup below.
+
+---
+
+## Full Setup Instructions
 
 This guide will help you set up automatic calendar invites to reduce student absenteeism.
 
