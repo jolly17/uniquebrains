@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { fetchRecentActivities } from '../../services/adminService'
 import './ActivityFeed.css'
 
 /**
@@ -13,6 +14,14 @@ function ActivityFeed() {
 
   useEffect(() => {
     loadActivities()
+    
+    // Set up auto-refresh every 30 seconds
+    const intervalId = setInterval(() => {
+      loadActivities()
+    }, 30000) // 30 seconds in milliseconds
+    
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId)
   }, [])
 
   const loadActivities = async () => {
@@ -20,9 +29,8 @@ function ActivityFeed() {
       setLoading(true)
       setError('')
       
-      // TODO: This will be implemented in subsequent tasks
-      // For now, return empty array as placeholder
-      setActivities([])
+      const data = await fetchRecentActivities()
+      setActivities(data)
     } catch (err) {
       console.error('Error loading activities:', err)
       setError('Failed to load recent activities')

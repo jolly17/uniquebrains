@@ -38,11 +38,11 @@
 
 ### Task 5: Implement activity feed
 - [x] 5.1 Create activity feed component
-- [ ] 5.2 Fetch 20 most recent platform events
-- [ ] 5.3 Display events with timestamps and user info
-- [ ] 5.4 Add icons for different event types
-- [ ] 5.5 Implement auto-refresh every 30 seconds
-- [ ] 5.6 Style activity feed with scrollable container
+- [x] 5.2 Fetch 20 most recent platform events
+- [x] 5.3 Display events with timestamps and user info
+- [x] 5.4 Add icons for different event types
+- [x] 5.5 Implement auto-refresh every 30 seconds
+- [x] 5.6 Style activity feed with scrollable container
 
 ### Task 6: Create analytics service
 - [ ] 6.1 Create src/services/analyticsService.js

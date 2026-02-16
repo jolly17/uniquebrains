@@ -521,3 +521,136 @@ export async function fetchDashboardStats() {
     throw error
   }
 }
+
+/**
+ * Fetch recent platform activities
+ * Aggregates recent events from multiple tables to create an activity feed
+ * @returns {Promise<Array>} List of 20 most recent activities
+ */
+export async function fetchRecentActivities() {
+  try {
+    // Fetch recent courses
+    const { data: recentCourses, error: coursesError } = await supabase
+      .from('courses')
+      .select('id, title, created_at, profiles!instructor_id(first_name, last_name)')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (coursesError) {
+      console.error('Error fetching recent courses:', coursesError)
+    }
+
+    // Fetch recent enrollments
+    const { data: recentEnrollments, error: enrollmentsError } = await supabase
+      .from('enrollments')
+      .select('id, created_at, profiles!student_id(first_name, last_name), courses(title)')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (enrollmentsError) {
+      console.error('Error fetching recent enrollments:', enrollmentsError)
+    }
+
+    // Fetch recent sessions
+    const { data: recentSessions, error: sessionsError } = await supabase
+      .from('sessions')
+      .select('id, title, created_at, courses(title, profiles!instructor_id(first_name, last_name))')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (sessionsError) {
+      console.error('Error fetching recent sessions:', sessionsError)
+    }
+
+    // Fetch recent user registrations
+    const { data: recentUsers, error: usersError } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name, role, created_at')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (usersError) {
+      console.error('Error fetching recent users:', usersError)
+    }
+
+    // Transform and combine all activities
+    const activities = []
+
+    // Add course creation activities
+    if (recentCourses) {
+      recentCourses.forEach(course => {
+        const instructorName = course.profiles 
+          ? `${course.profiles.first_name} ${course.profiles.last_name}`.trim()
+          : 'Unknown'
+        
+        activities.push({
+          id: `course-${course.id}`,
+          type: 'course_created',
+          description: `New course created: "${course.title}"`,
+          user_name: instructorName,
+          timestamp: course.created_at
+        })
+      })
+    }
+
+    // Add enrollment activities
+    if (recentEnrollments) {
+      recentEnrollments.forEach(enrollment => {
+        const studentName = enrollment.profiles 
+          ? `${enrollment.profiles.first_name} ${enrollment.profiles.last_name}`.trim()
+          : 'Unknown'
+        const courseTitle = enrollment.courses?.title || 'Unknown Course'
+        
+        activities.push({
+          id: `enrollment-${enrollment.id}`,
+          type: 'enrollment',
+          description: `Student enrolled in "${courseTitle}"`,
+          user_name: studentName,
+          timestamp: enrollment.created_at
+        })
+      })
+    }
+
+    // Add session scheduling activities
+    if (recentSessions) {
+      recentSessions.forEach(session => {
+        const instructorName = session.courses?.profiles 
+          ? `${session.courses.profiles.first_name} ${session.courses.profiles.last_name}`.trim()
+          : 'Unknown'
+        const courseTitle = session.courses?.title || 'Unknown Course'
+        
+        activities.push({
+          id: `session-${session.id}`,
+          type: 'session_scheduled',
+          description: `Session scheduled: "${session.title}" for ${courseTitle}`,
+          user_name: instructorName,
+          timestamp: session.created_at
+        })
+      })
+    }
+
+    // Add user registration activities
+    if (recentUsers) {
+      recentUsers.forEach(user => {
+        const userName = `${user.first_name} ${user.last_name}`.trim()
+        const roleLabel = user.role === 'instructor' ? 'Instructor' : user.role === 'student' ? 'Student' : 'User'
+        
+        activities.push({
+          id: `user-${user.id}`,
+          type: 'user_registered',
+          description: `${roleLabel} registered`,
+          user_name: userName,
+          timestamp: user.created_at
+        })
+      })
+    }
+
+    // Sort all activities by timestamp (most recent first) and take top 20
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+    
+    return activities.slice(0, 20)
+  } catch (error) {
+    console.error('Error in fetchRecentActivities:', error)
+    throw error
+  }
+}
