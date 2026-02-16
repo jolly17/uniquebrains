@@ -10,6 +10,7 @@ import { mockReviews } from '../data/mockData'
 import { convertToLocalTime, formatTimeWithTimezone, getUserTimezone, isSameTimezone } from '../utils/timezoneUtils'
 import { getUserFriendlyMessage } from '../lib/errorHandler'
 import { addBreadcrumb } from '../lib/sentry'
+import { updateCourseMetaTags, resetMetaTags } from '../utils/metaTags'
 import './CourseDetail.css'
 
 function CourseDetailContent() {
@@ -50,6 +51,9 @@ function CourseDetailContent() {
         
         const courseData = await handleApiCall(api.courses.getById, courseId)
         setCourse(courseData)
+        
+        // Update meta tags for social sharing
+        updateCourseMetaTags(courseData)
         
         // Fetch other courses by the same instructor
         if (courseData.instructor_id) {
@@ -92,6 +96,11 @@ function CourseDetailContent() {
 
     if (courseId) {
       fetchCourse()
+    }
+    
+    // Cleanup: Reset meta tags when leaving the page
+    return () => {
+      resetMetaTags()
     }
   }, [courseId, user, activeStudent, retryCount])
 
