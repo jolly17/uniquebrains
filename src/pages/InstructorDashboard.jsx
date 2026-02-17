@@ -221,6 +221,22 @@ function InstructorDashboard() {
                         <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
                           Manage
                         </Link>
+                        <div className="quick-actions">
+                          <Link 
+                            to={`/teach/course/${course.id}/chat`} 
+                            className="quick-action-btn"
+                            title="Open Chat"
+                          >
+                            💬
+                          </Link>
+                          <Link 
+                            to={`/teach/course/${course.id}/sessions`} 
+                            className="quick-action-btn"
+                            title="View Sessions"
+                          >
+                            📹
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   )

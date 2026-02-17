@@ -307,6 +307,22 @@ function MyCourses() {
                     <Link to={`/learn/course/${course.id}/view`} className="btn-primary">
                       Continue Learning
                     </Link>
+                    <div className="quick-actions">
+                      <Link 
+                        to={`/learn/course/${course.id}/chat`} 
+                        className="quick-action-btn"
+                        title="Open Chat"
+                      >
+                        💬
+                      </Link>
+                      <Link 
+                        to={`/learn/course/${course.id}/sessions`} 
+                        className="quick-action-btn"
+                        title="Join Meeting"
+                      >
+                        📹
+                      </Link>
+                    </div>
                   </div>
                 </div>
               )
