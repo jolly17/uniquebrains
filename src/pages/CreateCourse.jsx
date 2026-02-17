@@ -24,7 +24,6 @@ function CreateCourse() {
     sessionTime: '',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Auto-detect instructor's timezone
     enrollmentLimit: '',
-    meetingLink: '', // Optional meeting link for all sessions
     // Recurrence fields
     startDate: '',
     frequency: 'weekly', // weekly, monthly, or never
@@ -66,24 +65,14 @@ function CreateCourse() {
       return
     }
 
-    // Validate meeting link if provided
-    if (formData.meetingLink && formData.meetingLink.trim()) {
-      try {
-        new URL(formData.meetingLink)
-        if (!formData.meetingLink.startsWith('http://') && !formData.meetingLink.startsWith('https://')) {
-          setError('Meeting link must start with http:// or https://')
-          return
-        }
-      } catch {
-        setError('Please enter a valid meeting link URL (e.g., https://zoom.us/j/...)')
-        return
-      }
-    }
-
     setLoading(true)
     setError('')
 
     try {
+      // Generate meeting link from instructor ID (first part before the dash)
+      const instructorPrefix = user.id.split('-')[0]
+      const meetingLink = `https://meet.jit.si/${instructorPrefix}`
+
       // Prepare course data for the API
       const courseData = {
         title: formData.title,
@@ -93,7 +82,7 @@ function CreateCourse() {
         courseType: formData.courseType,
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
-        meetingLink: formData.meetingLink, // Optional meeting link
+        meetingLink: meetingLink, // Auto-generated meeting link
         timezone: formData.timezone, // Store instructor's timezone
         frequency: formData.frequency, // weekly, biweekly, or never
         // Schedule data for session creation
@@ -377,20 +366,6 @@ function CreateCourse() {
                 />
                 <p className="form-hint">💡 Leave empty for ongoing course</p>
               </div>
-            </div>
-
-            <div className="form-section">
-              <label htmlFor="meetingLink">Meeting Link (Optional)</label>
-              <input
-                id="meetingLink"
-                name="meetingLink"
-                type="url"
-                value={formData.meetingLink}
-                onChange={handleChange}
-                placeholder="https://zoom.us/j/... or https://meet.google.com/..."
-                className="form-input"
-              />
-              <p className="form-hint">💡 This link will be used for all sessions</p>
             </div>
           </div>
         </div>
