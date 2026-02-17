@@ -29,9 +29,13 @@ function StudentProfile() {
         lastName: profile.last_name || '',
         email: profile.email || user?.email || '',
         bio: profile.bio || '',
+        age: profile.age || '',
+        gradeLevel: profile.grade_level || '',
         expertise: profile.expertise || [],
         neurodiversityProfile: profile.neurodiversity_profile || [],
-        otherExpertise: ''
+        interests: profile.interests || [],
+        otherExpertise: '',
+        otherInterest: ''
       }
       setFormData(data)
       setOriginalData(data)
@@ -46,8 +50,11 @@ function StudentProfile() {
         formData.lastName !== originalData.lastName ||
         formData.email !== originalData.email ||
         formData.bio !== originalData.bio ||
+        formData.age !== originalData.age ||
+        formData.gradeLevel !== originalData.gradeLevel ||
         JSON.stringify(formData.expertise) !== JSON.stringify(originalData.expertise) ||
-        JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile)
+        JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile) ||
+        JSON.stringify(formData.interests) !== JSON.stringify(originalData.interests)
       setHasChanges(changed)
     }
   }, [formData, originalData])
@@ -60,6 +67,41 @@ function StudentProfile() {
     { value: 'dysgraphia', label: 'Dysgraphia' },
     { value: 'dyscalculia', label: 'Dyscalculia' },
     { value: 'other', label: 'Other' }
+  ]
+
+  const interestOptions = [
+    { value: 'art', label: 'Art & Drawing' },
+    { value: 'music', label: 'Music' },
+    { value: 'science', label: 'Science' },
+    { value: 'math', label: 'Mathematics' },
+    { value: 'reading', label: 'Reading & Literature' },
+    { value: 'coding', label: 'Coding & Technology' },
+    { value: 'sports', label: 'Sports & Physical Activity' },
+    { value: 'nature', label: 'Nature & Animals' },
+    { value: 'history', label: 'History' },
+    { value: 'languages', label: 'Languages' },
+    { value: 'gaming', label: 'Gaming' },
+    { value: 'cooking', label: 'Cooking & Baking' },
+    { value: 'other', label: 'Other' }
+  ]
+
+  const gradeLevelOptions = [
+    'Pre-K',
+    'Kindergarten',
+    'Grade 1',
+    'Grade 2',
+    'Grade 3',
+    'Grade 4',
+    'Grade 5',
+    'Grade 6',
+    'Grade 7',
+    'Grade 8',
+    'Grade 9',
+    'Grade 10',
+    'Grade 11',
+    'Grade 12',
+    'College/University',
+    'Adult Learner'
   ]
 
   const handleCheckboxChange = (value) => {
@@ -92,6 +134,21 @@ function StudentProfile() {
     }
   }
 
+  const handleInterestChange = (value) => {
+    const currentInterests = formData.interests || []
+    if (currentInterests.includes(value)) {
+      setFormData({
+        ...formData,
+        interests: currentInterests.filter(item => item !== value)
+      })
+    } else {
+      setFormData({
+        ...formData,
+        interests: [...currentInterests, value]
+      })
+    }
+  }
+
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
@@ -115,6 +172,13 @@ function StudentProfile() {
         expertise.push(formData.otherExpertise.trim())
       }
 
+      // Prepare interests array (handle "other" option)
+      let interests = [...formData.interests]
+      if (interests.includes('other') && formData.otherInterest.trim()) {
+        interests = interests.filter(item => item !== 'other')
+        interests.push(formData.otherInterest.trim())
+      }
+
       // Update profile in database
       const { error } = await supabase
         .from('profiles')
@@ -123,8 +187,11 @@ function StudentProfile() {
           last_name: formData.lastName,
           email: formData.email,
           bio: formData.bio,
+          age: formData.age ? parseInt(formData.age) : null,
+          grade_level: formData.gradeLevel || null,
           expertise: expertise,
-          neurodiversity_profile: formData.neurodiversityProfile
+          neurodiversity_profile: formData.neurodiversityProfile,
+          interests: interests
         })
         .eq('id', user.id)
 
@@ -149,6 +216,7 @@ function StudentProfile() {
   }
 
   const isInstructor = profile?.role === 'instructor'
+  const roleLabel = isInstructor ? "Instructor's" : "Student's"
 
   return (
     <div className="student-profile">
@@ -176,7 +244,7 @@ function StudentProfile() {
           <h2>Personal Information</h2>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="firstName">First Name</label>
+              <label htmlFor="firstName">{roleLabel} First Name</label>
               <input
                 id="firstName"
                 name="firstName"
@@ -187,7 +255,7 @@ function StudentProfile() {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="lastName">Last Name</label>
+              <label htmlFor="lastName">{roleLabel} Last Name</label>
               <input
                 id="lastName"
                 name="lastName"
@@ -210,6 +278,40 @@ function StudentProfile() {
               required
             />
           </div>
+
+          {!isInstructor && (
+            <>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="age">{roleLabel} Age</label>
+                  <input
+                    id="age"
+                    name="age"
+                    type="number"
+                    min="3"
+                    max="100"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    placeholder="Enter age"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="gradeLevel">{roleLabel} Grade Level</label>
+                  <select
+                    id="gradeLevel"
+                    name="gradeLevel"
+                    value={formData.gradeLevel}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select grade level</option>
+                    {gradeLevelOptions.map(grade => (
+                      <option key={grade} value={grade}>{grade}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {isInstructor && (
@@ -265,9 +367,9 @@ function StudentProfile() {
 
         {!isInstructor && (
           <div className="profile-section">
-            <h2>About You</h2>
+            <h2>About the Student</h2>
             <p className="section-description">
-              Tell us about yourself, your learning goals, and any additional information that helps instructors support you better.
+              Tell us about the student, their learning goals, and any additional information that helps instructors support them better.
             </p>
 
             <div className="form-group">
@@ -280,19 +382,50 @@ function StudentProfile() {
                 placeholder="e.g., I love art and music, and I'm excited to learn new things. I learn best with visual aids and hands-on activities..."
               />
             </div>
+
+            <div className="form-group">
+              <label>{roleLabel} Interests</label>
+              <p className="field-hint">What topics or activities does the student enjoy?</p>
+              <div className="checkbox-grid">
+                {interestOptions.map(option => (
+                  <label key={option.value} className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.interests.includes(option.value)}
+                      onChange={() => handleInterestChange(option.value)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {formData.interests.includes('other') && (
+              <div className="form-group">
+                <label htmlFor="otherInterest">Please specify other interest:</label>
+                <input
+                  type="text"
+                  id="otherInterest"
+                  name="otherInterest"
+                  value={formData.otherInterest}
+                  onChange={handleInputChange}
+                  placeholder="e.g., Robotics, Photography"
+                />
+              </div>
+            )}
           </div>
         )}
 
         <div className="profile-section">
-          <h2>{isInstructor ? 'Your Unique Mind' : 'Your Learning Style'}</h2>
+          <h2>{isInstructor ? "Instructor's Unique Mind" : "Student's Learning Style"}</h2>
           <p className="section-description">
             {isInstructor 
               ? 'Share what makes your mind unique to help students understand your teaching approach and create a more inclusive learning environment. This information is visible to enrolled students.'
-              : 'Help us understand what makes your mind unique so instructors can provide the best support. This information is private and only shared with your enrolled instructors.'}
+              : 'Help us understand what makes the student\'s mind unique so instructors can provide the best support. This information is private and only shared with enrolled instructors.'}
           </p>
 
           <div className="form-group">
-            <label>What's unique about your mind? (Select all that apply)</label>
+            <label>What's unique about the {isInstructor ? "instructor's" : "student's"} mind? (Select all that apply)</label>
             <div className="checkbox-grid">
               {neurodiversityOptions.map(option => (
                 <label key={option.value} className="checkbox-label">
