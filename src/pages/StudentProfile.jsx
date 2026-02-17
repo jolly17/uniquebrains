@@ -367,7 +367,7 @@ function StudentProfile() {
 
         {!isInstructor && (
           <div className="profile-section">
-            <h2>About the Student</h2>
+            <h2>About the Student/Instructor</h2>
             <p className="section-description">
               Tell us about the student, their learning goals, and any additional information that helps instructors support them better.
             </p>
@@ -417,7 +417,7 @@ function StudentProfile() {
         )}
 
         <div className="profile-section">
-          <h2>{isInstructor ? "Instructor's Unique Mind" : "Student's Learning Style"}</h2>
+          <h2>Student/Instructor's Unique Mind</h2>
           <p className="section-description">
             {isInstructor 
               ? 'Share what makes your mind unique to help students understand your teaching approach and create a more inclusive learning environment. This information is visible to enrolled students.'
@@ -425,7 +425,7 @@ function StudentProfile() {
           </p>
 
           <div className="form-group">
-            <label>What's unique about the {isInstructor ? "instructor's" : "student's"} mind? (Select all that apply)</label>
+            <label>What's unique about the student/instructor's mind? (Select all that apply)</label>
             <div className="checkbox-grid">
               {neurodiversityOptions.map(option => (
                 <label key={option.value} className="checkbox-label">
