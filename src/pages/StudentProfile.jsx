@@ -173,7 +173,7 @@ function StudentProfile() {
       }
 
       // Prepare interests array (handle "other" option)
-      let interests = [...formData.interests]
+      let interests = [...(formData.interests || [])]
       if (interests.includes('other') && formData.otherInterest.trim()) {
         interests = interests.filter(item => item !== 'other')
         interests.push(formData.otherInterest.trim())
@@ -391,7 +391,7 @@ function StudentProfile() {
                   <label key={option.value} className="checkbox-label">
                     <input
                       type="checkbox"
-                      checked={formData.interests.includes(option.value)}
+                      checked={(formData.interests || []).includes(option.value)}
                       onChange={() => handleInterestChange(option.value)}
                     />
                     <span>{option.label}</span>
@@ -400,7 +400,7 @@ function StudentProfile() {
               </div>
             </div>
 
-            {formData.interests.includes('other') && (
+            {(formData.interests || []).includes('other') && (
               <div className="form-group">
                 <label htmlFor="otherInterest">Please specify other interest:</label>
                 <input
