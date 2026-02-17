@@ -7,6 +7,10 @@ function AdminEnrollments() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [selectedCourse, setSelectedCourse] = useState(null)
+  const [emailModalOpen, setEmailModalOpen] = useState(false)
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailMessage, setEmailMessage] = useState('')
+  const [sendingEmail, setSendingEmail] = useState(false)
 
   useEffect(() => {
     loadEnrollments()
@@ -39,7 +43,40 @@ function AdminEnrollments() {
     return acc
   }, {})
 
+  const handleEmailAllStudents = (courseId) => {
+    setSelectedCourse(courseId)
+    setEmailModalOpen(true)
+  }
 
+  const sendEmailToAllStudents = async () => {
+    if (!emailSubject.trim() || !emailMessage.trim()) {
+      alert('Please fill in both subject and message')
+      return
+    }
+
+    setSendingEmail(true)
+    try {
+      const courseData = groupedByCourse[selectedCourse]
+      const studentEmails = courseData.students.map(s => s.student_email).filter(Boolean)
+      
+      // Here you would call your email service
+      // For now, we'll just log it
+      console.log('Sending email to:', studentEmails)
+      console.log('Subject:', emailSubject)
+      console.log('Message:', emailMessage)
+      
+      alert(`Email would be sent to ${studentEmails.length} students`)
+      
+      setEmailModalOpen(false)
+      setEmailSubject('')
+      setEmailMessage('')
+    } catch (err) {
+      console.error('Error sending emails:', err)
+      alert('Failed to send emails')
+    } finally {
+      setSendingEmail(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -79,11 +116,8 @@ function AdminEnrollments() {
       ) : (
         <div className="courses-list">
           {Object.entries(groupedByCourse).map(([courseId, courseData]) => (
-            <div key={courseId} className="course-card">
-              <div 
-                className="course-header"
-                onClick={() => setSelectedCourse(selectedCourse === courseId ? null : courseId)}
-              >
+            <div key={courseId} className="course-section">
+              <div className="course-header">
                 <div className="course-info">
                   <h2>{courseData.course_title}</h2>
                   <p className="instructor-name">Instructor: {courseData.instructor_name}</p>
@@ -91,104 +125,141 @@ function AdminEnrollments() {
                     {courseData.students.length} student{courseData.students.length !== 1 ? 's' : ''} enrolled
                   </p>
                 </div>
-                <button className="toggle-btn">
-                  {selectedCourse === courseId ? '▼' : '▶'}
+                <button 
+                  className="email-all-btn"
+                  onClick={() => handleEmailAllStudents(courseId)}
+                >
+                  📧 Email All Students
                 </button>
               </div>
 
-              {selectedCourse === courseId && (
-                <div className="students-list">
-                  {courseData.students.map((enrollment) => (
-                    <div key={enrollment.id} className="student-card">
-                      <div className="student-header">
-                        <div className="student-basic-info">
-                          <h3>{enrollment.student_name}</h3>
-                          <p className="student-email">{enrollment.student_email}</p>
-                          <div className="student-meta">
-                            <span className={`status-badge status-${enrollment.status}`}>
-                              {enrollment.status}
-                            </span>
-                            <span className="enrollment-date">
-                              Enrolled: {new Date(enrollment.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="student-details">
-                        <div className="detail-section">
-                          <h4>Neurodiversity Profile</h4>
-                          <div className="neurodiversity-tags">
+              <div className="students-table-container">
+                <table className="students-table">
+                  <thead>
+                    <tr>
+                      <th>Student Name</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Age</th>
+                      <th>Grade</th>
+                      <th>Neurodiversity Profile</th>
+                      <th>Interests</th>
+                      <th>Enrolled Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {courseData.students.map((enrollment) => (
+                      <tr key={enrollment.id}>
+                        <td className="student-name">{enrollment.student_name}</td>
+                        <td className="student-email">{enrollment.student_email}</td>
+                        <td>
+                          <span className={`status-badge status-${enrollment.status}`}>
+                            {enrollment.status}
+                          </span>
+                        </td>
+                        <td>{enrollment.age || '-'}</td>
+                        <td>{enrollment.grade_level || '-'}</td>
+                        <td>
+                          <div className="neurodiversity-cell">
                             {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
                               enrollment.neurodiversity_profile.map((item, index) => (
-                                <span key={index} className="neurodiversity-tag">
+                                <span key={index} className="neurodiversity-tag-small">
                                   {item}
                                 </span>
                               ))
                             ) : (
-                              <p className="no-data">None specified</p>
+                              <span className="no-data">-</span>
                             )}
                           </div>
-                        </div>
-
-                        {enrollment.other_needs && (
-                          <div className="detail-section">
-                            <h4>Additional Needs & Accommodations</h4>
-                            <p className="other-needs">{enrollment.other_needs}</p>
-                          </div>
-                        )}
-
-                        {enrollment.interests && enrollment.interests.length > 0 && (
-                          <div className="detail-section">
-                            <h4>Interests</h4>
-                            <div className="interests-tags">
-                              {enrollment.interests.map((interest, index) => (
-                                <span key={index} className="interest-tag">
+                        </td>
+                        <td>
+                          <div className="interests-cell">
+                            {enrollment.interests && enrollment.interests.length > 0 ? (
+                              enrollment.interests.slice(0, 2).map((interest, index) => (
+                                <span key={index} className="interest-tag-small">
                                   {interest}
                                 </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="detail-section">
-                          <h4>Student Information</h4>
-                          <div className="info-grid">
-                            {enrollment.age && (
-                              <div className="info-item">
-                                <span className="info-label">Age:</span>
-                                <span className="info-value">{enrollment.age}</span>
-                              </div>
+                              ))
+                            ) : (
+                              <span className="no-data">-</span>
                             )}
-                            {enrollment.grade_level && (
-                              <div className="info-item">
-                                <span className="info-label">Grade Level:</span>
-                                <span className="info-value">{enrollment.grade_level}</span>
-                              </div>
+                            {enrollment.interests && enrollment.interests.length > 2 && (
+                              <span className="more-tag">+{enrollment.interests.length - 2}</span>
                             )}
-                            <div className="info-item">
-                              <span className="info-label">Enrolled:</span>
-                              <span className="info-value">
-                                {new Date(enrollment.created_at).toLocaleDateString('en-US', {
-                                  year: 'numeric',
-                                  month: 'long',
-                                  day: 'numeric'
-                                })}
-                              </span>
-                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                        </td>
+                        <td className="enrollment-date">
+                          {new Date(enrollment.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Email Modal */}
+      {emailModalOpen && (
+        <div className="modal-overlay" onClick={() => setEmailModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Email All Students</h2>
+              <button className="close-btn" onClick={() => setEmailModalOpen(false)}>×</button>
+            </div>
+            <div className="modal-body">
+              <p className="modal-info">
+                Sending to {groupedByCourse[selectedCourse]?.students.length} students in{' '}
+                <strong>{groupedByCourse[selectedCourse]?.course_title}</strong>
+              </p>
+              
+              <div className="form-group">
+                <label htmlFor="email-subject">Subject</label>
+                <input
+                  id="email-subject"
+                  type="text"
+                  className="form-input"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Enter email subject"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email-message">Message</label>
+                <textarea
+                  id="email-message"
+                  className="form-textarea"
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Enter your message to students"
+                  rows="8"
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setEmailModalOpen(false)}
+                disabled={sendingEmail}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={sendEmailToAllStudents}
+                disabled={sendingEmail}
+              >
+                {sendingEmail ? 'Sending...' : 'Send Email'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
