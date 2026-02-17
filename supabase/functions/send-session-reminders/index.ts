@@ -222,10 +222,47 @@ function formatSessionTime(sessionDate: string, timezone: string): string {
   return date.toLocaleString('en-US', options)
 }
 
+function formatMultipleTimezones(sessionDate: string): string {
+  const date = new Date(sessionDate)
+  const timezones = [
+    { name: 'IST', tz: 'Asia/Kolkata' },
+    { name: 'GMT', tz: 'Europe/London' },
+    { name: 'EST', tz: 'America/New_York' },
+    { name: 'PST', tz: 'America/Los_Angeles' }
+  ]
+  
+  const times = timezones.map(({ name, tz }) => {
+    const options: Intl.DateTimeFormatOptions = {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone: tz,
+      hour12: true
+    }
+    const time = date.toLocaleString('en-US', options)
+    return `${time} ${name}`
+  })
+  
+  return times.join(' | ')
+}
+
+function formatDateOnly(sessionDate: string): string {
+  const date = new Date(sessionDate)
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  }
+  return date.toLocaleString('en-US', options)
+}
+
 async function sendInstructorReminderEmail(data: SessionReminderData) {
   const meetingLinkSection = data.meetingLink 
     ? `<p><strong>Meeting Link:</strong> <a href="${data.meetingLink}" style="color: #4f46e5;">${data.meetingLink}</a></p>`
     : `<p><em>Note: Please share the meeting link with your students before the session.</em></p>`
+
+  const dateOnly = formatDateOnly(data.sessionDate)
+  const timezones = formatMultipleTimezones(data.sessionDate)
 
   const html = `
     <!DOCTYPE html>
@@ -237,6 +274,7 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
         .header { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
         .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
         .session-details { background: #f9fafb; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .timezone-box { background: #ecfdf5; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #10b981; }
         .button { display: inline-block; background: #10b981; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
         .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
       </style>
@@ -254,9 +292,14 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
           <div class="session-details">
             <h3 style="margin-top: 0;">${data.sessionTitle}</h3>
             <p><strong>Course:</strong> ${data.courseTitle}</p>
-            <p><strong>Date & Time:</strong> ${data.sessionTime}</p>
+            <p><strong>Date:</strong> ${dateOnly}</p>
             <p><strong>Duration:</strong> ${data.duration} minutes</p>
             ${meetingLinkSection}
+          </div>
+          
+          <div class="timezone-box">
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #065f46;">🌍 Session Time (Multiple Timezones):</p>
+            <p style="margin: 0; font-size: 14px; color: #1f2937;">${timezones}</p>
           </div>
           
           <p>Make sure you're prepared and ready to inspire your students! 🌟</p>
@@ -279,7 +322,7 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
 
   return await sendEmail({
     to: data.instructorEmail,
-    subject: `Reminder: ${data.sessionTitle} - Tomorrow at ${data.sessionTime.split(',')[1].trim()}`,
+    subject: `Reminder: ${data.sessionTitle} - Tomorrow`,
     html,
   })
 }
@@ -293,6 +336,9 @@ async function sendStudentReminderEmail(
     ? `<p><strong>Meeting Link:</strong> <a href="${data.meetingLink}" style="color: #4f46e5;">${data.meetingLink}</a></p>`
     : `<p><em>Your instructor will share the meeting link before the session.</em></p>`
 
+  const dateOnly = formatDateOnly(data.sessionDate)
+  const timezones = formatMultipleTimezones(data.sessionDate)
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -303,6 +349,7 @@ async function sendStudentReminderEmail(
         .header { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
         .content { background: white; padding: 30px; border: 1px solid #e5e7eb; border-top: none; }
         .session-details { background: #f9fafb; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .timezone-box { background: #eff6ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #4f46e5; }
         .button { display: inline-block; background: #4f46e5; color: #ffffff !important; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
         .footer { text-align: center; padding: 20px; color: #6b7280; font-size: 14px; }
       </style>
@@ -321,9 +368,14 @@ async function sendStudentReminderEmail(
             <h3 style="margin-top: 0;">${data.sessionTitle}</h3>
             <p><strong>Course:</strong> ${data.courseTitle}</p>
             <p><strong>Instructor:</strong> ${data.instructorName}</p>
-            <p><strong>Date & Time:</strong> ${data.sessionTime}</p>
+            <p><strong>Date:</strong> ${dateOnly}</p>
             <p><strong>Duration:</strong> ${data.duration} minutes</p>
             ${meetingLinkSection}
+          </div>
+          
+          <div class="timezone-box">
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #1e40af;">🌍 Session Time (Multiple Timezones):</p>
+            <p style="margin: 0; font-size: 14px; color: #1f2937;">${timezones}</p>
           </div>
           
           <p>We're excited to see you in class! Don't forget to:</p>
@@ -351,7 +403,7 @@ async function sendStudentReminderEmail(
 
   return await sendEmail({
     to: studentEmail,
-    subject: `Reminder: ${data.courseTitle} - Tomorrow at ${data.sessionTime.split(',')[1].trim()}`,
+    subject: `Reminder: ${data.courseTitle} - Tomorrow`,
     html,
   })
 }
