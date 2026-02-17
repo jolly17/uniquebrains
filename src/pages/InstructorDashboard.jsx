@@ -223,19 +223,31 @@ function InstructorDashboard() {
                         </Link>
                         <div className="quick-actions">
                           <Link 
-                            to={`/teach/course/${course.id}/chat`} 
+                            to={`/teach/course/${course.id}/manage?tab=chat`} 
                             className="quick-action-btn"
                             title="Open Chat"
                           >
                             💬
                           </Link>
-                          <Link 
-                            to={`/teach/course/${course.id}/sessions`} 
-                            className="quick-action-btn"
-                            title="View Sessions"
-                          >
-                            📹
-                          </Link>
+                          {course.meeting_link ? (
+                            <a 
+                              href={course.meeting_link} 
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="quick-action-btn"
+                              title="Join Meeting"
+                            >
+                              📹
+                            </a>
+                          ) : (
+                            <Link 
+                              to={`/teach/course/${course.id}/sessions`} 
+                              className="quick-action-btn"
+                              title="View Sessions"
+                            >
+                              📹
+                            </Link>
+                          )}
                         </div>
                       </div>
                     </div>

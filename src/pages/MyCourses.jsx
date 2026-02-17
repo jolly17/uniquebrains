@@ -309,19 +309,31 @@ function MyCourses() {
                     </Link>
                     <div className="quick-actions">
                       <Link 
-                        to={`/learn/course/${course.id}/chat`} 
+                        to={`/learn/course/${course.id}/manage?tab=chat`} 
                         className="quick-action-btn"
                         title="Open Chat"
                       >
                         💬
                       </Link>
-                      <Link 
-                        to={`/learn/course/${course.id}/sessions`} 
-                        className="quick-action-btn"
-                        title="Join Meeting"
-                      >
-                        📹
-                      </Link>
+                      {course.meeting_link ? (
+                        <a 
+                          href={course.meeting_link} 
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="quick-action-btn"
+                          title="Join Meeting"
+                        >
+                          📹
+                        </a>
+                      ) : (
+                        <Link 
+                          to={`/learn/course/${course.id}/sessions`} 
+                          className="quick-action-btn"
+                          title="View Sessions"
+                        >
+                          📹
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
