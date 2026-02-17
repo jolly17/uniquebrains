@@ -58,6 +58,12 @@
   padding: 1.5rem;
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.course-header:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
 }
 
 .course-info h2 {
@@ -78,6 +84,12 @@
   font-weight: 500;
 }
 
+.course-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .email-all-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid white;
@@ -96,6 +108,22 @@
 .email-all-btn:hover {
   background: white;
   color: #4f46e5;
+}
+
+.toggle-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  min-width: 3rem;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Students Table */
@@ -416,9 +444,18 @@
     align-items: flex-start;
   }
 
+  .course-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
   .email-all-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .toggle-btn {
+    width: 100%;
   }
 
   .students-table-container {

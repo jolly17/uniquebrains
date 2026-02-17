@@ -6,8 +6,9 @@ function AdminEnrollments() {
   const [enrollments, setEnrollments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedCourse, setSelectedCourse] = useState(null)
+  const [expandedCourses, setExpandedCourses] = useState({})
   const [emailModalOpen, setEmailModalOpen] = useState(false)
+  const [selectedCourse, setSelectedCourse] = useState(null)
   const [emailSubject, setEmailSubject] = useState('')
   const [emailMessage, setEmailMessage] = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
@@ -46,6 +47,13 @@ function AdminEnrollments() {
   const handleEmailAllStudents = (courseId) => {
     setSelectedCourse(courseId)
     setEmailModalOpen(true)
+  }
+
+  const toggleCourse = (courseId) => {
+    setExpandedCourses(prev => ({
+      ...prev,
+      [courseId]: !prev[courseId]
+    }))
   }
 
   const sendEmailToAllStudents = async () => {
@@ -117,7 +125,10 @@ function AdminEnrollments() {
         <div className="courses-list">
           {Object.entries(groupedByCourse).map(([courseId, courseData]) => (
             <div key={courseId} className="course-section">
-              <div className="course-header">
+              <div 
+                className="course-header"
+                onClick={() => toggleCourse(courseId)}
+              >
                 <div className="course-info">
                   <h2>{courseData.course_title}</h2>
                   <p className="instructor-name">Instructor: {courseData.instructor_name}</p>
@@ -125,81 +136,91 @@ function AdminEnrollments() {
                     {courseData.students.length} student{courseData.students.length !== 1 ? 's' : ''} enrolled
                   </p>
                 </div>
-                <button 
-                  className="email-all-btn"
-                  onClick={() => handleEmailAllStudents(courseId)}
-                >
-                  📧 Email All Students
-                </button>
+                <div className="course-actions">
+                  <button 
+                    className="email-all-btn"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleEmailAllStudents(courseId)
+                    }}
+                  >
+                    📧 Email All Students
+                  </button>
+                  <button className="toggle-btn">
+                    {expandedCourses[courseId] ? '▼' : '▶'}
+                  </button>
+                </div>
               </div>
 
-              <div className="students-table-container">
-                <table className="students-table">
-                  <thead>
-                    <tr>
-                      <th>Student Name</th>
-                      <th>Email</th>
-                      <th>Status</th>
-                      <th>Age</th>
-                      <th>Grade</th>
-                      <th>Neurodiversity Profile</th>
-                      <th>Interests</th>
-                      <th>Enrolled Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {courseData.students.map((enrollment) => (
-                      <tr key={enrollment.id}>
-                        <td className="student-name">{enrollment.student_name}</td>
-                        <td className="student-email">{enrollment.student_email}</td>
-                        <td>
-                          <span className={`status-badge status-${enrollment.status}`}>
-                            {enrollment.status}
-                          </span>
-                        </td>
-                        <td>{enrollment.age || '-'}</td>
-                        <td>{enrollment.grade_level || '-'}</td>
-                        <td>
-                          <div className="neurodiversity-cell">
-                            {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
-                              enrollment.neurodiversity_profile.map((item, index) => (
-                                <span key={index} className="neurodiversity-tag-small">
-                                  {item}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="no-data">-</span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="interests-cell">
-                            {enrollment.interests && enrollment.interests.length > 0 ? (
-                              enrollment.interests.slice(0, 2).map((interest, index) => (
-                                <span key={index} className="interest-tag-small">
-                                  {interest}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="no-data">-</span>
-                            )}
-                            {enrollment.interests && enrollment.interests.length > 2 && (
-                              <span className="more-tag">+{enrollment.interests.length - 2}</span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="enrollment-date">
-                          {new Date(enrollment.created_at).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          })}
-                        </td>
+              {expandedCourses[courseId] && (
+                <div className="students-table-container">
+                  <table className="students-table">
+                    <thead>
+                      <tr>
+                        <th>Student Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Age</th>
+                        <th>Grade</th>
+                        <th>Neurodiversity Profile</th>
+                        <th>Interests</th>
+                        <th>Enrolled Date</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {courseData.students.map((enrollment) => (
+                        <tr key={enrollment.id}>
+                          <td className="student-name">{enrollment.student_name}</td>
+                          <td className="student-email">{enrollment.student_email}</td>
+                          <td>
+                            <span className={`status-badge status-${enrollment.status}`}>
+                              {enrollment.status}
+                            </span>
+                          </td>
+                          <td>{enrollment.age || '-'}</td>
+                          <td>{enrollment.grade_level || '-'}</td>
+                          <td>
+                            <div className="neurodiversity-cell">
+                              {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
+                                enrollment.neurodiversity_profile.map((item, index) => (
+                                  <span key={index} className="neurodiversity-tag-small">
+                                    {item}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="no-data">-</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="interests-cell">
+                              {enrollment.interests && enrollment.interests.length > 0 ? (
+                                enrollment.interests.slice(0, 2).map((interest, index) => (
+                                  <span key={index} className="interest-tag-small">
+                                    {interest}
+                                  </span>
+                                ))
+                              ) : (
+                                <span className="no-data">-</span>
+                              )}
+                              {enrollment.interests && enrollment.interests.length > 2 && (
+                                <span className="more-tag">+{enrollment.interests.length - 2}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="enrollment-date">
+                            {new Date(enrollment.created_at).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           ))}
         </div>
