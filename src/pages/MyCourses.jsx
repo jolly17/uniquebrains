@@ -309,7 +309,7 @@ function MyCourses() {
                     </Link>
                     <div className="quick-actions">
                       <Link 
-                        to={`/learn/course/${course.id}/manage?tab=chat`} 
+                        to={`/learn/course/${course.id}/view?tab=chat`} 
                         className="quick-action-btn"
                         title="Open Chat"
                       >
