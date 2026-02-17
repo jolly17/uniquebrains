@@ -336,7 +336,7 @@ function StudentCourseView() {
                 {sessions.map(session => {
                   const { date, time } = formatSessionDateTime(session)
                   const isPast = new Date(session.session_date) < now
-                  const meetingLink = session.meeting_link || course.meeting_link
+                  const meetingLink = course.meeting_link
                   
                   return (
                     <div key={session.id} className={`session-item-student ${isPast ? 'past' : 'upcoming'}`}>

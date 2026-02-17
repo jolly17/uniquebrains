@@ -137,7 +137,7 @@ serve(async (req) => {
           sessionDate: session.session_date,
           sessionTime: formatSessionTime(session.session_date, session.courses.timezone),
           duration: session.duration_minutes,
-          meetingLink: session.meeting_link,
+          meetingLink: session.courses.meeting_link,
           courseTitle: session.courses.title,
           courseId: session.courses.id,
           instructorName: session.courses.profiles.full_name,

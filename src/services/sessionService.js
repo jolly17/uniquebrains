@@ -144,7 +144,6 @@ export async function createSession(courseId, sessionData, instructorId) {
       description: sessionData.description?.trim() || '',
       session_date: new Date(sessionData.session_date).toISOString(),
       duration_minutes: sessionData.duration_minutes || sessionData.duration || 60,
-      meeting_link: sessionData.meeting_link || '',
       meeting_password: sessionData.meeting_password || '',
       meeting_platform: sessionData.meeting_platform || null,
       student_id: sessionData.student_id || null, // For 1-on-1 courses
@@ -152,8 +151,8 @@ export async function createSession(courseId, sessionData, instructorId) {
     }
 
     // Validate meeting link if provided
-    if (dbSessionData.meeting_link && !isValidUrl(dbSessionData.meeting_link)) {
-      throw new Error('Invalid meeting link URL')
+    if (dbSessionData.meeting_password && !isValidUrl(dbSessionData.meeting_password)) {
+      throw new Error('Invalid meeting password')
     }
 
     const { data: session, error: sessionError } = await supabase

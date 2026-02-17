@@ -96,7 +96,7 @@ function generateICS(
   const uid = `session-${session.id}@uniquebrains.org`
 
   // Build description with meeting link
-  const description = `${session.description || course.description}\\n\\nMeeting Link: ${session.meeting_link}\\n\\nCourse: ${course.title}`
+  const description = `${session.description || course.description}\\n\\nMeeting Link: ${course.meeting_link}\\n\\nCourse: ${course.title}`
 
   // Status based on action
   const status = action === 'CANCEL' ? 'CANCELLED' : 'CONFIRMED'
@@ -114,7 +114,7 @@ DTSTART:${dtStart}
 DTEND:${dtEnd}
 SUMMARY:${course.title} - ${session.title}
 DESCRIPTION:${description}
-LOCATION:${session.meeting_link}
+LOCATION:${course.meeting_link}
 ORGANIZER;CN=${instructor.first_name} ${instructor.last_name}:mailto:${instructor.email}
 ATTENDEE;CN=${student.first_name} ${student.last_name};RSVP=TRUE:mailto:${student.email}
 STATUS:${status}
@@ -198,7 +198,7 @@ async function sendCalendarEmail(
               <p><strong>Date:</strong> ${new Date(session.session_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
               <p><strong>Time:</strong> ${session.session_time} (${course.timezone || 'UTC'})</p>
               <p><strong>Duration:</strong> ${session.session_duration} minutes</p>
-              ${action !== 'CANCEL' ? `<p><strong>Meeting Link:</strong> <a href="${session.meeting_link}">${session.meeting_link}</a></p>` : ''}
+              ${action !== 'CANCEL' ? `<p><strong>Meeting Link:</strong> <a href="${course.meeting_link}">${course.meeting_link}</a></p>` : ''}
             </div>
           `).join('')}
           
