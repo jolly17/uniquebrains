@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
 import CourseCard from '../components/CourseCard'
+import CourseReviews from '../components/CourseReviews'
 import PageErrorBoundary from '../components/PageErrorBoundary'
 import ErrorState from '../components/ErrorState'
 import { api, handleApiCall } from '../services/api'
@@ -401,6 +402,16 @@ function CourseDetailContent() {
           </div>
         </div>
       )}
+
+      {/* Course Reviews Section */}
+      <CourseReviews 
+        courseId={courseId} 
+        isEnrolled={isEnrolled}
+        onReviewSubmitted={() => {
+          // Optionally refresh course data to update average rating
+          setRetryCount(prev => prev + 1)
+        }}
+      />
 
       {/* Other Courses by This Instructor */}
       {otherCourses.length > 0 && (
