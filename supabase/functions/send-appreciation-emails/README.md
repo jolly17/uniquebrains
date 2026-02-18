@@ -1,113 +1,132 @@
 # Send Appreciation Emails Function
 
-This edge function sends appreciation emails to students who attended sessions in the last 24 hours, asking them to:
-1. Leave a course review
-2. Donate to keep the platform free
+This Supabase Edge Function sends appreciation emails to students after they attend a session. It runs daily at 5 PM GMT to thank students for their participation and encourage them to leave reviews or donate.
 
-## Schedule
+## How It Works
 
-This function should run daily at **5:00 PM GMT** (17:00 UTC).
+1. **Scheduled Execution**: Runs daily at 5 PM GMT via GitHub Actions workflow
+2. **Session Detection**: Finds all sessions that occurred in the last 24 hours
+3. **Student Lookup**: Gets all enrolled students for each session's course
+4. **Email Sending**: Sends personalized appreciation emails via Resend API
 
-## Setup Cron Job
+## Setup Instructions
 
-### Option 1: Using Supabase Dashboard
-
-1. Go to your Supabase project dashboard
-2. Navigate to **Database** → **Cron Jobs** (pg_cron extension)
-3. Create a new cron job with:
-   - **Name**: `send-appreciation-emails`
-   - **Schedule**: `0 17 * * *` (5 PM GMT daily)
-   - **Command**:
-   ```sql
-   SELECT
-     net.http_post(
-       url:='https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-appreciation-emails',
-       headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb
-     ) as request_id;
-   ```
-
-### Option 2: Using SQL
-
-Run this SQL in your Supabase SQL Editor:
-
-```sql
--- Enable pg_cron extension if not already enabled
-CREATE EXTENSION IF NOT EXISTS pg_cron;
-
--- Create the cron job
-SELECT cron.schedule(
-  'send-appreciation-emails',
-  '0 17 * * *',  -- 5 PM GMT daily
-  $$
-  SELECT
-    net.http_post(
-      url:='https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-appreciation-emails',
-      headers:='{"Content-Type": "application/json", "Authorization": "Bearer YOUR_ANON_KEY"}'::jsonb
-    ) as request_id;
-  $$
-);
-```
-
-Replace:
-- `YOUR_PROJECT_REF` with your actual Supabase project reference
-- `YOUR_ANON_KEY` with your Supabase anon key
-
-## Deploy Function
+### 1. Deploy the Edge Function
 
 ```bash
 supabase functions deploy send-appreciation-emails
 ```
 
-## Manual Testing
+### 2. Set Environment Variables
 
-You can manually trigger the function using:
+In your Supabase project dashboard, go to Settings > Edge Functions and add:
+
+- `RESEND_API_KEY`: Your Resend API key for sending emails
+- `SUPABASE_URL`: Your Supabase project URL (auto-set)
+- `SUPABASE_SERVICE_ROLE_KEY`: Your service role key (auto-set)
+
+### 3. Configure GitHub Secrets
+
+The cron job runs via GitHub Actions. Add these secrets to your repository:
+
+1. Go to GitHub repository Settings > Secrets and variables > Actions
+2. Add the following secrets:
+   - `SUPABASE_URL`: Your Supabase project URL (e.g., `https://xxxxx.supabase.co`)
+   - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key
+
+### 4. Verify the Workflow
+
+The GitHub Actions workflow is located at `.github/workflows/send-appreciation-emails.yml`
+
+- **Schedule**: Runs daily at 5 PM GMT (17:00 UTC)
+- **Manual Trigger**: Can be triggered manually from the Actions tab
+
+## Testing
+
+### Test Manually via GitHub Actions
+
+1. Go to your repository's Actions tab
+2. Select "Send Appreciation Emails" workflow
+3. Click "Run workflow" button
+4. Check the logs to see if emails were sent
+
+### Test via curl
 
 ```bash
-curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-appreciation-emails \
-  -H "Authorization: Bearer YOUR_ANON_KEY"
+curl -X POST "https://your-project.supabase.co/functions/v1/send-appreciation-emails" \
+  -H "Authorization: Bearer YOUR_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{}'
 ```
 
-Or from the Supabase Dashboard:
-1. Go to **Edge Functions**
+### Check Logs
+
+View function logs in Supabase Dashboard:
+1. Go to Edge Functions
 2. Select `send-appreciation-emails`
-3. Click **Invoke**
-4. Use GET method with empty body
+3. Click on "Logs" tab
 
 ## Email Content
 
-The email includes:
-- Personalized greeting with student name
-- Gratitude message about their recent session
-- Two call-to-action options:
-  1. **Leave a Review**: Direct link to the course page
-  2. **Donate**: Separate buttons for India (Razorpay) and International (PayPal) donations
-- Heartfelt, touching message to encourage action
-- Beautiful, responsive HTML design
+The appreciation email includes:
 
-## Environment Variables Required
+- **Personalized greeting** with student name
+- **Session details** (course title, instructor name)
+- **Call to action** to leave a course review
+- **Donation links** for India (Milaap) and International (GoFundMe)
+- **Gratitude message** from the UniqueBrains team
 
-- `RESEND_API_KEY`: Your Resend API key for sending emails
-- `SUPABASE_URL`: Your Supabase project URL (auto-provided)
-- `SUPABASE_SERVICE_ROLE_KEY`: Your service role key (auto-provided)
+## Troubleshooting
 
-## Donation Links
+### Emails Not Sending
 
-The function uses these donation links:
-- **India**: Milaap - https://milaap.org/fundraisers/support-autistic-kids-1
-- **International**: GoFundMe - https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai
+1. **Check GitHub Actions logs**: Go to Actions tab and check the workflow run
+2. **Verify secrets are set**: Ensure `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are configured
+3. **Check Edge Function logs**: Look for errors in Supabase dashboard
+4. **Verify Resend API key**: Ensure `RESEND_API_KEY` is set in Edge Function secrets
 
-These are hardcoded in the function. To update them, modify the `indiaDonateLink` and `internationalDonateLink` variables in the `sendAppreciationEmail` function.
+### No Sessions Found
 
-## Monitoring
+The function only processes sessions from the last 24 hours. If no sessions occurred, no emails will be sent. This is expected behavior.
 
-Check the function logs in Supabase Dashboard → Edge Functions → send-appreciation-emails → Logs
+### Cron Job Not Running
 
-The function returns:
+1. **Check GitHub Actions is enabled**: Go to repository Settings > Actions > General
+2. **Verify workflow file**: Ensure `.github/workflows/send-appreciation-emails.yml` exists
+3. **Check workflow runs**: Go to Actions tab to see if the workflow is executing
+
+## Time Zone Notes
+
+- The cron job runs at **5 PM GMT (17:00 UTC)**
+- Adjust the cron expression in the workflow file if you need a different time
+- Cron expression format: `minute hour day month day-of-week`
+- Example: `0 17 * * *` = 5 PM GMT every day
+
+## Function Response
+
+Success response:
 ```json
 {
   "success": true,
-  "sessionsProcessed": 5,
-  "emailsSent": 23,
+  "sessionsProcessed": 2,
+  "emailsSent": 5,
   "emailsFailed": 0
+}
+```
+
+No sessions response:
+```json
+{
+  "success": true,
+  "message": "No sessions found in the last 24 hours",
+  "count": 0
+}
+```
+
+Error response:
+```json
+{
+  "error": "Error message",
+  "stack": "Error stack trace"
 }
 ```

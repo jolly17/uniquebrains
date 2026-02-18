@@ -1,0 +1,33 @@
+name: Send Appreciation Emails
+
+# Run daily at 5 PM GMT (17:00 UTC)
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  send-emails:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Appreciation Emails Function
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/send-appreciation-emails" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            --fail-with-body \
+            --show-error \
+            --verbose
+        
+      - name: Log completion
+        if: success()
+        run: echo "✅ Appreciation emails sent successfully at $(date)"
+        
+      - name: Log failure
+        if: failure()
+        run: |
+          echo "❌ Failed to send appreciation emails at $(date)"
+          exit 1
