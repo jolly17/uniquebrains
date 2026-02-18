@@ -27,10 +27,17 @@ export async function createCourse(courseData, user) {
   }
 
   try {
+    // Debug: Log incoming session time
+    console.log('Session time received in courseService:', courseData.sessionTime)
+    
     // Helper function to convert 12-hour time to 24-hour format for database
     const convertTo24HourFormat = (time12h) => {
-      if (!time12h) return null
+      if (!time12h) {
+        console.log('No session time provided')
+        return null
+      }
       
+      console.log('Converting time:', time12h)
       const [time, modifier] = time12h.split(' ')
       let [hours, minutes] = time.split(':')
       
@@ -42,7 +49,9 @@ export async function createCourse(courseData, user) {
         hours = parseInt(hours, 10) + 12
       }
       
-      return `${String(hours).padStart(2, '0')}:${minutes}:00`
+      const converted = `${String(hours).padStart(2, '0')}:${minutes}:00`
+      console.log('Converted to 24-hour format:', converted)
+      return converted
     }
 
     // Prepare course data for database

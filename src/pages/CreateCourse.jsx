@@ -73,6 +73,9 @@ function CreateCourse() {
       const instructorPrefix = user.id.split('-')[0]
       const meetingLink = `https://meet.jit.si/UB-${instructorPrefix}`
 
+      // Debug: Log the session time value
+      console.log('Session Time from form:', formData.sessionTime)
+
       // Prepare course data for the API
       const courseData = {
         title: formData.title,
@@ -91,6 +94,8 @@ function CreateCourse() {
         selectedDays: formData.selectedDays,
         endDate: formData.endDate || null // Optional end date
       }
+
+      console.log('Course data being sent:', courseData)
 
       // Use the new API service to create the course
       const result = await handleApiCall(api.courses.create, courseData, user)
