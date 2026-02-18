@@ -69,9 +69,9 @@ function CreateCourse() {
     setError('')
 
     try {
-      // Generate meeting link from instructor ID (first part before the dash)
+      // Generate meeting link from instructor ID with UB- prefix
       const instructorPrefix = user.id.split('-')[0]
-      const meetingLink = `https://meet.jit.si/${instructorPrefix}`
+      const meetingLink = `https://meet.jit.si/UB-${instructorPrefix}`
 
       // Prepare course data for the API
       const courseData = {
@@ -82,7 +82,7 @@ function CreateCourse() {
         courseType: formData.courseType,
         sessionDuration: formData.sessionDuration,
         enrollmentLimit: formData.enrollmentLimit,
-        meetingLink: meetingLink, // Auto-generated meeting link
+        meetingLink: meetingLink, // Auto-generated meeting link with UB- prefix
         timezone: formData.timezone, // Store instructor's timezone
         frequency: formData.frequency, // weekly, biweekly, or never
         // Schedule data for session creation
@@ -108,6 +108,7 @@ function CreateCourse() {
     } catch (error) {
       console.error('Error creating course:', error)
       setError(error.message || 'Failed to create course. Please try again.')
+      // Don't navigate away - keep user on form to fix the error
     } finally {
       setLoading(false)
     }

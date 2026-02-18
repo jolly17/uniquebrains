@@ -1,10 +1,10 @@
 -- Migration: Update missing meeting links for courses and remove session meeting_link column
--- Auto-generate Jitsi meeting links based on instructor ID
+-- Auto-generate Jitsi meeting links based on instructor ID with UB- prefix
 -- Simplify to use only course-level meeting links
 
 -- Update courses where meeting_link is NULL or empty
 UPDATE courses
-SET meeting_link = 'https://meet.jit.si/' || SPLIT_PART(instructor_id::text, '-', 1)
+SET meeting_link = 'https://meet.jit.si/UB-' || SPLIT_PART(instructor_id::text, '-', 1)
 WHERE meeting_link IS NULL OR meeting_link = '';
 
 -- Drop meeting_link column from sessions table (use course meeting_link instead)
@@ -35,4 +35,4 @@ WHERE s.session_date > NOW()
 ORDER BY s.session_date ASC;
 
 -- Add comment explaining the meeting link format
-COMMENT ON COLUMN courses.meeting_link IS 'Auto-generated Jitsi meeting link based on instructor ID prefix - used for all sessions in this course';
+COMMENT ON COLUMN courses.meeting_link IS 'Auto-generated Jitsi meeting link with UB- prefix based on instructor ID - used for all sessions in this course';
