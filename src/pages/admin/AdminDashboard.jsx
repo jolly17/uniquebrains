@@ -10,7 +10,8 @@ function AdminDashboard() {
     total_courses: 0,
     total_instructors: 0,
     total_students: 0,
-    total_enrollments: 0
+    total_enrollments: 0,
+    total_topics: 0
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -57,74 +58,49 @@ function AdminDashboard() {
 
       {/* Statistics Cards */}
       <div className="stats-grid">
-        <div className="stat-card">
+        <div className="stat-card clickable" onClick={() => navigate('/admin/courses')}>
           <div className="stat-icon">📚</div>
           <div className="stat-content">
             <div className="stat-value">{stats.total_courses}</div>
             <div className="stat-label">Total Courses</div>
           </div>
+          <div className="stat-arrow">→</div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card clickable" onClick={() => navigate('/admin/instructors')}>
           <div className="stat-icon">👨‍🏫</div>
           <div className="stat-content">
             <div className="stat-value">{stats.total_instructors}</div>
             <div className="stat-label">Instructors</div>
           </div>
+          <div className="stat-arrow">→</div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card clickable" onClick={() => navigate('/admin/students')}>
           <div className="stat-icon">👥</div>
           <div className="stat-content">
             <div className="stat-value">{stats.total_students}</div>
             <div className="stat-label">Students</div>
           </div>
+          <div className="stat-arrow">→</div>
         </div>
 
-        <div className="stat-card">
+        <div className="stat-card clickable" onClick={() => navigate('/admin/enrollments')}>
           <div className="stat-icon">📝</div>
           <div className="stat-content">
             <div className="stat-value">{stats.total_enrollments}</div>
             <div className="stat-label">Enrollments</div>
           </div>
+          <div className="stat-arrow">→</div>
         </div>
-      </div>
 
-      {/* Quick Actions */}
-      <div className="quick-actions-section">
-        <h2>Quick Actions</h2>
-        <div className="quick-actions-grid">
-          <button 
-            className="quick-action-btn"
-            onClick={() => navigate('/admin/courses')}
-          >
-            <span className="action-icon">📚</span>
-            <span className="action-label">Manage Courses</span>
-          </button>
-
-          <button 
-            className="quick-action-btn"
-            onClick={() => navigate('/admin/instructors')}
-          >
-            <span className="action-icon">👨‍🏫</span>
-            <span className="action-label">Manage Instructors</span>
-          </button>
-
-          <button 
-            className="quick-action-btn"
-            onClick={() => navigate('/admin/students')}
-          >
-            <span className="action-icon">👥</span>
-            <span className="action-label">Manage Students</span>
-          </button>
-
-          <button 
-            className="quick-action-btn"
-            onClick={() => navigate('/admin/analytics')}
-          >
-            <span className="action-icon">📈</span>
-            <span className="action-label">View Analytics</span>
-          </button>
+        <div className="stat-card clickable" onClick={() => navigate('/admin/topics')}>
+          <div className="stat-icon">💬</div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total_topics}</div>
+            <div className="stat-label">Community Topics</div>
+          </div>
+          <div className="stat-arrow">→</div>
         </div>
       </div>
 

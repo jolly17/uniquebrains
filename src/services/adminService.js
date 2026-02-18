@@ -531,18 +531,20 @@ export async function fetchCourseEnrollments() {
 export async function fetchDashboardStats() {
   try {
     // Fetch counts for all entities
-    const [coursesResult, instructorsResult, studentsResult, enrollmentsResult] = await Promise.all([
+    const [coursesResult, instructorsResult, studentsResult, enrollmentsResult, topicsResult] = await Promise.all([
       supabase.from('courses').select('id', { count: 'exact', head: true }),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'instructor'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
-      supabase.from('enrollments').select('id', { count: 'exact', head: true })
+      supabase.from('enrollments').select('id', { count: 'exact', head: true }),
+      supabase.from('topics').select('id', { count: 'exact', head: true })
     ])
 
     return {
       total_courses: coursesResult.count || 0,
       total_instructors: instructorsResult.count || 0,
       total_students: studentsResult.count || 0,
-      total_enrollments: enrollmentsResult.count || 0
+      total_enrollments: enrollmentsResult.count || 0,
+      total_topics: topicsResult.count || 0
     }
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
