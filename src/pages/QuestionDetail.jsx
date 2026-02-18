@@ -43,6 +43,7 @@ function QuestionDetail() {
         getQuestionById(id),
         getAnswersByQuestion(id)
       ])
+      console.log('Fetched answers with vote counts:', answersData.map(a => ({ id: a.id, vote_count: a.vote_count })))
       setQuestion(questionData)
       setAnswers(answersData)
     } catch (err) {
