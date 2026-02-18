@@ -102,6 +102,15 @@ function AdminLayout() {
           </NavLink>
 
           <NavLink 
+            to="/admin/topics"
+            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+            onClick={closeSidebar}
+          >
+            <span className="nav-icon">💬</span>
+            <span>Community Topics</span>
+          </NavLink>
+
+          <NavLink 
             to="/admin/sessions"
             className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
             onClick={closeSidebar}

@@ -45,7 +45,7 @@
 - [x] 5.6 Style activity feed with scrollable container
 
 ### Task 6: Create analytics service
-- [ ] 6.1 Create src/services/analyticsService.js
+- [~] 6.1 Create src/services/analyticsService.js
 - [ ] 6.2 Implement fetchUserSignups(timeRange) function
 - [ ] 6.3 Implement fetchCoursesCreated(timeRange) function
 - [ ] 6.4 Implement fetchActiveStudents(timeRange) function

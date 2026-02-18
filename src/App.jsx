@@ -40,6 +40,7 @@ import AdminCourses from './pages/admin/AdminCourses'
 import AdminInstructors from './pages/admin/AdminInstructors'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminEnrollments from './pages/admin/AdminEnrollments'
+import AdminTopics from './pages/admin/AdminTopics'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -221,6 +222,7 @@ function App() {
             <Route path="instructors" element={<AdminInstructors />} />
             <Route path="students" element={<AdminStudents />} />
             <Route path="enrollments" element={<AdminEnrollments />} />
+            <Route path="topics" element={<AdminTopics />} />
           </Route>
         </Routes>
       </Router>

@@ -1,0 +1,303 @@
+.admin-topics {
+  padding: 2rem;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+}
+
+.page-subtitle {
+  color: #6b7280;
+  margin: 0;
+}
+
+.topics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topic-item {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.topic-image {
+  flex-shrink: 0;
+  width: 200px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.topic-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.topic-info {
+  flex: 1;
+}
+
+.topic-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+  color: #1f2937;
+}
+
+.topic-description {
+  color: #6b7280;
+  margin: 0 0 1rem 0;
+  font-size: 0.95rem;
+}
+
+.topic-meta {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  font-size: 0.875rem;
+}
+
+.topic-slug {
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.topic-featured {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+.topic-featured.active {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.topic-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-toggle {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-edit {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #4338ca;
+}
+
+.btn-toggle {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-toggle:hover {
+  background: #d1d5db;
+}
+
+.btn-toggle.featured {
+  background: #fbbf24;
+  color: #78350f;
+}
+
+.btn-toggle.featured:hover {
+  background: #f59e0b;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h2 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+}
+
+.modal-subtitle {
+  color: #6b7280;
+  margin: 0 0 1.5rem 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.image-url-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.image-url-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.field-hint {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.image-preview {
+  margin: 1.5rem 0;
+}
+
+.image-preview label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.btn-cancel:hover {
+  background: #f9fafb;
+}
+
+.btn-save {
+  background: #4f46e5;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #4338ca;
+}
+
+.btn-save:disabled,
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading,
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.error-message {
+  color: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topic-item {
+    flex-direction: column;
+  }
+
+  .topic-image {
+    width: 100%;
+    height: 150px;
+  }
+
+  .topic-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .btn-edit,
+  .btn-toggle {
+    flex: 1;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    width: 100%;
+  }
+}

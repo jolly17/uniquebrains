@@ -11,9 +11,11 @@ function CreateTopic() {
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
-    description: '',
-    cover_image_url: ''
+    description: ''
   })
+
+  // Default cover image - UniqueBrains logo
+  const DEFAULT_COVER_IMAGE = 'https://uniquebrains.org/uniquebrains-logo.png.png'
 
   useEffect(() => {
     if (!user) {
@@ -41,7 +43,7 @@ function CreateTopic() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!formData.name.trim() || !formData.description.trim() || !formData.cover_image_url.trim()) {
+    if (!formData.name.trim() || !formData.description.trim()) {
       setError('Please fill in all required fields')
       return
     }
@@ -56,7 +58,7 @@ function CreateTopic() {
         name: formData.name.trim(),
         slug: slug,
         description: formData.description.trim(),
-        cover_image_url: formData.cover_image_url.trim(),
+        cover_image_url: DEFAULT_COVER_IMAGE,
         created_by: user.id,
         is_featured: false
       }
@@ -114,38 +116,6 @@ function CreateTopic() {
               required
             />
           </div>
-
-          <div className="form-group">
-            <label htmlFor="cover_image_url">Cover Image URL *</label>
-            <input
-              type="url"
-              id="cover_image_url"
-              name="cover_image_url"
-              value={formData.cover_image_url}
-              onChange={handleChange}
-              placeholder="https://example.com/cover-image.jpg"
-              required
-            />
-            <span className="field-hint">
-              Add a beautiful cover image that represents this topic (recommended size: 800x400px)
-            </span>
-          </div>
-
-          {formData.cover_image_url && (
-            <div className="image-preview">
-              <label>Preview:</label>
-              <img 
-                src={formData.cover_image_url} 
-                alt="Cover preview"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                }}
-                onLoad={(e) => {
-                  e.target.style.display = 'block'
-                }}
-              />
-            </div>
-          )}
 
           <div className="form-actions">
             <Link to="/community" className="btn-cancel">
