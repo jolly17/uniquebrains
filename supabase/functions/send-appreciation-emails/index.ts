@@ -180,8 +180,8 @@ async function sendAppreciationEmail(
   studentEmail: string
 ) {
   const courseUrl = `https://uniquebrains.org/courses/${data.courseId}`
-  const indiaDonateLinkRazorpay = 'https://pages.razorpay.com/pl_PGvJVLbfn0QQKL/view'
-  const internationalDonateLinkPayPal = 'https://www.paypal.com/donate/?hosted_button_id=YOUR_BUTTON_ID'
+  const indiaDonateLink = 'https://milaap.org/fundraisers/support-autistic-kids-1'
+  const internationalDonateLink = 'https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai'
 
   const html = `
     <!DOCTYPE html>
@@ -256,8 +256,8 @@ async function sendAppreciationEmail(
                 Your donation, no matter how small, helps us keep the platform free and continue supporting our community.
               </p>
               <div class="donate-buttons">
-                <a href="${indiaDonateLinkRazorpay}" class="button btn-india">🇮🇳 Donate (India)</a>
-                <a href="${internationalDonateLinkPayPal}" class="button btn-international">🌍 Donate (International)</a>
+                <a href="${indiaDonateLink}" class="button btn-india">🇮🇳 Donate (India - Milaap)</a>
+                <a href="${internationalDonateLink}" class="button btn-international">🌍 Donate (International - GoFundMe)</a>
               </div>
             </div>
           </div>

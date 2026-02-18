@@ -92,9 +92,11 @@ The email includes:
 
 ## Donation Links
 
-Update these in the function code:
-- **India**: `indiaDonateLinkRazorpay` - Currently set to Razorpay payment link
-- **International**: `internationalDonateLinkPayPal` - Update with your PayPal donation button ID
+The function uses these donation links:
+- **India**: Milaap - https://milaap.org/fundraisers/support-autistic-kids-1
+- **International**: GoFundMe - https://www.gofundme.com/f/help-me-support-autism-awareness-and-families-with-genai
+
+These are hardcoded in the function. To update them, modify the `indiaDonateLink` and `internationalDonateLink` variables in the `sendAppreciationEmail` function.
 
 ## Monitoring
 
