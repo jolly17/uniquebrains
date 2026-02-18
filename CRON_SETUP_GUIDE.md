@@ -1,114 +1,153 @@
-# Appreciation Emails Cron Job Setup Guide
+# Appreciation Emails Cron Job Fix Guide
 
 ## Problem
-The send-appreciation-emails cron job was not configured, so emails didn't send automatically at 5 PM GMT.
+The send-appreciation-emails cron job was configured but didn't trigger at 5 PM. The issue was with the cron job configuration.
 
-## Solution
-I've set up a GitHub Actions workflow that will trigger the Supabase Edge Function daily at 5 PM GMT.
+## Issues Found in Your Existing Cron Job
 
-## Setup Steps (Required)
+1. **Duplicate URL**: `https://https://wxfxvuvlpjxnyxhpquyw.supabase.co.supabase.co/`
+   - Should be: `https://wxfxvuvlpjxnyxhpquyw.supabase.co/`
 
-### 1. Add GitHub Secrets
+2. **Wrong API Key**: Using `anon` key instead of `service_role` key
+   - The `anon` key has limited permissions
+   - The `service_role` key is needed to bypass RLS and access all data
 
-You need to add two secrets to your GitHub repository:
+## Solution: Fix the Existing Cron Job
 
-1. Go to your GitHub repository: https://github.com/jolly17/uniquebrains
-2. Click on **Settings** tab
-3. In the left sidebar, click **Secrets and variables** > **Actions**
-4. Click **New repository secret** button
+### Step 1: Run the Fix Script
 
-Add these two secrets:
+Run this SQL in your Supabase SQL Editor:
 
-#### Secret 1: SUPABASE_URL
-- **Name**: `SUPABASE_URL`
-- **Value**: Your Supabase project URL (e.g., `https://xxxxx.supabase.co`)
-- You can find this in your Supabase project settings
+```sql
+-- Remove the broken cron job
+SELECT cron.unschedule('send-appreciation-emails');
 
-#### Secret 2: SUPABASE_SERVICE_ROLE_KEY
-- **Name**: `SUPABASE_SERVICE_ROLE_KEY`
-- **Value**: Your Supabase service role key
-- You can find this in Supabase Dashboard > Project Settings > API > service_role key (secret)
+-- Create the corrected cron job
+-- Replace YOUR_SERVICE_ROLE_KEY with your actual service role key
+SELECT cron.schedule(
+  'send-appreciation-emails',
+  '0 17 * * *',  -- 5 PM GMT daily
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://wxfxvuvlpjxnyxhpquyw.supabase.co/functions/v1/send-appreciation-emails',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
+    ) as request_id;
+  $$
+);
+```
 
-### 2. Verify the Workflow
+### Step 2: Get Your Service Role Key
 
-After adding the secrets:
+1. Go to Supabase Dashboard
+2. Navigate to **Settings** > **API**
+3. Find **service_role** key (it's marked as "secret")
+4. Copy the key
+5. Replace `YOUR_SERVICE_ROLE_KEY` in the SQL above with this key
 
-1. Go to the **Actions** tab in your GitHub repository
-2. You should see a workflow called "Send Appreciation Emails"
-3. The workflow will run automatically every day at 5 PM GMT (17:00 UTC)
+### Step 3: Verify the Cron Job
 
-### 3. Test Manually (Optional)
+Run this to check if the cron job is configured correctly:
 
-To test if it works right now:
+```sql
+SELECT * FROM cron.job WHERE jobname = 'send-appreciation-emails';
+```
 
-1. Go to **Actions** tab
-2. Click on "Send Appreciation Emails" workflow
-3. Click the **Run workflow** button (dropdown on the right)
-4. Click the green **Run workflow** button
-5. Wait a few seconds and refresh the page
-6. Click on the workflow run to see the logs
+You should see:
+- `jobname`: send-appreciation-emails
+- `schedule`: 0 17 * * *
+- `active`: true
 
-## How It Works
+## Why This Happened
 
-1. **GitHub Actions** runs the workflow daily at 5 PM GMT
-2. The workflow makes an HTTP POST request to your Supabase Edge Function
-3. The Edge Function:
-   - Finds sessions that happened in the last 24 hours
-   - Gets all enrolled students for those sessions
-   - Sends appreciation emails via Resend API
+Your original SQL had these issues:
+
+```sql
+-- WRONG:
+url := 'https://https://wxfxvuvlpjxnyxhpquyw.supabase.co.supabase.co/functions/v1/send-appreciation-emails'
+--         ^^^^^^ duplicate                          ^^^^^^^^^^^^^^ duplicate
+
+-- WRONG:
+"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."  -- This is the anon key
+--                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Limited permissions
+
+-- CORRECT:
+url := 'https://wxfxvuvlpjxnyxhpquyw.supabase.co/functions/v1/send-appreciation-emails'
+"Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"  -- Full permissions
+```
 
 ## Monitoring
 
-### Check if emails were sent:
-1. Go to GitHub repository > **Actions** tab
-2. Look for "Send Appreciation Emails" workflow runs
-3. Click on a run to see the logs
-4. You'll see either:
-   - ✅ Success: "Appreciation emails sent successfully"
-   - ❌ Failure: Error details in the logs
+### Check if the cron job ran:
 
-### Check Supabase logs:
+```sql
+SELECT * 
+FROM cron.job_run_details 
+WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'send-appreciation-emails') 
+ORDER BY start_time DESC 
+LIMIT 10;
+```
+
+Look for:
+- `status`: 'succeeded' or 'failed'
+- `return_message`: Response from the function
+- `start_time`: When it ran
+
+### Check Edge Function logs:
+
 1. Go to Supabase Dashboard
 2. Navigate to **Edge Functions**
 3. Click on `send-appreciation-emails`
 4. Click on **Logs** tab
-5. You'll see detailed logs of what happened
 
-## Troubleshooting
+## Testing
 
-### Workflow not running?
-- Check that GitHub Actions is enabled in your repository settings
-- Verify the workflow file exists at `.github/workflows/send-appreciation-emails.yml`
+### Test the cron job manually:
 
-### Emails not sending?
-1. Check GitHub Actions logs for errors
-2. Verify both secrets are set correctly
-3. Check Supabase Edge Function logs
-4. Ensure `RESEND_API_KEY` is set in Supabase Edge Function secrets
-
-### No emails sent but no errors?
-- This is normal if no sessions occurred in the last 24 hours
-- The function only sends emails for sessions that happened recently
-
-## Time Zone Reference
-
-- **5 PM GMT** = **17:00 UTC**
-- If you're in a different timezone:
-  - EST: 12 PM (noon)
-  - PST: 9 AM
-  - IST: 10:30 PM
-
-To change the time, edit the cron expression in `.github/workflows/send-appreciation-emails.yml`:
-```yaml
-schedule:
-  - cron: '0 17 * * *'  # Change '17' to your desired hour (0-23 in UTC)
+```sql
+-- This will trigger the function immediately
+SELECT
+  net.http_post(
+    url := 'https://wxfxvuvlpjxnyxhpquyw.supabase.co/functions/v1/send-appreciation-emails',
+    headers := '{"Content-Type": "application/json", "Authorization": "Bearer YOUR_SERVICE_ROLE_KEY"}'::jsonb
+  ) as request_id;
 ```
+
+## Comparison with Session Reminders
+
+If your session reminders cron job works correctly, it should look similar to this:
+
+```sql
+SELECT cron.schedule(
+  'send-session-reminders',
+  '0 9 * * *',  -- Or whatever schedule you use
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://wxfxvuvlpjxnyxhpquyw.supabase.co/functions/v1/send-session-reminders',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer SERVICE_ROLE_KEY"}'::jsonb
+    ) as request_id;
+  $$
+);
+```
+
+The key differences in your broken appreciation emails cron were:
+1. URL had duplicates
+2. Used anon key instead of service_role key
 
 ## Next Steps
 
-1. ✅ Add the two GitHub secrets (SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY)
-2. ✅ Test the workflow manually to verify it works
-3. ✅ Wait until 5 PM GMT tomorrow to see if it runs automatically
-4. ✅ Check the logs to confirm emails were sent
+1. ✅ Run the fix script above with your service_role key
+2. ✅ Verify the cron job is configured correctly
+3. ✅ Test it manually to ensure it works
+4. ✅ Wait until 5 PM GMT to see if it runs automatically
+5. ✅ Check the logs to confirm emails were sent
 
-That's it! The cron job is now properly configured and will run automatically every day at 5 PM GMT.
+## Note About GitHub Actions
+
+You can **ignore the GitHub Actions workflow** I created earlier. Since you already have `pg_cron` set up in Supabase, you don't need it. The GitHub Actions approach was a fallback solution for when `pg_cron` isn't available.
+
+You can delete the workflow file if you want:
+- `.github/workflows/send-appreciation-emails.yml`
+
+Or keep it as a backup option in case the Supabase cron ever has issues.
