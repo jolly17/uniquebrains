@@ -36,6 +36,7 @@ import CreateTopic from './pages/CreateTopic'
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminAnalytics from './pages/admin/AdminAnalytics'
 import AdminCourses from './pages/admin/AdminCourses'
 import AdminInstructors from './pages/admin/AdminInstructors'
 import AdminStudents from './pages/admin/AdminStudents'
@@ -218,6 +219,7 @@ function App() {
             </AdminRoute>
           }>
             <Route index element={<AdminDashboard />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="courses" element={<AdminCourses />} />
             <Route path="instructors" element={<AdminInstructors />} />
             <Route path="students" element={<AdminStudents />} />

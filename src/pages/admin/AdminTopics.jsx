@@ -7,8 +7,13 @@ function AdminTopics() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [editingTopic, setEditingTopic] = useState(null)
+  const [editMode, setEditMode] = useState('image') // 'image' | 'details'
   const [imageUrl, setImageUrl] = useState('')
+  const [topicName, setTopicName] = useState('')
+  const [topicDescription, setTopicDescription] = useState('')
   const [updating, setUpdating] = useState(false)
+  const [deletingTopic, setDeletingTopic] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchTopics()
@@ -32,14 +37,25 @@ function AdminTopics() {
     }
   }
 
-  const handleEditClick = (topic) => {
+  const handleEditImageClick = (topic) => {
     setEditingTopic(topic)
+    setEditMode('image')
     setImageUrl(topic.cover_image_url || '')
+  }
+
+  const handleEditDetailsClick = (topic) => {
+    setEditingTopic(topic)
+    setEditMode('details')
+    setTopicName(topic.name || '')
+    setTopicDescription(topic.description || '')
   }
 
   const handleCancelEdit = () => {
     setEditingTopic(null)
+    setEditMode('image')
     setImageUrl('')
+    setTopicName('')
+    setTopicDescription('')
   }
 
   const handleUpdateImage = async () => {
@@ -71,6 +87,84 @@ function AdminTopics() {
       alert('Failed to update topic image')
     } finally {
       setUpdating(false)
+    }
+  }
+
+  const handleUpdateDetails = async () => {
+    if (!editingTopic || !topicName.trim() || !topicDescription.trim()) {
+      alert('Please fill in all fields')
+      return
+    }
+
+    try {
+      setUpdating(true)
+      
+      // Generate new slug from name
+      const newSlug = topicName
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+
+      const { error } = await supabase
+        .from('topics')
+        .update({ 
+          name: topicName.trim(),
+          slug: newSlug,
+          description: topicDescription.trim()
+        })
+        .eq('id', editingTopic.id)
+
+      if (error) throw error
+
+      // Update local state
+      setTopics(topics.map(t => 
+        t.id === editingTopic.id 
+          ? { ...t, name: topicName.trim(), slug: newSlug, description: topicDescription.trim() }
+          : t
+      ))
+
+      alert('Topic details updated successfully!')
+      handleCancelEdit()
+    } catch (err) {
+      console.error('Error updating topic:', err)
+      alert('Failed to update topic details. The topic name might already exist.')
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const handleDeleteClick = (topic) => {
+    setDeletingTopic(topic)
+  }
+
+  const handleCancelDelete = () => {
+    setDeletingTopic(null)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!deletingTopic) return
+
+    try {
+      setDeleting(true)
+      const { error } = await supabase
+        .from('topics')
+        .delete()
+        .eq('id', deletingTopic.id)
+
+      if (error) throw error
+
+      // Update local state
+      setTopics(topics.filter(t => t.id !== deletingTopic.id))
+
+      alert('Topic deleted successfully!')
+      handleCancelDelete()
+    } catch (err) {
+      console.error('Error deleting topic:', err)
+      alert('Failed to delete topic. It may have associated questions.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -142,7 +236,13 @@ function AdminTopics() {
             </div>
             <div className="topic-actions">
               <button 
-                onClick={() => handleEditClick(topic)}
+                onClick={() => handleEditDetailsClick(topic)}
+                className="btn-edit"
+              >
+                Edit Details
+              </button>
+              <button 
+                onClick={() => handleEditImageClick(topic)}
                 className="btn-edit"
               >
                 Change Image
@@ -153,13 +253,19 @@ function AdminTopics() {
               >
                 {topic.is_featured ? 'Unfeature' : 'Feature'}
               </button>
+              <button 
+                onClick={() => handleDeleteClick(topic)}
+                className="btn-delete"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
       </div>
 
       {/* Edit Modal */}
-      {editingTopic && (
+      {editingTopic && editMode === 'image' && (
         <div className="modal-overlay" onClick={handleCancelEdit}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>Update Cover Image</h2>
@@ -210,6 +316,93 @@ function AdminTopics() {
                 disabled={updating || !imageUrl.trim()}
               >
                 {updating ? 'Updating...' : 'Update Image'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Details Modal */}
+      {editingTopic && editMode === 'details' && (
+        <div className="modal-overlay" onClick={handleCancelEdit}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h2>Edit Topic Details</h2>
+            <p className="modal-subtitle">Update topic name and description</p>
+
+            <div className="form-group">
+              <label htmlFor="topicName">Topic Name *</label>
+              <input
+                type="text"
+                id="topicName"
+                value={topicName}
+                onChange={(e) => setTopicName(e.target.value)}
+                placeholder="e.g., Food & Recipe Ideas"
+                className="text-input"
+                maxLength={100}
+              />
+              <span className="field-hint">
+                {topicName.length}/100 characters
+              </span>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="topicDescription">Description *</label>
+              <textarea
+                id="topicDescription"
+                value={topicDescription}
+                onChange={(e) => setTopicDescription(e.target.value)}
+                placeholder="Describe what this topic is about..."
+                className="textarea-input"
+                rows={5}
+              />
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                onClick={handleCancelEdit}
+                className="btn-cancel"
+                disabled={updating}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleUpdateDetails}
+                className="btn-save"
+                disabled={updating || !topicName.trim() || !topicDescription.trim()}
+              >
+                {updating ? 'Updating...' : 'Update Details'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingTopic && (
+        <div className="modal-overlay" onClick={handleCancelDelete}>
+          <div className="modal-content delete-modal" onClick={(e) => e.stopPropagation()}>
+            <h2>Delete Topic</h2>
+            <p className="modal-subtitle warning">
+              Are you sure you want to delete "{deletingTopic.name}"?
+            </p>
+            <p className="warning-text">
+              This will permanently delete the topic and all associated questions and answers. This action cannot be undone.
+            </p>
+
+            <div className="modal-actions">
+              <button 
+                onClick={handleCancelDelete}
+                className="btn-cancel"
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleConfirmDelete}
+                className="btn-delete-confirm"
+                disabled={deleting}
+              >
+                {deleting ? 'Deleting...' : 'Delete Topic'}
               </button>
             </div>
           </div>

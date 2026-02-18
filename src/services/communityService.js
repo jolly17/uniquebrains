@@ -47,13 +47,27 @@ export async function getTopicBySlug(slug) {
 }
 
 export async function createTopic(topicData) {
+  // Validate required fields
+  if (!topicData.created_by) {
+    throw new Error('User ID is required to create a topic')
+  }
+  
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(topicData.created_by)) {
+    throw new Error(`Invalid user ID format: ${topicData.created_by}`)
+  }
+
   const { data, error } = await supabase
     .from('topics')
     .insert([topicData])
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    console.error('Error fetching topic:', error)
+    throw error
+  }
   return data
 }
 
@@ -65,8 +79,12 @@ export async function getQuestionsByTopic(topicSlugOrId, sortBy = 'recent') {
   // First get the topic to get its ID
   let topicId = topicSlugOrId
   
-  // If it looks like a slug (contains dashes), fetch the topic first
-  if (typeof topicSlugOrId === 'string' && topicSlugOrId.includes('-')) {
+  // Check if it's a valid UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  const isUUID = uuidRegex.test(topicSlugOrId)
+  
+  // If it's not a UUID, treat it as a slug and fetch the topic first
+  if (!isUUID) {
     const topic = await getTopicBySlug(topicSlugOrId)
     topicId = topic.id
   }

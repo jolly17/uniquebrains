@@ -48,6 +48,19 @@ function CreateTopic() {
       return
     }
 
+    if (!user || !user.id) {
+      setError('You must be logged in to create a topic')
+      return
+    }
+
+    // Validate user.id is a valid UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(user.id)) {
+      console.error('Invalid user ID format:', user.id)
+      setError('Invalid user session. Please log out and log back in.')
+      return
+    }
+
     try {
       setSubmitting(true)
       setError('')
@@ -63,11 +76,12 @@ function CreateTopic() {
         is_featured: false
       }
 
+      console.log('Creating topic with data:', topicData)
       const newTopic = await createTopic(topicData)
       navigate(`/community/${newTopic.slug}`)
     } catch (err) {
       console.error('Error creating topic:', err)
-      setError('Failed to create topic. The topic name might already exist.')
+      setError(err.message || 'Failed to create topic. The topic name might already exist.')
     } finally {
       setSubmitting(false)
     }
