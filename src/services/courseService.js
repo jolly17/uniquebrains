@@ -27,6 +27,24 @@ export async function createCourse(courseData, user) {
   }
 
   try {
+    // Helper function to convert 12-hour time to 24-hour format for database
+    const convertTo24HourFormat = (time12h) => {
+      if (!time12h) return null
+      
+      const [time, modifier] = time12h.split(' ')
+      let [hours, minutes] = time.split(':')
+      
+      if (hours === '12') {
+        hours = '00'
+      }
+      
+      if (modifier === 'PM') {
+        hours = parseInt(hours, 10) + 12
+      }
+      
+      return `${String(hours).padStart(2, '0')}:${minutes}:00`
+    }
+
     // Prepare course data for database
     const dbCourseData = {
       title: courseData.title.trim(),
@@ -47,7 +65,7 @@ export async function createCourse(courseData, user) {
       start_date: courseData.startDate || null,
       end_date: courseData.endDate || null,
       has_end_date: courseData.hasEndDate || false,
-      session_time: courseData.sessionTime || null,
+      session_time: convertTo24HourFormat(courseData.sessionTime),
       selected_days: courseData.selectedDays || null,
       frequency: courseData.frequency || 'weekly'
     }
