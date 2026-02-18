@@ -45,24 +45,24 @@
 - [x] 5.6 Style activity feed with scrollable container
 
 ### Task 6: Create analytics service
-- [~] 6.1 Create src/services/analyticsService.js
-- [ ] 6.2 Implement fetchUserSignups(timeRange) function
-- [ ] 6.3 Implement fetchCoursesCreated(timeRange) function
-- [ ] 6.4 Implement fetchActiveStudents(timeRange) function
-- [ ] 6.5 Implement fetchCommunityQuestions(timeRange) function
-- [ ] 6.6 Implement fetchCommunityAnswers(timeRange) function
-- [ ] 6.7 Add data aggregation by day/week based on time range
+- [x] 6.1 Create src/services/analyticsService.js
+- [x] 6.2 Implement fetchUserSignups(timeRange) function
+- [x] 6.3 Implement fetchCoursesCreated(timeRange) function
+- [x] 6.4 Implement fetchActiveStudents(timeRange) function
+- [x] 6.5 Implement fetchCommunityQuestions(timeRange) function
+- [x] 6.6 Implement fetchCommunityAnswers(timeRange) function
+- [x] 6.7 Add data aggregation by day/week based on time range
 
 ### Task 7: Create analytics page with timeline graphs
-- [ ] 7.1 Create src/pages/admin/AdminAnalytics.jsx
-- [ ] 7.2 Install and configure chart library (recharts or chart.js)
-- [ ] 7.3 Create LineChart component for continuous metrics
-- [ ] 7.4 Create BarChart component for discrete events
-- [ ] 7.5 Implement time range selector (7d, 30d, 90d, 1y, all)
-- [ ] 7.6 Add percentage change indicators
-- [ ] 7.7 Implement hover tooltips with exact values
-- [ ] 7.8 Create responsive grid layout for graphs
-- [ ] 7.9 Handle "no data available" states
+- [x] 7.1 Create src/pages/admin/AdminAnalytics.jsx
+- [x] 7.2 Install and configure chart library (recharts or chart.js)
+- [x] 7.3 Create LineChart component for continuous metrics
+- [x] 7.4 Create BarChart component for discrete events
+- [x] 7.5 Implement time range selector (7d, 30d, 90d, 1y, all)
+- [x] 7.6 Add percentage change indicators
+- [x] 7.7 Implement hover tooltips with exact values
+- [x] 7.8 Create responsive grid layout for graphs
+- [x] 7.9 Handle "no data available" states
 
 ## Phase 3: Shared Components
 
@@ -110,7 +110,7 @@
 - [x] 12.1 Create src/pages/admin/AdminCourses.jsx
 - [x] 12.2 Fetch all courses with instructor names
 - [x] 12.3 Display courses in DataTable with columns: title, instructor, category, status, enrollment count
-- [ ] 12.4 Add filters for instructor, category, status
+- [x] 12.4 Add filters for instructor, category, status
 - [ ] 12.5 Implement search by title or description
 - [x] 12.6 Add edit button for each course
 - [x] 12.7 Add delete button with confirmation

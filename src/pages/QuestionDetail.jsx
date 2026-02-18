@@ -81,13 +81,13 @@ function QuestionDetail() {
     }
 
     try {
-      console.log('Voting on answer:', answerId, 'type:', voteType)
+      console.log('Voting on answer:', answerId, 'type:', voteType, 'user:', user.id)
       const result = await voteAnswer(answerId, voteType)
       console.log('Vote result:', result)
       await fetchQuestionAndAnswers()
     } catch (err) {
-      console.error('Error voting:', err)
-      alert('Failed to vote: ' + err.message)
+      console.error('Error voting on answer:', err)
+      alert('Failed to vote on answer: ' + err.message)
     }
   }
 
