@@ -11,7 +11,6 @@ function MyCourses() {
   const { user, profile, activeStudent, activePortal, availablePortals } = useAuth()
   const [enrolledCourses, setEnrolledCourses] = useState([])
   const [enrollments, setEnrollments] = useState([])
-  const [courseRatings, setCourseRatings] = useState({}) // Store student's ratings
   const [stats, setStats] = useState({
     totalCourses: 0,
     totalInstructors: 0,
@@ -55,19 +54,6 @@ function MyCourses() {
         
         const courses = await Promise.all(coursesPromises)
         setEnrolledCourses(courses)
-        
-        // Fetch student's ratings for each course
-        const ratingsPromises = courses.map(course =>
-          handleApiCall(api.ratings.getStudent, course.id, studentId)
-        )
-        const ratingsData = await Promise.all(ratingsPromises)
-        
-        // Create ratings map
-        const ratingsMap = {}
-        courses.forEach((course, index) => {
-          ratingsMap[course.id] = ratingsData[index]?.rating || 0
-        })
-        setCourseRatings(ratingsMap)
         
         // Calculate stats
         const uniqueInstructors = new Set(courses.map(c => c.instructor_id)).size
@@ -123,38 +109,6 @@ function MyCourses() {
       alert('Failed to unenroll. Please try again.')
     } finally {
       setUnenrollingCourseId(null)
-    }
-  }
-
-  const handleRatingChange = async (courseId, newRating) => {
-    try {
-      const studentId = activeStudent?.id || user.id
-      await handleApiCall(api.ratings.submit, courseId, studentId, newRating)
-      
-      // Update local state
-      setCourseRatings(prev => ({
-        ...prev,
-        [courseId]: newRating
-      }))
-      
-      // Update course average rating
-      const updatedCourses = await Promise.all(
-        enrolledCourses.map(async (course) => {
-          if (course.id === courseId) {
-            const ratingData = await handleApiCall(api.ratings.getCourse, courseId)
-            return {
-              ...course,
-              averageRating: ratingData.averageRating,
-              totalRatings: ratingData.totalRatings
-            }
-          }
-          return course
-        })
-      )
-      setEnrolledCourses(updatedCourses)
-    } catch (error) {
-      console.error('Error submitting rating:', error)
-      alert('Failed to submit rating. Please try again.')
     }
   }
 
@@ -283,22 +237,6 @@ function MyCourses() {
                       <div className="rating-display">
                         <StarRating rating={course.averageRating} />
                         <span className="rating-count">({course.totalRatings} ratings)</span>
-                      </div>
-                      <div className="your-rating">
-                        <label>Your rating:</label>
-                        <div className="rating-stars-interactive">
-                          {[1, 2, 3, 4, 5].map(star => (
-                            <button
-                              key={star}
-                              type="button"
-                              className={`star-button ${courseRatings[course.id] >= star ? 'filled' : ''}`}
-                              onClick={() => handleRatingChange(course.id, star)}
-                              aria-label={`Rate ${star} stars`}
-                            >
-                              ★
-                            </button>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   </div>
