@@ -36,6 +36,11 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
+
+  // Handle GET requests (no body to parse)
+  if (req.method === 'GET') {
+    console.log('GET request - no body to parse')
+  }
   
   try {
     // Initialize Supabase client with service role key
@@ -67,7 +72,6 @@ serve(async (req) => {
         title,
         session_date,
         duration_minutes,
-        meeting_link,
         status,
         course_id,
         courses (
@@ -75,6 +79,7 @@ serve(async (req) => {
           title,
           instructor_id,
           timezone,
+          meeting_link,
           profiles (
             id,
             full_name,
@@ -256,6 +261,25 @@ function formatDateOnly(sessionDate: string): string {
   return date.toLocaleString('en-US', options)
 }
 
+function generateGoogleCalendarLink(data: SessionReminderData): string {
+  const startDate = new Date(data.sessionDate)
+  const endDate = new Date(startDate.getTime() + data.duration * 60000)
+  
+  // Format dates for Google Calendar (YYYYMMDDTHHmmssZ)
+  const formatGoogleDate = (date: Date) => {
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z'
+  }
+  
+  const title = encodeURIComponent(`${data.courseTitle}: ${data.sessionTitle}`)
+  const description = encodeURIComponent(
+    `Course: ${data.courseTitle}\nInstructor: ${data.instructorName}\n${data.meetingLink ? `Meeting Link: ${data.meetingLink}` : 'Meeting link will be shared by instructor'}`
+  )
+  const location = encodeURIComponent(data.meetingLink || 'Online')
+  const dates = `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`
+  
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${description}&location=${location}`
+}
+
 async function sendInstructorReminderEmail(data: SessionReminderData) {
   const meetingLinkSection = data.meetingLink 
     ? `<p><strong>Meeting Link:</strong> <a href="${data.meetingLink}" style="color: #4f46e5;">${data.meetingLink}</a></p>`
@@ -263,6 +287,7 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
 
   const dateOnly = formatDateOnly(data.sessionDate)
   const timezones = formatMultipleTimezones(data.sessionDate)
+  const calendarLink = generateGoogleCalendarLink(data)
 
   const html = `
     <!DOCTYPE html>
@@ -302,6 +327,10 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
             <p style="margin: 0; font-size: 14px; color: #1f2937;">${timezones}</p>
           </div>
           
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${calendarLink}" class="button" style="background: #059669; color: #ffffff !important; text-decoration: none;">📅 Add to Calendar</a>
+          </div>
+          
           <p>Make sure you're prepared and ready to inspire your students! 🌟</p>
           
           <a href="https://uniquebrains.org/teach/course/${data.courseId}/students" class="button" style="color: #ffffff !important;">View Course Dashboard</a>
@@ -338,6 +367,7 @@ async function sendStudentReminderEmail(
 
   const dateOnly = formatDateOnly(data.sessionDate)
   const timezones = formatMultipleTimezones(data.sessionDate)
+  const calendarLink = generateGoogleCalendarLink(data)
 
   const html = `
     <!DOCTYPE html>
@@ -376,6 +406,10 @@ async function sendStudentReminderEmail(
           <div class="timezone-box">
             <p style="margin: 0 0 8px 0; font-weight: 600; color: #1e40af;">🌍 Session Time (Multiple Timezones):</p>
             <p style="margin: 0; font-size: 14px; color: #1f2937;">${timezones}</p>
+          </div>
+          
+          <div style="text-align: center; margin: 20px 0;">
+            <a href="${calendarLink}" class="button" style="background: #7c3aed; color: #ffffff !important; text-decoration: none;">📅 Add to Calendar</a>
           </div>
           
           <p>We're excited to see you in class! Don't forget to:</p>

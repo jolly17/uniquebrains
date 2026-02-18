@@ -102,6 +102,33 @@ async function createCourseSessions(courseId, scheduleData) {
   const startDate = new Date(scheduleData.startDate)
   const frequency = scheduleData.frequency || 'weekly'
   
+  // Validate required fields
+  if (!scheduleData.sessionTime) {
+    console.error('Session time is required to create sessions')
+    return []
+  }
+  
+  if (!scheduleData.sessionDuration) {
+    console.error('Session duration is required to create sessions')
+    return []
+  }
+  
+  // Helper function to convert 12-hour time to 24-hour format
+  const convertTo24Hour = (time12h) => {
+    const [time, modifier] = time12h.split(' ')
+    let [hours, minutes] = time.split(':')
+    
+    if (hours === '12') {
+      hours = '00'
+    }
+    
+    if (modifier === 'PM') {
+      hours = parseInt(hours, 10) + 12
+    }
+    
+    return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) }
+  }
+  
   // Handle one-time events (frequency = 'never')
   // Create one session for each selected day starting from start date
   if (frequency === 'never') {
@@ -110,8 +137,8 @@ async function createCourseSessions(courseId, scheduleData) {
     if (selectedDays.length === 0) {
       // If no days selected, create one session on start date
       const sessionDateTime = new Date(startDate)
-      const [hours, minutes] = scheduleData.sessionTime.split(':')
-      sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+      const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+      sessionDateTime.setHours(hours, minutes, 0, 0)
 
       sessions.push({
         course_id: courseId,
@@ -119,7 +146,6 @@ async function createCourseSessions(courseId, scheduleData) {
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: parseInt(scheduleData.sessionDuration),
-        meeting_link: scheduleData.meetingLink || '',
         status: 'scheduled'
       })
     } else {
@@ -134,8 +160,8 @@ async function createCourseSessions(courseId, scheduleData) {
         
         if (selectedDays.includes(dayName)) {
           const sessionDateTime = new Date(currentDate)
-          const [hours, minutes] = scheduleData.sessionTime.split(':')
-          sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+          const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+          sessionDateTime.setHours(hours, minutes, 0, 0)
 
           sessions.push({
             course_id: courseId,
@@ -143,7 +169,6 @@ async function createCourseSessions(courseId, scheduleData) {
             description: '',
             session_date: sessionDateTime.toISOString(),
             duration_minutes: parseInt(scheduleData.sessionDuration),
-            meeting_link: scheduleData.meetingLink || '',
             status: 'scheduled'
           })
           
@@ -200,8 +225,8 @@ async function createCourseSessions(courseId, scheduleData) {
     
     if (isActiveWeek && scheduleData.selectedDays.includes(dayName)) {
       const sessionDateTime = new Date(currentDate)
-      const [hours, minutes] = scheduleData.sessionTime.split(':')
-      sessionDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+      const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+      sessionDateTime.setHours(hours, minutes, 0, 0)
 
       sessions.push({
         course_id: courseId,
@@ -209,7 +234,6 @@ async function createCourseSessions(courseId, scheduleData) {
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: parseInt(scheduleData.sessionDuration),
-        meeting_link: scheduleData.meetingLink || '',
         status: 'scheduled'
       })
       
