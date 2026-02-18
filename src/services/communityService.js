@@ -85,7 +85,8 @@ export async function getQuestionsByTopic(topicSlugOrId, sortBy = 'recent') {
         id,
         name,
         slug
-      )
+      ),
+      answers:answers(count)
     `)
     .eq('topic_id', topicId)
 
@@ -101,7 +102,12 @@ export async function getQuestionsByTopic(topicSlugOrId, sortBy = 'recent') {
   const { data, error } = await query
 
   if (error) throw error
-  return data
+  
+  // Transform data to include answer_count
+  return data.map(question => ({
+    ...question,
+    answer_count: question.answers?.[0]?.count || 0
+  }))
 }
 
 export async function getQuestionById(questionId) {

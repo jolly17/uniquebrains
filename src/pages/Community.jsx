@@ -77,9 +77,8 @@ function Community() {
                 <p className="topic-description">{topic.description}</p>
                 <div className="topic-stats">
                   <span className="stat">
-                    <span className="stat-icon">💬</span>
+                    <span className="stat-icon">❓</span>
                     <span className="stat-value">{topic.question_count}</span>
-                    <span className="stat-label">Questions</span>
                   </span>
                 </div>
               </div>
