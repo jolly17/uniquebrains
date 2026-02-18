@@ -31,6 +31,54 @@ function AdminCourses() {
     }
   }
 
+  // Extract unique values for filters
+  const getUniqueInstructors = () => {
+    const instructors = new Set()
+    courses.forEach(course => {
+      if (course.instructor_name) {
+        instructors.add(course.instructor_name)
+      }
+    })
+    return Array.from(instructors).sort().map(name => ({
+      value: name,
+      label: name
+    }))
+  }
+
+  const getUniqueCategories = () => {
+    const categories = new Set()
+    courses.forEach(course => {
+      if (course.category) {
+        categories.add(course.category)
+      }
+    })
+    return Array.from(categories).sort().map(cat => ({
+      value: cat,
+      label: cat
+    }))
+  }
+
+  const filters = [
+    {
+      key: 'instructor_name',
+      label: 'Instructor',
+      options: getUniqueInstructors()
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      options: getUniqueCategories()
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      options: [
+        { value: 'published', label: 'Published' },
+        { value: 'draft', label: 'Draft' }
+      ]
+    }
+  ]
+
   const handleEdit = (course) => {
     setEditingCourse(course)
     setShowEditModal(true)
@@ -118,6 +166,7 @@ function AdminCourses() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         loading={loading}
+        filters={filters}
       />
 
       {showEditModal && (

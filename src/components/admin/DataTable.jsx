@@ -1,18 +1,42 @@
 import { useState } from 'react'
 import './DataTable.css'
 
-function DataTable({ columns, data, onEdit, onDelete, loading }) {
+function DataTable({ columns, data, onEdit, onDelete, loading, filters = [] }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
+  const [activeFilters, setActiveFilters] = useState({})
   const itemsPerPage = 20
 
-  // Filter data based on search
+  // Handle filter changes
+  const handleFilterChange = (filterKey, value) => {
+    setActiveFilters(prev => ({
+      ...prev,
+      [filterKey]: value
+    }))
+    setCurrentPage(1) // Reset to first page when filter changes
+  }
+
+  // Filter data based on search and active filters
   const filteredData = data.filter(row => {
+    // Search filter
     const searchLower = searchTerm.toLowerCase()
-    return columns.some(col => {
+    const matchesSearch = searchTerm === '' || columns.some(col => {
       const value = row[col.key]
       return value && value.toString().toLowerCase().includes(searchLower)
     })
+
+    if (!matchesSearch) return false
+
+    // Apply active filters
+    for (const [filterKey, filterValue] of Object.entries(activeFilters)) {
+      if (filterValue && filterValue !== '') {
+        if (row[filterKey] !== filterValue) {
+          return false
+        }
+      }
+    }
+
+    return true
   })
 
   // Pagination
@@ -26,7 +50,7 @@ function DataTable({ columns, data, onEdit, onDelete, loading }) {
 
   return (
     <div className="data-table-container">
-      {/* Search */}
+      {/* Search and Filters */}
       <div className="table-controls">
         <input
           type="text"
@@ -38,6 +62,31 @@ function DataTable({ columns, data, onEdit, onDelete, loading }) {
           }}
           className="table-search"
         />
+
+        {/* Filter Controls */}
+        {filters.length > 0 && (
+          <div className="table-filters">
+            {filters.map(filter => (
+              <div key={filter.key} className="filter-control">
+                <label htmlFor={`filter-${filter.key}`}>{filter.label}:</label>
+                <select
+                  id={`filter-${filter.key}`}
+                  value={activeFilters[filter.key] || ''}
+                  onChange={(e) => handleFilterChange(filter.key, e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">All</option>
+                  {filter.options.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="table-info">
           Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredData.length)} of {filteredData.length}
         </div>
@@ -121,5 +170,6 @@ function DataTable({ columns, data, onEdit, onDelete, loading }) {
     </div>
   )
 }
+
 
 export default DataTable
