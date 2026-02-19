@@ -51,6 +51,17 @@
     }
     </script>
     
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-81HF8BMHMH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-81HF8BMHMH', {
+        send_page_view: false // We'll handle page views manually for SPA
+      });
+    </script>
+    
     <!-- GitHub Pages SPA redirect -->
     <script type="text/javascript">
       (function(l) {

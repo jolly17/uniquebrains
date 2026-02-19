@@ -1,5 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { trackPageView } from './utils/analytics'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
 import LandingPage from './pages/LandingPage'
@@ -66,10 +68,22 @@ function ProtectedRoute({ children, requirePortal }) {
   return children
 }
 
+// Component to track page views on route changes
+function AnalyticsTracker() {
+  const location = useLocation()
+  
+  useEffect(() => {
+    trackPageView(location.pathname + location.search)
+  }, [location])
+  
+  return null
+}
+
 function App() {
   return (
     <AuthProvider>
       <Router>
+        <AnalyticsTracker />
         <ScrollToTop />
         <Routes>
           {/* Public routes */}
