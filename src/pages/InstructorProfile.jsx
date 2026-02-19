@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import CourseCard from '../components/CourseCard'
 import StarRating from '../components/StarRating'
 import PageErrorBoundary from '../components/PageErrorBoundary'
@@ -40,16 +41,45 @@ function InstructorProfileContent() {
         )
         setCourses(instructorCourses)
 
-        // Fetch all reviews for instructor's courses
+        // Fetch all reviews for instructor's courses and aggregate ratings
         const allReviews = []
-        for (const course of instructorCourses) {
+        const courseIds = instructorCourses.map(c => c.id)
+        
+        if (courseIds.length > 0) {
           try {
-            const courseReviews = await handleApiCall(api.reviews.getByCourse, course.id)
-            allReviews.push(...courseReviews.map(r => ({ ...r, courseName: course.title })))
+            const { data: reviewsData, error: reviewsError } = await supabase
+              .from('reviews')
+              .select(`
+                *,
+                profiles:student_id (
+                  id,
+                  first_name,
+                  last_name,
+                  avatar_url
+                ),
+                courses:course_id (
+                  id,
+                  title
+                )
+              `)
+              .in('course_id', courseIds)
+              .eq('is_published', true)
+              .order('created_at', { ascending: false })
+
+            if (reviewsError) throw reviewsError
+
+            // Map reviews with course names
+            const mappedReviews = reviewsData.map(r => ({
+              ...r,
+              courseName: r.courses?.title || 'Unknown Course'
+            }))
+            
+            allReviews.push(...mappedReviews)
           } catch (err) {
-            console.log('Error fetching reviews for course:', course.id, err)
+            console.log('Error fetching reviews:', err)
           }
         }
+        
         setReviews(allReviews)
 
       } catch (err) {

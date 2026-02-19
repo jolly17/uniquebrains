@@ -90,16 +90,19 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+  color: white;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
+  color: white;
 }
 
 .stat-label {
   font-size: 0.875rem;
   opacity: 0.9;
+  color: white;
 }
 
 /* Bio Section */
