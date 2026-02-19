@@ -75,12 +75,9 @@ function Community() {
               </div>
               <div className="topic-card-content">
                 <p className="topic-description">{topic.description}</p>
-                <div className="topic-stats">
-                  <span className="stat">
-                    <span className="stat-icon">❓</span>
-                    <span className="stat-value">{topic.question_count}</span>
-                  </span>
-                </div>
+                <span className="topic-stat">
+                  ❓ {topic.question_count}
+                </span>
               </div>
             </Link>
           ))}

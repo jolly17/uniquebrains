@@ -97,9 +97,7 @@
   padding: 16px;
   flex: 1;
   display: flex;
-  flex-direction: row;
-  gap: 16px;
-  align-items: stretch;
+  flex-direction: column;
   background: white;
   position: relative;
   z-index: 1;
@@ -112,8 +110,23 @@
   flex: 1;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  padding-right: 60px;
+}
+
+.topic-stat {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #f0f4f8;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #667eea;
   display: flex;
   align-items: center;
+  gap: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .topic-stats {
@@ -231,28 +244,18 @@
 
   .topic-card-content {
     padding: 12px;
-    gap: 12px;
   }
 
   .topic-card .topic-description {
     font-size: 12px;
+    padding-right: 50px;
   }
 
-  .topic-stats {
-    min-width: 70px;
-    padding: 8px 12px;
-  }
-
-  .stat-icon {
-    font-size: 18px;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .stat-label {
-    font-size: 10px;
+  .topic-stat {
+    top: 8px;
+    right: 8px;
+    font-size: 12px;
+    padding: 4px 10px;
   }
 
   .cta-card {
