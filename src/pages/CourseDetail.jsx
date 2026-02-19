@@ -73,7 +73,6 @@ function CourseDetailContent() {
             const allCourses = await handleApiCall(api.courses.getAll)
             const instructorCourses = allCourses
               .filter(c => c.instructor_id === courseData.instructor_id && c.id !== courseId && c.is_published)
-              .slice(0, 3) // Show max 3 other courses
             setOtherCourses(instructorCourses)
           } catch (err) {
             console.log('Error fetching instructor courses:', err)
