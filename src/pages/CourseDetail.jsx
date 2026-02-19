@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import StarRating from '../components/StarRating'
@@ -27,6 +27,7 @@ function CourseDetailContent() {
   const [retryCount, setRetryCount] = useState(0)
   const [otherCourses, setOtherCourses] = useState([])
   const [isUnenrolling, setIsUnenrolling] = useState(false)
+  const coursesCarouselRef = useRef(null)
   
   // Debug: Log activeStudent whenever it changes
   useEffect(() => {
@@ -35,6 +36,16 @@ function CourseDetailContent() {
   }, [activeStudent, user])
   
   const reviews = mockReviews.filter(r => r.courseId === courseId)
+
+  const scrollCarousel = (direction) => {
+    if (coursesCarouselRef.current) {
+      const scrollAmount = 350
+      coursesCarouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+    }
+  }
 
   // Fetch course data and check enrollment status
   useEffect(() => {
@@ -417,10 +428,32 @@ function CourseDetailContent() {
       {otherCourses.length > 0 && (
         <div className="other-courses-section">
           <h2>More Courses by {course.instructorName}</h2>
-          <div className="other-courses-grid">
-            {otherCourses.map((otherCourse) => (
-              <CourseCard key={otherCourse.id} course={otherCourse} />
-            ))}
+          <div className="carousel-container">
+            {otherCourses.length > 3 && (
+              <button 
+                className="carousel-btn carousel-btn-left" 
+                onClick={() => scrollCarousel('left')}
+                aria-label="Scroll left"
+              >
+                ‹
+              </button>
+            )}
+            <div className="courses-carousel" ref={coursesCarouselRef}>
+              {otherCourses.map((otherCourse) => (
+                <div key={otherCourse.id} className="carousel-item">
+                  <CourseCard course={otherCourse} />
+                </div>
+              ))}
+            </div>
+            {otherCourses.length > 3 && (
+              <button 
+                className="carousel-btn carousel-btn-right" 
+                onClick={() => scrollCarousel('right')}
+                aria-label="Scroll right"
+              >
+                ›
+              </button>
+            )}
           </div>
         </div>
       )}
