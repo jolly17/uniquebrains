@@ -11,6 +11,7 @@ import * as resourceService from './resourceService'
 import * as messageService from './messageService'
 import * as enrollmentService from './enrollmentService'
 import * as ratingService from './ratingService'
+import * as profileService from './profileService'
 
 /**
  * Course Management API
@@ -138,6 +139,17 @@ export const ratings = {
   submit: ratingService.submitRating,
   getStudent: ratingService.getStudentRating,
   getCourse: ratingService.getCourseRating
+}
+
+/**
+ * Profile Management API
+ * Functions for user profiles
+ */
+export const profiles = {
+  // Profile operations
+  getById: profileService.getProfileById,
+  getInstructors: profileService.getAllInstructors,
+  update: profileService.updateProfile
 }
 
 /**

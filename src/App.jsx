@@ -42,6 +42,7 @@ import AdminInstructors from './pages/admin/AdminInstructors'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminEnrollments from './pages/admin/AdminEnrollments'
 import AdminTopics from './pages/admin/AdminTopics'
+import InstructorProfile from './pages/InstructorProfile'
 
 // Import debug utilities (only in development)
 if (import.meta.env.DEV) {
@@ -83,6 +84,7 @@ function App() {
             <Route index element={<LandingPage />} />
             <Route path="courses" element={<Courses />} />
             <Route path="courses/:courseId" element={<CourseDetail />} />
+            <Route path="instructor/:instructorId" element={<InstructorProfile />} />
             <Route path="courses/:courseId/edit" element={
               <ProtectedRoute>
                 <EditCourse />

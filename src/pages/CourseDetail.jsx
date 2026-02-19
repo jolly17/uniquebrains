@@ -208,7 +208,7 @@ function CourseDetailContent() {
           
           <div className="course-meta">
             <div className="meta-item">
-              <span>👨‍🏫 Instructor: {course.instructorName}</span>
+              <span>👨‍🏫 Instructor: <Link to={`/instructor/${course.instructor_id}`} className="instructor-link">{course.instructorName}</Link></span>
             </div>
             {course.instructorExpertise && course.instructorExpertise.length > 0 && (
               <div className="meta-item">
