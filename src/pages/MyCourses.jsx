@@ -212,14 +212,12 @@ function MyCourses() {
                 <div key={course.id} className="student-course-card">
                   <div className="course-details">
                     <h3>
-                      <a 
-                        href={`/courses/${course.id}`} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}
+                      <Link 
+                        to={`/courses/${course.id}`}
+                        className="course-title-link"
                       >
                         {course.title}
-                      </a>
+                      </Link>
                     </h3>
                     <p className="course-description">{course.description}</p>
                     <div className="course-meta">
