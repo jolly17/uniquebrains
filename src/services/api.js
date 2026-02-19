@@ -164,7 +164,8 @@ export const api = {
   resources,
   messages,
   enrollments,
-  ratings
+  ratings,
+  profiles
 }
 
 /**
