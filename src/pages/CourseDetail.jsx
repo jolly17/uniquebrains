@@ -265,11 +265,7 @@ function CourseDetailContent() {
             </div>
           )}
           
-          {isFull ? (
-            <button className="btn-secondary btn-full" disabled>
-              Class Full
-            </button>
-          ) : isInstructor ? (
+          {isInstructor ? (
             <>
               <button 
                 onClick={() => navigate(`/teach/course/${courseId}/manage`)} 
@@ -293,6 +289,10 @@ function CourseDetailContent() {
             >
               <span className="enrolled-text">✓ Enrolled</span>
               <span className="unenroll-text">{isUnenrolling ? 'Unenrolling...' : 'Unenroll'}</span>
+            </button>
+          ) : isFull ? (
+            <button className="btn-secondary btn-full" disabled>
+              Class Full
             </button>
           ) : (
             <button onClick={handleEnroll} className="btn-primary btn-full">
