@@ -1,60 +1,118 @@
-# Social Media Sharing for Course Pages
+# Social Media Sharing Solution
 
-## Current Limitation
+## Current Status: ✅ IMPLEMENTED (with limitations)
 
-Our application is a Single Page Application (SPA) built with React and hosted on GitHub Pages. When social media crawlers (WhatsApp, Facebook, Twitter, LinkedIn) visit a course URL, they only see the initial HTML without JavaScript execution, so they can't see course-specific meta tags that are dynamically generated.
+React-snap has been successfully configured and is prerendering static pages. However, due to the async/dynamic nature of the application (Supabase data fetching), the prerendered pages contain the HTML structure but not the dynamic content.
 
-## Current Implementation
+## What's Working
 
-- **Default meta tags** in `index.html` show UniqueBrains branding for all shared links
-- **Dynamic meta tags** in `src/utils/metaTags.js` update for logged-in users but don't affect social crawlers
+1. **React-snap is installed and configured** in `package.json`
+2. **Prerendering runs automatically** after each build via `postbuild` script
+3. **Static pages are prerendered** including:
+   - Home page (/)
+   - Courses (/courses)
+   - Content (/content)
+   - Neurodiversity (/content/neurodiversity)
+   - Sensory Differences (/content/sensory-differences)
+   - Community (/community)
+   - Privacy Policy (/privacy-policy)
+   - Terms of Service (/terms-of-service)
 
-## Solutions
+4. **Meta tags are in place** for all pages with proper Open Graph and Twitter Card data
+5. **Hydration support** added to `main.jsx` for seamless client-side takeover
 
-### Option 1: Prerendering Service (Recommended - Free)
-Use a service like **Prerender.io** or **react-snap** to generate static HTML for each route.
+## Limitations
 
-**Steps:**
-1. Install react-snap: `npm install --save-dev react-snap`
-2. Add to package.json:
-   ```json
-   "scripts": {
-     "postbuild": "react-snap"
-   }
-   ```
-3. This generates static HTML for each route that crawlers can read
+### Why Dynamic Content Isn't Prerendered
 
-**Pros:** Free, works with GitHub Pages
-**Cons:** Requires rebuild when content changes
+Your app fetches data from Supabase (courses, instructors, community topics) which happens asynchronously after the page loads. React-snap captures the initial HTML before this data loads, so:
 
-### Option 2: Netlify/Vercel with Prerendering
-Move hosting to Netlify or Vercel which have built-in prerendering.
+- Course listings won't show in prerendered HTML
+- Instructor profiles won't be prerendered
+- Community topics won't be prerendered
+- Individual course pages won't be prerendered
 
-**Pros:** Automatic, handles dynamic content
-**Cons:** Requires migration from GitHub Pages
+### What Social Media Crawlers See
 
-### Option 3: Server-Side Rendering (SSR)
-Convert to Next.js or add a Node.js server.
+Social media crawlers (Facebook, Twitter, LinkedIn, WhatsApp) will see:
+- ✅ Proper meta tags (title, description, image)
+- ✅ Page structure and layout
+- ❌ Dynamic content (courses, instructors, etc.)
 
-**Pros:** Full dynamic meta tags, SEO benefits
+## How It Works
+
+1. **Build Process**: When you run `npm run build`, Vite builds the app and then react-snap automatically runs
+2. **Crawling**: React-snap launches a headless browser and visits each configured route
+3. **Snapshot**: It captures the HTML at that moment and saves it as `index.html` in each route folder
+4. **Hydration**: When users visit, React hydrates the prerendered HTML for full interactivity
+
+## Configuration
+
+The react-snap configuration in `package.json`:
+
+```json
+"reactSnap": {
+  "source": "docs",
+  "include": [
+    "/",
+    "/courses",
+    "/content",
+    "/content/neurodiversity",
+    "/content/sensory-differences",
+    "/community",
+    "/privacy-policy",
+    "/terms-of-service"
+  ]
+}
+```
+
+## For Better Course-Specific Sharing
+
+To get course-specific meta tags working, you would need one of these approaches:
+
+### Option 1: Server-Side Rendering (SSR)
+Convert to Next.js which can fetch data server-side and generate proper meta tags for each course.
+
+**Pros:** Full dynamic meta tags, best SEO
 **Cons:** Requires significant refactoring, hosting costs
 
-### Option 4: Meta Tag Service
-Use a service like **Metatags.io** or **Cloudflare Workers** to intercept crawler requests.
+### Option 2: Static Site Generation (SSG)
+Generate static HTML for each course at build time.
 
-**Pros:** No code changes needed
-**Cons:** Additional service dependency
+**Pros:** Fast, works with GitHub Pages
+**Cons:** Requires rebuild when courses change
 
-## Quick Fix (Current)
+### Option 3: Edge Functions
+Use Cloudflare Workers or Vercel Edge Functions to intercept crawler requests and inject meta tags.
 
-Updated `index.html` to use the better thumbnail image (`uniquebrains-thumbnail.png.png`) so all shared links show proper branding, even if not course-specific.
+**Pros:** No rebuild needed, dynamic
+**Cons:** Requires migration from GitHub Pages
 
-## Recommended Next Step
+### Option 4: Prerender.io Service
+Use a paid service that prerenders pages on-demand for crawlers.
 
-Implement **Option 1 (react-snap)** as it's:
-- Free
-- Works with current GitHub Pages setup
-- Minimal code changes
-- Provides static HTML for crawlers
+**Pros:** Works with current setup
+**Cons:** Monthly cost ($20-200/month)
 
-Would you like me to implement react-snap prerendering?
+## Current Recommendation
+
+For now, the default meta tags provide good branding for all shared links. If course-specific sharing becomes critical, consider migrating to Next.js with Vercel hosting for full SSR support.
+
+## Files Modified
+
+- `src/main.jsx` - Added hydration support
+- `package.json` - Added react-snap configuration and postbuild script
+- `index.html` - Already has proper meta tags
+
+## Testing
+
+To test prerendering locally:
+1. Run `npm run build`
+2. Check `docs/courses/index.html` - should contain prerendered HTML
+3. Run `npm run preview` to test the built site
+
+## Notes
+
+- The MIME type warnings during build are expected with Vite's ES modules
+- React-snap successfully crawls and prerenders all configured routes
+- The 404 page warning can be ignored

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "react-snap",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d docs",
@@ -14,6 +15,30 @@
     "verify-auth": "node scripts/verify-auth-config.js",
     "verify-oauth": "node scripts/verify-oauth-setup.js",
     "check-db": "node scripts/check-database-tables.js"
+  },
+  "reactSnap": {
+    "source": "docs",
+    "minifyHtml": {
+      "collapseWhitespace": true,
+      "removeComments": true
+    },
+    "puppeteerArgs": [
+      "--no-sandbox",
+      "--disable-setuid-sandbox"
+    ],
+    "include": [
+      "/",
+      "/courses",
+      "/content",
+      "/content/neurodiversity",
+      "/content/sensory-differences",
+      "/community",
+      "/privacy-policy",
+      "/terms-of-service"
+    ],
+    "skipThirdPartyRequests": true,
+    "cacheAjaxRequests": false,
+    "preconnectThirdParty": false
   },
   "dependencies": {
     "@sentry/react": "^10.38.0",
@@ -30,6 +55,7 @@
     "@vitejs/plugin-react": "^5.1.3",
     "dotenv": "^17.2.4",
     "gh-pages": "^6.3.0",
+    "react-snap": "^1.23.0",
     "vite": "^7.3.1"
   }
 }

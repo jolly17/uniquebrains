@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { hydrate, render } from 'react-dom'
 import App from './App'
 import './index.css'
 import { initSentry } from './lib/sentry'
@@ -13,10 +14,18 @@ if (import.meta.env.DEV) {
   import('./utils/makeAdmin.js')
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root')
+const app = (
   <React.StrictMode>
     <ErrorBoundary>
       <App />
     </ErrorBoundary>
   </React.StrictMode>
 )
+
+// Use hydrate for prerendered content, render for normal SPA
+if (rootElement.hasChildNodes()) {
+  hydrate(app, rootElement)
+} else {
+  ReactDOM.createRoot(rootElement).render(app)
+}
