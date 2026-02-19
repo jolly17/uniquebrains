@@ -9,6 +9,8 @@
     "build": "vite build",
     "postbuild": "react-snap",
     "preview": "vite preview",
+    "generate-sitemap": "node scripts/generate-sitemap.js",
+    "prebuild": "npm run generate-sitemap",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d docs",
     "verify-supabase": "node scripts/verify-supabase-setup.js",

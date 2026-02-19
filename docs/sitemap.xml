@@ -1,77 +1,189 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Homepage -->
   <url>
     <loc>https://uniquebrains.org/</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
-  
-  <!-- Main Pages -->
   <url>
     <loc>https://uniquebrains.org/courses</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
-  
   <url>
     <loc>https://uniquebrains.org/community</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
-  
-  <!-- Content & Resources -->
   <url>
     <loc>https://uniquebrains.org/content</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  
   <url>
     <loc>https://uniquebrains.org/content/neurodiversity</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
   <url>
     <loc>https://uniquebrains.org/content/sensory-differences</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
-  
-  <!-- Auth Pages -->
   <url>
     <loc>https://uniquebrains.org/login</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
-  
   <url>
     <loc>https://uniquebrains.org/register</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
-  
-  <!-- Legal Pages -->
   <url>
     <loc>https://uniquebrains.org/privacy-policy</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
-  
   <url>
     <loc>https://uniquebrains.org/terms-of-service</loc>
-    <lastmod>2025-02-14</lastmod>
+    <lastmod>2026-02-19</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/904435d6-665a-47fe-b56e-754ac12c4277</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/2dce9bbb-3835-4e5a-99db-44d4855898b3</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/9814242c-9453-4ab6-a52b-1b3a958f1be2</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/e6df8e94-335f-495f-bd58-61d3204a2f2b</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/1fb3107a-7a50-4310-b7ae-9e7ad231387e</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/7e62b7f4-38cd-4052-8905-d1206d3ebee7</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/courses/6e9657be-7e07-4756-94b5-2b5c74363293</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/instructor/6538b29a-1f6d-4280-9acb-c1405cf5a062</loc>
+    <lastmod>2026-02-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/instructor/abaa6461-f1e7-4529-9302-dc7decc26b61</loc>
+    <lastmod>2026-02-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/sensory-needs</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/school-suggestions</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/food-recipes</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/traveling-tips</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/book-club</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/unfiltered-parenting</loc>
+    <lastmod>2026-02-05</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/school-suggestions/question/2b864cac-7667-4dde-a219-d489a162f1c7</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/school-suggestions/question/d84a55cc-a00e-4fb0-a23f-15e6dd6c3bbd</loc>
+    <lastmod>2026-02-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/food-recipes/question/ba92d13e-449f-42d0-87da-d45fe4830411</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/unfiltered-parenting/question/e938828f-5bd4-44c3-8534-4b82e6447c62</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/sensory-needs/question/e585292f-c9c6-4d85-b1c9-a91e7a93ef26</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://uniquebrains.org/community/traveling-tips/question/bcb9c47e-3db4-4fe5-9d30-e7c6b2f95a57</loc>
+    <lastmod>2026-02-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
 </urlset>
