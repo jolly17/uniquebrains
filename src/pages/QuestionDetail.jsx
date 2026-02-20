@@ -54,7 +54,7 @@ function QuestionDetail() {
     }
   }
 
-  const handleVoteQuestion = async (voteType) => {
+  const handleVoteQuestion = async () => {
     if (!user) {
       const redirectUrl = `/community/${slug}/question/${id}`
       sessionStorage.setItem('redirectAfterLogin', redirectUrl)
@@ -63,8 +63,9 @@ function QuestionDetail() {
     }
 
     try {
-      console.log('Voting on question:', id, 'type:', voteType)
-      const result = await voteQuestion(id, voteType)
+      console.log('Toggling vote on question:', id)
+      // Always use 'up' vote type, the backend will toggle it
+      const result = await voteQuestion(id, 'up')
       console.log('Vote result:', result)
       await fetchQuestionAndAnswers()
     } catch (err) {
@@ -73,7 +74,7 @@ function QuestionDetail() {
     }
   }
 
-  const handleVoteAnswer = async (answerId, voteType) => {
+  const handleVoteAnswer = async (answerId) => {
     if (!user) {
       const redirectUrl = `/community/${slug}/question/${id}`
       sessionStorage.setItem('redirectAfterLogin', redirectUrl)
@@ -82,8 +83,9 @@ function QuestionDetail() {
     }
 
     try {
-      console.log('Voting on answer:', answerId, 'type:', voteType, 'user:', user.id)
-      const result = await voteAnswer(answerId, voteType)
+      console.log('Toggling vote on answer:', answerId, 'user:', user.id)
+      // Always use 'up' vote type, the backend will toggle it
+      const result = await voteAnswer(answerId, 'up')
       console.log('Vote result:', result)
       await fetchQuestionAndAnswers()
     } catch (err) {
@@ -315,26 +317,17 @@ function QuestionDetail() {
 
             <div className="vote-section">
               <button 
-                className="vote-btn upvote"
+                className="vote-btn heart"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
-                  handleVoteQuestion('up')
+                  handleVoteQuestion()
                 }}
+                title="Like this question"
               >
-                👍 Upvote
+                �
               </button>
               <span className="vote-count">{question.vote_count}</span>
-              <button 
-                className="vote-btn downvote"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleVoteQuestion('down')
-                }}
-              >
-                👎 Downvote
-              </button>
             </div>
           </div>
 
@@ -441,26 +434,17 @@ function QuestionDetail() {
 
                 <div className="vote-section">
                   <button 
-                    className="vote-btn upvote"
+                    className="vote-btn heart"
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      handleVoteAnswer(answer.id, 'up')
+                      handleVoteAnswer(answer.id)
                     }}
+                    title="Like this answer"
                   >
-                    👍 Upvote
+                    �
                   </button>
                   <span className="vote-count">{answer.vote_count}</span>
-                  <button 
-                    className="vote-btn downvote"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleVoteAnswer(answer.id, 'down')
-                    }}
-                  >
-                    👎 Downvote
-                  </button>
                 </div>
               </div>
             </div>
