@@ -334,7 +334,6 @@ function ManageSessions() {
         description: '',
         session_date: sessionDateTime.toISOString(),
         duration_minutes: 60,
-        meeting_link: course.meeting_link || '', // Use course meeting link
         student_id: null // All courses are group courses now
       }
 
