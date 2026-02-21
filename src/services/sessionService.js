@@ -117,10 +117,10 @@ export async function createSession(courseId, sessionData, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course and get meeting_link and timezone
+    // Verify instructor owns the course
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('instructor_id, title, meeting_link, timezone')
+      .select('instructor_id, title')
       .eq('id', courseId)
       .single()
 
@@ -137,24 +137,15 @@ export async function createSession(courseId, sessionData, instructorId) {
       throw new Error('Session title and date are required')
     }
 
-    // Prepare session data - meeting_link and timezone come from course
+    // Prepare session data - meeting_link and timezone are stored at course level, not session level
     const dbSessionData = {
       course_id: courseId,
       title: sessionData.title.trim(),
       description: sessionData.description?.trim() || '',
       session_date: new Date(sessionData.session_date).toISOString(),
       duration_minutes: sessionData.duration_minutes || sessionData.duration || 60,
-      meeting_link: course.meeting_link || '',
-      timezone: course.timezone || 'America/New_York',
-      meeting_password: sessionData.meeting_password || '',
-      meeting_platform: sessionData.meeting_platform || null,
       student_id: sessionData.student_id || null, // For 1-on-1 courses
       status: 'scheduled'
-    }
-
-    // Validate meeting link if provided
-    if (dbSessionData.meeting_link && !isValidUrl(dbSessionData.meeting_link)) {
-      throw new Error('Invalid meeting link URL')
     }
 
     const { data: session, error: sessionError } = await supabase
