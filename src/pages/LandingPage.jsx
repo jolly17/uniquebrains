@@ -74,119 +74,99 @@ function LandingPage() {
           </p>
         </div>
       )}
+      
+      {/* Hero Section */}
       <section className="hero">
         <div className="hero-content">
           <h1 className="hero-title">
             <span className="gradient-text">UniqueBrains</span>
           </h1>
-          <p className="hero-tagline">Where every brain learns differently</p>
+          <p className="hero-tagline">Where the neurodiverse community connects and thrives</p>
           <p className="hero-description">
-            A free learning platform where anyone can teach and anyone can learn. 
-            Connect with passionate instructors who celebrate unique learning styles.
-          </p>
-          <div className="hero-actions">
-            <Link to="/courses" className="btn-primary-large">
-              Explore Courses
-            </Link>
-            <Link 
-              to={user ? "/courses/my-courses" : "/register"} 
-              className="btn-primary-large"
-            >
-              Start Teaching
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="mission">
-        <div className="mission-content">
-          <h2>Our Mission</h2>
-          <p>
-            UniqueBrains is a <strong>100% free platform</strong> dedicated to making quality education 
-            accessible to neurodivergent children. We believe that every child deserves to learn in a way 
-            that honors their unique brain, without financial barriers.
+            A platform built for neurodivergent individuals and their families. 
+            Learn, connect, share, and find the care you need—all in one place.
           </p>
         </div>
       </section>
 
-      <section className="features">
-        <h2>What Makes Us Different</h2>
-        <div className="features-grid">
-          <div className="feature-card">
-            <div className="feature-icon">🧩</div>
-            <h3>Neurodiversity-First Design</h3>
-            <p>
-              Built from the ground up with neurodivergent learners in mind. Clear interfaces, 
-              consistent patterns, and supportive guidance at every step.
+      {/* Products Section */}
+      <section className="products-section">
+        <div className="products-container">
+          
+          {/* Learning Platform */}
+          <div className="product-card product-learning">
+            <div className="product-icon">📚</div>
+            <h2>Learning Platform</h2>
+            <p className="product-description">
+              Anyone can teach, anyone can learn. Share your expertise or discover something new with instructors 
+              who celebrate unique learning styles. Free courses, genuine support, and a community that gets it.
             </p>
+            <div className="product-actions">
+              <Link to="/courses" className="btn-product-primary">
+                Explore Courses
+              </Link>
+              <Link 
+                to={user ? "/courses/my-courses" : "/register?role=instructor"} 
+                className="btn-product-secondary"
+              >
+                Start Teaching
+              </Link>
+            </div>
           </div>
 
-          <div className="feature-card">
-            <div className="feature-icon">👨‍🏫</div>
-            <h3>Passionate Instructors</h3>
-            <p>
-              Learn from caring educators, parents, and community members who love sharing their knowledge 
-              and understand different learning styles.
+          {/* Community */}
+          <div className="product-card product-community">
+            <div className="product-icon">💬</div>
+            <h2>Community</h2>
+            <p className="product-description">
+              You're not alone in this journey. Connect with parents who've been there, share what works 
+              (and what doesn't), and find your people. Real talk, real support, zero judgment.
             </p>
+            <div className="product-actions">
+              <Link to="/community" className="btn-product-primary">
+                Ask a Question
+              </Link>
+              <Link to="/community" className="btn-product-secondary">
+                Share a Tip
+              </Link>
+            </div>
           </div>
 
-          <div className="feature-card">
-            <div className="feature-icon">🎨</div>
-            <h3>Diverse Learning Paths</h3>
-            <p>
-              From music and art to coding and science, explore courses designed for different 
-              learning styles and interests.
+          {/* Content */}
+          <div className="product-card product-content">
+            <div className="product-icon">📖</div>
+            <h2>Content</h2>
+            <p className="product-description">
+              Tired of explaining neurodiversity to family, teachers, and friends who just don't get it? 
+              Share our curated articles and resources—so they can finally understand your world without you having to repeat yourself.
             </p>
+            <div className="product-actions">
+              <Link to="/content" className="btn-product-primary">
+                Browse Content
+              </Link>
+            </div>
           </div>
 
-          <div className="feature-card">
-            <div className="feature-icon">💝</div>
-            <h3>Always Free</h3>
-            <p>
-              No subscriptions, no hidden fees. Quality education for neurodivergent children 
-              should never be behind a paywall.
+          {/* Care */}
+          <div className="product-card product-care">
+            <div className="product-icon">🏥</div>
+            <h2>Care</h2>
+            <p className="product-description">
+              From diagnosis to college and beyond—find therapists, schools, and services that actually 
+              work. Real reviews from real parents who've walked this path before you.
             </p>
+            <div className="product-actions">
+              <Link to="/care" className="btn-product-primary">
+                Find Care Resources
+              </Link>
+            </div>
+            <p className="product-note">Coming Soon</p>
           </div>
 
-          <div className="feature-card">
-            <div className="feature-icon">🤝</div>
-            <h3>Flexible Scheduling</h3>
-            <p>
-              Choose between group classes or one-on-one sessions. Learn at your own pace, 
-              on your own schedule.
-            </p>
-          </div>
-
-          <div className="feature-card">
-            <div className="feature-icon">🌟</div>
-            <h3>Celebrate Differences</h3>
-            <p>
-              We don't try to "fix" anyone. We celebrate neurodiversity and help every child 
-              discover their unique strengths.
-            </p>
-          </div>
         </div>
       </section>
 
-      <section className="community-section">
-        <div className="community-content">
-          <div className="community-icon">💬</div>
-          <h2>Join Our Community</h2>
-          <p>
-            Connect with other parents, share experiences, and get support from people who understand. 
-            Ask questions, share tips, and learn from our vibrant neurodiverse community.
-          </p>
-          <div className="community-actions">
-            <Link to="/community" className="btn-community">
-              Ask a Question
-            </Link>
-            <Link to="/community" className="btn-community-secondary">
-              Browse Topics
-            </Link>
-          </div>
-        </div>
-      </section>
-
+      {/* Support Section */}
       <section className="support-section">
         <div className="support-content">
           <h2>Help Us Keep UniqueBrains Free</h2>
@@ -209,34 +189,69 @@ function LandingPage() {
             >
               Donate Now ❤️
             </a>
-            <Link 
-              to="/register?role=instructor" 
+            <a 
+              href="mailto:hello@uniquebrains.org?subject=I would like to volunteer"
               className="btn-volunteer"
             >
-              Volunteer as Instructor
-            </Link>
+              Volunteer Your Time
+            </a>
           </div>
           <p className="support-note">
             Every contribution, no matter how small, makes a difference in a child's learning journey.
           </p>
-          <p className="volunteer-note">
-            <strong>Are you an instructor?</strong> Share your expertise and make a difference! 
-            We're looking for passionate educators to volunteer their time teaching neurodivergent children.
-          </p>
         </div>
       </section>
 
+      {/* Why UniqueBrains Section */}
+      <section className="why-section">
+        <div className="why-content">
+          <h2>Why UniqueBrains?</h2>
+          <div className="why-grid">
+            <div className="why-card">
+              <div className="why-icon">🧩</div>
+              <h3>Built for Neurodiversity</h3>
+              <p>
+                Every feature designed with neurodivergent individuals in mind. 
+                Clear interfaces, consistent patterns, and supportive guidance.
+              </p>
+            </div>
+
+            <div className="why-card">
+              <div className="why-icon">💝</div>
+              <h3>Community-Driven</h3>
+              <p>
+                Built by and for the neurodiverse community. Real experiences, 
+                real support, real connections.
+              </p>
+            </div>
+
+            <div className="why-card">
+              <div className="why-icon">🌟</div>
+              <h3>Celebrate Differences</h3>
+              <p>
+                We don't try to "fix" anyone. We celebrate neurodiversity and 
+                help everyone discover their unique strengths.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
       <section className="cta-section">
         <div className="cta-content">
-          <h2>Ready to Start Learning?</h2>
-          <p>Join our community of unique learners and supportive instructors today.</p>
+          <h2>Ready to Join Our Community?</h2>
+          <p>Connect, learn, and thrive with UniqueBrains today.</p>
           <div className="cta-actions">
-            <Link to="/register" className="btn-primary-large">
+            <Link to="/register" className="btn-cta-primary">
               Sign Up Free
             </Link>
-            <Link to="/courses" className="btn-secondary-large">
-              Browse Courses
-            </Link>
+            <a 
+              href="mailto:hello@uniquebrains.org?subject=I would like to volunteer"
+              className="btn-cta-secondary"
+            >
+              Volunteer Your Time
+            </a>
           </div>
         </div>
       </section>
