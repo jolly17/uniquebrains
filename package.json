@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "postbuild": "react-snap",
+    "postbuild": "react-snap && node scripts/update-meta-tags.js",
     "preview": "vite preview",
     "generate-sitemap": "node scripts/generate-sitemap.js",
     "prebuild": "npm run generate-sitemap",

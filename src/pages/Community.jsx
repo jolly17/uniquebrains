@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { getAllTopics } from '../services/communityService'
+import SEO from '../components/SEO'
 import './Community.css'
 
 function Community() {
@@ -42,7 +43,13 @@ function Community() {
   }
 
   return (
-    <div className="community-page">
+    <>
+      <SEO 
+        title="Community Support for Neurodiverse Families | UniqueBrains"
+        description="Connect with parents, share experiences, and get support from people who understand. Ask questions, share tips, and learn from our vibrant neurodiverse community."
+        keywords="neurodiversity community, autism support, ADHD parents, special needs community, parenting support, neurodivergent families"
+      />
+      <div className="community-page">
       <div className="community-hero">
         <div className="hero-content">
           <h1>🌟 Community Hub</h1>
@@ -94,6 +101,7 @@ function Community() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

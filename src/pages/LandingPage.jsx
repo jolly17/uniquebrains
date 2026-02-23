@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
+import SEO from '../components/SEO'
 import './LandingPage.css'
 
 function LandingPage() {
@@ -54,7 +55,9 @@ function LandingPage() {
   }, [])
 
   return (
-    <div className="landing-page">
+    <>
+      <SEO />
+      <div className="landing-page">
       {unauthorizedMessage && (
         <div style={{
           position: 'fixed',
@@ -256,6 +259,7 @@ function LandingPage() {
         </div>
       </section>
     </div>
+    </>
   )
 }
 

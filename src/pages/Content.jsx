@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import SEO from '../components/SEO'
 import './Content.css'
 
 function Content() {
@@ -20,7 +21,13 @@ function Content() {
   ]
 
   return (
-    <div className="content-landing-page">
+    <>
+      <SEO 
+        title="Neurodiversity Content & Resources | UniqueBrains"
+        description="Curated articles and resources to help explain neurodiversity to family, teachers, and friends. Understanding autism, ADHD, dyslexia, and other neurodivergent conditions."
+        keywords="neurodiversity explained, autism resources, ADHD information, understanding neurodivergence, sensory differences, neurodiversity education"
+      />
+      <div className="content-landing-page">
       <div className="content-landing-container">
         <h1>📚 Content & Resources</h1>
         <p className="content-landing-subtitle">
@@ -42,6 +49,7 @@ function Content() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

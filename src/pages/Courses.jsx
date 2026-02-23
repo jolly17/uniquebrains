@@ -5,6 +5,7 @@ import CourseCard from '../components/CourseCard'
 import { getAllPublishedCourses } from '../services/courseService'
 import { getUserFriendlyMessage } from '../lib/errorHandler'
 import { addBreadcrumb } from '../lib/sentry'
+import SEO from '../components/SEO'
 import './Courses.css'
 
 function Courses() {
@@ -72,7 +73,13 @@ function Courses() {
   })
 
   return (
-    <div className="courses">
+    <>
+      <SEO 
+        title="Free Courses for Neurodivergent Learners | UniqueBrains"
+        description="Explore free courses taught by passionate instructors who celebrate unique learning styles. From arts to academics, find courses designed for neurodivergent children and adults."
+        keywords="neurodiversity courses, free online learning, ADHD courses, autism education, special education courses, neurodivergent learning"
+      />
+      <div className="courses">
       <div className="courses-header">
         <h1>Discover Courses</h1>
         <p className="tagline">Here every brain learns differently</p>
@@ -164,6 +171,7 @@ function Courses() {
         </div>
       )}
     </div>
+    </>
   )
 }
 
