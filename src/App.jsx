@@ -35,6 +35,7 @@ import TopicDetail from './pages/TopicDetail'
 import AskQuestion from './pages/AskQuestion'
 import QuestionDetail from './pages/QuestionDetail'
 import CreateTopic from './pages/CreateTopic'
+import CareTimeline from './pages/CareTimeline'
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -125,6 +126,9 @@ function App() {
             <Route path="community/:slug" element={<TopicDetail />} />
             <Route path="community/:slug/ask" element={<AskQuestion />} />
             <Route path="community/:slug/question/:id" element={<QuestionDetail />} />
+            
+            {/* Care Roadmap Routes */}
+            <Route path="care" element={<CareTimeline />} />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">

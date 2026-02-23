@@ -32,6 +32,7 @@ const staticPages = [
   { url: '/content', priority: '0.8', changefreq: 'weekly' },
   { url: '/content/neurodiversity', priority: '0.7', changefreq: 'monthly' },
   { url: '/content/sensory-differences', priority: '0.7', changefreq: 'monthly' },
+  { url: '/care', priority: '0.8', changefreq: 'weekly' },
   { url: '/login', priority: '0.5', changefreq: 'monthly' },
   { url: '/register', priority: '0.5', changefreq: 'monthly' },
   { url: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },

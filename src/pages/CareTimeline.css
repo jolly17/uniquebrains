@@ -1,0 +1,259 @@
+.care-timeline {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  padding: 2rem 1rem;
+}
+
+.care-timeline-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 1rem;
+}
+
+.care-timeline-header h1 {
+  font-size: 3rem;
+  color: #7c3aed;
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.care-timeline-header p {
+  font-size: 1.25rem;
+  color: #6b7280;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.roadmap-container {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 1800px;
+}
+
+.roadmap-path {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.roadmap-path-mobile {
+  display: none;
+}
+
+.roadmap-line {
+  stroke: #7c3aed;
+  stroke-width: 8;
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0.3;
+  animation: dashAnimation 3s linear infinite;
+}
+
+@keyframes dashAnimation {
+  to {
+    stroke-dashoffset: -30;
+  }
+}
+
+.milestones-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+.milestone-card {
+  position: absolute;
+  width: 450px;
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.milestone-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.25);
+}
+
+.milestone-card:focus {
+  outline: 3px solid #7c3aed;
+  outline-offset: 4px;
+}
+
+.milestone-left {
+  left: 50px;
+  transform-origin: right center;
+}
+
+.milestone-right {
+  right: 50px;
+  transform-origin: left center;
+}
+
+.milestone-number {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+}
+
+.milestone-icon {
+  flex-shrink: 0;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.milestone-content {
+  flex: 1;
+}
+
+.milestone-title {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.milestone-description {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.milestone-arrow {
+  flex-shrink: 0;
+  font-size: 2rem;
+  color: #7c3aed;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.milestone-card:hover .milestone-arrow {
+  opacity: 1;
+  transform: translateX(5px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .milestone-card {
+    width: 400px;
+  }
+  
+  .milestone-left {
+    left: 30px;
+  }
+  
+  .milestone-right {
+    right: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .care-timeline-header h1 {
+    font-size: 2rem;
+  }
+  
+  .care-timeline-header p {
+    font-size: 1rem;
+  }
+  
+  .roadmap-container {
+    min-height: 2200px;
+  }
+  
+  .roadmap-path-desktop {
+    display: none;
+  }
+  
+  .roadmap-path-mobile {
+    display: block;
+    width: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .milestone-card {
+    position: relative !important;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 2rem auto;
+    left: 0 !important;
+    right: 0 !important;
+    top: 0 !important;
+  }
+  
+  .milestones-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .milestone-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  
+  .milestone-icon {
+    font-size: 2.5rem;
+  }
+  
+  .milestone-title {
+    font-size: 1.25rem;
+  }
+  
+  .milestone-description {
+    font-size: 0.9rem;
+  }
+  
+  .milestone-arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .care-timeline {
+    padding: 1rem 0.5rem;
+  }
+  
+  .care-timeline-header {
+    padding: 1rem 0.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .care-timeline-header h1 {
+    font-size: 1.75rem;
+  }
+  
+  .milestone-card {
+    padding: 1.25rem;
+  }
+  
+  .milestone-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+  
+  .milestone-icon {
+    font-size: 2rem;
+  }
+}

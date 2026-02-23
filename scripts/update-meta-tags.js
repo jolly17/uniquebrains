@@ -31,6 +31,12 @@ const routes = {
     description: 'Understanding sensory processing differences in neurodivergent individuals. Resources for families and educators.',
     url: 'https://uniquebrains.org/content/sensory-differences',
     keywords: 'sensory processing, sensory differences, autism sensory, ADHD sensory, neurodivergent sensory'
+  },
+  '/care': {
+    title: 'Care Roadmap for Neurodivergent Individuals | UniqueBrains',
+    description: 'Navigate your care journey from diagnosis to employment. Find therapists, schools, and services with our interactive roadmap for neurodivergent individuals and families.',
+    url: 'https://uniquebrains.org/care',
+    keywords: 'neurodiversity care, autism services, ADHD support, special education, therapy services, neurodivergent resources, care roadmap'
   }
 };
 

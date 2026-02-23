@@ -48,6 +48,7 @@ function Layout() {
             <Link to="/courses" className="nav-link" onClick={closeMobileMenu}>Courses</Link>
             <Link to="/community" className="nav-link" onClick={closeMobileMenu}>Community</Link>
             <Link to="/content" className="nav-link" onClick={closeMobileMenu}>Content</Link>
+            <Link to="/care" className="nav-link" onClick={closeMobileMenu}>Care</Link>
             {profile?.role === 'admin' && (
               <Link to="/admin" className="nav-link" onClick={closeMobileMenu}>Admin</Link>
             )}

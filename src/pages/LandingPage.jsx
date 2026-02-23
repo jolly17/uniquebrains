@@ -156,14 +156,13 @@ function LandingPage() {
             <h2>Care</h2>
             <p className="product-description">
               From diagnosis to college and beyond—find therapists, schools, and services that actually 
-              work. Real reviews from real parents who've walked this path before you.
+              work. Navigate your care journey with our interactive roadmap.
             </p>
             <div className="product-actions">
               <Link to="/care" className="btn-product-primary">
-                Find Care Resources
+                Explore Care Roadmap
               </Link>
             </div>
-            <p className="product-note">Coming Soon</p>
           </div>
 
         </div>
