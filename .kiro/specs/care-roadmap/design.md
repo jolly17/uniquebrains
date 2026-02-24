@@ -379,12 +379,10 @@ interface Resource {
 type MilestoneType = 
   | 'diagnosis' 
   | 'therapies' 
-  | 'daycare' 
-  | 'primary-school'
-  | 'secondary-school'
-  | 'college' 
+  | 'education' 
   | 'trainings' 
-  | 'jobs';
+  | 'ngo-advocacy' 
+  | 'jobs-livelihood';
 
 // Location type
 interface Location {
@@ -631,52 +629,36 @@ export const MILESTONES = [
     order: 2
   },
   {
-    id: 'daycare',
-    title: 'Daycare',
-    description: 'Locate inclusive daycare centers and early childhood programs with neurodiversity support.',
-    icon: '🏠',
-    path: '/care/daycare',
+    id: 'education',
+    title: 'Education',
+    description: 'Find schools, special education programs, and educational resources from early intervention through college.',
+    icon: '📚',
+    path: '/care/education',
     order: 3
-  },
-  {
-    id: 'primary-school',
-    title: 'Primary School',
-    description: 'Find elementary schools, special education programs, and educational resources for K-5 students.',
-    icon: '📖',
-    path: '/care/primary-school',
-    order: 4
-  },
-  {
-    id: 'secondary-school',
-    title: 'Secondary School',
-    description: 'Explore middle and high schools with support services and inclusive programs for grades 6-12.',
-    icon: '🎒',
-    path: '/care/secondary-school',
-    order: 5
-  },
-  {
-    id: 'college',
-    title: 'College',
-    description: 'Explore colleges with disability services, support programs, and inclusive learning environments.',
-    icon: '🎓',
-    path: '/care/college',
-    order: 6
   },
   {
     id: 'trainings',
     title: 'Trainings',
     description: 'Access vocational training, skill development programs, and certification courses.',
-    icon: '📚',
+    icon: '🎓',
     path: '/care/trainings',
-    order: 7
+    order: 4
   },
   {
-    id: 'jobs',
-    title: 'Jobs',
+    id: 'ngo-advocacy',
+    title: 'NGO/Advocacy',
+    description: 'Connect with NGOs, advocacy groups, and support organizations working for neurodivergent rights.',
+    icon: '🤝',
+    path: '/care/ngo-advocacy',
+    order: 5
+  },
+  {
+    id: 'jobs-livelihood',
+    title: 'Jobs/Livelihood',
     description: 'Connect with employers, job placement services, and career support for neurodivergent individuals.',
     icon: '💼',
-    path: '/care/jobs',
-    order: 8
+    path: '/care/jobs-livelihood',
+    order: 6
   }
 ];
 
