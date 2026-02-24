@@ -107,47 +107,169 @@ URL Parameters:
 
 ### 2. MilestonePage Component
 
-**Purpose**: Individual page for each care stage with map and resource listings.
+**Purpose**: Individual page for each care stage with Yelp/Airbnb-style layout: filters on left, listings in center, map on right.
+
+**Layout Structure**:
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [Search Bar] [Country Flags: 🇺🇸 🇮🇳 🇬🇧 ...]                    │
+├──────────┬──────────────────────────┬──────────────────────────┤
+│          │                          │                          │
+│ Filters  │   Resource Listings      │    Interactive Map       │
+│ (Left)   │      (Center)            │      (Right)             │
+│          │                          │                          │
+│ Tags     │   [Resource Card]        │   [Map with markers]     │
+│ Rating   │   [Resource Card]        │   [Updates as you        │
+│ Distance │   [Resource Card]        │    pan/zoom]             │
+│ Verified │   [Resource Card]        │                          │
+│          │   [Load More...]         │                          │
+│          │                          │                          │
+└──────────┴──────────────────────────┴──────────────────────────┘
+```
 
 **Props**:
 ```typescript
 {
-  milestone: 'diagnosis' | 'therapies' | 'daycare' | 'primary-school' | 'secondary-school' | 'college' | 'trainings' | 'jobs'
+  milestone: 'diagnosis' | 'therapies' | 'education' | 'trainings' | 'ngo-advocacy' | 'jobs-livelihood'
 }
 ```
 
 **State**:
 ```typescript
 {
-  selectedLocation: {
+  selectedCountry: string | null, // ISO country code (e.g., 'US', 'IN', 'GB')
+  availableCountries: string[], // Countries with resources in this milestone
+  mapBounds: {
+    north: number,
+    south: number,
+    east: number,
+    west: number
+  } | null,
+  mapCenter: {
     lat: number,
     lng: number,
-    zoom: number,
-    address?: string
-  } | null,
+    zoom: number
+  },
+  filters: {
+    tags: string[],
+    minRating: number,
+    maxDistance: number,
+    verifiedOnly: boolean
+  },
   resources: Resource[],
   loading: boolean,
-  error: string | null
+  error: string | null,
+  searchQuery: string
 }
 ```
 
 **Key Methods**:
-- `handleLocationSelect(location)`: Update selected location and fetch resources
-- `fetchResources(milestone, location)`: Query resources from database
-- `handleNavigate(direction)`: Navigate to previous/next milestone
+- `handleCountrySelect(countryCode)`: Update map to country bounds and fetch resources
+- `handleMapMove(bounds, center)`: Update resources based on visible map area
+- `handleFilterChange(filterType, value)`: Update filters and refetch resources
+- `handleSearch(query)`: Search for location/resource by name or address
+- `fetchResourcesInBounds(milestone, bounds, filters)`: Query resources within map bounds
+- `fetchAvailableCountries(milestone)`: Get list of countries with resources
 
-### 3. InteractiveMap Component
+**Behavior**:
+- Map updates trigger resource list updates (debounced by 500ms)
+- Country flag selector shows only countries with resources for this milestone
+- Clicking a country flag centers map on that country
+- Filters on left apply to both map markers and list
+- Search bar searches both location names and resource names
+- Pagination: Load more resources as user scrolls (infinite scroll)
 
-**Purpose**: Leaflet-based map for location selection and resource visualization.
+### 3. CountrySelector Component
+
+**Purpose**: Display country flags for quick navigation to countries with resources.
 
 **Props**:
 ```typescript
 {
-  selectedLocation: Location | null,
-  onLocationSelect: (location: Location) => void,
+  availableCountries: string[], // ISO country codes
+  selectedCountry: string | null,
+  onCountrySelect: (countryCode: string) => void
+}
+```
+
+**Rendering**:
+- Display flag emojis for each available country
+- Show country name on hover
+- Highlight selected country
+- "All Countries" option to show global view
+- Dynamically populated based on resources in database
+
+**Country Data**:
+```typescript
+const COUNTRY_INFO = {
+  'US': { name: 'United States', flag: '🇺🇸', center: [39.8283, -98.5795], zoom: 4 },
+  'IN': { name: 'India', flag: '🇮🇳', center: [20.5937, 78.9629], zoom: 5 },
+  'GB': { name: 'United Kingdom', flag: '🇬🇧', center: [55.3781, -3.4360], zoom: 6 },
+  'CA': { name: 'Canada', flag: '🇨🇦', center: [56.1304, -106.3468], zoom: 4 },
+  'AU': { name: 'Australia', flag: '🇦🇺', center: [-25.2744, 133.7751], zoom: 4 },
+  // Add more as resources are added
+}
+```
+
+### 4. FilterPanel Component
+
+**Purpose**: Left sidebar with filters for refining resource search.
+
+**Props**:
+```typescript
+{
+  filters: FilterState,
+  onFilterChange: (filterType: string, value: any) => void,
+  availableTags: string[],
+  resourceCount: number
+}
+```
+
+**Filters**:
+- **Tags/Categories**: Checkboxes for autism, ADHD, dyslexia, speech therapy, etc.
+- **Rating**: Slider or buttons (4.5+, 4.0+, 3.5+, Any)
+- **Distance**: Dropdown (5mi, 10mi, 25mi, 50mi, 100mi, Any)
+- **Experience**: Slider (0-30+ years)
+- **Verified Only**: Toggle switch
+- **Clear All Filters**: Button
+
+**Rendering**:
+- Collapsible sections for each filter category
+- Show count of resources matching current filters
+- Sticky positioning to stay visible while scrolling
+
+### 5. SearchBar Component
+
+**Purpose**: Top search bar for finding resources or locations.
+
+**Props**:
+```typescript
+{
+  onSearch: (query: string) => void,
+  placeholder: string,
+  initialValue: string
+}
+```
+
+**Features**:
+- Autocomplete suggestions (resource names, locations)
+- Search icon and clear button
+- Debounced search (300ms)
+- "Use My Location" button
+- Keyboard navigation (Enter to search, Esc to clear)
+
+### 6. InteractiveMap Component
+
+**Purpose**: Leaflet-based map that updates resource listings as user pans/zooms (Airbnb-style).
+
+**Props**:
+```typescript
+{
   resources: Resource[],
-  defaultCenter: [number, number],
-  defaultZoom: number
+  mapCenter: { lat: number, lng: number, zoom: number },
+  onMapMove: (bounds: MapBounds, center: MapCenter) => void,
+  onResourceClick: (resourceId: string) => void,
+  selectedResourceId: string | null
 }
 ```
 
@@ -155,23 +277,30 @@ URL Parameters:
 ```typescript
 {
   mapReady: boolean,
-  searchQuery: string,
-  userLocation: Location | null
+  hoveredMarkerId: string | null
 }
 ```
 
 **Key Methods**:
-- `handleMapClick(event)`: Handle map click for location selection
-- `handleSearch(query)`: Search for location by address/place name
-- `getUserLocation()`: Request browser geolocation
-- `updateMarkers(resources)`: Display resource markers on map
+- `handleMapMoveEnd()`: Trigger onMapMove with new bounds and center
+- `handleMarkerClick(resourceId)`: Open resource detail modal
+- `handleMarkerHover(resourceId)`: Highlight corresponding card in list
+- `updateMarkers(resources)`: Display resource markers on map with clustering
 
 **Map Configuration**:
 - Tile Layer: OpenStreetMap (no API key required)
-- Default Center: [39.8283, -98.5795] (Geographic center of USA)
+- Default Center: Based on selected country or user location
 - Default Zoom: 4 (country-level view)
-- Min Zoom: 3, Max Zoom: 18
-- Marker Clustering: Use react-leaflet-cluster for performance with many resources
+- Min Zoom: 2 (world view), Max Zoom: 18 (street level)
+- Marker Clustering: Use react-leaflet-cluster for performance
+- Custom Markers: Different colors for rating tiers (green: 4.5+, yellow: 3.5-4.4, gray: <3.5)
+- Highlighted Marker: When hovering over card in list
+
+**Behavior**:
+- Debounce map move events by 500ms before triggering resource fetch
+- Show "Search this area" button when map is moved significantly
+- Display resource count in current view
+- Sync with resource list (hover, click, selection)
 
 ### 4. LocationSearch Component
 
@@ -298,7 +427,7 @@ CREATE TABLE care_resources (
   city VARCHAR(100),
   state VARCHAR(50),
   zip_code VARCHAR(20),
-  country VARCHAR(50) DEFAULT 'USA',
+  country VARCHAR(2) NOT NULL, -- ISO 3166-1 alpha-2 country code (e.g., 'US', 'IN', 'GB')
   coordinates GEOGRAPHY(POINT, 4326) NOT NULL, -- PostGIS type for lat/lng
   phone VARCHAR(50),
   email VARCHAR(255),
@@ -314,6 +443,8 @@ CREATE TABLE care_resources (
 
 -- Indexes for performance
 CREATE INDEX idx_care_resources_milestone ON care_resources(milestone);
+CREATE INDEX idx_care_resources_country ON care_resources(country);
+CREATE INDEX idx_care_resources_milestone_country ON care_resources(milestone, country);
 CREATE INDEX idx_care_resources_coordinates ON care_resources USING GIST(coordinates);
 CREATE INDEX idx_care_resources_tags ON care_resources USING GIN(tags);
 CREATE INDEX idx_care_resources_verified ON care_resources(verified) WHERE verified = true;
