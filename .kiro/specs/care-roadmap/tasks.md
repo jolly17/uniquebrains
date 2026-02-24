@@ -188,14 +188,26 @@ This implementation plan creates an interactive care roadmap feature with eight 
 
 - [ ] 9. Create ResourceCard component
   - [ ] 9.1 Create src/components/ResourceCard.jsx
-    - Display resource name, address, phone, email, website
-    - Show star rating (1-5 stars) and review count (e.g., "4.5 ⭐ (23 reviews)")
-    - Show description with "Read more" expansion
-    - Display distance from selected location (if available)
-    - Show tags/categories as badges
-    - Add verified badge for verified resources
-    - Make phone clickable (tel: link)
-    - Make website clickable (external link with icon)
+    - Display compact card on milestone page with:
+      - Resource name (heading)
+      - Star rating (1-5 stars) and review count (e.g., "4.5 ⭐ (23 reviews)")
+      - Experience (years) - e.g., "15 years experience"
+      - Tags/categories as badges
+      - Verified badge for verified resources (if applicable)
+    - Make entire card clickable to open detail modal/page
+    - Detail view (modal or separate page) shows:
+      - Full resource name and verified badge
+      - Star rating and review count
+      - Experience (years)
+      - Full description
+      - Complete address with map link
+      - Phone number (clickable tel: link)
+      - Email address (clickable mailto: link)
+      - Website (clickable external link with icon)
+      - Distance from selected location (if available)
+      - All tags/categories
+      - Reviews section (list of user reviews)
+    - Compact card design to maximize cards per page
     - Style similar to course cards with rating prominently displayed
     - _Requirements: 5.3_
   
@@ -212,6 +224,22 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Generate random resource data
     - Verify card displays all required fields
     - Tag: `Feature: care-roadmap, Property 8: Resource Card Completeness`
+
+- [ ] 9.5. Create ResourceDetailModal component
+  - [ ] 9.5.1 Create src/components/ResourceDetailModal.jsx
+    - Display modal overlay with resource details
+    - Show full resource information (name, rating, experience, description, address, contact info)
+    - Display all reviews with ratings and comments
+    - Include "Write a Review" button for logged-in users
+    - Add "View on Map" link for address
+    - Include close button and click-outside-to-close functionality
+    - _Requirements: 5.3_
+  
+  - [ ] 9.5.2 Create src/components/ResourceDetailModal.css
+    - Style modal overlay and content
+    - Style reviews section
+    - Make responsive for mobile
+    - _Requirements: 5.3_
 
 - [ ] 10. Create ResourceListings component
   - [ ] 10.1 Create src/components/ResourceListings.jsx

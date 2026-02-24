@@ -219,32 +219,50 @@ URL Parameters:
 
 ### 6. ResourceCard Component
 
-**Purpose**: Individual resource display card.
+**Purpose**: Individual resource display card with compact view and detailed modal.
 
 **Props**:
 ```typescript
 {
   resource: Resource,
-  userLocation: Location | null
+  userLocation: Location | null,
+  onCardClick: (resourceId: string) => void
 }
 ```
 
-**Rendering**:
+**Compact Card View (Milestone Page)**:
 - Resource name (heading)
 - Star rating (1-5 stars) with review count (e.g., "4.5 ⭐ (23 reviews)")
-- Address with map link
-- Phone number (clickable tel: link)
-- Website (clickable external link)
-- Description (truncated with "Read more")
-- Distance from selected location (if available)
-- Tags/categories
+- Experience (years) - displayed as "15 years experience"
+- Tags/categories (max 3 visible, "+2 more" if additional)
 - Verified badge (if resource is verified)
+- Entire card is clickable to open detail view
+
+**Detail View (Modal or Separate Page)**:
+- Full resource name and verified badge
+- Star rating and review count
+- Experience (years)
+- Full description
+- Complete address with "View on Map" link
+- Phone number (clickable tel: link)
+- Email address (clickable mailto: link)
+- Website (clickable external link with icon)
+- Distance from selected location (if available)
+- All tags/categories
+- Reviews section:
+  - List of user reviews with ratings
+  - Review text and reviewer name
+  - Review date
+  - "Write a Review" button (if user is logged in)
 
 **Styling**:
-- Similar layout to course cards
-- Rating displayed prominently near the top
+- Compact card layout to fit 3-4 cards per row on desktop
+- Similar visual style to course cards
+- Rating displayed prominently
 - Star icons for visual rating representation
 - Review count in muted text next to rating
+- Hover effect to indicate clickability
+- Modal overlay for detail view with close button
 
 ### 7. MilestoneNavigation Component
 
@@ -285,8 +303,10 @@ CREATE TABLE care_resources (
   phone VARCHAR(50),
   email VARCHAR(255),
   website VARCHAR(500),
+  experience_years INTEGER, -- Years of experience (e.g., 15)
   tags TEXT[], -- Array of tags like ['autism', 'adhd', 'speech-therapy']
   rating DECIMAL(2,1), -- Average rating 0.0-5.0
+  review_count INTEGER DEFAULT 0, -- Total number of reviews
   verified BOOLEAN DEFAULT false, -- Admin-verified resource
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -297,6 +317,7 @@ CREATE INDEX idx_care_resources_milestone ON care_resources(milestone);
 CREATE INDEX idx_care_resources_coordinates ON care_resources USING GIST(coordinates);
 CREATE INDEX idx_care_resources_tags ON care_resources USING GIN(tags);
 CREATE INDEX idx_care_resources_verified ON care_resources(verified) WHERE verified = true;
+CREATE INDEX idx_care_resources_rating ON care_resources(rating DESC);
 
 -- Trigger for updated_at
 CREATE TRIGGER update_care_resources_updated_at
@@ -344,8 +365,10 @@ interface Resource {
   phone?: string;
   email?: string;
   website?: string;
+  experienceYears?: number; // Years of experience
   tags: string[];
   rating?: number;
+  reviewCount: number; // Total number of reviews
   verified: boolean;
   createdAt: string;
   updatedAt: string;
