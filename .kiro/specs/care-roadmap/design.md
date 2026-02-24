@@ -231,12 +231,20 @@ URL Parameters:
 
 **Rendering**:
 - Resource name (heading)
+- Star rating (1-5 stars) with review count (e.g., "4.5 ⭐ (23 reviews)")
 - Address with map link
 - Phone number (clickable tel: link)
 - Website (clickable external link)
 - Description (truncated with "Read more")
 - Distance from selected location (if available)
 - Tags/categories
+- Verified badge (if resource is verified)
+
+**Styling**:
+- Similar layout to course cards
+- Rating displayed prominently near the top
+- Star icons for visual rating representation
+- Review count in muted text next to rating
 
 ### 7. MilestoneNavigation Component
 

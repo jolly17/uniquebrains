@@ -189,12 +189,14 @@ This implementation plan creates an interactive care roadmap feature with eight 
 - [ ] 9. Create ResourceCard component
   - [ ] 9.1 Create src/components/ResourceCard.jsx
     - Display resource name, address, phone, email, website
+    - Show star rating (1-5 stars) and review count (e.g., "4.5 ⭐ (23 reviews)")
     - Show description with "Read more" expansion
     - Display distance from selected location (if available)
     - Show tags/categories as badges
     - Add verified badge for verified resources
     - Make phone clickable (tel: link)
     - Make website clickable (external link with icon)
+    - Style similar to course cards with rating prominently displayed
     - _Requirements: 5.3_
   
   - [ ] 9.2 Create src/components/ResourceCard.css
