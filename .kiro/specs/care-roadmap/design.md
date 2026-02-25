@@ -738,6 +738,351 @@ END;
 $$ LANGUAGE plpgsql STABLE;
 ```
 
+### Bulk Upload Feature (Admin)
+
+#### Overview
+
+Admins can upload CSV or Excel files containing multiple care resources. The system will:
+1. Parse the file and validate data
+2. Automatically geocode addresses to coordinates using a geocoding service
+3. Insert resources into the database
+4. Provide feedback on success/failures
+
+#### CSV/Excel Format
+
+**Required Columns:**
+- `milestone` - One of: diagnosis, therapies, education, trainings, ngo-advocacy, care-home, jobs-livelihood (defined in src/data/milestones.js)
+- `name` - Resource name (max 255 chars)
+- `address` - Street address
+- `city` - City name
+- `state` - State/province
+- `zip_code` - Postal code
+- `country` - ISO 3166-1 alpha-2 code (US, IN, GB, etc.)
+
+**Optional Columns:**
+- `description` - Full description (text)
+- `phone` - Phone number
+- `email` - Email address
+- `website` - Website URL (must start with http:// or https://)
+- `experience_years` - Years of experience (0-100)
+- `tags` - Comma-separated tags (e.g., "autism,ADHD,assessment")
+- `rating` - Rating 0.0-5.0
+- `review_count` - Number of reviews (integer)
+- `verified` - true/false or 1/0
+
+**Example CSV:**
+```csv
+milestone,name,address,city,state,zip_code,country,phone,email,website,experience_years,tags,rating,review_count,verified
+diagnosis,Autism Diagnostic Center,123 Main St,New York,NY,10001,US,+1 (212) 555-0123,info@autismcenter.com,https://autismcenter.com,15,"autism,ADHD,assessment",4.8,127,true
+therapies,Speech Therapy Clinic,456 Park Ave,Brooklyn,NY,11201,US,+1 (718) 555-0456,contact@speechclinic.com,https://speechclinic.com,10,"speech therapy,autism",4.5,89,true
+care-home,Supported Living Residence,321 Oak St,Boston,MA,02101,US,+1 (617) 555-0321,info@supportedliving.com,https://supportedliving.com,12,"autism,residential care",4.7,156,true
+```
+
+**Note:** Valid milestone values are defined in `src/data/milestones.js`. To add new milestones, simply add them to the MILESTONES array in that file.
+
+#### Geocoding Service
+
+**Service Options:**
+1. **Nominatim (OpenStreetMap)** - Free, no API key required
+   - Rate limit: 1 request/second
+   - Good for batch processing with delays
+   
+2. **Google Geocoding API** - Paid, requires API key
+   - Rate limit: 50 requests/second
+   - More accurate, especially for international addresses
+   
+3. **Mapbox Geocoding API** - Paid, requires API key
+   - Rate limit: 600 requests/minute
+   - Good balance of accuracy and cost
+
+**Implementation Strategy:**
+- Use Nominatim by default (free)
+- Allow admin to configure alternative service via environment variables
+- Implement retry logic with exponential backoff
+- Cache geocoding results to avoid duplicate API calls
+- Batch process with rate limiting (1 request/second for Nominatim)
+
+#### Bulk Upload Service
+
+```javascript
+// src/services/bulkUploadService.js
+import { supabase } from '../lib/supabase';
+import { geocodeAddress } from '../lib/geocoding';
+
+/**
+ * Parse CSV/Excel file and upload resources
+ * @param {File} file - CSV or Excel file
+ * @param {Object} user - Current user object
+ * @returns {Object} - Upload results with success/failure counts
+ */
+export async function bulkUploadResources(file, user) {
+  // Verify admin role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    throw new Error('Unauthorized: Admin access required');
+  }
+
+  // Parse file (CSV or Excel)
+  const rows = await parseFile(file);
+  
+  const results = {
+    total: rows.length,
+    successful: 0,
+    failed: 0,
+    errors: []
+  };
+
+  // Process each row with rate limiting
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    
+    try {
+      // Validate required fields
+      validateRow(row, i + 2); // +2 for header row and 0-index
+      
+      // Geocode address to coordinates
+      const coordinates = await geocodeAddress({
+        address: row.address,
+        city: row.city,
+        state: row.state,
+        zipCode: row.zip_code,
+        country: row.country
+      });
+      
+      if (!coordinates) {
+        throw new Error('Failed to geocode address');
+      }
+      
+      // Parse tags if provided
+      const tags = row.tags 
+        ? row.tags.split(',').map(t => t.trim())
+        : [];
+      
+      // Insert resource
+      const { error } = await supabase
+        .from('care_resources')
+        .insert({
+          milestone: row.milestone,
+          name: row.name,
+          description: row.description || null,
+          address: row.address,
+          city: row.city,
+          state: row.state,
+          zip_code: row.zip_code,
+          country: row.country,
+          coordinates: `POINT(${coordinates.lng} ${coordinates.lat})`,
+          phone: row.phone || null,
+          email: row.email || null,
+          website: row.website || null,
+          experience_years: row.experience_years ? parseInt(row.experience_years) : null,
+          tags: tags,
+          rating: row.rating ? parseFloat(row.rating) : null,
+          review_count: row.review_count ? parseInt(row.review_count) : 0,
+          verified: row.verified === 'true' || row.verified === '1' || row.verified === true
+        });
+      
+      if (error) throw error;
+      
+      results.successful++;
+      
+      // Rate limiting: wait 1 second between requests (for Nominatim)
+      if (i < rows.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+      
+    } catch (error) {
+      results.failed++;
+      results.errors.push({
+        row: i + 2,
+        name: row.name || 'Unknown',
+        error: error.message
+      });
+    }
+  }
+  
+  return results;
+}
+
+/**
+ * Validate a single row
+ */
+function validateRow(row, rowNumber) {
+  const required = ['milestone', 'name', 'address', 'city', 'state', 'zip_code', 'country'];
+  const missing = required.filter(field => !row[field]);
+  
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields: ${missing.join(', ')}`);
+  }
+  
+  // Validate milestone
+  const validMilestones = ['diagnosis', 'therapies', 'education', 'trainings', 'ngo-advocacy', 'jobs-livelihood'];
+  if (!validMilestones.includes(row.milestone)) {
+    throw new Error(`Invalid milestone: ${row.milestone}`);
+  }
+  
+  // Validate email format if provided
+  if (row.email && !row.email.match(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/)) {
+    throw new Error(`Invalid email format: ${row.email}`);
+  }
+  
+  // Validate website format if provided
+  if (row.website && !row.website.match(/^https?:\/\//)) {
+    throw new Error(`Invalid website URL (must start with http:// or https://): ${row.website}`);
+  }
+}
+
+/**
+ * Parse CSV or Excel file
+ */
+async function parseFile(file) {
+  const extension = file.name.split('.').pop().toLowerCase();
+  
+  if (extension === 'csv') {
+    return parseCSV(file);
+  } else if (extension === 'xlsx' || extension === 'xls') {
+    return parseExcel(file);
+  } else {
+    throw new Error('Unsupported file format. Please upload CSV or Excel file.');
+  }
+}
+```
+
+#### Geocoding Library
+
+```javascript
+// src/lib/geocoding.js
+
+const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
+const GEOCODING_SERVICE = import.meta.env.VITE_GEOCODING_SERVICE || 'nominatim';
+const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_GEOCODING_API_KEY;
+const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY;
+
+/**
+ * Geocode an address to coordinates
+ * @param {Object} address - Address components
+ * @returns {Object|null} - {lat, lng} or null if failed
+ */
+export async function geocodeAddress({ address, city, state, zipCode, country }) {
+  const fullAddress = `${address}, ${city}, ${state} ${zipCode}, ${country}`;
+  
+  try {
+    switch (GEOCODING_SERVICE) {
+      case 'google':
+        return await geocodeWithGoogle(fullAddress);
+      case 'mapbox':
+        return await geocodeWithMapbox(fullAddress);
+      case 'nominatim':
+      default:
+        return await geocodeWithNominatim(fullAddress);
+    }
+  } catch (error) {
+    console.error('Geocoding failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Geocode using Nominatim (OpenStreetMap)
+ */
+async function geocodeWithNominatim(address) {
+  const params = new URLSearchParams({
+    q: address,
+    format: 'json',
+    limit: 1
+  });
+  
+  const response = await fetch(`${NOMINATIM_BASE_URL}/search?${params}`, {
+    headers: {
+      'User-Agent': 'UniqueBrains Care Roadmap'
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error('Nominatim API request failed');
+  }
+  
+  const data = await response.json();
+  
+  if (data.length === 0) {
+    return null;
+  }
+  
+  return {
+    lat: parseFloat(data[0].lat),
+    lng: parseFloat(data[0].lon)
+  };
+}
+
+/**
+ * Geocode using Google Geocoding API
+ */
+async function geocodeWithGoogle(address) {
+  if (!GOOGLE_API_KEY) {
+    throw new Error('Google API key not configured');
+  }
+  
+  const params = new URLSearchParams({
+    address: address,
+    key: GOOGLE_API_KEY
+  });
+  
+  const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?${params}`);
+  const data = await response.json();
+  
+  if (data.status !== 'OK' || data.results.length === 0) {
+    return null;
+  }
+  
+  const location = data.results[0].geometry.location;
+  return {
+    lat: location.lat,
+    lng: location.lng
+  };
+}
+
+/**
+ * Geocode using Mapbox Geocoding API
+ */
+async function geocodeWithMapbox(address) {
+  if (!MAPBOX_API_KEY) {
+    throw new Error('Mapbox API key not configured');
+  }
+  
+  const encodedAddress = encodeURIComponent(address);
+  const response = await fetch(
+    `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=${MAPBOX_API_KEY}`
+  );
+  
+  const data = await response.json();
+  
+  if (!data.features || data.features.length === 0) {
+    return null;
+  }
+  
+  const [lng, lat] = data.features[0].center;
+  return { lat, lng };
+}
+```
+
+#### Admin UI Component
+
+The bulk upload feature will be accessible from the Admin Dashboard:
+
+**Location:** `/admin/care-resources` page
+
+**UI Elements:**
+1. File upload dropzone (drag & drop or click to browse)
+2. File format instructions and CSV template download
+3. Upload progress indicator
+4. Results summary (successful, failed, errors)
+5. Error details table with row numbers and error messages
+6. Option to download error report as CSV
+
 ### Milestone Configuration
 
 ```javascript

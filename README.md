@@ -21,6 +21,7 @@ A modern learning management system designed for neurodivergent learners, connec
 - ✅ **Real-time Messaging** - Instant chat with WebSocket
 - ✅ **Resource Management** - Upload and share course materials
 - ✅ **Child Management** - Parents manage multiple children profiles
+- ✅ **Care Roadmap** - Interactive location-based resource discovery
 - ✅ **Responsive Design** - Works on all devices
 
 ### Technical Highlights
@@ -45,6 +46,9 @@ A modern learning management system designed for neurodivergent learners, connec
 - **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)** - Supabase setup guide
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deployment instructions
 - **[SETUP_CHECKLIST.md](./SETUP_CHECKLIST.md)** - Initial setup steps
+
+### Feature Documentation
+- **[CARE_ROADMAP.md](./CARE_ROADMAP.md)** - Care Roadmap feature guide
 
 ### Additional Resources
 - **[LAUNCH_CHECKLIST.md](./LAUNCH_CHECKLIST.md)** - Pre-launch checklist

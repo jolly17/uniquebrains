@@ -6,7 +6,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
 
 ## Tasks
 
-- [ ] 1. Set up database schema and PostGIS extension
+- [x] 1. Set up database schema and PostGIS extension
   - Create care_resources table with PostGIS geography type for coordinates
   - Create indexes for milestone, coordinates (GIST), and tags (GIN)
   - Create PostgreSQL function for radius-based resource queries
@@ -14,20 +14,71 @@ This implementation plan creates an interactive care roadmap feature with eight 
   - Create database migration file
   - _Requirements: 6.1, 6.2, 6.3_
 
-- [ ] 2. Install dependencies and configure testing framework
-  - [ ] 2.1 Install Leaflet and React-Leaflet for map functionality
+- [ ] 1.5. Create bulk upload functionality for admins
+  - [x] 1.5.1 Install CSV/Excel parsing dependencies
+    - Install: papaparse for CSV parsing
+    - Install: xlsx for Excel file parsing
+    - _Requirements: 6.2_
+  
+  - [x] 1.5.2 Create geocoding service (src/lib/geocoding.js)
+    - Implement geocodeAddress function with Nominatim (default)
+    - Support Google Geocoding API (optional, via env var)
+    - Support Mapbox Geocoding API (optional, via env var)
+    - Implement rate limiting (1 req/sec for Nominatim)
+    - Add retry logic with exponential backoff
+    - Cache geocoding results to avoid duplicate API calls
+    - _Requirements: 6.2_
+  
+  - [x] 1.5.3 Create bulk upload service (src/services/bulkUploadService.js)
+    - Implement bulkUploadResources function
+    - Parse CSV/Excel files
+    - Validate required fields (milestone, name, address, city, state, zip_code, country)
+    - Validate optional fields (email format, website URL, rating range)
+    - Geocode addresses to coordinates
+    - Insert resources into database with proper error handling
+    - Return upload results (successful, failed, errors with row numbers)
+    - _Requirements: 6.2, 6.4_
+  
+  - [x] 1.5.4 Create admin bulk upload UI component
+    - Create src/pages/admin/AdminCareResources.jsx
+    - File upload dropzone (drag & drop or click to browse)
+    - CSV template download button
+    - Upload progress indicator
+    - Results summary display (successful, failed counts)
+    - Error details table with row numbers and messages
+    - Download error report as CSV
+    - Add route to admin layout: /admin/care-resources
+    - _Requirements: 6.2, 6.4_
+  
+  - [ ]* 1.5.5 Write unit tests for bulk upload
+    - Test CSV parsing with valid data
+    - Test Excel parsing with valid data
+    - Test validation errors (missing fields, invalid formats)
+    - Test geocoding success and failure scenarios
+    - Test rate limiting behavior
+    - Test partial upload success (some rows succeed, some fail)
+    - _Requirements: 6.2, 6.4, 6.5_
+  
+  - [x] 1.5.6 Create CSV template file
+    - Create public/templates/care-resources-template.csv
+    - Include all column headers with example data
+    - Add comments explaining field formats
+    - _Requirements: 6.2_
+
+- [x] 2. Install dependencies and configure testing framework
+  - [x] 2.1 Install Leaflet and React-Leaflet for map functionality
     - Install: leaflet, react-leaflet, react-leaflet-cluster
     - Add Leaflet CSS import to main entry point
     - _Requirements: 4.1, 4.2_
   
-  - [ ] 2.2 Install testing dependencies
+  - [x] 2.2 Install testing dependencies
     - Install: vitest, @testing-library/react, @testing-library/jest-dom, @testing-library/user-event
     - Install: fast-check for property-based testing
     - Install: @axe-core/react for accessibility testing
     - Configure vitest.config.js with React Testing Library setup
     - _Requirements: All testing requirements_
   
-  - [ ] 2.3 Install geocoding dependencies
+  - [x] 2.3 Install geocoding dependencies
     - Install: nominatim-client for address search (or use fetch directly)
     - _Requirements: 4.2_
 
@@ -45,8 +96,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Test edge cases: first/last milestone navigation
     - _Requirements: 8.2, 8.3_
 
-- [ ] 4. Create care resource service layer
-  - [ ] 4.1 Create src/services/careResourceService.js
+- [x] 4. Create care resource service layer
+  - [x] 4.1 Create src/services/careResourceService.js
     - Implement getResourcesByMilestoneAndLocation with PostGIS query
     - Implement createCareResource (admin only)
     - Implement updateCareResource (admin only)
@@ -95,7 +146,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Test unauthorized access returns 401/403
     - _Requirements: 6.5_
 
-- [ ] 5. Checkpoint - Ensure database and service layer tests pass
+- [x] 5. Checkpoint - Ensure database and service layer tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 - [x] 6. Create CareTimeline landing page component
@@ -133,8 +184,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify navigation goes to correct path
     - Tag: `Feature: care-roadmap, Property 3: Milestone Navigation Routing`
 
-- [ ] 7. Create LocationSearch component
-  - [ ] 7.1 Create src/components/LocationSearch.jsx
+- [x] 7. Create LocationSearch component
+  - [x] 7.1 Create src/components/LocationSearch.jsx
     - Implement search input with debouncing (300ms)
     - Integrate Nominatim API for address geocoding
     - Display autocomplete suggestions
@@ -142,7 +193,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Handle geolocation errors with appropriate messages
     - _Requirements: 4.2_
   
-  - [ ] 7.2 Create src/components/LocationSearch.css
+  - [x] 7.2 Create src/components/LocationSearch.css
     - Style search input and suggestions dropdown
     - Style "Use My Location" button
     - Add loading states
@@ -155,8 +206,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Test address search returns suggestions
     - _Requirements: 4.2_
 
-- [ ] 8. Create InteractiveMap component
-  - [ ] 8.1 Create src/components/InteractiveMap.jsx
+- [x] 8. Create InteractiveMap component
+  - [x] 8.1 Create src/components/InteractiveMap.jsx
     - Set up Leaflet MapContainer with OpenStreetMap tiles
     - Configure default center (US geographic center) and zoom level
     - Implement map click handler for location selection
@@ -166,7 +217,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Show selected location marker
     - _Requirements: 4.1, 4.2, 4.3, 4.4_
   
-  - [ ] 8.2 Create src/components/InteractiveMap.css
+  - [x] 8.2 Create src/components/InteractiveMap.css
     - Style map container (height, width)
     - Style custom markers and popups
     - Style location search overlay
@@ -186,8 +237,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify filter state updated correctly
     - Tag: `Feature: care-roadmap, Property 6: Location Selection Updates Filter`
 
-- [ ] 9. Create ResourceCard component
-  - [ ] 9.1 Create src/components/ResourceCard.jsx
+- [x] 9. Create ResourceCard component
+  - [x] 9.1 Create src/components/ResourceCard.jsx
     - Display compact card on milestone page with:
       - Resource name (heading)
       - Star rating (1-5 stars) and review count (e.g., "4.5 ⭐ (23 reviews)")
@@ -211,7 +262,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Style similar to course cards with rating prominently displayed
     - _Requirements: 5.3_
   
-  - [ ] 9.2 Create src/components/ResourceCard.css
+  - [x] 9.2 Create src/components/ResourceCard.css
     - Style card layout and spacing
     - Style contact information icons
     - Style tags and badges
@@ -225,8 +276,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify card displays all required fields
     - Tag: `Feature: care-roadmap, Property 8: Resource Card Completeness`
 
-- [ ] 9.5. Create ResourceDetailModal component
-  - [ ] 9.5.1 Create src/components/ResourceDetailModal.jsx
+- [x] 9.5. Create ResourceDetailModal component
+  - [x] 9.5.1 Create src/components/ResourceDetailModal.jsx
     - Display modal overlay with resource details
     - Show full resource information (name, rating, experience, description, address, contact info)
     - Display all reviews with ratings and comments
@@ -235,14 +286,14 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Include close button and click-outside-to-close functionality
     - _Requirements: 5.3_
   
-  - [ ] 9.5.2 Create src/components/ResourceDetailModal.css
+  - [x] 9.5.2 Create src/components/ResourceDetailModal.css
     - Style modal overlay and content
     - Style reviews section
     - Make responsive for mobile
     - _Requirements: 5.3_
 
-- [ ] 10. Create ResourceListings component
-  - [ ] 10.1 Create src/components/ResourceListings.jsx
+- [x] 10. Create ResourceListings component
+  - [x] 10.1 Create src/components/ResourceListings.jsx
     - Display list of ResourceCard components
     - Implement sort controls (distance, name, rating)
     - Implement radius filter controls (10, 25, 50, 100 miles)
@@ -251,7 +302,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Handle resource query errors
     - _Requirements: 5.1, 5.2, 5.5, 10.3_
   
-  - [ ] 10.2 Create src/components/ResourceListings.css
+  - [x] 10.2 Create src/components/ResourceListings.css
     - Style resource list layout
     - Style filter and sort controls
     - Style loading skeletons
@@ -273,18 +324,18 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify only resources within radius returned
     - Tag: `Feature: care-roadmap, Property 7: Location-Based Resource Filtering`
 
-- [ ] 11. Checkpoint - Ensure component tests pass
+- [x] 11. Checkpoint - Ensure component tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 12. Create MilestoneNavigation component
-  - [ ] 12.1 Create src/components/MilestoneNavigation.jsx
+- [x] 12. Create MilestoneNavigation component
+  - [x] 12.1 Create src/components/MilestoneNavigation.jsx
     - Display Previous, Back to Timeline, and Next buttons
     - Disable Previous on first milestone
     - Disable Next on last milestone
     - Preserve location in URL when navigating
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
   
-  - [ ] 12.2 Create src/components/MilestoneNavigation.css
+  - [x] 12.2 Create src/components/MilestoneNavigation.css
     - Style navigation buttons
     - Style disabled states
     - Make responsive for mobile
@@ -311,8 +362,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify location preserved in URL and state
     - Tag: `Feature: care-roadmap, Property 15: Location Persistence Across Navigation`
 
-- [ ] 13. Create MilestonePage component
-  - [ ] 13.1 Create src/pages/MilestonePage.jsx
+- [x] 13. Create MilestonePage component
+  - [x] 13.1 Create src/pages/MilestonePage.jsx
     - Get milestone from URL parameter
     - Manage selectedLocation state
     - Fetch resources based on milestone and location
@@ -323,7 +374,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Update URL when location changes
     - _Requirements: 3.1, 3.2, 3.3, 3.5, 4.3, 5.1, 8.5_
   
-  - [ ] 13.2 Create src/pages/MilestonePage.css
+  - [x] 13.2 Create src/pages/MilestonePage.css
     - Style page layout (hero section, listings section)
     - Style milestone title
     - Make responsive for mobile
@@ -375,8 +426,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Verify active class applied to "Care" link
     - Tag: `Feature: care-roadmap, Property 1: Active Navigation Highlighting`
 
-- [ ] 15. Add accessibility features
-  - [ ] 15.1 Add ARIA labels to all interactive components
+- [x] 15. Add accessibility features
+  - [x] 15.1 Add ARIA labels to all interactive components
     - Add labels to milestone cards
     - Add labels to map controls
     - Add labels to resource cards
@@ -384,7 +435,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Add labels to filter/sort controls
     - _Requirements: 9.2_
   
-  - [ ] 15.2 Ensure keyboard navigation works
+  - [x] 15.2 Ensure keyboard navigation works
     - Test tab order is logical
     - Test all buttons accessible via keyboard
     - Test map controls have keyboard alternatives
@@ -402,8 +453,8 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Fix any accessibility violations found
     - _Requirements: 9.1, 9.2, 9.5_
 
-- [ ] 16. Implement lazy loading for map component
-  - [ ] 16.1 Use React.lazy() to code-split InteractiveMap
+- [x] 16. Implement lazy loading for map component
+  - [x] 16.1 Use React.lazy() to code-split InteractiveMap
     - Wrap InteractiveMap in lazy import
     - Add Suspense boundary with loading placeholder
     - _Requirements: 10.4, 10.5_
@@ -413,15 +464,15 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Test map loads after placeholder
     - _Requirements: 10.5_
 
-- [ ] 17. Create seed data for testing
-  - [ ] 17.1 Create scripts/seed-care-resources.js
+- [x] 17. Create seed data for testing
+  - [x] 17.1 Create scripts/seed-care-resources.js
     - Generate sample resources for each milestone
     - Distribute resources across different US locations
     - Include variety of tags and verified status
     - Insert into database
     - _Requirements: 6.2, 6.3_
   
-  - [ ] 17.2 Run seed script to populate test data
+  - [x] 17.2 Run seed script to populate test data
     - Execute seed script
     - Verify resources appear in database
     - _Requirements: 6.2, 6.3_
@@ -440,10 +491,10 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Test desktop layout (1920px width)
     - _Requirements: 7.1, 7.3, 7.4_
 
-- [ ] 19. Final checkpoint - Ensure all tests pass
+- [x] 19. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 20. Update documentation and sitemap
+- [x] 20. Update documentation and sitemap
   - [x] 20.1 Update scripts/generate-sitemap.js
     - Add /care route
     - Add all 8 milestone routes
@@ -453,7 +504,7 @@ This implementation plan creates an interactive care roadmap feature with eight 
     - Add care routes to pre-rendering list
     - _Requirements: 10.1, 10.2_
   
-  - [ ] 20.3 Create README documentation for care roadmap
+  - [x] 20.3 Create README documentation for care roadmap
     - Document feature overview
     - Document how to add new resources (admin)
     - Document testing approach

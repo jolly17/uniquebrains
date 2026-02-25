@@ -1,0 +1,147 @@
+.milestone-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+  margin: 2rem 0;
+  max-width: 1200px;
+}
+
+.milestone-nav-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #7c3aed;
+  border-radius: 8px;
+  background: white;
+  color: #7c3aed;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.milestone-nav-button:hover:not(:disabled) {
+  background: #7c3aed;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.3);
+}
+
+.milestone-nav-button:focus {
+  outline: 3px solid #7c3aed;
+  outline-offset: 2px;
+}
+
+.milestone-nav-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.milestone-nav-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #d1d5db;
+  color: #9ca3af;
+}
+
+.milestone-nav-timeline {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  color: white;
+  border: none;
+  flex-shrink: 0;
+}
+
+.milestone-nav-timeline:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+}
+
+.milestone-nav-previous,
+.milestone-nav-next {
+  flex: 1;
+  justify-content: center;
+  min-width: 150px;
+}
+
+.milestone-nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.milestone-nav-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .milestone-navigation {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .milestone-nav-button {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+  
+  .milestone-nav-previous,
+  .milestone-nav-next {
+    min-width: unset;
+  }
+  
+  .milestone-nav-text {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .milestone-navigation {
+    padding: 0.75rem;
+  }
+  
+  .milestone-nav-button {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+  
+  .milestone-nav-icon {
+    font-size: 1.1rem;
+  }
+  
+  .milestone-nav-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* Accessibility: High contrast mode support */
+@media (prefers-contrast: high) {
+  .milestone-nav-button {
+    border-width: 3px;
+  }
+  
+  .milestone-nav-button:focus {
+    outline-width: 4px;
+  }
+}
+
+/* Accessibility: Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .milestone-nav-button {
+    transition: none;
+  }
+  
+  .milestone-nav-button:hover:not(:disabled) {
+    transform: none;
+  }
+}

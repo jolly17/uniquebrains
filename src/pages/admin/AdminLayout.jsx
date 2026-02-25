@@ -119,6 +119,15 @@ function AdminLayout() {
             <span>Sessions</span>
           </NavLink>
 
+          <NavLink 
+            to="/admin/care-resources"
+            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
+            onClick={closeSidebar}
+          >
+            <span className="nav-icon">🗺️</span>
+            <span>Care Resources</span>
+          </NavLink>
+
           <div className="nav-divider"></div>
 
           <button 

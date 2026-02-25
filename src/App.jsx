@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { trackPageView } from './utils/analytics'
 import Layout from './components/Layout'
@@ -36,6 +36,12 @@ import AskQuestion from './pages/AskQuestion'
 import QuestionDetail from './pages/QuestionDetail'
 import CreateTopic from './pages/CreateTopic'
 import CareTimeline from './pages/CareTimeline'
+import MilestonePage from './pages/MilestonePage'
+
+// Lazy load prototype and detail pages
+const MilestonePagePrototype = lazy(() => import('./pages/MilestonePagePrototype'))
+const ResourceDetailPage = lazy(() => import('./pages/ResourceDetailPage'))
+
 import AdminRoute from './components/AdminRoute'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -45,6 +51,7 @@ import AdminInstructors from './pages/admin/AdminInstructors'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminEnrollments from './pages/admin/AdminEnrollments'
 import AdminTopics from './pages/admin/AdminTopics'
+import AdminCareResources from './pages/admin/AdminCareResources'
 import InstructorProfile from './pages/InstructorProfile'
 
 // Import debug utilities (only in development)
@@ -129,6 +136,12 @@ function App() {
             
             {/* Care Roadmap Routes */}
             <Route path="care" element={<CareTimeline />} />
+            <Route path="care/:milestone" element={<MilestonePage />} />
+            <Route path="care/:milestone/:resourceId" element={
+              <Suspense fallback={<div>Loading...</div>}>
+                <ResourceDetailPage />
+              </Suspense>
+            } />
             
             {/* Teaching Portal Routes */}
             <Route path="teach">
@@ -245,6 +258,7 @@ function App() {
             <Route path="students" element={<AdminStudents />} />
             <Route path="enrollments" element={<AdminEnrollments />} />
             <Route path="topics" element={<AdminTopics />} />
+            <Route path="care-resources" element={<AdminCareResources />} />
           </Route>
         </Routes>
       </Router>
