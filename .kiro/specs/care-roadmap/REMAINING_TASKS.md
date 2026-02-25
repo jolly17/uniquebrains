@@ -92,24 +92,53 @@
 
 ---
 
+### 5. Test Admin Panel for Resource Upload
+**Status:** Not Started  
+**Description:** Test the admin panel functionality for uploading and managing care resources. Ensure the admin interface works correctly for adding new resources to the database.
+
+**Testing Checklist:**
+- [ ] Access admin panel (verify authentication/authorization)
+- [ ] Test adding a new care resource with all fields
+- [ ] Verify geocoding works for address input
+- [ ] Test uploading resources via CSV (if available)
+- [ ] Verify resources appear on the map immediately after adding
+- [ ] Test editing existing resources
+- [ ] Test deleting resources
+- [ ] Verify validation for required fields
+- [ ] Test with invalid data (missing fields, invalid coordinates)
+- [ ] Check that lat/lng columns are populated correctly
+
+**Files to review:**
+- `src/pages/admin/AdminCareResources.jsx` - Admin interface for care resources
+- `src/pages/admin/AdminDashboard.jsx` - Main admin dashboard
+- Check if CSV upload functionality exists
+
+**Potential Issues to Watch For:**
+- Geocoding API limits or failures
+- Missing lat/lng population when adding resources
+- Permission issues for non-admin users
+- Validation errors not displaying properly
+
+---
+
 ## Additional Improvements (Lower Priority)
 
-### 5. Map Clustering Performance
+### 6. Map Clustering Performance
 - Optimize marker clustering for large datasets
 - Add custom cluster icons with resource count
 - Implement cluster click to zoom
 
-### 6. Resource Card Enhancements
+### 7. Resource Card Enhancements
 - Add "Save" or "Favorite" functionality
 - Show distance on cards when location is available
 - Add "Get Directions" button
 
-### 7. Search Improvements
+### 8. Search Improvements
 - Add search suggestions/autocomplete
 - Highlight search terms in results
 - Add recent searches
 
-### 8. Mobile Responsiveness
+### 9. Mobile Responsiveness
 - Test and optimize for mobile devices
 - Improve touch interactions on map
 - Optimize layout for small screens
