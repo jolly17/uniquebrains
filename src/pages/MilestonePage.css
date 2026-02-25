@@ -353,6 +353,11 @@
     max-width: 100%;
   }
 
+  .header-tags-dropdown {
+    width: 100%;
+    min-width: auto;
+  }
+
   .header-country-selector {
     justify-content: center;
   }
