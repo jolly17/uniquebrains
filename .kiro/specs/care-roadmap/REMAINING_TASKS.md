@@ -2,7 +2,23 @@
 
 ## Priority Tasks for Tomorrow
 
-### 1. Map Search/Movement Filtering
+### 1. Mobile Map Height Fix
+**Status:** Not Started  
+**Description:** On mobile, the map height is currently square (same as screen width). Increase the map height to provide better visibility and usability on mobile devices.
+
+**Implementation:**
+- Update `.map-container` height in mobile media query (currently 500px)
+- Consider making it taller (e.g., 600-700px) or using viewport height (e.g., 60vh)
+- Test on various mobile screen sizes
+- Ensure map controls remain accessible
+
+**Files to modify:**
+- `src/pages/MilestonePage.css` - @media (max-width: 768px) section
+- `src/components/InteractiveMap.css` - mobile media queries if needed
+
+---
+
+### 2. Map Search/Movement Filtering
 **Status:** Not Started  
 **Description:** When user moves the map or searches for a location, update the resource listings to show only resources visible in the current map bounds.
 
@@ -19,7 +35,7 @@
 
 ---
 
-### 2. Sort by Distance Functionality
+### 3. Sort by Distance Functionality
 **Status:** Partially Working  
 **Description:** The "Sort by Distance" option should calculate and display distance from user's current location or searched location.
 
@@ -42,7 +58,7 @@
 
 ---
 
-### 3. Write Review Button Functionality
+### 4. Write Review Button Functionality
 **Status:** Not Started  
 **Description:** Implement the "Write a Review" button on the resource detail page.
 
@@ -78,22 +94,22 @@
 
 ## Additional Improvements (Lower Priority)
 
-### 4. Map Clustering Performance
+### 5. Map Clustering Performance
 - Optimize marker clustering for large datasets
 - Add custom cluster icons with resource count
 - Implement cluster click to zoom
 
-### 5. Resource Card Enhancements
+### 6. Resource Card Enhancements
 - Add "Save" or "Favorite" functionality
 - Show distance on cards when location is available
 - Add "Get Directions" button
 
-### 6. Search Improvements
+### 7. Search Improvements
 - Add search suggestions/autocomplete
 - Highlight search terms in results
 - Add recent searches
 
-### 7. Mobile Responsiveness
+### 8. Mobile Responsiveness
 - Test and optimize for mobile devices
 - Improve touch interactions on map
 - Optimize layout for small screens
@@ -112,6 +128,7 @@
 8. ✅ Fixed layout so resources take full width without filter panel
 9. ✅ Fixed navigation to detail pages (removed modal, using routing)
 10. ✅ All 15 resources now display at correct individual locations on map
+11. ✅ Fixed z-index hierarchy: main header (1300) > tags dropdown (1100) > map overlay (1000)
 
 ---
 
