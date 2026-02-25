@@ -242,24 +242,25 @@
 
 @media (max-width: 768px) {
   .interactive-map-container {
-    min-height: 400px;
+    min-height: 500px;
     border-radius: 8px;
   }
 
   .map-wrapper {
-    min-height: 400px;
+    min-height: 500px;
   }
 
   .leaflet-map {
-    min-height: 400px;
+    min-height: 500px;
     border-radius: 8px;
   }
 
   .map-search-overlay {
-    top: 0.75rem;
-    left: 0.75rem;
-    right: 0.75rem;
+    top: 0.5rem;
+    left: 0.5rem;
+    right: 0.5rem;
     padding: 0.75rem;
+    max-width: calc(100% - 1rem);
   }
 
   .map-resource-count {
