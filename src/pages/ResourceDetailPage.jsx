@@ -226,14 +226,13 @@ function ResourceDetailPage() {
         </div>
       </div>
 
-      {showReviewModal && (
-        <ReviewModal
-          resourceId={resourceId}
-          resourceName={resource.name}
-          onClose={() => setShowReviewModal(false)}
-          onReviewSubmitted={handleReviewSubmitted}
-        />
-      )}
+      <ReviewModal
+        isOpen={showReviewModal}
+        resourceId={resourceId}
+        resourceName={resource.name}
+        onClose={() => setShowReviewModal(false)}
+        onSubmitSuccess={handleReviewSubmitted}
+      />
     </div>
   );
 }
