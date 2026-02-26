@@ -2,6 +2,16 @@
 import { supabase } from '../lib/supabase';
 import { geocodeAddress } from '../lib/geocoding';
 import { getValidMilestoneIds } from '../data/milestones';
+
+// Country center coordinates for online services
+const COUNTRY_CENTERS = {
+  'US': { lat: 39.8283, lng: -98.5795 },
+  'IN': { lat: 20.5937, lng: 78.9629 },
+  'GB': { lat: 55.3781, lng: -3.4360 },
+  'CA': { lat: 56.1304, lng: -106.3468 },
+  'AU': { lat: -25.2744, lng: 133.7751 },
+  'DEFAULT': { lat: 0, lng: 0 }
+};
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 
@@ -93,6 +103,8 @@ export async function bulkUploadResources(file, user, onProgress = null) {
           zip_code: row.zip_code?.trim() || null,
           country: row.country.toUpperCase().trim(),
           coordinates: `POINT(${coordinates.lng} ${coordinates.lat})`,
+          lat: coordinates.lat,
+          lng: coordinates.lng,
           phone: row.phone?.trim() || null,
           email: row.email?.trim() || null,
           website: row.website?.trim() || null,
