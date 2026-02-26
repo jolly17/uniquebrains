@@ -44,6 +44,21 @@ function ResourceDetailPage() {
 
     if (resourceId) {
       fetchResource();
+  async function fetchReviews() {
+    try {
+      const { data, error } = await supabase
+        .from('care_reviews')
+        .select('*')
+        .eq('resource_id', resourceId)
+        .eq('is_approved', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setReviews(data || []);
+    } catch (err) {
+      console.error('Error fetching reviews:', err);
+    }
+  }
     fetchReviews();
     }
   }, [resourceId]);
