@@ -415,3 +415,34 @@
     height: 300px;
   }
 }
+
+/* Tags Actions */
+.tags-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 0.5rem;
+}
+
+.tag-action-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tag-action-btn:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.tag-action-btn:active {
+  transform: scale(0.98);
+}

@@ -2,6 +2,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { MILESTONES } from '../data/milestones';
 import { getResourcesByMilestoneAndLocation } from '../services/careResourceService';
+import { supabase } from '../lib/supabase';
 import { AVAILABLE_COUNTRIES, AVAILABLE_TAGS } from '../data/dummyCareResources';
 import ResourceListings from '../components/ResourceListings';
 import './MilestonePage.css';
@@ -41,6 +42,7 @@ function MilestonePage() {
   const [error, setError] = useState(null);
   const [resourceSearchQuery, setResourceSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
+  const [availableTags, setAvailableTags] = useState([]);
   const [showTagsDropdown, setShowTagsDropdown] = useState(false);
   
   // Map state - initialize from URL parameters or defaults
@@ -76,6 +78,27 @@ function MilestonePage() {
         milestone,
         radiusMiles: 50
       };
+  /**
+   * Fetch unique tags from database
+   */
+  const fetchAvailableTags = async (milestone) => {
+    try {
+      const { data, error } = await supabase
+        .from('care_resources')
+        .select('tags')
+        .eq('milestone', milestone);
+      
+      if (error) throw error;
+      
+      // Extract unique tags
+      const allTags = data.flatMap(resource => resource.tags || []);
+      const uniqueTags = [...new Set(allTags)].sort();
+      setAvailableTags(uniqueTags);
+    } catch (err) {
+      console.error('Error fetching tags:', err);
+      setAvailableTags([]);
+    }
+  };
       
       // Add location parameters if available
       if (location && location.lat && location.lng) {
@@ -155,6 +178,19 @@ function MilestonePage() {
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+  /**
+   * Clear all tag selections
+   */
+  const clearAllTags = () => {
+    setSelectedTags([]);
+  };
+
+  /**
+   * Select all available tags
+   */
+  const selectAllTags = () => {
+    setSelectedTags(availableTags);
+  };
   };
 
   /**
@@ -231,8 +267,16 @@ function MilestonePage() {
               </button>
               
               {showTagsDropdown && (
-                <div className="tags-dropdown-menu">
-                  {AVAILABLE_TAGS.map(tag => (
+                                <div className="tags-dropdown-menu">
+                  <div className="tags-actions">
+                    <button type="button" onClick={selectAllTags} className="tag-action-btn">
+                      Select All
+                    </button>
+                    <button type="button" onClick={clearAllTags} className="tag-action-btn">
+                      Clear All
+                    </button>
+                  </div>
+                  {availableTags.map(tag => (
                     <label key={tag} className="filter-checkbox">
                       <input
                         type="checkbox"

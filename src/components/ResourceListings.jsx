@@ -38,7 +38,7 @@ function ResourceListings({
   // Filter resources based on current filters and search
   const filteredResources = resources.filter(resource => {
     // Tag filter (from external prop)
-    if (selectedTags.length > 0 && !selectedTags.some(tag => resource.tags.includes(tag))) {
+    if (selectedTags.length > 0 && !selectedTags.some(tag => resource.tags?.includes(tag))) {
       return false;
     }
     // Rating filter
