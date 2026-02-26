@@ -25,7 +25,6 @@ function ResourceDetailPage() {
 
         if (error) throw error;
 
-        // Transform to include coordinates object
         const transformedResource = {
           ...data,
           coordinates: data.lat && data.lng 
@@ -42,26 +41,48 @@ function ResourceDetailPage() {
       }
     }
 
+    async function fetchReviews() {
+      try {
+        const { data, error } = await supabase
+          .from('care_reviews')
+          .select('*')
+          .eq('resource_id', resourceId)
+          .eq('is_approved', true)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setReviews(data || []);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      }
+    }
+
     if (resourceId) {
       fetchResource();
-  async function fetchReviews() {
-    try {
-      const { data, error } = await supabase
-        .from('care_reviews')
-        .select('*')
-        .eq('resource_id', resourceId)
-        .eq('is_approved', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setReviews(data || []);
-    } catch (err) {
-      console.error('Error fetching reviews:', err);
-    }
-  }
-    fetchReviews();
+      fetchReviews();
     }
   }, [resourceId]);
+
+  const handleReviewSubmitted = () => {
+    setShowReviewModal(false);
+    // Refresh reviews after submission
+    async function refreshReviews() {
+      try {
+        const { data, error } = await supabase
+          .from('care_reviews')
+          .select('*')
+          .eq('resource_id', resourceId)
+          .eq('is_approved', true)
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        setReviews(data || []);
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      }
+    }
+    refreshReviews();
+  };
 
   if (loading) {
     return (
@@ -79,7 +100,7 @@ function ResourceDetailPage() {
         <div className="resource-not-found">
           <h2>Resource not found</h2>
           <button onClick={() => navigate(`/care/${milestone}`)} className="back-btn">
-            ← Back to {milestone}
+             Back to {milestone}
           </button>
         </div>
       </div>
@@ -90,26 +111,78 @@ function ResourceDetailPage() {
     <div className="resource-detail-page">
       <div className="resource-detail-container">
         <button onClick={() => navigate(`/care/${milestone}`)} className="back-btn">
-          ← Back to {milestone}
+           Back to {milestone}
         </button>
 
         <div className="resource-detail-header">
           <h1>{resource.name}</h1>
-          {resource.verified && <span className="verified-badge">✓ Verified</span>}
+          {resource.verified && <span className="verified-badge"> Verified</span>}
         </div>
 
         <div className="resource-detail-rating">
-          <span className="rating-stars">⭐ {resource.rating}</span>
+          <span className="rating-stars"> {resource.rating}</span>
           <span className="review-count">({resource.review_count} reviews)</span>
         </div>
 
         {resource.experience_years && (
           <div className="resource-detail-experience">
-            📅 {resource.experience_years} years of experience
+             {resource.experience_years} years of experience
           </div>
         )}
 
-                        <div className="resource-detail-section">
+        {resource.description && (
+          <div className="resource-detail-description">
+            <p>{resource.description}</p>
+          </div>
+        )}
+
+        <div className="resource-detail-section">
+          <h2>Contact Information</h2>
+          <div className="contact-info">
+            <p><strong>Address:</strong> {resource.address}, {resource.city}, {resource.state} {resource.zip_code}</p>
+            {resource.phone && <p><strong>Phone:</strong> {resource.phone}</p>}
+            {resource.email && <p><strong>Email:</strong> {resource.email}</p>}
+            {resource.website && (
+              <p>
+                <strong>Website:</strong>{' '}
+                <a href={resource.website} target="_blank" rel="noopener noreferrer">
+                  {resource.website}
+                </a>
+              </p>
+            )}
+          </div>
+        </div>
+
+        {resource.tags && resource.tags.length > 0 && (
+          <div className="resource-detail-section">
+            <h2>Services</h2>
+            <div className="resource-tags">
+              {resource.tags.map((tag, index) => (
+                <span key={index} className="resource-tag">{tag}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {resource.coordinates && (
+          <div className="resource-detail-section">
+            <h2>Location</h2>
+            <div className="resource-map">
+              <iframe
+                width="100%"
+                height="300"
+                frameBorder="0"
+                scrolling="no"
+                marginHeight="0"
+                marginWidth="0"
+                src={`https://www.openstreetmap.org/export/embed.html?bbox=${resource.coordinates.lng-0.01},${resource.coordinates.lat-0.01},${resource.coordinates.lng+0.01},${resource.coordinates.lat+0.01}&layer=mapnik&marker=${resource.coordinates.lat},${resource.coordinates.lng}`}
+                title="Resource location map"
+              />
+            </div>
+          </div>
+        )}
+
+        <div className="resource-detail-section">
           <h2>Reviews ({reviews.length})</h2>
           {reviews.length > 0 ? (
             <div className="reviews-list">
@@ -117,7 +190,7 @@ function ResourceDetailPage() {
                 <div key={review.id} className="review-item">
                   <div className="review-header">
                     <span className="review-author">{review.reviewer_name}</span>
-                    <span className="review-rating">{'?'.repeat(review.rating)}</span>
+                    <span className="review-rating">{''.repeat(review.rating)}</span>
                   </div>
                   <p className="review-text">{review.review_text}</p>
                   <span className="review-date">
@@ -126,12 +199,7 @@ function ResourceDetailPage() {
                       month: 'long', 
                       day: 'numeric' 
                     })}
-
-        {resource.description && (
-          <div className="resource-detail-description">
-            <p>{resource.description}</p>
-          </div>
-        )}                  </span>
+                  </span>
                 </div>
               ))}
             </div>
@@ -140,24 +208,33 @@ function ResourceDetailPage() {
               <p>No reviews yet. Be the first to review this resource!</p>
             </div>
           )}
-          <button className="write-review-btn" onClick={() => setShowReviewModal(true)}>Write a Review</button>
+          <button className="write-review-btn" onClick={() => setShowReviewModal(true)}>
+            Write a Review
+          </button>
         </div>
 
         <div className="share-section">
           <h3>Share this resource</h3>
           <div className="share-buttons">
             <button className="share-btn" onClick={() => navigator.clipboard.writeText(window.location.href)}>
-              🔗 Copy Link
+               Copy Link
             </button>
-            <button className="share-btn">📧 Email</button>
-            <button className="share-btn">💬 WhatsApp</button>
+            <button className="share-btn"> Email</button>
+            <button className="share-btn"> WhatsApp</button>
           </div>
         </div>
       </div>
+
+      {showReviewModal && (
+        <ReviewModal
+          resourceId={resourceId}
+          resourceName={resource.name}
+          onClose={() => setShowReviewModal(false)}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
+      )}
     </div>
   );
 }
 
 export default ResourceDetailPage;
-
-
