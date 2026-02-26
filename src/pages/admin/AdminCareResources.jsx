@@ -304,16 +304,25 @@ function AdminCareResources() {
             to coordinates using geocoding services.
           </p>
           
-          <h4>Required Address Fields:</h4>
+          <h4>Required Fields:</h4>
           <ul>
-            <li>Street address</li>
+            <li><strong>milestone</strong> - Resource category (see valid milestones below)</li>
+            <li><strong>name</strong> - Resource name</li>
+            <li><strong>address</strong> - Street address (or "Online" for virtual services)</li>
             <li>City</li>
             <li>State/Province</li>
             <li>Postal code</li>
             <li>Country (2-letter code: US, IN, GB, etc.)</li>
           </ul>
 
-          <h4>Geocoding Provider:</h4>
+          
+          <h4> Online Services:</h4>
+          <p>For virtual/online services with no physical location:</p>
+          <ul>
+            <li>Set address to "Online" or "Virtual"</li>
+            <li>Provide the country code</li>
+            <li>Leave city, state, zip_code empty</li>
+          </ul><h4>Geocoding Provider:</h4>
           <p>
             <strong>Nominatim (OpenStreetMap)</strong> - Free, no API key needed
           </p>
