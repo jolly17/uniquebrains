@@ -78,6 +78,25 @@ function MilestonePage() {
         milestone,
         radiusMiles: 50
       };
+      
+      // Add location parameters if available
+      if (location && location.lat && location.lng) {
+        params.latitude = location.lat;
+        params.longitude = location.lng;
+      }
+      
+      const data = await getResourcesByMilestoneAndLocation(params);
+      console.log('Fetched resources:', data);
+      setResources(data);
+    } catch (err) {
+      console.error('Error fetching resources:', err);
+      setError(err.message || 'Failed to load resources');
+      setResources([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /**
    * Fetch unique tags from database
    */
@@ -97,24 +116,6 @@ function MilestonePage() {
     } catch (err) {
       console.error('Error fetching tags:', err);
       setAvailableTags([]);
-    }
-  };
-      
-      // Add location parameters if available
-      if (location && location.lat && location.lng) {
-        params.latitude = location.lat;
-        params.longitude = location.lng;
-      }
-      
-      const data = await getResourcesByMilestoneAndLocation(params);
-      console.log('Fetched resources:', data);
-      setResources(data);
-    } catch (err) {
-      console.error('Error fetching resources:', err);
-      setError(err.message || 'Failed to load resources');
-      setResources([]);
-    } finally {
-      setLoading(false);
     }
   };
 
