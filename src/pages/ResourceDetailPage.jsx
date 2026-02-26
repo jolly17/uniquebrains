@@ -126,7 +126,12 @@ function ResourceDetailPage() {
                       month: 'long', 
                       day: 'numeric' 
                     })}
-                  </span>
+
+        {resource.description && (
+          <div className="resource-detail-description">
+            <p>{resource.description}</p>
+          </div>
+        )}                  </span>
                 </div>
               ))}
             </div>
