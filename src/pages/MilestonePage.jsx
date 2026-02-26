@@ -220,6 +220,7 @@ function MilestonePage() {
       // Don't pass location on initial load - show all resources
       // Only filter by location when user explicitly searches
       fetchResources(milestone, null);
+      fetchAvailableTags(milestone);
     }
   }, [milestone]);
 
