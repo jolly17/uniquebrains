@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import StarRating from '../components/StarRating';
 import ReviewModal from '../components/ReviewModal';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -120,7 +121,7 @@ function ResourceDetailPage() {
         </div>
 
         <div className="resource-detail-rating">
-          <span className="rating-stars"> {resource.rating}</span>
+          <StarRating rating={resource.rating} size="large" />
           <span className="review-count">({resource.review_count} reviews)</span>
         </div>
 
@@ -158,7 +159,7 @@ function ResourceDetailPage() {
             <h2>Services</h2>
             <div className="resource-tags">
               {resource.tags.map((tag, index) => (
-                <span key={index} className="resource-tag">{tag}</span>
+                <span key={index} className="tag">{tag}</span>
               ))}
             </div>
           </div>

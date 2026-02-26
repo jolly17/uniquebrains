@@ -46,8 +46,8 @@ function ResourceCard({ resource, onClick }) {
         <span className="rating-stars" aria-label={`Rating: ${resource.rating} out of 5 stars`}>
           ⭐ {resource.rating}
         </span>
-        <span className="review-count" aria-label={`${resource.reviewCount} reviews`}>
-          ({resource.reviewCount} reviews)
+        <span className="review-count" aria-label={`${resource.review_count || 0} reviews`}>
+          ({resource.review_count || 0} reviews)
         </span>
       </div>
 
