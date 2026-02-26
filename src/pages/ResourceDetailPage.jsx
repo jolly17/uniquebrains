@@ -11,6 +11,7 @@ function ResourceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     async function fetchResource() {
@@ -43,6 +44,7 @@ function ResourceDetailPage() {
 
     if (resourceId) {
       fetchResource();
+    fetchReviews();
     }
   }, [resourceId]);
 
@@ -92,93 +94,32 @@ function ResourceDetailPage() {
           </div>
         )}
 
-        <div className="resource-detail-section">
-          <h2>About</h2>
-          <p>{resource.description}</p>
-        </div>
-
-        <div className="resource-detail-section">
-          <h2>Contact Information</h2>
-          <div className="contact-info">
-            <p>📍 {resource.address}</p>
-            <p>📞 <a href={`tel:${resource.phone}`}>{resource.phone}</a></p>
-            <p>✉️ <a href={`mailto:${resource.email}`}>{resource.email}</a></p>
-            <p>🌐 <a href={resource.website} target="_blank" rel="noopener noreferrer">Visit Website →</a></p>
-          </div>
-        </div>
-
-        <div className="resource-detail-section">
-          <h2>Specialties</h2>
-          <div className="resource-tags">
-            {resource.tags.map(tag => (
-              <span key={tag} className="tag">{tag}</span>
-            ))}
-          </div>
-        </div>
-
-        <div className="resource-detail-section">
-          <h2>Location</h2>
-          {resource.coordinates ? (
-            <div className="map-embed">
-              <div className="detail-map-container" style={{ height: '400px', borderRadius: '8px', overflow: 'hidden' }}>
-                <iframe
-                  width="100%"
-                  height="400"
-                  frameBorder="0"
-                  style={{ border: 0 }}
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${resource.coordinates.lng - 0.01},${resource.coordinates.lat - 0.01},${resource.coordinates.lng + 0.01},${resource.coordinates.lat + 0.01}&layer=mapnik&marker=${resource.coordinates.lat},${resource.coordinates.lng}`}
-                  allowFullScreen
-                  title="Resource location map"
-                />
-              </div>
-              <div className="map-info">
-                <p className="map-address">📍 {resource.address}</p>
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="view-on-maps-btn"
-                >
-                  View on Google Maps →
-                </a>
-              </div>
+                        <div className="resource-detail-section">
+          <h2>Reviews ({reviews.length})</h2>
+          {reviews.length > 0 ? (
+            <div className="reviews-list">
+              {reviews.map(review => (
+                <div key={review.id} className="review-item">
+                  <div className="review-header">
+                    <span className="review-author">{review.reviewer_name}</span>
+                    <span className="review-rating">{'?'.repeat(review.rating)}</span>
+                  </div>
+                  <p className="review-text">{review.review_text}</p>
+                  <span className="review-date">
+                    {new Date(review.created_at).toLocaleDateString('en-US', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+              ))}
             </div>
           ) : (
-            <div className="map-embed-placeholder">
-              <p>📍 {resource.address}</p>
-              <p className="no-coordinates">Map coordinates not available</p>
+            <div className="reviews-placeholder">
+              <p>No reviews yet. Be the first to review this resource!</p>
             </div>
           )}
-        </div>
-
-        <div className="resource-detail-section">
-          <h2>Reviews ({resource.review_count})</h2>
-          <div className="reviews-placeholder">
-            <p>Reviews will appear here...</p>
-            <div className="sample-reviews">
-              <div className="sample-review">
-                <div className="review-header">
-                  <span className="review-author">Sarah M.</span>
-                  <span className="review-rating">⭐⭐⭐⭐⭐</span>
-                </div>
-                <p className="review-text">
-                  Excellent service! The staff was very understanding and professional. 
-                  Highly recommend for autism assessments.
-                </p>
-                <span className="review-date">2 weeks ago</span>
-              </div>
-              <div className="sample-review">
-                <div className="review-header">
-                  <span className="review-author">John D.</span>
-                  <span className="review-rating">⭐⭐⭐⭐</span>
-                </div>
-                <p className="review-text">
-                  Great experience overall. Wait time was a bit long but worth it.
-                </p>
-                <span className="review-date">1 month ago</span>
-              </div>
-            </div>
-          </div>
           <button className="write-review-btn" onClick={() => setShowReviewModal(true)}>Write a Review</button>
         </div>
 
@@ -198,3 +139,5 @@ function ResourceDetailPage() {
 }
 
 export default ResourceDetailPage;
+
+
