@@ -28,12 +28,11 @@ CREATE POLICY "Anyone can read approved reviews"
   FOR SELECT
   USING (is_approved = true);
 
--- Policy: Authenticated users can insert reviews
-CREATE POLICY "Authenticated users can insert reviews"
+-- Policy: Anyone can insert reviews (authenticated or anonymous)
+CREATE POLICY "Anyone can insert reviews"
   ON care_reviews
   FOR INSERT
-  TO authenticated
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (true);
 
 -- Policy: Users can update their own reviews (before approval)
 CREATE POLICY "Users can update own reviews"

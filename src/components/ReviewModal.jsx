@@ -8,7 +8,8 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
   const [formData, setFormData] = useState({
     rating: 5,
     reviewText: '',
-    reviewerName: ''
+    reviewerName: '',
+    isAnonymous: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
@@ -32,7 +33,7 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
         .insert({
           resource_id: resourceId,
           user_id: user?.id || null,
-          reviewer_name: formData.reviewerName.trim(),
+          reviewer_name: formData.isAnonymous ? 'Anonymous' : formData.reviewerName.trim(),
           rating: formData.rating,
           review_text: formData.reviewText.trim(),
           is_approved: false // Reviews need admin approval
@@ -47,7 +48,8 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
         onSubmitSuccess();
       }
       
-      setFormData({ rating: 5, reviewText: '', reviewerName: '' });
+      setFormData({ rating: 5, reviewText: '', reviewerName: '',
+    isAnonymous: false });
       onClose();
     } catch (err) {
       console.error('Error submitting review:', err);
@@ -79,9 +81,20 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
           </p>
 
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+                        <div className="form-group">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name="isAnonymous"
+                  checked={formData.isAnonymous}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
+                />
+                <span>Post anonymously</span>
+              </label>
+            </div>
+<div className="form-group">
               <label htmlFor="rating">
-                Rating <span className="required">*</span>
+                Rating <span className="required={!formData.isAnonymous}">*</span>
               </label>
               <div className="star-rating">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -103,7 +116,7 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
 
             <div className="form-group">
               <label htmlFor="reviewerName">
-                Your Name <span className="required">*</span>
+                Your Name {!formData.isAnonymous && <span className="required={!formData.isAnonymous}">*</span>}
               </label>
               <input
                 type="text"
@@ -112,14 +125,14 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
                 value={formData.reviewerName}
                 onChange={handleChange}
                 placeholder="Enter your name"
-                required
+                required={!formData.isAnonymous}
                 maxLength={100}
               />
             </div>
 
             <div className="form-group">
               <label htmlFor="reviewText">
-                Your Review <span className="required">*</span>
+                Your Review <span className="required={!formData.isAnonymous}">*</span>
               </label>
               <textarea
                 id="reviewText"
@@ -127,7 +140,7 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
                 value={formData.reviewText}
                 onChange={handleChange}
                 placeholder="Share your experience with this resource..."
-                required
+                required={!formData.isAnonymous}
                 rows={6}
                 maxLength={1000}
               />
@@ -154,7 +167,7 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
               <button
                 type="submit"
                 className="btn-submit"
-                disabled={isSubmitting || !formData.reviewerName.trim() || !formData.reviewText.trim()}
+                disabled={isSubmitting || (!formData.isAnonymous && !formData.reviewerName.trim()) || !formData.reviewText.trim()}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Review'}
               </button>
