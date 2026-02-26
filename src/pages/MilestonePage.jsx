@@ -192,7 +192,6 @@ function MilestonePage() {
   const selectAllTags = () => {
     setSelectedTags(availableTags);
   };
-  };
 
   /**
    * Handle resource card click - navigate to detail page
