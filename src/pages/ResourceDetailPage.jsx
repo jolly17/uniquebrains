@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import ReviewModal from '../components/ReviewModal';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import './ResourceDetailPage.css';
@@ -9,6 +10,7 @@ function ResourceDetailPage() {
   const [resource, setResource] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   useEffect(() => {
     async function fetchResource() {
@@ -177,7 +179,7 @@ function ResourceDetailPage() {
               </div>
             </div>
           </div>
-          <button className="write-review-btn">Write a Review</button>
+          <button className="write-review-btn" onClick={() => setShowReviewModal(true)}>Write a Review</button>
         </div>
 
         <div className="share-section">
