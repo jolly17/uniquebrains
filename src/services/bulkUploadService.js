@@ -90,7 +90,7 @@ export async function bulkUploadResources(file, user, onProgress = null) {
           address: row.address.trim(),
           city: row.city?.trim() || null,
           state: row.state?.trim() || null,
-          zip_code: row.zip_code.trim(),
+          zip_code: row.zip_code?.trim() || null,
           country: row.country.toUpperCase().trim(),
           coordinates: `POINT(${coordinates.lng} ${coordinates.lat})`,
           phone: row.phone?.trim() || null,
@@ -134,7 +134,7 @@ export async function bulkUploadResources(file, user, onProgress = null) {
  * @throws {Error} - Validation error
  */
 function validateRow(row, rowNumber) {
-  const required = ['milestone', 'name', 'address', 'zip_code', 'country'];
+  const required = ['milestone', 'name', 'address', 'country'];
   const missing = required.filter(field => !row[field] || row[field].trim() === '');
   
   if (missing.length > 0) {
