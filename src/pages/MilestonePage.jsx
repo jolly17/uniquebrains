@@ -178,6 +178,7 @@ function MilestonePage() {
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
+  };
   /**
    * Clear all tag selections
    */
