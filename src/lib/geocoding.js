@@ -20,7 +20,22 @@ const geocodeCache = new Map();
  * @returns {Promise<Object|null>} - {lat, lng} or null if failed
  */
 export async function geocodeAddress({ address, city, state, zipCode, country }) {
-  const fullAddress = `${address}, ${city}, ${state} ${zipCode}, ${country}`;
+  // Build address string, filtering out empty/undefined values
+  const addressParts = [
+    address,
+    city,
+    state,
+    zipCode,
+    country
+  ].filter(part => part && part.trim() !== '');
+  
+  const fullAddress = addressParts.join(', ');
+  
+  // Validate we have at least address and country
+  if (!address || !country) {
+    console.error('Geocoding requires at least address and country');
+    return null;
+  }
   
   // Check cache first
   if (geocodeCache.has(fullAddress)) {
