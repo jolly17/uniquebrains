@@ -58,11 +58,13 @@ function MapViewController({ center, zoom }) {
  */
 export default function InteractiveMap({
   resources = [],
-  mapCenter = { lat: 39.8283, lng: -98.5795, zoom: 4 }, // US geographic center
+  mapCenter = { lat: 39.8283, lng: -98.5795, zoom: 4 },
   onMapMove,
   onResourceClick,
   selectedResourceId = null,
-  onLocationFound
+  onLocationFound,
+  hoveredResourceId = null,
+  onMarkerHover
 }) {
   const [mapReady, setMapReady] = useState(false);
   const [hoveredMarkerId, setHoveredMarkerId] = useState(null);
@@ -207,7 +209,7 @@ export default function InteractiveMap({
                 }
 
                 const isSelected = selectedResourceId === resource.id;
-                const isHovered = hoveredMarkerId === resource.id;
+                const isHovered = hoveredMarkerId === resource.id || hoveredResourceId === resource.id;
 
                 return (
                   <Marker
@@ -216,8 +218,14 @@ export default function InteractiveMap({
                     icon={createMarkerIcon(resource.rating, isSelected, isHovered)}
                     eventHandlers={{
                       click: () => handleMarkerClick(resource.id),
-                      mouseover: () => setHoveredMarkerId(resource.id),
-                      mouseout: () => setHoveredMarkerId(null)
+                      mouseover: () => {
+                        setHoveredMarkerId(resource.id);
+                        if (onMarkerHover) onMarkerHover(resource.id);
+                      },
+                      mouseout: () => {
+                        setHoveredMarkerId(null);
+                        if (onMarkerHover) onMarkerHover(null);
+                      }
                     }}
                   >
                     <Popup>

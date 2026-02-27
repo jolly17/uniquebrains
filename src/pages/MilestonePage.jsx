@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { MILESTONES } from '../data/milestones';
 import { getResourcesByMilestoneAndLocation } from '../services/careResourceService';
@@ -44,6 +44,7 @@ function MilestonePage() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
   const [showTagsDropdown, setShowTagsDropdown] = useState(false);
+  const [hoveredResourceId, setHoveredResourceId] = useState(null);
   
   // Map state - initialize from URL parameters or defaults
   const [mapCenter, setMapCenter] = useState(() => {
@@ -202,8 +203,10 @@ function MilestonePage() {
   };
 
   /**
-   * Handle map movement
+   * Handle map movement with debounced resource fetching
    */
+  const mapMoveTimeoutRef = useRef(null);
+  
   const handleMapMove = (bounds, center) => {
     // Update map center state
     setMapCenter(center);
@@ -211,8 +214,52 @@ function MilestonePage() {
     // Update URL parameters
     updateURLParams(center);
     
-    // Optionally fetch resources in new bounds
-    // For now, we'll keep the radius-based approach
+    // Debounce resource fetching - wait 500ms after user stops moving map
+    if (mapMoveTimeoutRef.current) {
+      clearTimeout(mapMoveTimeoutRef.current);
+    }
+    
+    mapMoveTimeoutRef.current = setTimeout(() => {
+      // Fetch resources in new bounds
+      fetchResourcesInBounds(bounds, milestone);
+    }, 500);
+  };
+  
+  /**
+   * Fetch resources within map bounds
+   */
+  const fetchResourcesInBounds = async (bounds, milestone) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await supabase
+        .from('care_resources')
+        .select('*')
+        .eq('milestone', milestone)
+        .gte('lat', bounds.south)
+        .lte('lat', bounds.north)
+        .gte('lng', bounds.west)
+        .lte('lng', bounds.east);
+      
+      if (error) throw error;
+      
+      // Transform to include coordinates object
+      const transformedData = (data || []).map(resource => ({
+        ...resource,
+        coordinates: resource.lat && resource.lng 
+          ? { lat: resource.lat, lng: resource.lng }
+          : null
+      }));
+      
+      console.log(`Fetched ${transformedData.length} resources in bounds`);
+      setResources(transformedData);
+    } catch (err) {
+      console.error('Error fetching resources in bounds:', err);
+      setError(err.message || 'Failed to load resources');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Fetch resources when milestone or location changes
@@ -324,6 +371,8 @@ function MilestonePage() {
             searchQuery={resourceSearchQuery}
             selectedTags={selectedTags}
             showFilters={false}
+            hoveredResourceId={hoveredResourceId}
+            onResourceHover={setHoveredResourceId}
           />
         </div>
 
@@ -345,6 +394,8 @@ function MilestonePage() {
                 onMapMove={handleMapMove}
                 onResourceClick={handleResourceClick}
                 onLocationFound={handleLocationFound}
+                hoveredResourceId={hoveredResourceId}
+                onMarkerHover={setHoveredResourceId}
               />
             </Suspense>
           </div>
