@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import StarRating from '../components/StarRating';
 import ReviewModal from '../components/ReviewModal';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import './ResourceDetailPage.css';
 
@@ -13,6 +14,9 @@ function ResourceDetailPage() {
   const [error, setError] = useState(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviews, setReviews] = useState([]);
+  const [userHasReviewed, setUserHasReviewed] = useState(false);
+  const [averageRating, setAverageRating] = useState(0);
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchResource() {
@@ -53,6 +57,21 @@ function ResourceDetailPage() {
         
         if (error) throw error;
         setReviews(data || []);
+        
+        // Calculate average rating
+        if (data && data.length > 0) {
+          const sum = data.reduce((acc, review) => acc + review.rating, 0);
+          const avg = sum / data.length;
+          setAverageRating(avg);
+        } else {
+          setAverageRating(0);
+        }
+        
+        // Check if current user has already reviewed
+        if (user && data) {
+          const userReview = data.find(review => review.user_id === user.id);
+          setUserHasReviewed(!!userReview);
+        }
       } catch (err) {
         console.error('Error fetching reviews:', err);
       }
@@ -62,7 +81,7 @@ function ResourceDetailPage() {
       fetchResource();
       fetchReviews();
     }
-  }, [resourceId]);
+  }, [resourceId, user]);
 
   const handleReviewSubmitted = () => {
     setShowReviewModal(false);
@@ -213,8 +232,8 @@ function ResourceDetailPage() {
               <p>No reviews yet. Be the first to review this resource!</p>
             </div>
           )}
-          <button className="write-review-btn" onClick={() => setShowReviewModal(true)}>
-            Write a Review
+          <button className="write-review-btn" onClick={() => setShowReviewModal(true)} disabled={userHasReviewed}>
+            {userHasReviewed ? "You've already reviewed this resource" : "Write a Review"}
           </button>
         </div>
 

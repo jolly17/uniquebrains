@@ -31,3 +31,11 @@
 .star-rating.large .star {
   font-size: 2rem;
 }
+
+
+.star.half-filled {
+  background: linear-gradient(90deg, var(--primary-color) 50%, #ddd 50%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
