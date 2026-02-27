@@ -10,7 +10,7 @@ import './ResourceCard.css';
  * @param {Object} resource - The resource data to display
  * @param {Function} onClick - Handler for card click
  */
-function ResourceCard({ resource, onClick }) {
+function ResourceCard({ resource, onClick, isHovered = false, onHover, onHoverEnd }) {
   const handleClick = () => {
     if (onClick) {
       onClick(resource.id);
@@ -26,8 +26,10 @@ function ResourceCard({ resource, onClick }) {
 
   return (
     <div
-      className="resource-card-compact"
+      className={`resource-card-compact ${isHovered ? 'hovered' : ''}`}
       onClick={handleClick}
+      onMouseEnter={onHover}
+      onMouseLeave={onHoverEnd}
       onKeyPress={handleKeyPress}
       role="button"
       tabIndex={0}
@@ -91,3 +93,4 @@ ResourceCard.defaultProps = {
 };
 
 export default ResourceCard;
+

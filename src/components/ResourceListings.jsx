@@ -26,7 +26,9 @@ function ResourceListings({
   availableTags,
   searchQuery = '',
   selectedTags = [],
-  showFilters = true
+  showFilters = true,
+  hoveredResourceId = null,
+  onResourceHover = null
 }) {
   const [showTagsDropdown, setShowTagsDropdown] = useState(false);
   const [sortBy, setSortBy] = useState('name'); // 'name', 'rating', 'distance'
@@ -255,6 +257,9 @@ function ResourceListings({
                 <ResourceCard 
                   resource={resource} 
                   onClick={onResourceClick}
+                  isHovered={hoveredResourceId === resource.id}
+                  onHover={() => onResourceHover && onResourceHover(resource.id)}
+                  onHoverEnd={() => onResourceHover && onResourceHover(null)}
                 />
               </div>
             ))}
