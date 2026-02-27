@@ -435,3 +435,25 @@
   background-color: #ccc;
   transform: none;
 }
+
+
+.share-icon-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: transform 0.2s;
+  border-radius: 8px;
+}
+
+.share-icon-btn:hover {
+  transform: scale(1.2);
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.share-buttons {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}

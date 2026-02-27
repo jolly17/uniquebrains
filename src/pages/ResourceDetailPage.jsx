@@ -119,7 +119,7 @@ function ResourceDetailPage() {
       <div className="resource-detail-page">
         <div className="resource-not-found">
           <h2>Resource not found</h2>
-          <a href={`/care/${milestone}`} className="back-link">←← Back to {milestone}</a>
+          <a href={`/care/${milestone}`} className="back-link">← Back to {milestone}</a>
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ function ResourceDetailPage() {
   return (
     <div className="resource-detail-page">
       <div className="resource-detail-container">
-        <a href={`/care/${milestone}`} className="back-link">←← Back to {milestone}</a>
+        <a href={`/care/${milestone}`} className="back-link">← Back to {milestone}</a>
 
         <div className="resource-detail-header">
           <h1>{resource.name}</h1>
@@ -193,15 +193,9 @@ function ResourceDetailPage() {
                 marginWidth="0"
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${resource.coordinates.lng-0.01},${resource.coordinates.lat-0.01},${resource.coordinates.lng+0.01},${resource.coordinates.lat+0.01}&layer=mapnik&marker=${resource.coordinates.lat},${resource.coordinates.lng}`}
                 title="Resource location map"
+                style={{ cursor: 'pointer' }}
+                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`, '_blank')}
               />
-              <a 
-                href={`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="view-in-google-maps"
-              >
-                 View in Google Maps
-              </a>
             </div>
           </div>
         )}
@@ -240,11 +234,40 @@ function ResourceDetailPage() {
         <div className="share-section">
           <h3>Share this resource</h3>
           <div className="share-buttons">
-            <button className="share-btn" onClick={() => navigator.clipboard.writeText(window.location.href)}>
-               Copy Link
+            <button 
+              className="share-icon-btn" 
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert('Link copied to clipboard!');
+              }}
+              title="Copy link"
+              aria-label="Copy link to clipboard"
+            >
+              🔗
             </button>
-            <button className="share-btn"> Email</button>
-            <button className="share-btn"> WhatsApp</button>
+            <button 
+              className="share-icon-btn"
+              onClick={() => {
+                const subject = encodeURIComponent(`Check out ${resource.name}`);
+                const body = encodeURIComponent(`I found this resource that might interest you: ${window.location.href}`);
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+              }}
+              title="Share via email"
+              aria-label="Share via email"
+            >
+              ✉️
+            </button>
+            <button 
+              className="share-icon-btn"
+              onClick={() => {
+                const text = encodeURIComponent(`Check out ${resource.name}: ${window.location.href}`);
+                window.open(`https://wa.me/?text=${text}`, '_blank');
+              }}
+              title="Share on WhatsApp"
+              aria-label="Share on WhatsApp"
+            >
+              💬
+            </button>
           </div>
         </div>
       </div>
