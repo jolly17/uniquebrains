@@ -57,7 +57,7 @@
   text-align: center;
 }
 
-.stat-value {
+.my-courses .stat-value {
   font-size: 2.5rem;
   font-weight: 700;
   color: #4f46e5;
@@ -324,3 +324,4 @@
     font-size: 1.25rem;
   }
 }
+

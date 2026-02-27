@@ -137,3 +137,61 @@ Always verify changes were applied:
 2. Check specific lines that were changed
 3. Run `npm run build` to catch syntax errors
 4. Don't assume changes worked - always verify
+
+## Today's Learnings (Session End - 2025-02-27)
+
+### CSS Debugging Best Practices
+1. **Check computed styles in browser DevTools** - User reported .stat-value {color: #fff} which wasn't in source
+2. **CSS specificity issues** - When color doesn't show, add !important to override conflicting rules
+3. **CSS variables can be overridden** - var(--primary-color) might not work if overridden elsewhere
+4. **Always verify built CSS** - Check docs/assets/*.css to see actual compiled output
+
+### React Component Patterns
+1. **Hover state management** - Pass hoveredResourceId state down through multiple components
+2. **Event handlers** - Use onMouseEnter/onMouseLeave for hover, pass callbacks up to parent
+3. **Conditional className** - Use template literals for dynamic classes
+
+### Mobile Responsive Design
+1. **Use viewport units for mobile** - 70vh for tablet, 60vh for mobile provides better UX than fixed pixels
+2. **Always include min-height fallback** - min-height: 500px ensures usability on small screens
+3. **Test multiple breakpoints** - 768px (tablet), 480px (mobile), 1024px (desktop)
+
+### Stats Calculation Patterns
+1. **Progress is typically 0-100%** - Divide by 100 to get decimal, multiply by total to get completed count
+2. **Reduce with accumulator** - Use .reduce((sum, item) => sum + calculation, 0) for totals
+3. **Handle missing data** - Always use || 0 or default values for undefined/null
+
+### Geocoding & Address Handling
+1. **Clean input data** - Remove newline characters and extra spaces before geocoding
+2. **Implement fallback strategies** - Try full address  remove suite  city+state  zipcode  country
+3. **Detect online services** - Check for "online", "virtual", "n/a" in address field
+4. **Suite/building numbers break geocoding** - Detect patterns like "STE", "Suite", "Bldg", "Floor", "#"
+
+### Map Features Implementation
+1. **Debounce map movement** - Use 500ms timeout to avoid excessive API calls
+2. **Fetch resources in bounds** - Query with gte/lte on lat/lng for visible area
+3. **MapEventHandler component** - Separate component to listen to Leaflet's moveend event
+4. **Hover highlighting** - Sync state between map markers and resource cards bidirectionally
+
+### Development Workflow Improvements
+1. **Run scripts immediately** - Don't wait for confirmation, execute right away
+2. **Build after every change** - Catch errors early with npm run build
+3. **Commit with descriptive messages** - Include what was fixed and why
+4. **Hard refresh after deployment** - Ctrl+Shift+R to bypass cache
+
+### Common Pitfalls to Avoid
+1. **Don't assume CSS variables work** - Check computed styles, use explicit colors if needed
+2. **Don't skip verification** - Always read files back after editing
+3. **Don't forget duplicate declarations** - Search for existing code before adding new
+4. **Don't use complex regex in scripts** - Keep replacements simple and targeted
+5. **Don't forget to update both component and CSS** - Hover requires changes in both places
+
+### Key Files Modified Today
+- src/pages/MilestonePage.jsx - Added hover state, map movement filtering
+- src/components/ResourceCard.jsx - Added hover props and handlers
+- src/components/ResourceListings.jsx - Pass hover props to cards
+- src/pages/MilestonePage.css - Mobile map height (70vh/60vh)
+- src/components/InteractiveMap.css - Mobile map height adjustments
+- src/pages/MyCourses.jsx - Fixed stats calculation
+- src/pages/MyCourses.css - Fixed stat-value color with !important
+- src/lib/geocoding.js - Comprehensive fallback strategies

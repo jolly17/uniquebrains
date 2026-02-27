@@ -58,7 +58,7 @@
 
 ---
 
-### 4. Write Review Button Functionality
+### 4. Write Review Button Functionality (Status: Completed)
 **Status:** Not Started  
 **Description:** Implement the "Write a Review" button on the resource detail page.
 

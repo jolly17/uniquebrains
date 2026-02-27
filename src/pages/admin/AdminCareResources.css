@@ -269,7 +269,7 @@
   font-size: 2rem;
 }
 
-.stat-value {
+.admin-care-resources .stat-value {
   font-size: 1.8rem;
   font-weight: 700;
   margin: 0;
@@ -438,3 +438,4 @@
     gap: 1rem;
   }
 }
+
