@@ -69,13 +69,13 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
           reviewer_name: formData.isAnonymous ? 'Anonymous' : formData.reviewerName.trim(),
           rating: formData.rating,
           review_text: formData.reviewText.trim(),
-          is_approved: false // Reviews need admin approval
+          is_approved: true // Reviews are approved by default, admin can turn down if needed
         });
 
       if (submitError) throw submitError;
 
       // Show success and close
-      alert('Thank you! Your review has been submitted and is pending approval.');
+      alert('Thank you! Your review has been submitted successfully.');
       
       if (onSubmitSuccess) {
         onSubmitSuccess();
@@ -113,7 +113,6 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
     );
   }
 
-  // Require authentication
   if (!user) {
     return (
       <div className="review-modal-overlay" onClick={onClose}>
@@ -132,7 +131,6 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
       </div>
     );
   }
-
   // Show login prompt if user is not authenticated
   if (!user) {
     return (
@@ -161,7 +159,7 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
               <button
                 type="button"
                 className="btn-submit"
-                onClick={() => window.location.href = '/login'}
+                onClick={() => { const returnUrl = encodeURIComponent(window.location.pathname); window.location.href = `/login?redirect=${returnUrl}`; }}
               >
                 Sign In
               </button>
@@ -300,3 +298,4 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
     </div>
   );
 }
+
