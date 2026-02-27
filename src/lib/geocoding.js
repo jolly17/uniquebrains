@@ -29,6 +29,58 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
   const cleanZipCode = cleanPart(zipCode);
   const cleanCountry = cleanPart(country);
   
+  // Check if this is an online/virtual service
+  const isOnlineService = !cleanAddress || 
+                         cleanAddress.toLowerCase() === 'online' || 
+                         cleanAddress.toLowerCase() === 'virtual' ||
+                         cleanAddress.toLowerCase() === 'n/a';
+  
+  if (isOnlineService) {
+    console.log('Online/virtual service detected - using location-based fallback');
+    
+    // Try cascading fallback: zipCode -> city -> state -> country center
+    if (cleanZipCode && cleanCountry) {
+      const result = await geocodeWithNominatim(`${cleanZipCode}, ${cleanCountry}`);
+      if (result) {
+        console.log('Geocoded using zipCode + country');
+        return result;
+      }
+    }
+    
+    if (cleanCity && cleanCountry) {
+      const result = await geocodeWithNominatim(`${cleanCity}, ${cleanCountry}`);
+      if (result) {
+        console.log('Geocoded using city + country');
+        return result;
+      }
+    }
+    
+    if (cleanState && cleanCountry) {
+      const result = await geocodeWithNominatim(`${cleanState}, ${cleanCountry}`);
+      if (result) {
+        console.log('Geocoded using state + country');
+        return result;
+      }
+    }
+    
+    if (cleanCountry) {
+      const result = await geocodeWithNominatim(cleanCountry);
+      if (result) {
+        console.log('Geocoded using country only');
+        return result;
+      }
+    }
+    
+    console.error('Failed to geocode online service - no valid location data');
+    return null;
+  }
+  
+  // Validate we have at least country for physical addresses
+  if (!cleanCountry) {
+    console.error('Geocoding requires at least country');
+    return null;
+  }
+  
   // Build address string, filtering out empty values
   const addressParts = [
     cleanAddress,
@@ -39,12 +91,6 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
   ].filter(part => part !== '');
   
   const fullAddress = addressParts.join(', ');
-  
-  // Validate we have at least address and country
-  if (!cleanAddress || !cleanCountry) {
-    console.error('Geocoding requires at least address and country');
-    return null;
-  }
   
   // Check cache first
   if (geocodeCache.has(fullAddress)) {
@@ -72,13 +118,12 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
       default:
         result = await geocodeWithNominatim(fullAddress);
         
-        // Fallback: If detailed address fails, try without suite/building numbers
+        // Fallback 1: If detailed address fails, try without suite/building numbers
         if (!result && (cleanAddress.includes('STE') || cleanAddress.includes('Suite') || 
                        cleanAddress.includes('Bldg') || cleanAddress.includes('Building') ||
                        cleanAddress.includes('#'))) {
           console.log('Trying fallback without suite/building number...');
           
-          // Remove suite/building numbers
           const simplifiedAddress = cleanAddress
             .replace(/,?\s*(STE|Suite|Ste|SUITE)\s*[A-Z0-9]+/gi, '')
             .replace(/,?\s*(Bldg|Building|BLDG)\.?\s*[A-Z0-9]+/gi, '')
@@ -98,6 +143,23 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
           
           result = await geocodeWithNominatim(fallbackAddress);
         }
+        
+        // Fallback 2: Try with just city, state, zipCode, country
+        if (!result && cleanCity) {
+          console.log('Trying fallback with city + state + zipCode...');
+          const cityFallback = [cleanCity, cleanState, cleanZipCode, cleanCountry]
+            .filter(part => part !== '')
+            .join(', ');
+          console.log('City fallback:', cityFallback);
+          result = await geocodeWithNominatim(cityFallback);
+        }
+        
+        // Fallback 3: Try with just zipCode + country
+        if (!result && cleanZipCode) {
+          console.log('Trying fallback with zipCode + country...');
+          result = await geocodeWithNominatim(`${cleanZipCode}, ${cleanCountry}`);
+        }
+        
         break;
     }
     
