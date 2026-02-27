@@ -94,24 +94,6 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
   if (!isOpen) return null;
 
 
-  if (!user) {
-    return (
-      <div className="review-modal-overlay" onClick={onClose}>
-        <div className="review-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="review-modal-header">
-            <h2>Sign In Required</h2>
-            <button className="review-modal-close" onClick={onClose} aria-label="Close modal"></button>
-          </div>
-          <div className="review-modal-body">
-            <p>You must be signed in to write a review.</p>
-            <div className="review-modal-actions">
-              <button type="button" className="btn-cancel" onClick={onClose}>Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
   // Show login prompt if user is not authenticated
   if (!user) {
     return (
@@ -122,9 +104,8 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
             <button 
               className="review-modal-close" 
               onClick={onClose}
-              aria-label="Close modal"
-            >
-              
+              aria-label="Close modal">
+              ×
             </button>
           </div>
           <div className="review-modal-body">
@@ -159,10 +140,9 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
           <button 
             className="review-modal-close" 
             onClick={onClose}
-            aria-label="Close modal"
-          >
-            
-          </button>
+            aria-label="Close modal">
+              ×
+            </button>
         </div>
 
         <div className="review-modal-body">
@@ -194,9 +174,8 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
                     type="button"
                     className={`star ${formData.rating >= star ? 'active' : ''}`}
                     onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                    aria-label={`Rate ${star} stars`}
-                  >
-                    
+                    aria-label={`Rate ${star} stars`}>
+                    ★
                   </button>
                 ))}
               </div>

@@ -100,7 +100,7 @@ function ResourceDetailPage() {
       <div className="resource-detail-page">
         <div className="resource-not-found">
           <h2>Resource not found</h2>
-          <a href={`/care/${milestone}`} className="back-link"> Back to {milestone}</a>
+          <a href={`/care/${milestone}`} className="back-link">←← Back to {milestone}</a>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ function ResourceDetailPage() {
   return (
     <div className="resource-detail-page">
       <div className="resource-detail-container">
-        <a href={`/care/${milestone}`} className="back-link"> Back to {milestone}</a>
+        <a href={`/care/${milestone}`} className="back-link">←← Back to {milestone}</a>
 
         <div className="resource-detail-header">
           <h1>{resource.name}</h1>
