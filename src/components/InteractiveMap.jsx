@@ -39,6 +39,45 @@ function MapViewController({ center, zoom }) {
 }
 
 /**
+ * Component to handle map movement events
+ */
+function MapEventHandler({ onMapMove }) {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (!onMapMove) return;
+    
+    const handleMoveEnd = () => {
+      const bounds = map.getBounds();
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+
+      onMapMove(
+        {
+          north: bounds.getNorth(),
+          south: bounds.getSouth(),
+          east: bounds.getEast(),
+          west: bounds.getWest()
+        },
+        {
+          lat: center.lat,
+          lng: center.lng,
+          zoom: zoom
+        }
+      );
+    };
+    
+    map.on('moveend', handleMoveEnd);
+    
+    return () => {
+      map.off('moveend', handleMoveEnd);
+    };
+  }, [map, onMapMove]);
+  
+  return null;
+}
+
+/**
  * InteractiveMap Component
  * 
  * Leaflet-based map that displays resource markers and allows location selection.
@@ -103,31 +142,7 @@ export default function InteractiveMap({
     });
   };
 
-  /**
-   * Handle map movement end
-   */
-  const handleMapMoveEnd = () => {
-    if (!mapRef.current || !onMapMove) return;
-
-    const map = mapRef.current;
-    const bounds = map.getBounds();
-    const center = map.getCenter();
-    const zoom = map.getZoom();
-
-    onMapMove(
-      {
-        north: bounds.getNorth(),
-        south: bounds.getSouth(),
-        east: bounds.getEast(),
-        west: bounds.getWest()
-      },
-      {
-        lat: center.lat,
-        lng: center.lng,
-        zoom: zoom
-      }
-    );
-  };
+  
 
   /**
    * Handle marker click
