@@ -12,10 +12,12 @@ function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
+  const searchParams = new URLSearchParams(location.search)
+  const redirectParam = searchParams.get('redirect')
 
   // Store redirect URL in sessionStorage for OAuth to access
   useEffect(() => {
-    const redirectTo = location.state?.from
+    const redirectTo = redirectParam || location.state?.from
     if (redirectTo) {
       sessionStorage.setItem('redirectAfterLogin', redirectTo)
     }
