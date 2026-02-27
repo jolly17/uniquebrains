@@ -100,9 +100,7 @@ function ResourceDetailPage() {
       <div className="resource-detail-page">
         <div className="resource-not-found">
           <h2>Resource not found</h2>
-          <button onClick={() => navigate(`/care/${milestone}`)} className="back-btn">
-             Back to {milestone}
-          </button>
+          <a href={`/care/${milestone}`} className="back-link"> Back to {milestone}</a>
         </div>
       </div>
     );
@@ -111,9 +109,7 @@ function ResourceDetailPage() {
   return (
     <div className="resource-detail-page">
       <div className="resource-detail-container">
-        <button onClick={() => navigate(`/care/${milestone}`)} className="back-btn">
-           Back to {milestone}
-        </button>
+        <a href={`/care/${milestone}`} className="back-link"> Back to {milestone}</a>
 
         <div className="resource-detail-header">
           <h1>{resource.name}</h1>
@@ -165,7 +161,7 @@ function ResourceDetailPage() {
           </div>
         )}
 
-        {resource.coordinates && (
+                {resource.coordinates && (
           <div className="resource-detail-section">
             <h2>Location</h2>
             <div className="resource-map">
@@ -179,6 +175,14 @@ function ResourceDetailPage() {
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${resource.coordinates.lng-0.01},${resource.coordinates.lat-0.01},${resource.coordinates.lng+0.01},${resource.coordinates.lat+0.01}&layer=mapnik&marker=${resource.coordinates.lat},${resource.coordinates.lng}`}
                 title="Resource location map"
               />
+              <a 
+                href={`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="view-in-google-maps"
+              >
+                 View in Google Maps
+              </a>
             </div>
           </div>
         )}
