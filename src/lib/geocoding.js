@@ -31,6 +31,13 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
   
   const fullAddress = addressParts.join(', ');
   
+  // Debug logging
+  console.log('Geocoding address:', {
+    input: { address, city, state, zipCode, country },
+    fullAddress,
+    partsCount: addressParts.length
+  });
+  
   // Validate we have at least address and country
   if (!address || !country) {
     console.error('Geocoding requires at least address and country');
@@ -95,6 +102,7 @@ async function geocodeWithNominatim(address) {
   const data = await response.json();
   
   if (data.length === 0) {
+    console.error('Nominatim returned no results for:', address);
     return null;
   }
   
