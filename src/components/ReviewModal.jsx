@@ -93,25 +93,6 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
 
   if (!isOpen) return null;
 
-  // Require authentication
-  if (!user) {
-    return (
-      <div className="review-modal-overlay" onClick={onClose}>
-        <div className="review-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="review-modal-header">
-            <h2>Sign In Required</h2>
-            <button className="review-modal-close" onClick={onClose} aria-label="Close modal"></button>
-          </div>
-          <div className="review-modal-body">
-            <p>You must be signed in to write a review.</p>
-            <div className="review-modal-actions">
-              <button type="button" className="btn-cancel" onClick={onClose}>Close</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return (
@@ -298,4 +279,5 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
     </div>
   );
 }
+
 
