@@ -183,7 +183,12 @@ function ResourceDetailPage() {
                 {resource.coordinates && (
           <div className="resource-detail-section">
             <h2>Location</h2>
-            <div className="resource-map">
+            <div 
+              className="resource-map" 
+              onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`, '_blank')}
+              style={{ cursor: 'pointer' }}
+              title="Click to open in Google Maps"
+            >
               <iframe
                 width="100%"
                 height="300"
@@ -193,8 +198,7 @@ function ResourceDetailPage() {
                 marginWidth="0"
                 src={`https://www.openstreetmap.org/export/embed.html?bbox=${resource.coordinates.lng-0.01},${resource.coordinates.lat-0.01},${resource.coordinates.lng+0.01},${resource.coordinates.lat+0.01}&layer=mapnik&marker=${resource.coordinates.lat},${resource.coordinates.lng}`}
                 title="Resource location map"
-                style={{ cursor: 'pointer' }}
-                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${resource.coordinates.lat},${resource.coordinates.lng}`, '_blank')}
+                style={{ pointerEvents: 'none' }}
               />
             </div>
           </div>
