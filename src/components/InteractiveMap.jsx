@@ -207,7 +207,7 @@ export default function InteractiveMap({
           />
 
           {/* Map view controller */}
-          <MapViewController center={mapCenter} zoom={mapCenter.zoom} />
+          <MapViewController center={mapCenter} zoom={mapCenter.zoom} />`n          `n          {/* Map event handler */}`n          <MapEventHandler onMapMove={onMapMove} />
 
           {/* Resource markers with clustering */}
           {resources.length > 0 && (
@@ -276,3 +276,4 @@ export default function InteractiveMap({
     </div>
   );
 }
+
