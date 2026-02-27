@@ -20,26 +20,28 @@ const geocodeCache = new Map();
  * @returns {Promise<Object|null>} - {lat, lng} or null if failed
  */
 export async function geocodeAddress({ address, city, state, zipCode, country }) {
-  // Build address string, filtering out empty/undefined values
+  // Clean address parts - remove newlines and extra spaces
+  const cleanPart = (part) => part ? part.replace(/\s+/g, ' ').trim() : '';
+  
+  const cleanAddress = cleanPart(address);
+  const cleanCity = cleanPart(city);
+  const cleanState = cleanPart(state);
+  const cleanZipCode = cleanPart(zipCode);
+  const cleanCountry = cleanPart(country);
+  
+  // Build address string, filtering out empty values
   const addressParts = [
-    address,
-    city,
-    state,
-    zipCode,
-    country
-  ].filter(part => part && part.trim() !== '');
+    cleanAddress,
+    cleanCity,
+    cleanState,
+    cleanZipCode,
+    cleanCountry
+  ].filter(part => part !== '');
   
   const fullAddress = addressParts.join(', ');
   
-  // Debug logging
-  console.log('Geocoding address:', {
-    input: { address, city, state, zipCode, country },
-    fullAddress,
-    partsCount: addressParts.length
-  });
-  
   // Validate we have at least address and country
-  if (!address || !country) {
+  if (!cleanAddress || !cleanCountry) {
     console.error('Geocoding requires at least address and country');
     return null;
   }
@@ -48,6 +50,13 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
   if (geocodeCache.has(fullAddress)) {
     return geocodeCache.get(fullAddress);
   }
+  
+  // Debug logging
+  console.log('Geocoding address:', {
+    input: { address: cleanAddress, city: cleanCity, state: cleanState, zipCode: cleanZipCode, country: cleanCountry },
+    fullAddress,
+    partsCount: addressParts.length
+  });
   
   try {
     let result;
@@ -62,6 +71,33 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
       case 'nominatim':
       default:
         result = await geocodeWithNominatim(fullAddress);
+        
+        // Fallback: If detailed address fails, try without suite/building numbers
+        if (!result && (cleanAddress.includes('STE') || cleanAddress.includes('Suite') || 
+                       cleanAddress.includes('Bldg') || cleanAddress.includes('Building') ||
+                       cleanAddress.includes('#'))) {
+          console.log('Trying fallback without suite/building number...');
+          
+          // Remove suite/building numbers
+          const simplifiedAddress = cleanAddress
+            .replace(/,?\s*(STE|Suite|Ste|SUITE)\s*[A-Z0-9]+/gi, '')
+            .replace(/,?\s*(Bldg|Building|BLDG)\.?\s*[A-Z0-9]+/gi, '')
+            .replace(/,?\s*#\s*[A-Z0-9]+/gi, '')
+            .trim();
+          
+          const fallbackParts = [
+            simplifiedAddress,
+            cleanCity,
+            cleanState,
+            cleanZipCode,
+            cleanCountry
+          ].filter(part => part !== '');
+          
+          const fallbackAddress = fallbackParts.join(', ');
+          console.log('Fallback address:', fallbackAddress);
+          
+          result = await geocodeWithNominatim(fallbackAddress);
+        }
         break;
     }
     
