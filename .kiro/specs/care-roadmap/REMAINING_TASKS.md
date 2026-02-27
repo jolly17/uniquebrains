@@ -92,21 +92,20 @@
 
 ---
 
-### 5. Test Admin Panel for Resource Upload
-**Status:** Not Started  
+### 5. Test Admin Panel for Resource Upload $([char]13)$([char]10)**Status:** Completed  
 **Description:** Test the admin panel functionality for uploading and managing care resources. Ensure the admin interface works correctly for adding new resources to the database.
 
 **Testing Checklist:**
-- [ ] Access admin panel (verify authentication/authorization)
-- [ ] Test adding a new care resource with all fields
-- [ ] Verify geocoding works for address input
-- [ ] Test uploading resources via CSV (if available)
-- [ ] Verify resources appear on the map immediately after adding
-- [ ] Test editing existing resources
-- [ ] Test deleting resources
-- [ ] Verify validation for required fields
-- [ ] Test with invalid data (missing fields, invalid coordinates)
-- [ ] Check that lat/lng columns are populated correctly
+- [x] Access admin panel (verify authentication/authorization)
+- [x] Test adding a new care resource with all fields
+- [x] Verify geocoding works for address input
+- [x] Test uploading resources via CSV (if available)
+- [x] Verify resources appear on the map immediately after adding
+- [x] Test editing existing resources
+- [x] Test deleting resources
+- [x] Verify validation for required fields
+- [x] Test with invalid data (missing fields, invalid coordinates)
+- [x] Check that lat/lng columns are populated correctly
 
 **Files to review:**
 - `src/pages/admin/AdminCareResources.jsx` - Admin interface for care resources
@@ -192,3 +191,4 @@
 - [ ] Test search with special characters
 - [ ] Test tag filtering combinations
 - [ ] Test country flag navigation
+
