@@ -242,12 +242,12 @@
 
 @media (max-width: 768px) {
   .interactive-map-container {
-    min-height: 500px;
+    min-height: 70vh;
     border-radius: 8px;
   }
 
   .map-wrapper {
-    min-height: 500px;
+    min-height: 70vh;
   }
 
   .leaflet-map {
@@ -279,11 +279,11 @@
 
 @media (max-width: 480px) {
   .interactive-map-container {
-    min-height: 350px;
+    min-height: 60vh;
   }
 
   .map-wrapper {
-    min-height: 350px;
+    min-height: 60vh;
   }
 
   .leaflet-map {
