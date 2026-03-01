@@ -45,7 +45,7 @@
 .stat-card.clickable:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
-  border-color: var(--primary-color);
+  border-color: #4f46e5;
 }
 
 .stat-icon {
@@ -67,7 +67,7 @@
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--primary-color);
+  color: #4f46e5;
   margin-bottom: 0.25rem;
 }
 
@@ -79,7 +79,7 @@
 
 .stat-arrow {
   font-size: 1.5rem;
-  color: var(--primary-color);
+  color: #4f46e5;
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -153,3 +153,4 @@
     font-size: 1.25rem;
   }
 }
+

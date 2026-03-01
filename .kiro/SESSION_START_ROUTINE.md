@@ -195,3 +195,23 @@ Always verify changes were applied:
 - src/pages/MyCourses.jsx - Fixed stats calculation
 - src/pages/MyCourses.css - Fixed stat-value color with !important
 - src/lib/geocoding.js - Comprehensive fallback strategies
+
+### CRITICAL: CSS Conflicts Across Multiple Files (Added after stat-value fix)
+**Problem**: Multiple CSS files defining the same class (.stat-value) caused conflicts
+**Root Cause**: CSS cascade - last loaded file wins, causing unpredictable colors
+**Files with conflicts found**:
+- MyCourses.css - color: #4f46e5 (purple)
+- AdminCareResources.css - color: #1a1a1a (dark gray)
+- Community.css - color: #2C3744 (dark blue-gray)
+- AdminDashboard.css - color: var(--primary-color)
+
+**Proper Solution**: Scope selectors to component containers
+- .my-courses .stat-value instead of .stat-value
+- .admin-care-resources .stat-value instead of .stat-value
+- .community-page .stat-value instead of .stat-value
+
+**Lesson**: When CSS doesn't work as expected:
+1. Search ALL CSS files for the selector: grepSearch with pattern .stat-value
+2. Check for multiple definitions across different files
+3. Use scoped selectors (parent class + child class) to prevent conflicts
+4. Don't rely on !important alone - it's a band-aid, not a fix
