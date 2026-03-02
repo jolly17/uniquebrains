@@ -4,6 +4,71 @@
  */
 
 /**
+ * Convert 12-hour time format to 24-hour format
+ * @param {string} time12h - Time in 12-hour format (e.g., "2:30 PM")
+ * @returns {string|null} Time in 24-hour format (e.g., "14:30:00") or null if invalid
+ */
+export function convertTo24HourFormat(time12h) {
+  if (!time12h) {
+    return null
+  }
+  
+  const [time, modifier] = time12h.split(' ')
+  if (!time || !modifier) {
+    return null
+  }
+  
+  let [hours, minutes] = time.split(':')
+  
+  if (hours === '12') {
+    hours = '00'
+  }
+  
+  if (modifier.toUpperCase() === 'PM') {
+    hours = parseInt(hours, 10) + 12
+  }
+  
+  return `${String(hours).padStart(2, '0')}:${minutes}:00`
+}
+
+/**
+ * Convert 12-hour time format to 24-hour format (returns hours and minutes as numbers)
+ * @param {string} time12h - Time in 12-hour format (e.g., "2:30 PM")
+ * @returns {{hours: number, minutes: number}} Object with hours and minutes
+ */
+export function convertTo24HourParts(time12h) {
+  const [time, modifier] = time12h.split(' ')
+  let [hours, minutes] = time.split(':')
+  
+  if (hours === '12') {
+    hours = '00'
+  }
+  
+  if (modifier.toUpperCase() === 'PM') {
+    hours = parseInt(hours, 10) + 12
+  }
+  
+  return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) }
+}
+
+/**
+ * Convert 24-hour time format to 12-hour format
+ * @param {string} time24h - Time in 24-hour format (e.g., "14:30" or "14:30:00")
+ * @returns {string} Time in 12-hour format (e.g., "2:30 PM")
+ */
+export function convertTo12HourFormat(time24h) {
+  if (!time24h) {
+    return ''
+  }
+  
+  const [hours, minutes] = time24h.split(':').map(Number)
+  const modifier = hours >= 12 ? 'PM' : 'AM'
+  const hours12 = hours % 12 || 12
+  
+  return `${hours12}:${String(minutes).padStart(2, '0')} ${modifier}`
+}
+
+/**
  * Convert a time from instructor's timezone to user's local timezone
  * @param {string} time - Time in HH:MM format (e.g., "14:30")
  * @param {string} instructorTimezone - IANA timezone (e.g., "America/New_York" or "Asia/Kolkata")

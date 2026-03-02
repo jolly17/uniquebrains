@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import StarRating from '../components/StarRating'
 import CourseCard from '../components/CourseCard'
 import CourseReviews from '../components/CourseReviews'
 import PageErrorBoundary from '../components/PageErrorBoundary'
 import ErrorState from '../components/ErrorState'
 import { api, handleApiCall } from '../services/api'
-import { mockReviews } from '../data/mockData'
 import { convertToLocalTime, formatTimeWithTimezone, getUserTimezone, isSameTimezone } from '../utils/timezoneUtils'
 import { getUserFriendlyMessage } from '../lib/errorHandler'
 import { addBreadcrumb } from '../lib/sentry'
@@ -29,14 +27,6 @@ function CourseDetailContent() {
   const [isUnenrolling, setIsUnenrolling] = useState(false)
   const coursesCarouselRef = useRef(null)
   
-  // Debug: Log activeStudent whenever it changes
-  useEffect(() => {
-    console.log('🎯 CourseDetail - activeStudent changed:', activeStudent)
-    console.log('👤 CourseDetail - user:', user?.id)
-  }, [activeStudent, user])
-  
-  const reviews = mockReviews.filter(r => r.courseId === courseId)
-
   const scrollCarousel = (direction) => {
     if (coursesCarouselRef.current) {
       const scrollAmount = 350
@@ -156,12 +146,6 @@ function CourseDetailContent() {
         studentId: activeStudent ? null : user.id,  // Direct student enrollment
         studentProfileId: activeStudent ? activeStudent.id : null  // Parent-managed enrollment
       }
-      
-      console.log('=== ENROLLMENT DEBUG ===')
-      console.log('User ID:', user.id)
-      console.log('Active Student:', activeStudent)
-      console.log('Enrollment Data:', enrollmentData)
-      console.log('========================')
       
       // Create enrollment record in database
       await handleApiCall(api.enrollments.enroll, enrollmentData.courseId, enrollmentData.studentId, enrollmentData.studentProfileId)

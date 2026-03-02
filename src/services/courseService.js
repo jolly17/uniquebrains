@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { handleSupabaseError } from '../lib/errorHandler'
+import { convertTo24HourFormat, convertTo24HourParts } from '../utils/timezoneUtils'
 import * as Sentry from '@sentry/react'
 
 /**
@@ -27,33 +28,6 @@ export async function createCourse(courseData, user) {
   }
 
   try {
-    // Debug: Log incoming session time
-    console.log('Session time received in courseService:', courseData.sessionTime)
-    
-    // Helper function to convert 12-hour time to 24-hour format for database
-    const convertTo24HourFormat = (time12h) => {
-      if (!time12h) {
-        console.log('No session time provided')
-        return null
-      }
-      
-      console.log('Converting time:', time12h)
-      const [time, modifier] = time12h.split(' ')
-      let [hours, minutes] = time.split(':')
-      
-      if (hours === '12') {
-        hours = '00'
-      }
-      
-      if (modifier === 'PM') {
-        hours = parseInt(hours, 10) + 12
-      }
-      
-      const converted = `${String(hours).padStart(2, '0')}:${minutes}:00`
-      console.log('Converted to 24-hour format:', converted)
-      return converted
-    }
-
     // Prepare course data for database
     const dbCourseData = {
       title: courseData.title.trim(),
@@ -140,22 +114,6 @@ async function createCourseSessions(courseId, scheduleData) {
     return []
   }
   
-  // Helper function to convert 12-hour time to 24-hour format
-  const convertTo24Hour = (time12h) => {
-    const [time, modifier] = time12h.split(' ')
-    let [hours, minutes] = time.split(':')
-    
-    if (hours === '12') {
-      hours = '00'
-    }
-    
-    if (modifier === 'PM') {
-      hours = parseInt(hours, 10) + 12
-    }
-    
-    return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) }
-  }
-  
   // Handle one-time events (frequency = 'never')
   // Create one session for each selected day starting from start date
   if (frequency === 'never') {
@@ -164,7 +122,7 @@ async function createCourseSessions(courseId, scheduleData) {
     if (selectedDays.length === 0) {
       // If no days selected, create one session on start date
       const sessionDateTime = new Date(startDate)
-      const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+      const { hours, minutes } = convertTo24HourParts(scheduleData.sessionTime)
       sessionDateTime.setHours(hours, minutes, 0, 0)
 
       sessions.push({
@@ -187,7 +145,7 @@ async function createCourseSessions(courseId, scheduleData) {
         
         if (selectedDays.includes(dayName)) {
           const sessionDateTime = new Date(currentDate)
-          const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+          const { hours, minutes } = convertTo24HourParts(scheduleData.sessionTime)
           sessionDateTime.setHours(hours, minutes, 0, 0)
 
           sessions.push({
@@ -252,7 +210,7 @@ async function createCourseSessions(courseId, scheduleData) {
     
     if (isActiveWeek && scheduleData.selectedDays.includes(dayName)) {
       const sessionDateTime = new Date(currentDate)
-      const { hours, minutes } = convertTo24Hour(scheduleData.sessionTime)
+      const { hours, minutes } = convertTo24HourParts(scheduleData.sessionTime)
       sessionDateTime.setHours(hours, minutes, 0, 0)
 
       sessions.push({

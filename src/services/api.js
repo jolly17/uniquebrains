@@ -12,6 +12,7 @@ import * as messageService from './messageService'
 import * as enrollmentService from './enrollmentService'
 import * as ratingService from './ratingService'
 import * as profileService from './profileService'
+import * as accessService from './accessService'
 
 /**
  * Course Management API
@@ -207,6 +208,7 @@ export async function handleApiCall(apiCall, ...args) {
 
 /**
  * Validation utilities
+ * Re-exports from accessService for backward compatibility
  */
 export const validators = {
   /**
@@ -216,12 +218,13 @@ export const validators = {
    * @throws {ApiError} If validation fails
    */
   requireFields(data, requiredFields) {
-    const missing = requiredFields.filter(field => !data[field])
-    if (missing.length > 0) {
+    try {
+      accessService.validateRequiredFields(data, requiredFields)
+    } catch (error) {
       throw new ApiError(
-        `Missing required fields: ${missing.join(', ')}`,
+        error.message,
         'VALIDATION_ERROR',
-        { missingFields: missing }
+        { missingFields: requiredFields.filter(field => !data[field]) }
       )
     }
   },
@@ -231,38 +234,32 @@ export const validators = {
    * @param {string} email - Email to validate
    * @returns {boolean} - Valid status
    */
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return emailRegex.test(email)
-  },
+  isValidEmail: accessService.isValidEmail,
 
   /**
    * Validate URL format
    * @param {string} url - URL to validate
    * @returns {boolean} - Valid status
    */
-  isValidUrl(url) {
-    try {
-      new URL(url)
-      return true
-    } catch {
-      return false
-    }
-  },
+  isValidUrl: accessService.isValidUrl,
 
   /**
    * Validate date format and ensure it's in the future
    * @param {string} dateString - Date string to validate
    * @returns {boolean} - Valid status
    */
-  isValidFutureDate(dateString) {
-    try {
-      const date = new Date(dateString)
-      return date > new Date()
-    } catch {
-      return false
-    }
-  }
+  isValidFutureDate: accessService.isValidFutureDate
+}
+
+/**
+ * Access control utilities
+ * Re-exports from accessService for convenience
+ */
+export const access = {
+  checkCourseAccess: accessService.checkCourseAccess,
+  checkIsInstructor: accessService.checkIsInstructor,
+  verifyInstructorOwnership: accessService.verifyInstructorOwnership,
+  checkEnrollment: accessService.checkEnrollment
 }
 
 /**
