@@ -80,20 +80,24 @@ function Courses() {
         keywords="neurodiversity courses, free online learning, ADHD courses, autism education, special education courses, neurodivergent learning"
       />
       <div className="courses">
-      <div className="courses-header">
-        <h1>Discover Courses</h1>
-        <p className="tagline">Here every brain learns differently</p>
-        <p className="subtitle">Personalized live classes for unique learners</p>
-        {user && (
-          <div className="header-actions">
-            <Link to="/courses/my-courses" className="btn-my-courses">
-              My Courses
-            </Link>
-            <Link to="/teach/create-course" className="btn-create-course">
-              Create Course
-            </Link>
-          </div>
-        )}
+      <div className="courses-hero">
+        <div className="hero-content">
+          <h1>📚 Discover Courses</h1>
+          <p className="hero-subtitle">
+            Here every brain learns differently. Explore free courses taught by passionate instructors 
+            who celebrate unique learning styles.
+          </p>
+          {user && (
+            <div className="hero-actions">
+              <Link to="/courses/my-courses" className="btn-hero-primary">
+                📖 My Courses
+              </Link>
+              <Link to="/teach/create-course" className="btn-hero-secondary">
+                ✏️ Create Course
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="courses-filters">

@@ -1,16 +1,32 @@
 .course-card {
   background: var(--background-light);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-xl);
   overflow: hidden;
-  box-shadow: var(--shadow);
-  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-slow);
   display: flex;
   flex-direction: column;
+  border: 2px solid transparent;
 }
 
 .course-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--color-indigo);
+}
+
+.course-card:hover .category-icon-large {
+  transform: scale(1.1);
+}
+
+.course-card:hover .view-course-indicator {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.course-card:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
 }
 
 .course-image {

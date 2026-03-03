@@ -11,9 +11,14 @@ function CareTimeline() {
 
   return (
     <div className="care-timeline">
-      <div className="care-timeline-header">
-        <h1>Your Care Journey</h1>
-        <p>Navigate through each stage of neurodiversity care and find the resources you need</p>
+      <div className="care-hero">
+        <div className="hero-content">
+          <h1>🏥 Your Care Journey</h1>
+          <p className="hero-subtitle">
+            From diagnosis to college and beyond—navigate your care journey with our interactive roadmap. 
+            Find therapists, schools, and services that actually work.
+          </p>
+        </div>
       </div>
 
       <div className="roadmap-container">

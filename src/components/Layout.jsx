@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Outlet, Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
 import PortalSwitcher from './PortalSwitcher'
@@ -9,8 +9,59 @@ import './Layout.css'
 function Layout() {
   const { user, profile, students, activeStudent, activePortal, availablePortals, switchStudent, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showStudentSwitcher, setShowStudentSwitcher] = useState(false)
+  const mobileMenuRef = useRef(null)
+  const menuToggleRef = useRef(null)
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [location.pathname])
+
+  // Handle click outside to close mobile menu
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        mobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target) &&
+        menuToggleRef.current &&
+        !menuToggleRef.current.contains(event.target)
+      ) {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [mobileMenuOpen])
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false)
+        menuToggleRef.current?.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [mobileMenuOpen])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [mobileMenuOpen])
 
   // Helper function to capitalize first letter
   const capitalizeFirstLetter = (str) => {
@@ -28,29 +79,106 @@ function Layout() {
     setMobileMenuOpen(false)
   }
 
+  // Check if current path matches nav link
+  const isActivePath = (path) => {
+    if (path === '/') return location.pathname === '/'
+    return location.pathname.startsWith(path)
+  }
+
   return (
     <div className="layout">
-      <header className="header">
+      {/* Skip to Content Link for Accessibility */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to main content
+      </a>
+
+      <header className="header" role="banner">
         <div className="header-content">
           <Link to="/" className="logo" onClick={closeMobileMenu}>
             <Logo size="medium" />
           </Link>
           
           <button 
+            ref={menuToggleRef}
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav"
           >
-            {mobileMenuOpen ? '✕' : '☰'}
+            <span className="menu-icon" aria-hidden="true">
+              {mobileMenuOpen ? (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              )}
+            </span>
           </button>
 
-          <nav className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}>
-            <Link to="/courses" className="nav-link" onClick={closeMobileMenu}>Courses</Link>
-            <Link to="/community" className="nav-link" onClick={closeMobileMenu}>Community</Link>
-            <Link to="/content" className="nav-link" onClick={closeMobileMenu}>Content</Link>
-            <Link to="/care" className="nav-link" onClick={closeMobileMenu}>Care</Link>
+          {/* Mobile Menu Overlay */}
+          {mobileMenuOpen && (
+            <div 
+              className="mobile-menu-overlay" 
+              onClick={closeMobileMenu}
+              aria-hidden="true"
+            />
+          )}
+
+          <nav 
+            ref={mobileMenuRef}
+            id="mobile-nav"
+            className={`nav ${mobileMenuOpen ? 'nav-open' : ''}`}
+            role="navigation"
+            aria-label="Main navigation"
+          >
+            <Link 
+              to="/courses" 
+              className={`nav-link ${isActivePath('/courses') ? 'nav-link-active' : ''}`}
+              onClick={closeMobileMenu}
+              aria-current={isActivePath('/courses') ? 'page' : undefined}
+            >
+              Courses
+            </Link>
+            <Link 
+              to="/community" 
+              className={`nav-link ${isActivePath('/community') ? 'nav-link-active' : ''}`}
+              onClick={closeMobileMenu}
+              aria-current={isActivePath('/community') ? 'page' : undefined}
+            >
+              Community
+            </Link>
+            <Link 
+              to="/content" 
+              className={`nav-link ${isActivePath('/content') ? 'nav-link-active' : ''}`}
+              onClick={closeMobileMenu}
+              aria-current={isActivePath('/content') ? 'page' : undefined}
+            >
+              Content
+            </Link>
+            <Link 
+              to="/care" 
+              className={`nav-link ${isActivePath('/care') ? 'nav-link-active' : ''}`}
+              onClick={closeMobileMenu}
+              aria-current={isActivePath('/care') ? 'page' : undefined}
+            >
+              Care
+            </Link>
             {profile?.role === 'admin' && (
-              <Link to="/admin" className="nav-link" onClick={closeMobileMenu}>Admin</Link>
+              <Link 
+                to="/admin" 
+                className={`nav-link ${isActivePath('/admin') ? 'nav-link-active' : ''}`}
+                onClick={closeMobileMenu}
+                aria-current={isActivePath('/admin') ? 'page' : undefined}
+              >
+                Admin
+              </Link>
             )}
 
             <div className="mobile-header-actions">
@@ -89,13 +217,13 @@ function Layout() {
         </div>
       </header>
 
-      <main className="main-content">
+      <main id="main-content" className="main-content" role="main">
         <Outlet />
       </main>
 
       <FeedbackButton />
 
-      <footer className="footer">
+      <footer className="footer" role="contentinfo">
         <div className="footer-content">
           {/* Portal Switcher - only show if user has multiple portals */}
           {user && availablePortals && availablePortals.length > 1 && (

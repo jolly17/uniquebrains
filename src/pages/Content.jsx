@@ -28,12 +28,17 @@ function Content() {
         keywords="neurodiversity explained, autism resources, ADHD information, understanding neurodivergence, sensory differences, neurodiversity education"
       />
       <div className="content-landing-page">
-      <div className="content-landing-container">
-        <h1>📚 Content & Resources</h1>
-        <p className="content-landing-subtitle">
-          Learn more about neurodiversity, inclusive education, and our community values
-        </p>
+      <div className="content-hero">
+        <div className="hero-content">
+          <h1>📖 Content & Resources</h1>
+          <p className="hero-subtitle">
+            Tired of explaining neurodiversity? Share our curated articles and resources 
+            with family, teachers, and friends—so they can finally understand your world.
+          </p>
+        </div>
+      </div>
 
+      <div className="content-landing-container">
         <div className="content-cards-grid">
           {contentCards.map(card => (
             <div

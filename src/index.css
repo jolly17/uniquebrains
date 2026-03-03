@@ -1,29 +1,28 @@
+/* UniqueBrains Global Styles
+ * Import design system files
+ */
+@import './styles/tokens.css';
+@import './styles/utilities.css';
+@import './styles/buttons.css';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
-:root {
-  --primary-color: #4f46e5;
-  --primary-hover: #4338ca;
-  --secondary-color: #10b981;
-  --danger-color: #ef4444;
-  --text-primary: #1f2937;
-  --text-secondary: #6b7280;
-  --border-color: #e5e7eb;
-  --background-light: #ffffff;
-  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+body {
+  font-family: var(--font-family);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-off-white);
+  color: var(--text-primary);
+  line-height: var(--line-height-normal);
 }
 
 button {
@@ -39,6 +38,80 @@ input, textarea, select {
 a {
   text-decoration: none;
   color: inherit;
+}
+
+/* Focus States for Accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-indigo);
+  outline-offset: 2px;
+}
+
+/* Skip to Content Link */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-indigo);
+  color: white;
+  padding: var(--spacing-3) var(--spacing-6);
+  border-radius: var(--radius-md);
+  z-index: 9999;
+  font-weight: var(--font-weight-semibold);
+  transition: top var(--transition-fast);
+}
+
+.skip-to-content:focus {
+  top: var(--spacing-4);
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--color-indigo);
+  color: white;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gray-400);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gray-600);
+}
+
+/* Tablet Optimization (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .products-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .why-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .header-content {
+    padding: 1rem 1.5rem;
+  }
+  
+  .main-content {
+    padding: 1.5rem;
+  }
 }
 
 /* Mobile Optimization */
@@ -59,24 +132,36 @@ a {
     font-size: 1.1rem !important;
   }
 
+  /* Touch-friendly targets - minimum 44x44px */
+  a,
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  [role="button"] {
+    min-height: 44px;
+  }
+
   /* Optimize button sizes for mobile */
   .btn-primary,
   .btn-secondary,
   .btn-danger {
-    padding: 0.625rem 1rem !important;
+    padding: 0.75rem 1rem !important;
     font-size: 0.875rem !important;
+    min-height: 44px;
   }
 
   .btn-full {
     padding: 0.75rem 1rem !important;
   }
 
-  /* Reduce input/textarea sizes */
+  /* Reduce input/textarea sizes but keep touch-friendly */
   input,
   textarea,
   select {
-    font-size: 14px !important;
-    padding: 0.625rem !important;
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: 0.75rem !important;
+    min-height: 44px;
   }
 
   /* Optimize card padding */
@@ -103,4 +188,230 @@ a {
   .stat-label {
     font-size: 0.75rem !important;
   }
+}
+
+/* ===== Quick Wins & Polish ===== */
+
+/* Improved line-height for readability */
+p, li, td, th {
+  line-height: var(--line-height-relaxed);
+}
+
+/* Better link affordance */
+.footer-link:hover,
+a:not(.btn):not(.nav-link):not(.course-card):hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Consistent card styling */
+.card,
+.info-card,
+.stat-card {
+  background: var(--background-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card);
+  transition: all var(--transition-normal);
+}
+
+.card:hover,
+.info-card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Info banners */
+.info-banner {
+  background: var(--color-info-light);
+  border-left: 4px solid var(--color-info);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+}
+
+.info-banner p {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+/* Success banners */
+.success-banner {
+  background: var(--color-success-light);
+  border-left: 4px solid var(--color-success);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Warning banners */
+.warning-banner {
+  background: var(--color-warning-light);
+  border-left: 4px solid var(--color-warning);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Error banners */
+.error-banner {
+  background: var(--color-danger-light);
+  border-left: 4px solid var(--color-danger);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Badge styles */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-1) var(--spacing-3);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: var(--color-success-light);
+  color: #065f46;
+}
+
+.badge-warning {
+  background: var(--color-warning-light);
+  color: #92400e;
+}
+
+.badge-danger {
+  background: var(--color-danger-light);
+  color: #991b1b;
+}
+
+.badge-info {
+  background: var(--color-info-light);
+  color: #1e40af;
+}
+
+.badge-neutral {
+  background: var(--color-gray-100);
+  color: var(--text-secondary);
+}
+
+/* Form field improvements */
+.form-group {
+  margin-bottom: var(--spacing-4);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: var(--spacing-3);
+  font-size: var(--font-size-base);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--background-light);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: var(--color-indigo);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  outline: none;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--color-gray-400);
+}
+
+.form-error {
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin-top: var(--spacing-1);
+}
+
+.form-help {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-1);
+}
+
+/* Page header styling */
+.page-header {
+  margin-bottom: var(--spacing-8);
+}
+
+.page-title {
+  font-size: var(--font-size-4xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
+}
+
+.page-subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* Section styling */
+.section {
+  margin-bottom: var(--spacing-12);
+}
+
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-4);
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--border-color);
+  margin: var(--spacing-6) 0;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--color-indigo);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-lg {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Center content utility */
+.center-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 200px;
 }
