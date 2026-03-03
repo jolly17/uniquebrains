@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import BackButton from '../components/BackButton'
+import ContentComments from '../components/ContentComments'
+import { CONTENT_PAGES } from '../services/contentCommentService'
 import './Neurodiversity.css'
 
 function Neurodiversity() {
@@ -243,6 +245,11 @@ function Neurodiversity() {
           <div className="nd-note">
             <strong><span className="nd-note-icon">💡</span>Important Note:</strong> This comparison represents general patterns in brain processing styles. Every brain is unique, and neurodivergence encompasses a wide spectrum including ADHD, autism, dyslexia, and more. These differences are variations in human neurology, not deficits. Many neurodivergent individuals experience strengths such as enhanced pattern recognition, creative problem-solving, hyperfocus abilities, and unique perspectives that contribute valuable diversity to our world. Both neurotypical and neurodivergent experiences have inherent value and strengths.
           </div>
+
+          <ContentComments 
+            contentPage={CONTENT_PAGES.NEURODIVERSITY} 
+            title="Share Your Experience"
+          />
         </div>
       </div>
     </div>

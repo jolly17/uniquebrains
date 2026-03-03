@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import BackButton from '../components/BackButton'
+import ContentComments from '../components/ContentComments'
+import { CONTENT_PAGES } from '../services/contentCommentService'
 import './HygieneGuide.css'
 
 function HygieneGuide() {
@@ -576,6 +578,11 @@ function HygieneGuide() {
             • Consult an occupational therapist for persistent sensory barriers and a behavioural specialist for cognitive strategies.<br />
             • Always approach these topics with dignity, patience, and respect for the individual's experience.
           </div>
+
+          <ContentComments 
+            contentPage={CONTENT_PAGES.HYGIENE_GUIDE} 
+            title="Share Your Tips & Experiences"
+          />
         </div>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import BackButton from '../components/BackButton'
+import ContentComments from '../components/ContentComments'
+import { CONTENT_PAGES } from '../services/contentCommentService'
 import './SensoryDifferences.css'
 
 function SensoryDifferences() {
@@ -424,6 +426,11 @@ function SensoryDifferences() {
           <div className="sd-note">
             <strong><span className="sd-note-icon">💡</span>Important Note:</strong> Sensory processing differences exist on a spectrum, and every neurodivergent person's experience is unique. Some individuals may be hypersensitive to certain stimuli while hyposensitive to others. These differences are neurological variations, not behavioral choices. Understanding and accommodating sensory needs can significantly improve quality of life and reduce sensory overload or seeking behaviors. If you recognize these patterns in yourself or someone you care about, consider consulting with an occupational therapist who specializes in sensory processing.
           </div>
+
+          <ContentComments 
+            contentPage={CONTENT_PAGES.SENSORY_DIFFERENCES} 
+            title="Share Your Sensory Experience"
+          />
         </div>
       </div>
     </div>
