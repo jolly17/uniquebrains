@@ -32,21 +32,10 @@ export const CONTENT_PAGES = {
 export async function getCommentsByPage(contentPage, options = {}) {
   const { limit = 50, offset = 0 } = options;
 
-  const { data, error } = await supabase
+  // First, get the comments
+  const { data: comments, error } = await supabase
     .from('content_comments')
-    .select(`
-      id,
-      content_page,
-      user_id,
-      comment_text,
-      is_anonymous,
-      created_at,
-      updated_at,
-      profiles:user_id (
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .eq('content_page', contentPage)
     .eq('is_approved', true)
     .order('created_at', { ascending: false })
@@ -57,7 +46,34 @@ export async function getCommentsByPage(contentPage, options = {}) {
     throw new Error('Failed to load comments');
   }
 
-  return data || [];
+  if (!comments || comments.length === 0) {
+    return [];
+  }
+
+  // Get unique user IDs (excluding anonymous)
+  const userIds = [...new Set(comments.filter(c => !c.is_anonymous && c.user_id).map(c => c.user_id))];
+
+  // Fetch profiles for those users
+  let profilesMap = {};
+  if (userIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name')
+      .in('id', userIds);
+
+    if (profiles) {
+      profilesMap = profiles.reduce((acc, p) => {
+        acc[p.id] = p;
+        return acc;
+      }, {});
+    }
+  }
+
+  // Merge profiles into comments
+  return comments.map(comment => ({
+    ...comment,
+    profiles: comment.user_id ? profilesMap[comment.user_id] || null : null
+  }));
 }
 
 /**
@@ -118,19 +134,7 @@ export async function createComment(commentData, userId) {
       comment_text: commentText.trim(),
       is_anonymous: isAnonymous
     })
-    .select(`
-      id,
-      content_page,
-      user_id,
-      comment_text,
-      is_anonymous,
-      created_at,
-      updated_at,
-      profiles:user_id (
-        first_name,
-        last_name
-      )
-    `)
+    .select('*')
     .single();
 
   if (error) {
@@ -138,7 +142,18 @@ export async function createComment(commentData, userId) {
     throw new Error('Failed to post comment');
   }
 
-  return data;
+  // Fetch the user's profile if not anonymous
+  let profiles = null;
+  if (!isAnonymous && userId) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id, first_name, last_name')
+      .eq('id', userId)
+      .single();
+    profiles = profile;
+  }
+
+  return { ...data, profiles };
 }
 
 /**
