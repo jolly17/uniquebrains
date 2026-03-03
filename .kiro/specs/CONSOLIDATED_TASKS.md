@@ -590,6 +590,73 @@ This document consolidates all feature specs into a single task list, showing co
 
 ---
 
+## 8. CONTENT PAGES & UI IMPROVEMENTS ⏳ PENDING
+
+**Last Updated**: March 3, 2026
+
+### 8.1 Content Pages - Comment System ⏳ PENDING (Tomorrow)
+
+- [ ] 8.1.1 Create comment database schema
+  - Create `content_comments` table with fields: id, content_page (enum), user_id, comment_text, is_anonymous, created_at, updated_at
+  - Add RLS policies for comment visibility and creation
+  - Add indexes for efficient querying by content_page
+
+- [ ] 8.1.2 Build comment component
+  - Create reusable `ContentComments` component
+  - Display comments in chronological order (newest first)
+  - Show commenter name or "Anonymous" based on is_anonymous flag
+  - Show timestamp for each comment
+  - Add pagination or infinite scroll for many comments
+
+- [ ] 8.1.3 Implement comment submission
+  - Text area for comment input
+  - Anonymous toggle checkbox ("Post anonymously")
+  - Submit button with loading state
+  - Validation (minimum character count, max length)
+  - Success/error feedback
+
+- [ ] 8.1.4 Integrate comments into content pages
+  - Add `ContentComments` component to Neurodiversity page
+  - Add `ContentComments` component to SensoryDifferences page
+  - Add `ContentComments` component to HygieneGuide page
+  - Consistent placement at bottom of each page
+
+- [ ] 8.1.5 Comment moderation (optional)
+  - Admin ability to delete inappropriate comments
+  - Report comment functionality
+  - Soft delete with reason tracking
+
+### 8.2 UI Consistency - Back Button ⏳ PENDING (Tomorrow)
+
+- [ ] 8.2.1 Audit existing back buttons
+  - Document all pages with back buttons
+  - Screenshot current inconsistent styles
+  - Identify all variations (color, size, position, icon)
+
+- [ ] 8.2.2 Create unified BackButton component
+  - Create `src/components/BackButton.jsx`
+  - Create `src/components/BackButton.css`
+  - Consistent styling matching brand colors
+  - Support for custom destination path
+  - Support for custom label text
+  - Hover and focus states
+  - Mobile-responsive sizing
+
+- [ ] 8.2.3 Replace existing back buttons
+  - Update Content pages (Neurodiversity, SensoryDifferences, HygieneGuide)
+  - Update Course pages (CourseDetail, StudentCourseView)
+  - Update Community pages (TopicDetail, QuestionDetail)
+  - Update Admin pages if applicable
+  - Update any other pages with back navigation
+
+- [ ] 8.2.4 Test back button consistency
+  - Visual consistency across all pages
+  - Keyboard accessibility (Tab, Enter)
+  - Mobile touch targets (minimum 44x44px)
+  - Screen reader compatibility
+
+---
+
 ## SUMMARY
 
 ### Completed Features (Production Ready)
