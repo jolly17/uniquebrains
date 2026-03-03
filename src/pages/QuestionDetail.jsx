@@ -25,6 +25,7 @@ function QuestionDetail() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [answerContent, setAnswerContent] = useState('')
+  const [isAnonymousAnswer, setIsAnonymousAnswer] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [editingQuestion, setEditingQuestion] = useState(false)
@@ -126,9 +127,11 @@ function QuestionDetail() {
       await createAnswer({
         question_id: id,
         author_id: user.id,
-        content: answerContent.trim()
+        content: answerContent.trim(),
+        is_anonymous: isAnonymousAnswer
       })
       setAnswerContent('')
+      setIsAnonymousAnswer(false)
       await fetchQuestionAndAnswers()
     } catch (err) {
       console.error('Error submitting answer:', err)
@@ -298,7 +301,7 @@ function QuestionDetail() {
                 <h1>{question.title}</h1>
                 <div className="question-meta">
                   <span className="author">
-                    Asked by {question.profiles?.first_name} {question.profiles?.last_name}
+                    Asked by {question.is_anonymous ? 'Anonymous' : `${question.profiles?.first_name} ${question.profiles?.last_name}`}
                   </span>
                   <span className="date">
                     {new Date(question.created_at).toLocaleDateString('en-US')}
@@ -406,7 +409,7 @@ function QuestionDetail() {
                       <p>{formatLinksInText(answer.content)}</p>
                       <div className="answer-meta">
                         <span className="author">
-                          {answer.profiles?.first_name} {answer.profiles?.last_name}
+                          {answer.is_anonymous ? 'Anonymous' : `${answer.profiles?.first_name} ${answer.profiles?.last_name}`}
                         </span>
                         <span className="date">
                           {new Date(answer.created_at).toLocaleDateString('en-US')}
@@ -466,6 +469,16 @@ function QuestionDetail() {
                 rows={8}
                 required
               />
+              <div className="form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymousAnswer}
+                    onChange={(e) => setIsAnonymousAnswer(e.target.checked)}
+                  />
+                  <span>Post anonymously (your name will not be shown publicly)</span>
+                </label>
+              </div>
               <button 
                 type="submit" 
                 className="btn-submit"

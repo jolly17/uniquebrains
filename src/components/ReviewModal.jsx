@@ -152,18 +152,6 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  name="isAnonymous"
-                  checked={formData.isAnonymous}
-                  onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
-                />
-                <span>Post anonymously (your name will not be shown publicly)</span>
-              </label>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="rating">
                 Rating <span className="required">*</span>
               </label>
@@ -184,31 +172,17 @@ export default function ReviewModal({ isOpen, onClose, resourceId, resourceName,
               </p>
             </div>
 
-            {!formData.isAnonymous && (
-              <div className="form-group">
-                <label htmlFor="reviewerName">
-                  Your Name <span className="required">*</span>
-                </label>
+            <div className="form-group">
+              <label className="checkbox-label">
                 <input
-                  type="text"
-                  id="reviewerName"
-                  name="reviewerName"
-                  value={formData.reviewerName}
-                  onChange={handleChange}
-                  placeholder="Enter your name"
-                  required
-                  maxLength={100}
+                  type="checkbox"
+                  name="isAnonymous"
+                  checked={formData.isAnonymous}
+                  onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
                 />
-              </div>
-            )}
-
-            {formData.isAnonymous && (
-              <div className="form-group">
-                <p className="anonymous-notice">
-                  Your review will be posted as "Anonymous". Your identity is stored securely for accountability but will not be shown publicly.
-                </p>
-              </div>
-            )}
+                <span>Post anonymously (your name will not be shown publicly)</span>
+              </label>
+            </div>
 
             <div className="form-group">
               <label htmlFor="reviewText">

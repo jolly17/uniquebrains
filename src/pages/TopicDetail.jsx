@@ -123,7 +123,7 @@ function TopicDetail() {
                   <h3 className="question-title">{question.title}</h3>
                   <div className="question-meta">
                     <span className="author">
-                      {question.profiles?.first_name} {question.profiles?.last_name}
+                      {question.is_anonymous ? 'Anonymous' : `${question.profiles?.first_name} ${question.profiles?.last_name}`}
                     </span>
                     <span className="date">
                       {new Date(question.created_at).toLocaleDateString('en-US')}

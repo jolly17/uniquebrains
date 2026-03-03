@@ -15,7 +15,8 @@ function AskQuestion() {
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     title: '',
-    imageFile: null
+    imageFile: null,
+    isAnonymous: false
   })
   const [imagePreview, setImagePreview] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -144,7 +145,8 @@ function AskQuestion() {
         topic_id: topic.id,
         author_id: user.id,
         title: formData.title.trim(),
-        image_url: imageUrl
+        image_url: imageUrl,
+        is_anonymous: formData.isAnonymous
       }
 
       const newQuestion = await createQuestion(questionData)
@@ -207,6 +209,18 @@ function AskQuestion() {
             <span className="field-hint">
               Ask your question in one clear sentence
             </span>
+          </div>
+
+          <div className="form-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                name="isAnonymous"
+                checked={formData.isAnonymous}
+                onChange={(e) => setFormData(prev => ({ ...prev, isAnonymous: e.target.checked }))}
+              />
+              <span>Post anonymously (your name will not be shown publicly)</span>
+            </label>
           </div>
 
           <div className="form-group">
