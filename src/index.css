@@ -4,6 +4,7 @@
 @import './styles/tokens.css';
 @import './styles/utilities.css';
 @import './styles/buttons.css';
+@import './styles/hero.css';
 
 * {
   margin: 0;

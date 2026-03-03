@@ -50,7 +50,7 @@ function Community() {
         keywords="neurodiversity community, autism support, ADHD parents, special needs community, parenting support, neurodivergent families"
       />
       <div className="community-page">
-      <div className="community-hero">
+      <div className="hero-section">
         <div className="hero-content">
           <h1>🌟 Community Hub</h1>
           <p className="hero-subtitle">

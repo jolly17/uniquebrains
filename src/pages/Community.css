@@ -1,28 +1,6 @@
 .community-page {
   min-height: 100vh;
-  background: #f8f9fa;
-}
-
-.community-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 50px 20px 40px;
-  text-align: center;
-}
-
-.hero-content h1 {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.hero-subtitle {
-  font-size: 16px;
-  max-width: 700px;
-  margin: 0 auto;
-  line-height: 1.5;
-  opacity: 0.95;
+  background: var(--color-off-white);
 }
 
 .community-container {
@@ -104,9 +82,9 @@
 }
 
 .topic-card .topic-description {
-  font-size: 13px;
-  line-height: 1.5;
-  color: #5C7A99;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--text-secondary);
   flex: 1;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -117,16 +95,16 @@
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #f0f4f8;
+  background: var(--color-gray-100);
   padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #667eea;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-indigo);
   display: flex;
   align-items: center;
   gap: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .topic-stats {
@@ -135,9 +113,9 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border-radius: 8px;
+  padding: var(--spacing-3) var(--spacing-4);
+  background: var(--color-off-white);
+  border-radius: var(--radius-lg);
   min-width: 90px;
 }
 
@@ -149,86 +127,62 @@
 }
 
 .stat-icon {
-  font-size: 20px;
+  font-size: var(--font-size-xl);
 }
 
 .community-page .stat-value {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2C3744;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
 }
 
 .stat-label {
-  font-size: 11px;
-  color: #5C7A99;
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .community-cta {
   text-align: center;
-  margin-top: 40px;
+  margin-top: var(--spacing-10);
 }
 
 .cta-card {
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
-  border-radius: 16px;
-  padding: 32px;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-8);
   max-width: 600px;
   margin: 0 auto;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-card);
 }
 
 .cta-card h3 {
-  font-size: 22px;
-  color: #2C3744;
-  margin-bottom: 8px;
+  font-size: var(--font-size-xl);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-2);
 }
 
 .cta-card p {
-  font-size: 14px;
-  color: #5C7A99;
-  margin-bottom: 20px;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-5);
 }
 
-.btn-primary {
-  display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 28px;
-  border-radius: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
+/* Note: .btn-primary is now defined in buttons.css */
 
 .loading, .error-message {
   text-align: center;
   padding: 60px 20px;
-  font-size: 18px;
-  color: #5C7A99;
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
 }
 
 .error-message {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 @media (max-width: 768px) {
-  .hero-content h1 {
-    font-size: 28px;
-  }
-
-  .hero-subtitle {
-    font-size: 14px;
-  }
-
   .topics-grid {
     grid-template-columns: 1fr;
     gap: 16px;

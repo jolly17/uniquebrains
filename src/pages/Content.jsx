@@ -28,7 +28,7 @@ function Content() {
         keywords="neurodiversity explained, autism resources, ADHD information, understanding neurodivergence, sensory differences, neurodiversity education"
       />
       <div className="content-landing-page">
-      <div className="content-hero">
+      <div className="hero-section">
         <div className="hero-content">
           <h1>📖 Content & Resources</h1>
           <p className="hero-subtitle">

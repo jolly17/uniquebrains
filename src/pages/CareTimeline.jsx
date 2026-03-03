@@ -11,7 +11,7 @@ function CareTimeline() {
 
   return (
     <div className="care-timeline">
-      <div className="care-hero">
+      <div className="hero-section">
         <div className="hero-content">
           <h1>🏥 Your Care Journey</h1>
           <p className="hero-subtitle">

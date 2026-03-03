@@ -80,7 +80,7 @@ function Courses() {
         keywords="neurodiversity courses, free online learning, ADHD courses, autism education, special education courses, neurodivergent learning"
       />
       <div className="courses">
-      <div className="courses-hero">
+      <div className="hero-section">
         <div className="hero-content">
           <h1>📚 Discover Courses</h1>
           <p className="hero-subtitle">
