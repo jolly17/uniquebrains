@@ -5,6 +5,7 @@ import { getResourcesByMilestoneAndLocation } from '../services/careResourceServ
 import { supabase } from '../lib/supabase';
 import { AVAILABLE_COUNTRIES, AVAILABLE_TAGS } from '../data/dummyCareResources';
 import ResourceListings from '../components/ResourceListings';
+import BackButton from '../components/BackButton';
 import './MilestonePage.css';
 
 // Lazy load InteractiveMap for better initial page load performance
@@ -277,6 +278,7 @@ function MilestonePage() {
       {/* Search Bar Header */}
       <div className="milestone-header">
         <div className="milestone-header-content">
+          <BackButton to="/care" label="Back to Care Timeline" variant="filled" />
           <h1>{milestoneInfo.title}</h1>
           <p className="milestone-subtitle">{milestoneInfo.description}</p>
           <div className="header-controls">

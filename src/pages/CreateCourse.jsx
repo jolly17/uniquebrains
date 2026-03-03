@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import { supabase } from '../lib/supabase'
 import TimeInput from '../components/TimeInput'
+import BackButton from '../components/BackButton'
 import './Auth.css'
 import './CreateCourse.css'
 
@@ -122,9 +123,7 @@ function CreateCourse() {
   return (
     <div className="create-course">
       <div className="create-course-header">
-        <button onClick={() => navigate(-1)} className="back-button">
-          ← Back
-        </button>
+        <BackButton label="Back" />
         <h1>Create New Course</h1>
         <p className="course-subtitle">Set up your course details and schedule</p>
       </div>

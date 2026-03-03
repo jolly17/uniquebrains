@@ -8,6 +8,7 @@ import StudentResources from './StudentResources'
 import StudentChat from './StudentChat'
 import HomeworkSubmissionModal from '../components/HomeworkSubmissionModal'
 import HomeworkDetailsModal from '../components/HomeworkDetailsModal'
+import BackButton from '../components/BackButton'
 import './StudentCourseView.css'
 
 function StudentCourseView() {
@@ -218,9 +219,7 @@ function StudentCourseView() {
   return (
     <div className="student-course-view">
       <div className="student-course-header">
-        <button onClick={() => navigate('/my-courses')} className="back-button">
-          ← Back to My Courses
-        </button>
+        <BackButton to="/my-courses" label="Back to My Courses" />
         <h1>{course.title}</h1>
         <p className="course-instructor">with {course.instructorName}</p>
       </div>

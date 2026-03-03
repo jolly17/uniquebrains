@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import BackButton from '../components/BackButton'
 import './Neurodiversity.css'
 
 function Neurodiversity() {
-  const navigate = useNavigate()
   const [activeDomain, setActiveDomain] = useState('social')
 
   const domainData = {
@@ -172,9 +171,7 @@ function Neurodiversity() {
     <div className="nd-page">
       <div className="nd-page-bg">
         <div className="nd-container">
-          <button className="nd-back-button" onClick={() => navigate('/content')}>
-            ← Back to Content
-          </button>
+          <BackButton to="/content" label="Back to Content" variant="filled" />
 
           <h1>🧠 Neurodiversity Experience Comparison</h1>
           <p className="nd-subtitle">

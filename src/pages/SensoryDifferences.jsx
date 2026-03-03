@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import BackButton from '../components/BackButton'
 import './SensoryDifferences.css'
 
 function SensoryDifferences() {
-  const navigate = useNavigate()
   const [activeSense, setActiveSense] = useState('sight')
 
   const senseDefinitions = {
@@ -277,9 +276,7 @@ function SensoryDifferences() {
     <div className="sd-page">
       <div className="sd-page-bg">
         <div className="sd-container">
-          <button className="sd-back-button" onClick={() => navigate('/content')}>
-            ← Back to Content
-          </button>
+          <BackButton to="/content" label="Back to Content" variant="filled" />
 
           <h1>🌈 Sensory Differences in Neurodivergent Individuals</h1>
           <p className="sd-subtitle">

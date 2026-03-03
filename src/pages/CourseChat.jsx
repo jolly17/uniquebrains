@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { api, handleApiCall } from '../services/api'
 import { setupCourseMessageChannel, setupPresenceTracking } from '../services/realtimeService'
 import { supabase } from '../lib/supabase'
+import BackButton from '../components/BackButton'
 import './CourseChat.css'
 
 function CourseChat({ course }) {
@@ -411,13 +412,7 @@ function CourseChat({ course }) {
     return (
       <div className="course-chat">
         <div className="chat-header">
-          <button
-            onClick={handleBackToThreads}
-            className="back-button"
-            aria-label="Back to messages"
-          >
-            ← Back to Messages
-          </button>
+          <BackButton label="Back to Messages" onClick={handleBackToThreads} />
           <h2>
             💬 Chat with {getSelectedStudentName()}
             {isStudentOnline && <span className="online-indicator" title="Online">🟢</span>}

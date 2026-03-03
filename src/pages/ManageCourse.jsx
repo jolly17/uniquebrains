@@ -8,6 +8,7 @@ import CourseHomework from './CourseHomework'
 import CourseResources from './CourseResources'
 import CourseChat from './CourseChat'
 import TimeInput from '../components/TimeInput'
+import BackButton from '../components/BackButton'
 import './ManageCourse.css'
 
 function ManageCourse() {
@@ -249,9 +250,7 @@ function ManageCourse() {
   return (
     <div className="manage-course">
       <div className="manage-course-header">
-        <button onClick={() => navigate('/instructor/dashboard')} className="back-button">
-          ← Back to Dashboard
-        </button>
+        <BackButton to="/instructor/dashboard" label="Back to Dashboard" />
         <h1>{course.title}</h1>
         <p className="course-subtitle">Manage your course content and students</p>
       </div>

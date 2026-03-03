@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { createTopic } from '../services/communityService'
+import BackButton from '../components/BackButton'
 import './CreateTopic.css'
 
 function CreateTopic() {
@@ -91,9 +92,7 @@ function CreateTopic() {
     <div className="create-topic-page">
       <div className="create-topic-container">
         <div className="page-header">
-          <Link to="/community" className="back-link">
-            ← Back to Community
-          </Link>
+          <BackButton to="/community" label="Back to Community" />
           <h1>Create New Topic</h1>
           <p className="page-subtitle">
             Start a new conversation topic for the community

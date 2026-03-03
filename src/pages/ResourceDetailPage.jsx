@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import StarRating from '../components/StarRating';
 import ReviewModal from '../components/ReviewModal';
+import BackButton from '../components/BackButton';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -119,7 +120,7 @@ function ResourceDetailPage() {
       <div className="resource-detail-page">
         <div className="resource-not-found">
           <h2>Resource not found</h2>
-          <a href={`/care/${milestone}`} className="back-link">← Back to {milestone}</a>
+          <BackButton to={`/care/${milestone}`} label={`Back to ${milestone}`} />
         </div>
       </div>
     );
@@ -128,7 +129,7 @@ function ResourceDetailPage() {
   return (
     <div className="resource-detail-page">
       <div className="resource-detail-container">
-        <a href={`/care/${milestone}`} className="back-link">← Back to {milestone}</a>
+        <BackButton to={`/care/${milestone}`} label={`Back to ${milestone}`} />
 
         <div className="resource-detail-header">
           <h1>{resource.name}</h1>

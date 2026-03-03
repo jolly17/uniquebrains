@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import BackButton from '../components/BackButton'
 import './HygieneGuide.css'
 
 function HygieneGuide() {
-  const navigate = useNavigate()
   const [activeTopic, setActiveTopic] = useState('toilet')
 
   const topicData = {
@@ -399,9 +398,7 @@ function HygieneGuide() {
     <div className="hg-page">
       <div className="hg-page-bg">
         <div className="hg-container">
-          <button className="hg-back-button" onClick={() => navigate('/content')}>
-            ← Back to Content
-          </button>
+          <BackButton to="/content" label="Back to Content" variant="filled" />
 
           <h1>🧼 Hygiene & Body Care Guide</h1>
           <p className="hg-subtitle">

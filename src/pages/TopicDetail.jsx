@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getTopicBySlug, getQuestionsByTopic } from '../services/communityService'
+import BackButton from '../components/BackButton'
 import './TopicDetail.css'
 
 function TopicDetail() {
@@ -67,7 +68,7 @@ function TopicDetail() {
       <div className="topic-header" style={{ backgroundImage: `url(${topic.cover_image_url})` }}>
         <div className="topic-header-overlay">
           <div className="topic-header-content">
-            <Link to="/community" className="back-link">← Back to Community</Link>
+            <BackButton to="/community" label="Back to Community" variant="light" />
             <h1>{topic.name}</h1>
             <p className="topic-description">{topic.description}</p>
             <button onClick={handleAskQuestion} className="btn-ask-question">

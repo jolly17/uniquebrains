@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getTopicBySlug, createQuestion } from '../services/communityService'
 import { supabase } from '../lib/supabase'
+import BackButton from '../components/BackButton'
 import './AskQuestion.css'
 
 function AskQuestion() {
@@ -181,9 +182,7 @@ function AskQuestion() {
     <div className="ask-question-page">
       <div className="ask-question-container">
         <div className="page-header">
-          <Link to={`/community/${slug}`} className="back-link">
-            ← Back to {topic?.name}
-          </Link>
+          <BackButton to={`/community/${slug}`} label={`Back to ${topic?.name}`} />
           <h1>Ask a Question</h1>
           <p className="page-subtitle">
             Share your question with the {topic?.name} community
