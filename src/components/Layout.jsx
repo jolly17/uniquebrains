@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react'
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Logo from './Logo'
-import PortalSwitcher from './PortalSwitcher'
 import FeedbackButton from './FeedbackButton'
 import './Layout.css'
 
@@ -225,17 +224,6 @@ function Layout() {
 
       <footer className="footer" role="contentinfo">
         <div className="footer-content">
-          {/* Portal Switcher - only show if user has multiple portals */}
-          {user && availablePortals && availablePortals.length > 1 && (
-            <div className="footer-portal-switcher">
-              <PortalSwitcher 
-                currentPortal={activePortal} 
-                availablePortals={availablePortals} 
-                compact={true} 
-              />
-            </div>
-          )}
-          
           <p>&copy; 2025 UniqueBrains. Where every brain learns differently.</p>
           <div className="footer-links">
             <Link to="/content" className="footer-link">Content & Resources</Link>
