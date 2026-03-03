@@ -1,17 +1,24 @@
 /**
  * Content Comment Service
- * Handles CRUD operations for comments on content pages (Neurodiversity, Sensory Differences, Hygiene Guide)
+ * Handles CRUD operations for comments on any content page
+ * 
+ * SCALABLE DESIGN: Uses flexible text identifiers for content pages
+ * - No enum restrictions - any page identifier works
+ * - Simply pass a unique slug/identifier when using the component
+ * - Examples: 'neurodiversity', 'sensory-differences', 'new-guide-2024'
  */
 
 import { supabase } from '../lib/supabase';
 
 /**
- * Valid content page types
+ * Common content page identifiers (for convenience, not required)
+ * You can use any string identifier - these are just the current pages
  */
 export const CONTENT_PAGES = {
   NEURODIVERSITY: 'neurodiversity',
   SENSORY_DIFFERENCES: 'sensory_differences',
   HYGIENE_GUIDE: 'hygiene_guide'
+  // Add new pages here for autocomplete, or just pass any string directly
 };
 
 /**
@@ -76,7 +83,7 @@ export async function getCommentCount(contentPage) {
 /**
  * Create a new comment
  * @param {Object} commentData - The comment data
- * @param {string} commentData.contentPage - The content page identifier
+ * @param {string} commentData.contentPage - The content page identifier (any unique string)
  * @param {string} commentData.commentText - The comment text
  * @param {boolean} commentData.isAnonymous - Whether to post anonymously
  * @param {string} userId - The user's ID
@@ -89,6 +96,11 @@ export async function createComment(commentData, userId) {
 
   const { contentPage, commentText, isAnonymous = false } = commentData;
 
+  // Validate content page identifier
+  if (!contentPage || contentPage.trim().length < 1) {
+    throw new Error('Content page identifier is required');
+  }
+
   // Validate comment text
   if (!commentText || commentText.trim().length < 3) {
     throw new Error('Comment must be at least 3 characters long');
@@ -96,11 +108,6 @@ export async function createComment(commentData, userId) {
 
   if (commentText.length > 2000) {
     throw new Error('Comment must be less than 2000 characters');
-  }
-
-  // Validate content page
-  if (!Object.values(CONTENT_PAGES).includes(contentPage)) {
-    throw new Error('Invalid content page');
   }
 
   const { data, error } = await supabase

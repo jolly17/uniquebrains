@@ -1,13 +1,14 @@
 -- Create content_comments table for comments on content pages
 -- Migration: 20260303_content_comments.sql
-
--- Create enum type for content pages
-CREATE TYPE content_page_type AS ENUM ('neurodiversity', 'sensory_differences', 'hygiene_guide');
+-- 
+-- SCALABLE DESIGN: Uses TEXT field for content_page instead of ENUM
+-- This allows adding new content pages without database migrations
+-- Simply pass any unique page identifier (e.g., 'neurodiversity', 'new-page-slug')
 
 -- Create content_comments table
 CREATE TABLE IF NOT EXISTS content_comments (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  content_page content_page_type NOT NULL,
+  content_page TEXT NOT NULL,  -- Flexible: any page identifier works
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   comment_text TEXT NOT NULL,
   is_anonymous BOOLEAN DEFAULT false,
@@ -15,6 +16,9 @@ CREATE TABLE IF NOT EXISTS content_comments (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add check constraint for minimum content_page length
+ALTER TABLE content_comments ADD CONSTRAINT content_page_not_empty CHECK (length(content_page) >= 1);
 
 -- Create indexes for efficient querying
 CREATE INDEX idx_content_comments_page ON content_comments(content_page);

@@ -1,6 +1,21 @@
 /**
  * ContentComments Component
- * Reusable comment section for content pages (Neurodiversity, Sensory Differences, Hygiene Guide)
+ * 
+ * Reusable comment section for ANY content page.
+ * 
+ * SCALABLE DESIGN:
+ * - Pass any unique string as contentPage prop
+ * - No database changes needed for new pages
+ * - Just add <ContentComments contentPage="your-page-slug" /> to any page
+ * 
+ * @example
+ * // Using predefined constants (optional)
+ * import { CONTENT_PAGES } from '../services/contentCommentService';
+ * <ContentComments contentPage={CONTENT_PAGES.NEURODIVERSITY} />
+ * 
+ * @example
+ * // Using any custom string (works without adding to CONTENT_PAGES)
+ * <ContentComments contentPage="my-new-guide-2024" title="Discussion" />
  */
 
 import { useState, useEffect } from 'react';
