@@ -17,6 +17,12 @@ function Content() {
       title: '🌈 Sensory Differences',
       description: 'Learn about hyposensitivity and hypersensitivity across all eight senses in neurodivergent individuals.',
       path: '/content/sensory-differences'
+    },
+    {
+      id: 'hygiene',
+      title: '🧼 Hygiene & Body Care Guide',
+      description: 'A practical guide for supporting autistic individuals through hygiene milestones with sensory and cognitive strategies.',
+      path: '/content/hygiene-guide'
     }
   ]
 

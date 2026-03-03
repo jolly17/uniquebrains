@@ -355,9 +355,15 @@
   vertical-align: middle;
 }
 
+/* Tablet Responsiveness */
 @media (max-width: 968px) {
+  .sd-page-bg {
+    padding: 30px 16px;
+  }
+
   .sd-container {
     padding: 32px 24px;
+    border-radius: 20px;
   }
   
   .sd-container > h1 {
@@ -366,6 +372,11 @@
   
   .sd-subtitle {
     font-size: 16px;
+    margin-bottom: 32px;
+  }
+
+  .sd-category-title {
+    font-size: 18px;
   }
   
   .sd-sense-selector {
@@ -397,5 +408,252 @@
   
   .sd-accommodations-section {
     padding: 16px;
+  }
+
+  .sd-note {
+    padding: 24px;
+  }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .sd-page-bg {
+    padding: 20px 12px;
+  }
+
+  .sd-container {
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+
+  .sd-back-button {
+    padding: 8px 16px;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  
+  .sd-container > h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  
+  .sd-subtitle {
+    font-size: 15px;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .sd-sense-category {
+    margin-bottom: 24px;
+  }
+
+  .sd-category-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .sd-category-title::before {
+    width: 3px;
+    height: 20px;
+  }
+  
+  .sd-sense-selector {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .sd-sense-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+    border-radius: 12px;
+    gap: 8px;
+  }
+
+  .sd-sense-icon {
+    font-size: 18px;
+  }
+
+  .sd-sense-definition {
+    padding: 14px 18px;
+    font-size: 14px;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    border-left-width: 4px;
+  }
+  
+  .sd-comparison-section {
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+  
+  .sd-comparison-card {
+    padding: 22px;
+    border-radius: 16px;
+    border-left-width: 6px;
+  }
+
+  .sd-card-header {
+    margin-bottom: 20px;
+  }
+
+  .sd-card-icon {
+    font-size: 26px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  .sd-card-title {
+    font-size: 18px;
+  }
+
+  .sd-card-subtitle {
+    font-size: 12px;
+  }
+
+  .sd-section-title {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .sd-section-title::before {
+    width: 3px;
+    height: 16px;
+  }
+
+  .sd-feature-list li {
+    font-size: 14px;
+    margin-bottom: 10px;
+    padding-left: 24px;
+    line-height: 1.6;
+  }
+
+  .sd-feature-list li::before {
+    font-size: 16px;
+  }
+
+  .sd-examples-section {
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+
+  .sd-example-badge {
+    padding: 5px 12px;
+    font-size: 12px;
+    margin: 3px;
+  }
+
+  .sd-accommodations-section {
+    margin-top: 20px;
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .sd-accommodations-section .sd-section-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .sd-accommodations-text {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .sd-note {
+    padding: 20px;
+    font-size: 14px;
+    border-radius: 12px;
+    line-height: 1.7;
+  }
+
+  .sd-note strong {
+    font-size: 15px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .sd-page-bg {
+    padding: 16px 10px;
+  }
+
+  .sd-container {
+    padding: 20px 14px;
+    border-radius: 14px;
+  }
+
+  .sd-back-button {
+    padding: 7px 14px;
+    font-size: 12px;
+  }
+  
+  .sd-container > h1 {
+    font-size: 20px;
+  }
+  
+  .sd-subtitle {
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .sd-category-title {
+    font-size: 15px;
+  }
+  
+  .sd-sense-selector {
+    gap: 6px;
+  }
+  
+  .sd-sense-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: 10px;
+    flex: 1 1 calc(33% - 6px);
+    justify-content: center;
+  }
+
+  .sd-sense-btn span:last-child {
+    display: none;
+  }
+
+  .sd-sense-icon {
+    font-size: 20px;
+  }
+
+  .sd-sense-definition {
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  
+  .sd-comparison-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .sd-card-icon {
+    font-size: 22px;
+    width: 42px;
+    height: 42px;
+  }
+  
+  .sd-card-title {
+    font-size: 16px;
+  }
+
+  .sd-section-title {
+    font-size: 15px;
+  }
+
+  .sd-feature-list li {
+    font-size: 13px;
+    padding-left: 20px;
+  }
+
+  .sd-accommodations-section {
+    padding: 12px;
+  }
+
+  .sd-note {
+    padding: 16px;
+    font-size: 13px;
   }
 }

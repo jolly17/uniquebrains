@@ -68,21 +68,73 @@
   transform: translateX(8px);
 }
 
+/* Tablet Responsiveness */
+@media (max-width: 968px) {
+  .content-landing-container {
+    padding: 30px 20px;
+  }
+
+  .content-cards-grid {
+    max-width: 100%;
+    gap: 1.5rem;
+  }
+
+  .content-landing-card {
+    padding: 2rem;
+  }
+
+  .content-landing-card h2 {
+    font-size: 1.5rem;
+  }
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .content-landing-container {
-    padding: var(--spacing-6) var(--spacing-4);
+    padding: 24px 16px;
   }
 
   .content-cards-grid {
     grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .content-landing-card {
-    padding: var(--spacing-8);
+    padding: 1.5rem;
   }
 
   .content-landing-card h2 {
-    font-size: var(--font-size-xl);
+    font-size: 1.35rem;
+  }
+
+  .content-landing-card p {
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-arrow {
+    font-size: 1.25rem;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .content-landing-container {
+    padding: 20px 12px;
+  }
+
+  .content-landing-card {
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+  }
+
+  .content-landing-card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .content-landing-card p {
+    font-size: 0.9rem;
+    line-height: 1.5;
   }
 }
