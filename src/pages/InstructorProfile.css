@@ -97,13 +97,13 @@
 .instructor-hero .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: white;
+  color: white !important;
 }
 
 .instructor-hero .stat-label {
-  font-size: 0.875rem;
+  font-size: 0.875rem !important;
   opacity: 0.9;
-  color: white;
+  color: white !important;
 }
 
 /* Bio Section */
