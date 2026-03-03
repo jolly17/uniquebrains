@@ -525,6 +525,47 @@ export async function fetchCourseEnrollments() {
 }
 
 /**
+ * Send bulk email to students in a course
+ * @param {Object} emailData - Email data
+ * @param {string} emailData.subject - Email subject
+ * @param {string} emailData.message - Email message body
+ * @param {string} emailData.courseTitle - Course title
+ * @param {string} emailData.courseId - Course ID
+ * @param {string[]} emailData.recipientEmails - Array of recipient email addresses
+ * @param {string} emailData.senderName - Name of the sender (admin)
+ * @returns {Promise<Object>} Result with emailsSent count
+ */
+export async function sendBulkEmailToStudents(emailData) {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-bulk-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(emailData)
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    const result = await response.json()
+    return result
+  } catch (error) {
+    console.error('Error sending bulk email:', error)
+    throw error
+  }
+}
+
+/**
  * Fetch dashboard statistics
  * @returns {Promise<Object>} Dashboard statistics
  */

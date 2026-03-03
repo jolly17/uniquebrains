@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react'
-import { fetchCourseEnrollments } from '../../services/adminService'
+import { fetchCourseEnrollments, sendBulkEmailToStudents, updateEnrollmentStatus } from '../../services/adminService'
+import DataTable from '../../components/admin/DataTable'
 import './AdminEnrollments.css'
 
 function AdminEnrollments() {
   const [enrollments, setEnrollments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [expandedCourses, setExpandedCourses] = useState({})
   const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [emailSubject, setEmailSubject] = useState('')
   const [emailMessage, setEmailMessage] = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
+  const [emailSuccess, setEmailSuccess] = useState('')
 
   useEffect(() => {
     loadEnrollments()
@@ -31,29 +32,51 @@ function AdminEnrollments() {
     }
   }
 
-  const groupedByCourse = enrollments.reduce((acc, enrollment) => {
-    const courseId = enrollment.course_id
-    if (!acc[courseId]) {
-      acc[courseId] = {
-        course_title: enrollment.course_title,
-        instructor_name: enrollment.instructor_name,
-        students: []
+  // Get unique courses for filter
+  const getUniqueCourses = () => {
+    const courses = new Map()
+    enrollments.forEach(enrollment => {
+      if (enrollment.course_id && enrollment.course_title) {
+        courses.set(enrollment.course_id, enrollment.course_title)
       }
-    }
-    acc[courseId].students.push(enrollment)
-    return acc
-  }, {})
-
-  const handleEmailAllStudents = (courseId) => {
-    setSelectedCourse(courseId)
-    setEmailModalOpen(true)
+    })
+    return Array.from(courses.entries()).map(([id, title]) => ({
+      value: title,
+      label: title
+    }))
   }
 
-  const toggleCourse = (courseId) => {
-    setExpandedCourses(prev => ({
-      ...prev,
-      [courseId]: !prev[courseId]
+  // Get unique statuses for filter
+  const getUniqueStatuses = () => {
+    const statuses = new Set()
+    enrollments.forEach(enrollment => {
+      if (enrollment.status) {
+        statuses.add(enrollment.status)
+      }
+    })
+    return Array.from(statuses).sort().map(status => ({
+      value: status,
+      label: status.charAt(0).toUpperCase() + status.slice(1)
     }))
+  }
+
+  const filters = [
+    {
+      key: 'course_title',
+      label: 'Course',
+      options: getUniqueCourses()
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      options: getUniqueStatuses()
+    }
+  ]
+
+  const handleEmailAllStudents = (courseTitle) => {
+    setSelectedCourse(courseTitle)
+    setEmailModalOpen(true)
+    setEmailSuccess('')
   }
 
   const sendEmailToAllStudents = async () => {
@@ -63,223 +86,254 @@ function AdminEnrollments() {
     }
 
     setSendingEmail(true)
+    setEmailSuccess('')
+    
     try {
-      const courseData = groupedByCourse[selectedCourse]
-      const studentEmails = courseData.students.map(s => s.student_email).filter(Boolean)
+      // Get all students enrolled in the selected course
+      const courseEnrollments = enrollments.filter(e => e.course_title === selectedCourse)
+      const studentEmails = courseEnrollments
+        .map(e => e.student_email)
+        .filter(email => email && email.trim())
       
-      // Here you would call your email service
-      // For now, we'll just log it
-      console.log('Sending email to:', studentEmails)
-      console.log('Subject:', emailSubject)
-      console.log('Message:', emailMessage)
+      if (studentEmails.length === 0) {
+        alert('No valid email addresses found for students in this course')
+        setSendingEmail(false)
+        return
+      }
+
+      // Get course ID from first enrollment
+      const courseId = courseEnrollments[0]?.course_id || ''
+
+      const result = await sendBulkEmailToStudents({
+        subject: emailSubject,
+        message: emailMessage,
+        courseTitle: selectedCourse,
+        courseId: courseId,
+        recipientEmails: studentEmails,
+        senderName: 'UniqueBrains Admin'
+      })
       
-      alert(`Email would be sent to ${studentEmails.length} students`)
-      
-      setEmailModalOpen(false)
+      setEmailSuccess(`Successfully sent email to ${result.emailsSent || studentEmails.length} students!`)
       setEmailSubject('')
       setEmailMessage('')
+      
+      // Close modal after 2 seconds
+      setTimeout(() => {
+        setEmailModalOpen(false)
+        setEmailSuccess('')
+      }, 2000)
     } catch (err) {
       console.error('Error sending emails:', err)
-      alert('Failed to send emails')
+      alert('Failed to send emails. Please try again.')
     } finally {
       setSendingEmail(false)
     }
   }
 
-  if (loading) {
-    return (
-      <div className="admin-enrollments">
-        <div className="page-header">
-          <h1>Course Enrollments</h1>
-          <p>View students enrolled in each course and their neurodiversity needs</p>
-        </div>
-        <div className="loading-state">Loading enrollments...</div>
-      </div>
+  const handleStatusChange = async (enrollment) => {
+    const newStatus = prompt(
+      `Change status for ${enrollment.student_name}?\nCurrent: ${enrollment.status}\n\nEnter new status (active, completed, dropped, pending):`,
+      enrollment.status
     )
+    
+    if (newStatus && ['active', 'completed', 'dropped', 'pending'].includes(newStatus.toLowerCase())) {
+      try {
+        await updateEnrollmentStatus(enrollment.id, newStatus.toLowerCase())
+        await loadEnrollments()
+      } catch (err) {
+        console.error('Error updating status:', err)
+        alert('Failed to update enrollment status')
+      }
+    } else if (newStatus) {
+      alert('Invalid status. Please use: active, completed, dropped, or pending')
+    }
   }
 
-  if (error) {
-    return (
-      <div className="admin-enrollments">
-        <div className="page-header">
-          <h1>Course Enrollments</h1>
-          <p>View students enrolled in each course and their neurodiversity needs</p>
+  const columns = [
+    { 
+      key: 'student_name', 
+      label: 'Student',
+      render: (value, row) => (
+        <div className="student-info-cell">
+          <span className="student-name">{value}</span>
+          <span className="student-email">{row.student_email}</span>
         </div>
-        <div className="error-message">{error}</div>
-      </div>
-    )
-  }
+      )
+    },
+    { key: 'course_title', label: 'Course' },
+    { key: 'instructor_name', label: 'Instructor' },
+    { 
+      key: 'status', 
+      label: 'Status',
+      render: (value) => (
+        <span className={`status-badge status-${value}`}>
+          {value}
+        </span>
+      )
+    },
+    { 
+      key: 'neurodiversity_profile', 
+      label: 'Neurodiversity',
+      render: (value) => (
+        <div className="tags-cell">
+          {value && value.length > 0 ? (
+            value.slice(0, 2).map((item, index) => (
+              <span key={index} className="neurodiversity-tag">
+                {item}
+              </span>
+            ))
+          ) : (
+            <span className="no-data">-</span>
+          )}
+          {value && value.length > 2 && (
+            <span className="more-tag">+{value.length - 2}</span>
+          )}
+        </div>
+      )
+    },
+    { 
+      key: 'interests', 
+      label: 'Interests',
+      render: (value) => (
+        <div className="tags-cell">
+          {value && value.length > 0 ? (
+            value.slice(0, 2).map((item, index) => (
+              <span key={index} className="interest-tag">
+                {item}
+              </span>
+            ))
+          ) : (
+            <span className="no-data">-</span>
+          )}
+          {value && value.length > 2 && (
+            <span className="more-tag">+{value.length - 2}</span>
+          )}
+        </div>
+      )
+    },
+    { 
+      key: 'created_at', 
+      label: 'Enrolled',
+      render: (value) => new Date(value).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }
+  ]
+
+  // Get unique courses for email buttons
+  const uniqueCourses = [...new Set(enrollments.map(e => e.course_title))].filter(Boolean)
 
   return (
     <div className="admin-enrollments">
       <div className="page-header">
-        <h1>Course Enrollments</h1>
-        <p>View students enrolled in each course and their neurodiversity needs</p>
+        <div className="header-content">
+          <h1>Course Enrollments</h1>
+          <p>View students enrolled in each course and their neurodiversity needs</p>
+        </div>
       </div>
 
-      {Object.keys(groupedByCourse).length === 0 ? (
-        <div className="empty-state">
-          <p>No enrollments found</p>
-        </div>
-      ) : (
-        <div className="courses-list">
-          {Object.entries(groupedByCourse).map(([courseId, courseData]) => (
-            <div key={courseId} className="course-section">
-              <div 
-                className="course-header"
-                onClick={() => toggleCourse(courseId)}
-              >
-                <div className="course-info">
-                  <h2>{courseData.course_title}</h2>
-                  <p className="instructor-name">Instructor: {courseData.instructor_name}</p>
-                  <p className="enrollment-count">
-                    {courseData.students.length} student{courseData.students.length !== 1 ? 's' : ''} enrolled
-                  </p>
-                </div>
-                <div className="course-actions">
-                  <button 
-                    className="email-all-btn"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleEmailAllStudents(courseId)
-                    }}
-                  >
-                    📧 Email All Students
-                  </button>
-                  <button className="toggle-btn">
-                    {expandedCourses[courseId] ? '▼' : '▶'}
-                  </button>
-                </div>
-              </div>
-
-              {expandedCourses[courseId] && (
-                <div className="students-table-container">
-                  <table className="students-table">
-                    <thead>
-                      <tr>
-                        <th>Student Name</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Age</th>
-                        <th>Grade</th>
-                        <th>Neurodiversity Profile</th>
-                        <th>Interests</th>
-                        <th>Enrolled Date</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {courseData.students.map((enrollment) => (
-                        <tr key={enrollment.id}>
-                          <td className="student-name">{enrollment.student_name}</td>
-                          <td className="student-email">{enrollment.student_email}</td>
-                          <td>
-                            <span className={`status-badge status-${enrollment.status}`}>
-                              {enrollment.status}
-                            </span>
-                          </td>
-                          <td>{enrollment.age || '-'}</td>
-                          <td>{enrollment.grade_level || '-'}</td>
-                          <td>
-                            <div className="neurodiversity-cell">
-                              {enrollment.neurodiversity_profile && enrollment.neurodiversity_profile.length > 0 ? (
-                                enrollment.neurodiversity_profile.map((item, index) => (
-                                  <span key={index} className="neurodiversity-tag-small">
-                                    {item}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="no-data">-</span>
-                              )}
-                            </div>
-                          </td>
-                          <td>
-                            <div className="interests-cell">
-                              {enrollment.interests && enrollment.interests.length > 0 ? (
-                                enrollment.interests.slice(0, 2).map((interest, index) => (
-                                  <span key={index} className="interest-tag-small">
-                                    {interest}
-                                  </span>
-                                ))
-                              ) : (
-                                <span className="no-data">-</span>
-                              )}
-                              {enrollment.interests && enrollment.interests.length > 2 && (
-                                <span className="more-tag">+{enrollment.interests.length - 2}</span>
-                              )}
-                            </div>
-                          </td>
-                          <td className="enrollment-date">
-                            {new Date(enrollment.created_at).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            })}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          ))}
+      {/* Email All Students Section */}
+      {uniqueCourses.length > 0 && (
+        <div className="email-actions-section">
+          <h3>📧 Email Students by Course</h3>
+          <div className="email-buttons">
+            {uniqueCourses.map(courseTitle => {
+              const courseEnrollments = enrollments.filter(e => e.course_title === courseTitle)
+              const studentCount = courseEnrollments.length
+              return (
+                <button
+                  key={courseTitle}
+                  className="email-course-btn"
+                  onClick={() => handleEmailAllStudents(courseTitle)}
+                >
+                  <span className="course-name">{courseTitle}</span>
+                  <span className="student-count">{studentCount} student{studentCount !== 1 ? 's' : ''}</span>
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
+
+      {error && <div className="error-message">{error}</div>}
+
+      <DataTable
+        columns={columns}
+        data={enrollments}
+        onEdit={handleStatusChange}
+        loading={loading}
+        filters={filters}
+      />
 
       {/* Email Modal */}
       {emailModalOpen && (
         <div className="modal-overlay" onClick={() => setEmailModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Email All Students</h2>
+              <h2>📧 Email All Students</h2>
               <button className="close-btn" onClick={() => setEmailModalOpen(false)}>×</button>
             </div>
             <div className="modal-body">
-              <p className="modal-info">
-                Sending to {groupedByCourse[selectedCourse]?.students.length} students in{' '}
-                <strong>{groupedByCourse[selectedCourse]?.course_title}</strong>
-              </p>
-              
-              <div className="form-group">
-                <label htmlFor="email-subject">Subject</label>
-                <input
-                  id="email-subject"
-                  type="text"
-                  className="form-input"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  placeholder="Enter email subject"
-                />
-              </div>
+              {emailSuccess ? (
+                <div className="success-message">
+                  <span className="success-icon">✓</span>
+                  {emailSuccess}
+                </div>
+              ) : (
+                <>
+                  <div className="modal-info">
+                    <strong>Course:</strong> {selectedCourse}<br />
+                    <strong>Recipients:</strong> {enrollments.filter(e => e.course_title === selectedCourse && e.student_email).length} students
+                  </div>
+                  
+                  <div className="form-group">
+                    <label htmlFor="email-subject">Subject</label>
+                    <input
+                      id="email-subject"
+                      type="text"
+                      className="form-input"
+                      value={emailSubject}
+                      onChange={(e) => setEmailSubject(e.target.value)}
+                      placeholder="Enter email subject"
+                      disabled={sendingEmail}
+                    />
+                  </div>
 
-              <div className="form-group">
-                <label htmlFor="email-message">Message</label>
-                <textarea
-                  id="email-message"
-                  className="form-textarea"
-                  value={emailMessage}
-                  onChange={(e) => setEmailMessage(e.target.value)}
-                  placeholder="Enter your message to students"
-                  rows="8"
-                />
+                  <div className="form-group">
+                    <label htmlFor="email-message">Message</label>
+                    <textarea
+                      id="email-message"
+                      className="form-textarea"
+                      value={emailMessage}
+                      onChange={(e) => setEmailMessage(e.target.value)}
+                      placeholder="Enter your message to students..."
+                      rows="8"
+                      disabled={sendingEmail}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            {!emailSuccess && (
+              <div className="modal-footer">
+                <button 
+                  className="btn-secondary" 
+                  onClick={() => setEmailModalOpen(false)}
+                  disabled={sendingEmail}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn-primary" 
+                  onClick={sendEmailToAllStudents}
+                  disabled={sendingEmail}
+                >
+                  {sendingEmail ? 'Sending...' : 'Send Email'}
+                </button>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button 
-                className="btn-secondary" 
-                onClick={() => setEmailModalOpen(false)}
-                disabled={sendingEmail}
-              >
-                Cancel
-              </button>
-              <button 
-                className="btn-primary" 
-                onClick={sendEmailToAllStudents}
-                disabled={sendingEmail}
-              >
-                {sendingEmail ? 'Sending...' : 'Send Email'}
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}

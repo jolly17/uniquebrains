@@ -20,164 +20,86 @@
   font-size: 1rem;
 }
 
-.loading-state,
-.error-message,
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6b7280;
-  font-size: 1.1rem;
-}
-
 .error-message {
   color: #dc2626;
   background-color: #fee2e2;
   border-radius: 0.5rem;
   padding: 1rem;
+  margin-bottom: 1rem;
 }
 
-/* Course Sections */
-.courses-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.course-section {
+/* Email Actions Section */
+.email-actions-section {
   background: white;
   border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
   border: 1px solid #e5e7eb;
 }
 
-.course-header {
+.email-actions-section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.email-buttons {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.email-course-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.75rem 1.25rem;
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
   color: white;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.course-header:hover {
-  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
-}
-
-.course-info h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.instructor-name {
-  font-size: 0.95rem;
-  opacity: 0.9;
-  margin-bottom: 0.25rem;
-}
-
-.enrollment-count {
-  font-size: 0.9rem;
-  opacity: 0.85;
-  font-weight: 500;
-}
-
-.course-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.email-all-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2px solid white;
-  color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
+  border: none;
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
+  min-width: 180px;
+}
+
+.email-course-btn:hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.email-course-btn .course-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.email-course-btn .student-count {
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+/* Student Info Cell */
+.student-info-cell {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
-.email-all-btn:hover {
-  background: white;
-  color: #4f46e5;
-}
-
-.toggle-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  min-width: 3rem;
-}
-
-.toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-/* Students Table */
-.students-table-container {
-  overflow-x: auto;
-  background: white;
-}
-
-.students-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
-}
-
-.students-table thead {
-  background: #f9fafb;
-  border-bottom: 2px solid #e5e7eb;
-}
-
-.students-table th {
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: #374151;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.students-table tbody tr {
-  border-bottom: 1px solid #e5e7eb;
-  transition: background-color 0.15s;
-}
-
-.students-table tbody tr:hover {
-  background-color: #f9fafb;
-}
-
-.students-table td {
-  padding: 1rem;
-  color: #1f2937;
-  vertical-align: top;
-}
-
-.student-name {
+.student-info-cell .student-name {
   font-weight: 600;
   color: #1f2937;
 }
 
-.student-email {
+.student-info-cell .student-email {
+  font-size: 0.85rem;
   color: #6b7280;
-  font-size: 0.875rem;
 }
 
+/* Status Badges */
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.75rem;
@@ -207,37 +129,30 @@
   color: #92400e;
 }
 
-.enrollment-date {
-  color: #6b7280;
-  font-size: 0.875rem;
-  white-space: nowrap;
-}
-
-/* Neurodiversity and Interests Cells */
-.neurodiversity-cell,
-.interests-cell {
+/* Tags Cells */
+.tags-cell {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-  max-width: 250px;
+  max-width: 200px;
 }
 
-.neurodiversity-tag-small {
+.neurodiversity-tag {
   background: #4f46e5;
   color: white;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.interest-tag-small {
+.interest-tag {
   background: #e0e7ff;
   color: #4338ca;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -245,9 +160,9 @@
 .more-tag {
   background: #f3f4f6;
   color: #6b7280;
-  padding: 0.25rem 0.5rem;
+  padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
 }
 
@@ -328,6 +243,32 @@
   margin-bottom: 1.5rem;
   color: #1e40af;
   font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.success-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  background: #d1fae5;
+  border-radius: 0.5rem;
+  color: #065f46;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #065f46;
+  color: white;
+  border-radius: 50%;
+  font-size: 1.2rem;
 }
 
 .form-group {
@@ -351,6 +292,7 @@
   font-size: 1rem;
   font-family: inherit;
   transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
 }
 
 .form-input:focus,
@@ -358,6 +300,12 @@
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-input:disabled,
+.form-textarea:disabled {
+  background-color: #f9fafb;
+  cursor: not-allowed;
 }
 
 .form-textarea {
@@ -414,18 +362,8 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .students-table {
-    font-size: 0.85rem;
-  }
-
-  .students-table th,
-  .students-table td {
-    padding: 0.75rem;
-  }
-
-  .neurodiversity-cell,
-  .interests-cell {
-    max-width: 200px;
+  .tags-cell {
+    max-width: 150px;
   }
 }
 
@@ -438,32 +376,17 @@
     font-size: 1.5rem;
   }
 
-  .course-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: flex-start;
+  .email-actions-section {
+    padding: 1rem;
   }
 
-  .course-actions {
-    width: 100%;
+  .email-buttons {
     flex-direction: column;
   }
 
-  .email-all-btn {
+  .email-course-btn {
     width: 100%;
-    justify-content: center;
-  }
-
-  .toggle-btn {
-    width: 100%;
-  }
-
-  .students-table-container {
-    overflow-x: scroll;
-  }
-
-  .students-table {
-    min-width: 1000px;
+    min-width: auto;
   }
 
   .modal-content {
