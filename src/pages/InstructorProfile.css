@@ -41,10 +41,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 3rem;
+  background: rgba(255, 255, 255, 0.25) !important;
+  font-size: 3rem !important;
   font-weight: 700;
-  color: white;
+  color: white !important;
+}
+
+.instructor-avatar-large .avatar-placeholder {
+  background: rgba(255, 255, 255, 0.25) !important;
+  font-size: 3rem !important;
+  color: white !important;
 }
 
 .instructor-info {
