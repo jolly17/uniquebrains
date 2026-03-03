@@ -11,7 +11,10 @@ function AdminDashboard() {
     total_instructors: 0,
     total_students: 0,
     total_enrollments: 0,
-    total_topics: 0
+    total_topics: 0,
+    total_care_resources: 0,
+    total_questions: 0,
+    total_reviews: 0
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -101,6 +104,31 @@ function AdminDashboard() {
             <div className="stat-label">Community Topics</div>
           </div>
           <div className="stat-arrow">→</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">❓</div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total_questions}</div>
+            <div className="stat-label">Community Questions</div>
+          </div>
+        </div>
+
+        <div className="stat-card clickable" onClick={() => navigate('/admin/care-resources')}>
+          <div className="stat-icon">🏥</div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total_care_resources}</div>
+            <div className="stat-label">Care Resources</div>
+          </div>
+          <div className="stat-arrow">→</div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon">⭐</div>
+          <div className="stat-content">
+            <div className="stat-value">{stats.total_reviews}</div>
+            <div className="stat-label">Care Reviews</div>
+          </div>
         </div>
       </div>
 

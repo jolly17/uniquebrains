@@ -47,6 +47,9 @@ function ActivityFeed() {
       'user_registered': '👤',
       'course_updated': '✏️',
       'session_completed': '✅',
+      'question_posted': '❓',
+      'answer_posted': '💬',
+      'review_submitted': '⭐',
       'default': '•'
     }
     return icons[type] || icons.default

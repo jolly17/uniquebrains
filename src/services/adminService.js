@@ -531,12 +531,15 @@ export async function fetchCourseEnrollments() {
 export async function fetchDashboardStats() {
   try {
     // Fetch counts for all entities
-    const [coursesResult, instructorsResult, studentsResult, enrollmentsResult, topicsResult] = await Promise.all([
+    const [coursesResult, instructorsResult, studentsResult, enrollmentsResult, topicsResult, careResourcesResult, questionsResult, reviewsResult] = await Promise.all([
       supabase.from('courses').select('id', { count: 'exact', head: true }),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'instructor'),
       supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'student'),
       supabase.from('enrollments').select('id', { count: 'exact', head: true }),
-      supabase.from('topics').select('id', { count: 'exact', head: true })
+      supabase.from('topics').select('id', { count: 'exact', head: true }),
+      supabase.from('care_resources').select('id', { count: 'exact', head: true }),
+      supabase.from('questions').select('id', { count: 'exact', head: true }),
+      supabase.from('care_reviews').select('id', { count: 'exact', head: true })
     ])
 
     return {
@@ -544,7 +547,10 @@ export async function fetchDashboardStats() {
       total_instructors: instructorsResult.count || 0,
       total_students: studentsResult.count || 0,
       total_enrollments: enrollmentsResult.count || 0,
-      total_topics: topicsResult.count || 0
+      total_topics: topicsResult.count || 0,
+      total_care_resources: careResourcesResult.count || 0,
+      total_questions: questionsResult.count || 0,
+      total_reviews: reviewsResult.count || 0
     }
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
@@ -601,6 +607,39 @@ export async function fetchRecentActivities() {
 
     if (usersError) {
       console.error('Error fetching recent users:', usersError)
+    }
+
+    // Fetch recent community questions
+    const { data: recentQuestions, error: questionsError } = await supabase
+      .from('questions')
+      .select('id, title, created_at, is_anonymous, profiles!author_id(first_name, last_name), topics(name)')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (questionsError) {
+      console.error('Error fetching recent questions:', questionsError)
+    }
+
+    // Fetch recent community answers
+    const { data: recentAnswers, error: answersError } = await supabase
+      .from('answers')
+      .select('id, created_at, is_anonymous, profiles!author_id(first_name, last_name), questions(title)')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (answersError) {
+      console.error('Error fetching recent answers:', answersError)
+    }
+
+    // Fetch recent care reviews
+    const { data: recentReviews, error: reviewsError } = await supabase
+      .from('care_reviews')
+      .select('id, reviewer_name, rating, created_at, care_resources(name)')
+      .order('created_at', { ascending: false })
+      .limit(10)
+
+    if (reviewsError) {
+      console.error('Error fetching recent reviews:', reviewsError)
     }
 
     // Transform and combine all activities
@@ -671,6 +710,63 @@ export async function fetchRecentActivities() {
           description: `${roleLabel} registered`,
           user_name: userName,
           timestamp: user.created_at
+        })
+      })
+    }
+
+    // Add community question activities
+    if (recentQuestions) {
+      recentQuestions.forEach(question => {
+        const authorName = question.is_anonymous 
+          ? 'Anonymous'
+          : question.profiles 
+            ? `${question.profiles.first_name} ${question.profiles.last_name}`.trim()
+            : 'Unknown'
+        const topicName = question.topics?.name || 'Unknown Topic'
+        
+        activities.push({
+          id: `question-${question.id}`,
+          type: 'question_posted',
+          description: `New question in ${topicName}: "${question.title.substring(0, 50)}${question.title.length > 50 ? '...' : ''}"`,
+          user_name: authorName,
+          timestamp: question.created_at
+        })
+      })
+    }
+
+    // Add community answer activities
+    if (recentAnswers) {
+      recentAnswers.forEach(answer => {
+        const authorName = answer.is_anonymous 
+          ? 'Anonymous'
+          : answer.profiles 
+            ? `${answer.profiles.first_name} ${answer.profiles.last_name}`.trim()
+            : 'Unknown'
+        const questionTitle = answer.questions?.title || 'Unknown Question'
+        
+        activities.push({
+          id: `answer-${answer.id}`,
+          type: 'answer_posted',
+          description: `Answered question: "${questionTitle.substring(0, 40)}${questionTitle.length > 40 ? '...' : ''}"`,
+          user_name: authorName,
+          timestamp: answer.created_at
+        })
+      })
+    }
+
+    // Add care review activities
+    if (recentReviews) {
+      recentReviews.forEach(review => {
+        const reviewerName = review.reviewer_name || 'Anonymous'
+        const resourceName = review.care_resources?.name || 'Unknown Resource'
+        const stars = '⭐'.repeat(review.rating)
+        
+        activities.push({
+          id: `review-${review.id}`,
+          type: 'review_submitted',
+          description: `Reviewed "${resourceName}" ${stars}`,
+          user_name: reviewerName,
+          timestamp: review.created_at
         })
       })
     }
