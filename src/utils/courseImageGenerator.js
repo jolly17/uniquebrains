@@ -8,6 +8,8 @@ export function generateCourseImage(category) {
     'language': ['#ff6b6b', '#feca57'],
     'spirituality': ['#43e97b', '#38f9d7'],
     'lifeskills': ['#feca57', '#ff6b6b'],
+    'hobbies': ['#a18cd1', '#fbc2eb'],
+    'networking': ['#89f7fe', '#66a6ff'],
     default: ['#667eea', '#764ba2']
   }
 
@@ -35,6 +37,8 @@ export function getCategoryIcon(category) {
     'language': '🌍',
     'spirituality': '🧘',
     'lifeskills': '🌱',
+    'hobbies': '🎮',
+    'networking': '☕',
     default: '📚'
   }
   
