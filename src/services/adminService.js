@@ -18,6 +18,7 @@ export async function fetchAllCourses() {
         profiles!instructor_id(id, first_name, last_name, email),
         enrollments(count)
       `)
+      .order('display_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -652,6 +653,36 @@ export async function sendBulkEmailToStudents(emailData) {
     return result
   } catch (error) {
     console.error('Error sending bulk email:', error)
+    throw error
+  }
+}
+
+/**
+ * Update the display order of courses (for drag-and-drop reordering)
+ * @param {Array<{id: string, display_order: number}>} courseOrders - Array of course IDs with their new display_order
+ * @returns {Promise<boolean>} Success status
+ */
+export async function updateCourseOrder(courseOrders) {
+  try {
+    // Update each course's display_order
+    const updatePromises = courseOrders.map(({ id, display_order }) =>
+      supabase
+        .from('courses')
+        .update({ display_order, updated_at: new Date().toISOString() })
+        .eq('id', id)
+    )
+
+    const results = await Promise.all(updatePromises)
+    const errors = results.filter(r => r.error)
+
+    if (errors.length > 0) {
+      console.error('Some course order updates failed:', errors.map(e => e.error))
+      throw new Error(`Failed to update ${errors.length} course(s) order`)
+    }
+
+    return true
+  } catch (error) {
+    console.error('Error in updateCourseOrder:', error)
     throw error
   }
 }

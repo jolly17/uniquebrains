@@ -159,6 +159,230 @@
   background: #b91c1c;
 }
 
+/* Page Header with Reorder Button */
+.page-header-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.btn-reorder {
+  padding: 0.5rem 1rem;
+  border: 2px solid #6366f1;
+  background: white;
+  color: #6366f1;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-reorder:hover {
+  background: #6366f1;
+  color: white;
+}
+
+/* Reorder Container */
+.reorder-container {
+  background: white;
+  border-radius: 0.75rem;
+  border: 2px solid #e0e7ff;
+  overflow: hidden;
+}
+
+.reorder-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  background: #eef2ff;
+  border-bottom: 2px solid #e0e7ff;
+  gap: 1rem;
+}
+
+.reorder-info h2 {
+  font-size: 1.125rem;
+  color: #4338ca;
+  margin: 0 0 0.25rem 0;
+}
+
+.reorder-info p {
+  font-size: 0.8125rem;
+  color: #6366f1;
+  margin: 0;
+}
+
+.reorder-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.btn-save-order {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background: #6366f1;
+  color: white;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-save-order:hover {
+  background: #4f46e5;
+}
+
+.btn-save-order:disabled {
+  background: #a5b4fc;
+  cursor: not-allowed;
+}
+
+/* Reorder List */
+.reorder-list {
+  padding: 0.5rem;
+}
+
+.reorder-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  margin: 0.25rem 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: grab;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.reorder-row:hover {
+  border-color: #c7d2fe;
+  background: #fafafe;
+  box-shadow: 0 1px 3px rgba(99, 102, 241, 0.1);
+}
+
+.reorder-row.dragging {
+  opacity: 0.5;
+  border-color: #6366f1;
+  background: #eef2ff;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
+.reorder-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  color: #9ca3af;
+  cursor: grab;
+  flex-shrink: 0;
+}
+
+.drag-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.reorder-position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.reorder-course-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.reorder-course-title {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reorder-course-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  flex-wrap: wrap;
+}
+
+.meta-separator {
+  color: #d1d5db;
+}
+
+.status-badge-sm {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-badge-sm.status-published {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-badge-sm.status-draft {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.reorder-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.btn-move {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #6b7280;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.625rem;
+  transition: all 0.15s;
+  padding: 0;
+}
+
+.btn-move:hover:not(:disabled) {
+  border-color: #6366f1;
+  color: #6366f1;
+  background: #eef2ff;
+}
+
+.btn-move:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .admin-courses {
     padding: 1rem;
@@ -166,5 +390,31 @@
 
   .page-header h1 {
     font-size: 1.5rem;
+  }
+
+  .page-header-content {
+    flex-direction: column;
+  }
+
+  .reorder-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reorder-actions {
+    width: 100%;
+  }
+
+  .reorder-actions .btn-secondary,
+  .reorder-actions .btn-save-order {
+    flex: 1;
+  }
+
+  .reorder-course-title {
+    font-size: 0.875rem;
+  }
+
+  .reorder-course-meta {
+    font-size: 0.75rem;
   }
 }

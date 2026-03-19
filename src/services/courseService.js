@@ -308,6 +308,7 @@ export async function getAllPublishedCourses() {
       .eq('status', 'published')
       .eq('is_published', true)
       .not('enrollments.status', 'eq', 'dropped')
+      .order('display_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
 
     if (error) {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { fetchAllCourses, updateCourse, deleteCourse } from '../../services/adminService'
+import { useState, useEffect, useCallback } from 'react'
+import { fetchAllCourses, updateCourse, deleteCourse, updateCourseOrder } from '../../services/adminService'
 import DataTable from '../../components/admin/DataTable'
 import EditModal from '../../components/admin/EditModal'
 import './AdminCourses.css'
@@ -14,6 +14,12 @@ function AdminCourses() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [courseToDelete, setCourseToDelete] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  
+  // Reorder mode state
+  const [reorderMode, setReorderMode] = useState(false)
+  const [reorderedCourses, setReorderedCourses] = useState([])
+  const [savingOrder, setSavingOrder] = useState(false)
+  const [draggedIndex, setDraggedIndex] = useState(null)
 
   useEffect(() => {
     loadCourses()
@@ -87,7 +93,6 @@ function AdminCourses() {
   ]
 
   const handleEdit = (course) => {
-    // Prepare the course data for the edit modal with a status field
     setEditingCourse({
       ...course,
       status: course.is_published ? 'published' : 'draft'
@@ -117,7 +122,7 @@ function AdminCourses() {
   const handleDelete = (course) => {
     setCourseToDelete(course)
     setShowDeleteConfirm(true)
-    setError('') // Clear any previous errors
+    setError('')
   }
 
   const confirmDelete = async () => {
@@ -131,7 +136,6 @@ function AdminCourses() {
       showSuccess('Course deleted successfully!')
     } catch (err) {
       console.error('Error deleting course:', err)
-      // Provide specific error message based on the error
       const errorMsg = err.message || ''
       if (errorMsg.includes('foreign key') || errorMsg.includes('violates') || errorMsg.includes('referenced')) {
         setError('Cannot delete this course because it has enrollments or sessions. Please remove those first, or unpublish the course instead.')
@@ -142,6 +146,85 @@ function AdminCourses() {
       setCourseToDelete(null)
     } finally {
       setDeleting(false)
+    }
+  }
+
+  // Reorder mode handlers
+  const enterReorderMode = () => {
+    setReorderedCourses([...courses])
+    setReorderMode(true)
+  }
+
+  const cancelReorder = () => {
+    setReorderMode(false)
+    setReorderedCourses([])
+    setDraggedIndex(null)
+  }
+
+  const moveItem = useCallback((fromIndex, toIndex) => {
+    if (toIndex < 0 || toIndex >= reorderedCourses.length) return
+    setReorderedCourses(prev => {
+      const updated = [...prev]
+      const [moved] = updated.splice(fromIndex, 1)
+      updated.splice(toIndex, 0, moved)
+      return updated
+    })
+  }, [reorderedCourses.length])
+
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index)
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', index.toString())
+    // Add a slight delay to show the drag visual
+    setTimeout(() => {
+      e.target.closest('.reorder-row')?.classList.add('dragging')
+    }, 0)
+  }
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+  }
+
+  const handleDragEnter = (e, index) => {
+    e.preventDefault()
+    if (draggedIndex !== null && draggedIndex !== index) {
+      moveItem(draggedIndex, index)
+      setDraggedIndex(index)
+    }
+  }
+
+  const handleDragEnd = (e) => {
+    e.target.closest('.reorder-row')?.classList.remove('dragging')
+    setDraggedIndex(null)
+  }
+
+  const saveOrder = async () => {
+    try {
+      setSavingOrder(true)
+      setError('')
+      
+      const courseOrders = reorderedCourses.map((course, index) => ({
+        id: course.id,
+        display_order: index + 1
+      }))
+      
+      await updateCourseOrder(courseOrders)
+      
+      // Update local state with new order
+      const updatedCourses = reorderedCourses.map((course, index) => ({
+        ...course,
+        display_order: index + 1
+      }))
+      setCourses(updatedCourses)
+      setReorderMode(false)
+      setReorderedCourses([])
+      showSuccess('Course order saved successfully! This order will be reflected on the public courses page.')
+    } catch (err) {
+      console.error('Error saving course order:', err)
+      setError('Failed to save course order. Please try again.')
+    } finally {
+      setSavingOrder(false)
     }
   }
 
@@ -187,8 +270,17 @@ function AdminCourses() {
   return (
     <div className="admin-courses">
       <div className="page-header">
-        <h1>Courses Management</h1>
-        <p>Manage all courses on the platform</p>
+        <div className="page-header-content">
+          <div>
+            <h1>Courses Management</h1>
+            <p>Manage all courses on the platform</p>
+          </div>
+          {!reorderMode && !loading && courses.length > 1 && (
+            <button className="btn-reorder" onClick={enterReorderMode}>
+              ↕ Reorder Courses
+            </button>
+          )}
+        </div>
       </div>
 
       {successMessage && (
@@ -205,15 +297,91 @@ function AdminCourses() {
         </div>
       )}
 
-      <DataTable
-        columns={columns}
-        data={courses}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        loading={loading}
-        filters={filters}
-        exportFilename="courses"
-      />
+      {reorderMode ? (
+        <div className="reorder-container">
+          <div className="reorder-header">
+            <div className="reorder-info">
+              <h2>↕ Reorder Courses</h2>
+              <p>Drag and drop courses or use the arrow buttons to rearrange their display order. This order will be used on the public courses page.</p>
+            </div>
+            <div className="reorder-actions">
+              <button 
+                className="btn-secondary" 
+                onClick={cancelReorder}
+                disabled={savingOrder}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-save-order" 
+                onClick={saveOrder}
+                disabled={savingOrder}
+              >
+                {savingOrder ? 'Saving...' : '✓ Save Order'}
+              </button>
+            </div>
+          </div>
+
+          <div className="reorder-list">
+            {reorderedCourses.map((course, index) => (
+              <div
+                key={course.id}
+                className={`reorder-row ${draggedIndex === index ? 'dragging' : ''}`}
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnter={(e) => handleDragEnter(e, index)}
+                onDragEnd={handleDragEnd}
+              >
+                <div className="reorder-drag-handle" title="Drag to reorder">
+                  <span className="drag-icon">⠿</span>
+                </div>
+                <div className="reorder-position">{index + 1}</div>
+                <div className="reorder-course-info">
+                  <div className="reorder-course-title">{course.title}</div>
+                  <div className="reorder-course-meta">
+                    <span>{course.instructor_name}</span>
+                    <span className="meta-separator">•</span>
+                    <span>{course.category}</span>
+                    <span className="meta-separator">•</span>
+                    <span className={`status-badge-sm ${course.is_published ? 'status-published' : 'status-draft'}`}>
+                      {course.is_published ? 'Published' : 'Draft'}
+                    </span>
+                  </div>
+                </div>
+                <div className="reorder-buttons">
+                  <button
+                    className="btn-move"
+                    onClick={() => moveItem(index, index - 1)}
+                    disabled={index === 0}
+                    title="Move up"
+                  >
+                    ▲
+                  </button>
+                  <button
+                    className="btn-move"
+                    onClick={() => moveItem(index, index + 1)}
+                    disabled={index === reorderedCourses.length - 1}
+                    title="Move down"
+                  >
+                    ▼
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={courses}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          loading={loading}
+          filters={filters}
+          exportFilename="courses"
+        />
+      )}
 
       {showEditModal && (
         <EditModal
