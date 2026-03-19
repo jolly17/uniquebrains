@@ -252,20 +252,93 @@ export async function updateCourse(courseId, updates) {
 }
 
 /**
- * Delete a course
+ * Delete a course and its dependent records
  * @param {string} courseId - Course ID
  * @returns {Promise<boolean>} Success status
  */
 export async function deleteCourse(courseId) {
   try {
-    const { error } = await supabase
+    // Step 1: Delete dependent enrollments first
+    const { error: enrollmentsError } = await supabase
+      .from('enrollments')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (enrollmentsError) {
+      console.error('Error deleting enrollments:', enrollmentsError)
+      throw new Error(`Failed to delete course enrollments: ${enrollmentsError.message}`)
+    }
+
+    // Step 2: Delete dependent sessions
+    const { error: sessionsError } = await supabase
+      .from('sessions')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (sessionsError) {
+      console.error('Error deleting sessions:', sessionsError)
+      throw new Error(`Failed to delete course sessions: ${sessionsError.message}`)
+    }
+
+    // Step 3: Delete dependent homework
+    const { error: homeworkError } = await supabase
+      .from('homework')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (homeworkError) {
+      console.error('Error deleting homework:', homeworkError)
+      // Non-critical, continue
+    }
+
+    // Step 4: Delete dependent resources
+    const { error: resourcesError } = await supabase
+      .from('resources')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (resourcesError) {
+      console.error('Error deleting resources:', resourcesError)
+      // Non-critical, continue
+    }
+
+    // Step 5: Delete dependent messages
+    const { error: messagesError } = await supabase
+      .from('messages')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (messagesError) {
+      console.error('Error deleting messages:', messagesError)
+      // Non-critical, continue
+    }
+
+    // Step 6: Delete dependent reviews
+    const { error: reviewsError } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('course_id', courseId)
+
+    if (reviewsError) {
+      console.error('Error deleting reviews:', reviewsError)
+      // Non-critical, continue
+    }
+
+    // Step 7: Now delete the course itself
+    const { data, error } = await supabase
       .from('courses')
       .delete()
       .eq('id', courseId)
+      .select()
 
     if (error) {
       console.error('Error deleting course:', error)
       throw new Error(`Failed to delete course: ${error.message}`)
+    }
+
+    // Check if any rows were actually deleted
+    if (!data || data.length === 0) {
+      throw new Error('Course was not deleted. You may not have permission to delete this course, or it may have already been deleted.')
     }
 
     return true
