@@ -33,12 +33,26 @@ export function convertTo24HourFormat(time12h) {
 
 /**
  * Convert 12-hour time format to 24-hour format (returns hours and minutes as numbers)
- * @param {string} time12h - Time in 12-hour format (e.g., "2:30 PM")
+ * Also handles 24-hour format input gracefully (e.g., "14:30" or "14:30:00")
+ * @param {string} time12h - Time in 12-hour format (e.g., "2:30 PM") or 24-hour format (e.g., "14:30")
  * @returns {{hours: number, minutes: number}} Object with hours and minutes
  */
 export function convertTo24HourParts(time12h) {
+  if (!time12h) {
+    return { hours: 0, minutes: 0 }
+  }
+
   const [time, modifier] = time12h.split(' ')
+  if (!time) {
+    return { hours: 0, minutes: 0 }
+  }
+
   let [hours, minutes] = time.split(':')
+
+  // If no AM/PM modifier, assume the input is already in 24-hour format
+  if (!modifier) {
+    return { hours: parseInt(hours, 10), minutes: parseInt(minutes, 10) }
+  }
   
   if (hours === '12') {
     hours = '00'
