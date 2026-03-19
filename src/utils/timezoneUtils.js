@@ -14,8 +14,14 @@ export function convertTo24HourFormat(time12h) {
   }
   
   const [time, modifier] = time12h.split(' ')
-  if (!time || !modifier) {
+  if (!time) {
     return null
+  }
+
+  // If no AM/PM modifier, assume the input is already in 24-hour format
+  if (!modifier) {
+    const [hours, minutes] = time.split(':')
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
   }
   
   let [hours, minutes] = time.split(':')
