@@ -101,16 +101,18 @@ GRANT SELECT ON public.student_submissions_with_homework TO authenticated;
 COMMENT ON VIEW public.student_submissions_with_homework IS 'Student submissions with homework - uses SECURITY INVOKER to respect RLS of querying user';
 
 -- =====================================================
--- ISSUE 5: Enable RLS on spatial_ref_sys table
--- This table comes from PostGIS extension
+-- ISSUE 5: spatial_ref_sys table (RLS disabled)
+-- This table is owned by the postgres superuser (PostGIS extension)
+-- and cannot be altered via the SQL Editor. This is a known
+-- Supabase limitation - the warning can be safely ignored as
+-- spatial_ref_sys is a read-only reference table from PostGIS.
+--
+-- If you want to suppress this warning, you can either:
+-- 1. Remove the PostGIS extension if not needed:
+--    DROP EXTENSION IF EXISTS postgis CASCADE;
+-- 2. Or run this as superuser (not possible in Supabase hosted):
+--    ALTER TABLE public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
 -- =====================================================
-ALTER TABLE IF EXISTS public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
-
--- Allow read access to spatial_ref_sys for all users (it's reference data)
-DROP POLICY IF EXISTS "spatial_ref_sys_public_read" ON public.spatial_ref_sys;
-CREATE POLICY "spatial_ref_sys_public_read"
-  ON public.spatial_ref_sys FOR SELECT
-  USING (true);
 
 -- =====================================================
 -- VERIFICATION
