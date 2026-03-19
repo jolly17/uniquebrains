@@ -31,6 +31,16 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+
+    if (!formData.firstName.trim()) {
+      setError('First name is required')
+      return
+    }
+
+    if (!formData.lastName.trim()) {
+      setError('Last name is required')
+      return
+    }
     
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')

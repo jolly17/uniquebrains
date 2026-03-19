@@ -12,12 +12,15 @@ function Onboarding() {
   const userName = location.state?.userName || user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
   const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
     neurodiversityProfile: [],
     bio: '',
     otherNeurodiversity: '' // Separate field for "other" neurodiversity description
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [nameError, setNameError] = useState('')
 
   // Fetch current profile on load
   useEffect(() => {
@@ -43,6 +46,8 @@ function Onboarding() {
 
         if (data) {
           setFormData({
+            firstName: data.first_name || '',
+            lastName: data.last_name || '',
             neurodiversityProfile: data.neurodiversity_profile || [],
             bio: data.bio || '',
             otherNeurodiversity: ''
@@ -83,10 +88,24 @@ function Onboarding() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setNameError('')
     setIsSubmitting(true)
 
     if (!userId) {
       alert('User ID not found. Please try logging in again.')
+      setIsSubmitting(false)
+      return
+    }
+
+    // Validate first and last name
+    if (!formData.firstName.trim()) {
+      setNameError('First name is required')
+      setIsSubmitting(false)
+      return
+    }
+
+    if (!formData.lastName.trim()) {
+      setNameError('Last name is required')
       setIsSubmitting(false)
       return
     }
@@ -99,10 +118,12 @@ function Onboarding() {
         neurodiversityProfile.push(formData.otherNeurodiversity.trim())
       }
 
-      // Update profile
+      // Update profile with name and other fields
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
+          first_name: formData.firstName.trim(),
+          last_name: formData.lastName.trim(),
           neurodiversity_profile: neurodiversityProfile,
           bio: formData.bio.trim() || null
         })
@@ -133,6 +154,41 @@ function Onboarding() {
         </div>
 
         <form onSubmit={handleSubmit} className="onboarding-form">
+          {/* Name Section */}
+          <div className="form-section">
+            <h2>Your Name <span className="required-marker">*</span></h2>
+            <p className="section-description">
+              Please confirm your first and last name. This will be visible to other users on the platform.
+            </p>
+
+            {nameError && <div className="onboarding-error">{nameError}</div>}
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="firstName">First Name <span className="required-marker">*</span></label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={formData.firstName}
+                  onChange={(e) => { setFormData({ ...formData, firstName: e.target.value }); setNameError(''); }}
+                  placeholder="Enter your first name"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="lastName">Last Name <span className="required-marker">*</span></label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={formData.lastName}
+                  onChange={(e) => { setFormData({ ...formData, lastName: e.target.value }); setNameError(''); }}
+                  placeholder="Enter your last name"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Neurodiversity Profile */}
           <div className="form-section">
             <h2>Your Neurodiversity Profile (Optional)</h2>
