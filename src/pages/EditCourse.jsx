@@ -253,7 +253,7 @@ function EditCourse() {
                   <option value="academics">Academics 📚</option>
                   <option value="language">Language 🌍</option>
                   <option value="spirituality">Spirituality 🧘</option>
-                  <option value="lifeskills">Life Skills 🐷</option>
+                  <option value="lifeskills">Life Skills 🌱</option>
                   <option value="hobbies">Hobbies & Fun 🎮</option>
                 </select>
               </div>

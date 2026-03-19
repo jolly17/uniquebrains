@@ -34,7 +34,7 @@ export function getCategoryIcon(category) {
     'academics': '📚',
     'language': '🌍',
     'spirituality': '🧘',
-    'lifeskills': '🐷',
+    'lifeskills': '🌱',
     default: '📚'
   }
   
