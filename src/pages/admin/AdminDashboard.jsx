@@ -145,6 +145,37 @@ function AdminDashboard() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="quick-actions-section">
+        <h2>Quick Actions</h2>
+        <div className="quick-actions-grid">
+          <button className="quick-action-btn" onClick={() => navigate('/teach/create-course')}>
+            <span className="quick-action-icon">➕</span>
+            <span className="quick-action-label">Create Course</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => navigate('/community/create-topic')}>
+            <span className="quick-action-icon">💬</span>
+            <span className="quick-action-label">Add Topic</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => navigate('/admin/care-resources')}>
+            <span className="quick-action-icon">📤</span>
+            <span className="quick-action-label">Upload Resources</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => navigate('/admin/analytics')}>
+            <span className="quick-action-icon">📈</span>
+            <span className="quick-action-label">View Analytics</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => navigate('/admin/enrollments')}>
+            <span className="quick-action-icon">📧</span>
+            <span className="quick-action-label">Email Students</span>
+          </button>
+          <button className="quick-action-btn" onClick={() => navigate('/admin/sessions')}>
+            <span className="quick-action-icon">🗓️</span>
+            <span className="quick-action-label">Manage Sessions</span>
+          </button>
+        </div>
+      </div>
+
       {/* Activity Feed */}
       <div className="activity-section">
         <h2>Recent Activity</h2>

@@ -303,6 +303,7 @@ function AdminEnrollments() {
         onEdit={handleStatusChange}
         loading={loading}
         filters={filters}
+        exportFilename="enrollments"
       />
 
       {/* Status Change Modal */}

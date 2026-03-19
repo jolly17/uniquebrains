@@ -170,6 +170,7 @@ function AdminInstructors() {
         data={instructors}
         onEdit={handleEdit}
         loading={loading}
+        exportFilename="instructors"
       />
 
       {showEditModal && (

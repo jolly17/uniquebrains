@@ -107,6 +107,7 @@ function AdminStudents() {
         data={students}
         onEdit={handleEdit}
         loading={loading}
+        exportFilename="students"
       />
 
       {showEditModal && (

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { ToastProvider } from './components/Toast'
 import { trackPageView } from './utils/analytics'
 import Layout from './components/Layout'
 import ScrollToTop from './components/ScrollToTop'
@@ -92,6 +93,7 @@ function AnalyticsTracker() {
 function App() {
   return (
     <AuthProvider>
+      <ToastProvider>
       <Router>
         <AnalyticsTracker />
         <ScrollToTop />
@@ -266,6 +268,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
+      </ToastProvider>
     </AuthProvider>
   )
 }

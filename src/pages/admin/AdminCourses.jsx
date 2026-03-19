@@ -212,6 +212,7 @@ function AdminCourses() {
         onDelete={handleDelete}
         loading={loading}
         filters={filters}
+        exportFilename="courses"
       />
 
       {showEditModal && (

@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../components/Toast';
 import { bulkUploadResources, generateErrorReport } from '../../services/bulkUploadService';
 import { MILESTONES } from '../../data/milestones';
 import './AdminCareResources.css';
 
 function AdminCareResources() {
   const { user } = useAuth();
+  const toast = useToast();
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
@@ -36,7 +38,7 @@ function AdminCareResources() {
   const handleFileSelect = (selectedFile) => {
     const extension = selectedFile.name.split('.').pop().toLowerCase();
     if (!['csv', 'xlsx', 'xls'].includes(extension)) {
-      alert('Please upload a CSV or Excel file (.csv, .xlsx, .xls)');
+      toast.warning('Please upload a CSV or Excel file (.csv, .xlsx, .xls)');
       return;
     }
     setFile(selectedFile);
@@ -51,7 +53,7 @@ function AdminCareResources() {
 
   const handleUpload = async () => {
     if (!file) {
-      alert('Please select a file first');
+      toast.warning('Please select a file first');
       return;
     }
 
@@ -74,7 +76,7 @@ function AdminCareResources() {
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      alert(`Upload failed: ${error.message}`);
+      toast.error(`Upload failed: ${error.message}`);
     } finally {
       setUploading(false);
     }

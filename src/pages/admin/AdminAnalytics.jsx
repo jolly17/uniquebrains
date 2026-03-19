@@ -6,6 +6,8 @@ import {
   fetchActiveStudents,
   fetchCommunityQuestions,
   fetchCommunityAnswers,
+  fetchEnrollmentsOverTime,
+  fetchCareResourcesOverTime,
   calculatePercentageChange
 } from '../../services/analyticsService'
 import './AdminAnalytics.css'
@@ -20,13 +22,17 @@ export default function AdminAnalytics() {
   const [activeStudentsData, setActiveStudentsData] = useState([])
   const [communityQuestionsData, setCommunityQuestionsData] = useState([])
   const [communityAnswersData, setCommunityAnswersData] = useState([])
+  const [enrollmentsData, setEnrollmentsData] = useState([])
+  const [careResourcesData, setCareResourcesData] = useState([])
   
   const [percentageChanges, setPercentageChanges] = useState({
     userSignups: 0,
     coursesCreated: 0,
     activeStudents: 0,
     communityQuestions: 0,
-    communityAnswers: 0
+    communityAnswers: 0,
+    enrollments: 0,
+    careResources: 0
   })
 
   useEffect(() => {
@@ -38,12 +44,14 @@ export default function AdminAnalytics() {
     setError(null)
     
     try {
-      const [signups, courses, students, questions, answers] = await Promise.all([
+      const [signups, courses, students, questions, answers, enrollments, careResources] = await Promise.all([
         fetchUserSignups(timeRange),
         fetchCoursesCreated(timeRange),
         fetchActiveStudents(timeRange),
         fetchCommunityQuestions(timeRange),
-        fetchCommunityAnswers(timeRange)
+        fetchCommunityAnswers(timeRange),
+        fetchEnrollmentsOverTime(timeRange),
+        fetchCareResourcesOverTime(timeRange)
       ])
       
       setUserSignupsData(signups)
@@ -51,9 +59,11 @@ export default function AdminAnalytics() {
       setActiveStudentsData(students)
       setCommunityQuestionsData(questions)
       setCommunityAnswersData(answers)
+      setEnrollmentsData(enrollments)
+      setCareResourcesData(careResources)
       
       // Calculate percentage changes
-      calculateChanges(signups, courses, students, questions, answers)
+      calculateChanges(signups, courses, students, questions, answers, enrollments, careResources)
     } catch (err) {
       console.error('Error loading analytics:', err)
       setError('Failed to load analytics data. Please try again.')
@@ -62,7 +72,7 @@ export default function AdminAnalytics() {
     }
   }
 
-  const calculateChanges = (signups, courses, students, questions, answers) => {
+  const calculateChanges = (signups, courses, students, questions, answers, enrollments, careResources) => {
     const calculateChange = (data) => {
       if (data.length === 0) return 0
       
@@ -81,7 +91,9 @@ export default function AdminAnalytics() {
       coursesCreated: calculateChange(courses),
       activeStudents: calculateChange(students),
       communityQuestions: calculateChange(questions),
-      communityAnswers: calculateChange(answers)
+      communityAnswers: calculateChange(answers),
+      enrollments: calculateChange(enrollments),
+      careResources: calculateChange(careResources)
     })
   }
 
@@ -228,12 +240,30 @@ export default function AdminAnalytics() {
         )}
         
         {renderMetricCard(
+          'Enrollments Over Time',
+          enrollmentsData,
+          percentageChanges.enrollments,
+          LineChart,
+          '#0ea5e9',
+          false
+        )}
+        
+        {renderMetricCard(
           'Active Students',
           activeStudentsData,
           percentageChanges.activeStudents,
           LineChart,
           '#f59e0b',
           false
+        )}
+        
+        {renderMetricCard(
+          'Care Resources Added',
+          careResourcesData,
+          percentageChanges.careResources,
+          BarChart,
+          '#ef4444',
+          true
         )}
         
         {renderMetricCard(

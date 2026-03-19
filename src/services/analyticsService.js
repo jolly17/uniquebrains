@@ -235,6 +235,78 @@ export async function fetchCommunityQuestions(timeRange) {
 }
 
 /**
+ * Fetch enrollments over time
+ * @param {string} timeRange - Time range (7d, 30d, 90d, 1y, all)
+ * @returns {Promise<Array<{date: string, value: number}>>} Enrollment data points
+ */
+export async function fetchEnrollmentsOverTime(timeRange) {
+  try {
+    const startDate = getStartDate(timeRange)
+    
+    let query = supabase
+      .from('enrollments')
+      .select('id, created_at')
+      .order('created_at', { ascending: true })
+    
+    if (startDate) {
+      query = query.gte('created_at', startDate.toISOString())
+    }
+    
+    const { data, error } = await query
+    
+    if (error) {
+      console.error('Error fetching enrollments:', error)
+      throw new Error(`Failed to fetch enrollments: ${error.message}`)
+    }
+    
+    if (timeRange === '1y' || timeRange === 'all') {
+      return aggregateByWeek(data || [])
+    } else {
+      return aggregateByDay(data || [])
+    }
+  } catch (error) {
+    console.error('Error in fetchEnrollmentsOverTime:', error)
+    throw error
+  }
+}
+
+/**
+ * Fetch care resources created over time
+ * @param {string} timeRange - Time range (7d, 30d, 90d, 1y, all)
+ * @returns {Promise<Array<{date: string, value: number}>>} Care resource data points
+ */
+export async function fetchCareResourcesOverTime(timeRange) {
+  try {
+    const startDate = getStartDate(timeRange)
+    
+    let query = supabase
+      .from('care_resources')
+      .select('id, created_at')
+      .order('created_at', { ascending: true })
+    
+    if (startDate) {
+      query = query.gte('created_at', startDate.toISOString())
+    }
+    
+    const { data, error } = await query
+    
+    if (error) {
+      console.error('Error fetching care resources:', error)
+      throw new Error(`Failed to fetch care resources: ${error.message}`)
+    }
+    
+    if (timeRange === '1y' || timeRange === 'all') {
+      return aggregateByWeek(data || [])
+    } else {
+      return aggregateByDay(data || [])
+    }
+  } catch (error) {
+    console.error('Error in fetchCareResourcesOverTime:', error)
+    throw error
+  }
+}
+
+/**
  * Fetch community answers posted over time
  * @param {string} timeRange - Time range (7d, 30d, 90d, 1y, all)
  * @returns {Promise<Array<{date: string, value: number}>>} Community answers data points

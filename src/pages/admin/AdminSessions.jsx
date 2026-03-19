@@ -200,6 +200,7 @@ function AdminSessions() {
         onDelete={handleDelete}
         loading={loading}
         filters={filters}
+        exportFilename="sessions"
       />
 
       {showEditModal && (
