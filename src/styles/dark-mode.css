@@ -1,0 +1,661 @@
+/* ===== Global Dark Mode Overrides =====
+ * Fixes hardcoded light colors across all pages/components
+ * that don't use CSS variables from tokens.css
+ * 
+ * Dark palette:
+ *   Background:  #111827 (darkest), #1f2937 (cards), #1e293b (alt cards)
+ *   Borders:     #374151, #334155
+ *   Text:        #f9fafb (primary), #e5e7eb (secondary), #9ca3af (muted)
+ *   Surfaces:    #374151 (hover), #4b5563 (active)
+ */
+
+@media (prefers-color-scheme: dark) {
+
+  /* ===== Global Element Overrides ===== */
+  
+  /* All elements with hardcoded white backgrounds */
+  .auth-card,
+  .auth-callback-loading,
+  .auth-callback-error,
+  .modal-content,
+  .confirm-dialog,
+  .form-card,
+  .topic-card,
+  .topic-form,
+  .question-form,
+  .answer-card,
+  .comment-card,
+  .login-prompt,
+  .share-menu,
+  .data-table-container,
+  .activity-feed,
+  .metric-card,
+  .stat-card,
+  .quick-action-card,
+  .enrollment-success-popup,
+  .error-boundary-content,
+  .page-error-content,
+  .content-landing-card,
+  .resource-card-compact,
+  .resource-card,
+  .review-modal,
+  .filter-panel,
+  .nd-container,
+  .hg-container,
+  .hg-step-item,
+  .sd-container,
+  .progress-section,
+  .notify-section,
+  .privacy-content,
+  .course-schedule-info,
+  .course-progress-section,
+  .session-item-student,
+  .homework-card,
+  .instructor-bio-section,
+  .instructor-reviews-section,
+  .info-card {
+    background: #1f2937 !important;
+    color: #f9fafb;
+  }
+
+  /* Cards and containers with light gray backgrounds */
+  .form-section,
+  .checkbox-label:hover,
+  .objective-item,
+  .schedule-note,
+  .course-note,
+  .comment-form,
+  .response-content,
+  .schedule-preview,
+  .upload-instructions,
+  .sessions-info-banner,
+  .course-schedule-info,
+  .chat-container,
+  .custom-tooltip,
+  .contact-info,
+  .sample-review,
+  .error-details {
+    background: #1e293b !important;
+  }
+
+  /* Table headers and striped rows */
+  .data-table thead,
+  .data-table thead th,
+  .errors-table th {
+    background: #1e293b !important;
+    color: #e5e7eb !important;
+  }
+
+  .data-table tbody tr:hover,
+  .sortable-header:hover {
+    background: #374151 !important;
+  }
+
+  /* Form inputs and selects */
+  input,
+  textarea,
+  select {
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #6b7280 !important;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #6366f1 !important;
+  }
+
+  input:disabled,
+  textarea:disabled,
+  select:disabled {
+    background-color: #111827 !important;
+    color: #6b7280 !important;
+  }
+
+  /* ===== Navigation & Layout ===== */
+  
+  .admin-header,
+  .admin-sidebar,
+  .admin-layout {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .admin-layout {
+    background: #111827 !important;
+  }
+
+  /* ===== Buttons ===== */
+  
+  .btn-secondary,
+  .btn-cancel {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+  }
+
+  .btn-secondary:hover,
+  .btn-cancel:hover {
+    background: #4b5563 !important;
+  }
+
+  /* Day buttons and toggle buttons */
+  .day-button {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+    border-color: #4b5563 !important;
+  }
+
+  .day-button.active {
+    background: #4f46e5 !important;
+    color: white !important;
+    border-color: #4f46e5 !important;
+  }
+
+  /* ===== Pages ===== */
+
+  /* Auth pages */
+  .auth-container {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  }
+
+  .divider span {
+    background: #1f2937 !important;
+    color: #9ca3af !important;
+  }
+
+  /* Landing page */
+  .product-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .product-card:hover {
+    border-color: #6366f1 !important;
+  }
+
+  .cta-section {
+    background: #1f2937 !important;
+  }
+
+  /* Community pages */
+  .questions-header {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .questions-list {
+    background: #1f2937 !important;
+  }
+
+  .question-card:hover {
+    background: #374151 !important;
+  }
+
+  .sort-btn {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .no-questions {
+    background: #1f2937 !important;
+  }
+
+  /* Topic detail */
+  .topic-detail-page {
+    background: #111827 !important;
+  }
+
+  /* Question detail */
+  .question-detail-page {
+    background: #111827 !important;
+  }
+
+  /* Course pages */
+  .create-course {
+    background: #111827 !important;
+  }
+
+  .courses-filters {
+    background: #111827 !important;
+  }
+
+  .category-btn {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .category-btn.active {
+    background: #4f46e5 !important;
+    color: white !important;
+  }
+
+  /* Manage course */
+  .manage-course .stat-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .course-details-tab {
+    background: #1f2937 !important;
+  }
+
+  .detail-input {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+    border-color: #374151 !important;
+  }
+
+  .tab-button {
+    background: #1f2937 !important;
+    color: #9ca3af !important;
+    border-color: #374151 !important;
+  }
+
+  .tab-button.active {
+    color: #f9fafb !important;
+    border-color: #6366f1 !important;
+  }
+
+  /* Student course view */
+  .session-item-student {
+    border-color: #374151 !important;
+  }
+
+  .session-item-student.past {
+    background: #111827 !important;
+  }
+
+  /* Student homework */
+  .homework-card {
+    border-color: #374151 !important;
+  }
+
+  .homework-card.completed {
+    background: #111827 !important;
+    border-left-color: #10b981 !important;
+  }
+
+  .feedback-section {
+    background: #1e293b !important;
+    border-color: #065f46 !important;
+  }
+
+  /* Student profile */
+  .student-profile-form {
+    background: #1f2937 !important;
+  }
+
+  .checkbox-label {
+    color: #e5e7eb !important;
+  }
+
+  .checkbox-label:hover {
+    background: #374151 !important;
+  }
+
+  /* Instructor dashboard */
+  .quick-action-btn {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .quick-action-btn:hover {
+    background: #374151 !important;
+    border-color: #6366f1 !important;
+  }
+
+  /* Instructor profile */
+  .instructor-bio-section,
+  .instructor-reviews-section {
+    border-color: #374151 !important;
+  }
+
+  /* Course chat */
+  .student-message .message-content {
+    background: #1f2937 !important;
+    color: #f9fafb !important;
+  }
+
+  .chat-thread-item {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .attach-button {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .chat-messages::-webkit-scrollbar-track {
+    background: #1f2937 !important;
+  }
+
+  /* Course reviews */
+  .review-form {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .review-summary {
+    background: #1e293b !important;
+  }
+
+  /* My courses */
+  .my-courses .quick-action-btn {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* ===== Admin Pages ===== */
+
+  .admin-dashboard .stat-card,
+  .admin-dashboard .quick-actions-section,
+  .admin-dashboard .activity-section {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .admin-analytics .metric-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .time-range-toggle {
+    background: #374151 !important;
+  }
+
+  .chart-container {
+    background: #1e293b !important;
+  }
+
+  /* Admin enrollments */
+  .email-actions-section {
+    background: #1e293b !important;
+  }
+
+  .more-tag {
+    background: #374151 !important;
+    color: #9ca3af !important;
+  }
+
+  /* Admin courses reorder */
+  .reorder-container,
+  .reorder-item {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .reorder-item:hover {
+    background: #1e293b !important;
+  }
+
+  /* ===== Components ===== */
+
+  /* Course card */
+  .course-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .course-card:hover {
+    border-color: #6366f1 !important;
+  }
+
+  /* OAuth button */
+  .oauth-button {
+    background: #1f2937 !important;
+    color: #e5e7eb !important;
+    border-color: #374151 !important;
+  }
+
+  .oauth-button:hover {
+    background: #374151 !important;
+  }
+
+  /* Time input */
+  .time-input-container {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .period-btn {
+    background: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .period-btn.active {
+    background: #4f46e5 !important;
+    color: white !important;
+  }
+
+  /* Resource cards and listings */
+  .resource-listings-main,
+  .resource-card-compact,
+  .filter-panel {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .tag {
+    background: #312e81 !important;
+    color: #a78bfa !important;
+  }
+
+  /* Milestone page */
+  .milestone-header {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .map-panel {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* Dropdown menus */
+  .tags-dropdown-menu,
+  .filter-dropdown-menu {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .filter-checkbox:hover {
+    background: #374151 !important;
+  }
+
+  /* Back button */
+  .back-btn {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .back-btn:hover {
+    background: #374151 !important;
+  }
+
+  /* Error states */
+  .error-state,
+  .error-boundary-content {
+    background: #1f2937 !important;
+  }
+
+  /* Homework modals */
+  .homework-details-modal .file-info {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* Content comments */
+  .comment-textarea:disabled {
+    background: #111827 !important;
+  }
+
+  /* ===== Status Badges (keep colored but darken) ===== */
+  
+  .badge-success,
+  .status-active {
+    background: #065f46 !important;
+    color: #6ee7b7 !important;
+  }
+
+  .badge-warning,
+  .status-pending,
+  .due-badge {
+    background: #78350f !important;
+    color: #fcd34d !important;
+  }
+
+  .badge-danger,
+  .due-badge.overdue {
+    background: #7f1d1d !important;
+    color: #fca5a5 !important;
+  }
+
+  /* ===== Borders ===== */
+  
+  /* Override all hardcoded light borders */
+  .dropdown-divider,
+  hr {
+    background: #374151 !important;
+    border-color: #374151 !important;
+  }
+
+  /* ===== Scrollbar in dark mode ===== */
+  ::-webkit-scrollbar-track {
+    background: #111827 !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #4b5563 !important;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6b7280 !important;
+  }
+
+  /* ===== Carousel buttons ===== */
+  .carousel-btn {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  /* ===== Onboarding ===== */
+  .onboarding-container {
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important;
+  }
+
+  .onboarding-content {
+    background: #1f2937 !important;
+  }
+
+  .role-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+    color: #e5e7eb !important;
+  }
+
+  .role-card:hover {
+    border-color: #6366f1 !important;
+  }
+
+  .role-card.selected {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.15) !important;
+  }
+
+  /* ===== Privacy Policy ===== */
+  .privacy-content {
+    border-color: #374151 !important;
+  }
+
+  /* ===== Coming Soon ===== */
+  .coming-soon-card {
+    background: #1f2937 !important;
+  }
+
+  /* ===== Hygiene Guide & Sensory Differences ===== */
+  .hg-step-item,
+  .sd-step-item {
+    border-color: #374151 !important;
+  }
+
+  /* ===== Neurodiversity page ===== */
+  .nd-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* ===== Resource Detail Page ===== */
+  .resource-detail-page {
+    background: #111827 !important;
+  }
+
+  .resource-detail-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* ===== Care Timeline ===== */
+  .care-resource-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  /* ===== Manage Sessions ===== */
+  .session-card {
+    background: #1f2937 !important;
+    border-color: #374151 !important;
+  }
+
+  .session-card:hover {
+    background: #1e293b !important;
+  }
+
+  /* ===== Text color fixes for elements with hardcoded dark text ===== */
+  .enrollment-success-popup p,
+  .enrollment-success-popup .success-subtitle {
+    color: #9ca3af !important;
+  }
+
+  .enrollment-success-popup h2 {
+    color: #86efac !important;
+  }
+
+  /* Fix any remaining hardcoded text colors */
+  [style*="color: #333"],
+  [style*="color: #374151"],
+  [style*="color: #1f2937"] {
+    color: #f9fafb !important;
+  }
+
+  [style*="color: #666"],
+  [style*="color: #6b7280"] {
+    color: #9ca3af !important;
+  }
+
+  /* Fix inline background styles */
+  [style*="background: white"],
+  [style*="background-color: white"],
+  [style*="background: #fff"],
+  [style*="background: #ffffff"] {
+    background: #1f2937 !important;
+  }
+
+  [style*="background: #f9fafb"],
+  [style*="background: #f3f4f6"],
+  [style*="background: #f8fafc"],
+  [style*="background: #f8f9fa"],
+  [style*="background: #f5f5f5"] {
+    background: #1e293b !important;
+  }
+}

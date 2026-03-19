@@ -5,6 +5,7 @@
 @import './styles/utilities.css';
 @import './styles/buttons.css';
 @import './styles/hero.css';
+@import './styles/dark-mode.css';
 
 * {
   margin: 0;
