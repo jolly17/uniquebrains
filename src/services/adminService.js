@@ -325,20 +325,38 @@ export async function deleteCourse(courseId) {
     }
 
     // Step 7: Now delete the course itself
-    const { data, error } = await supabase
+    // First verify the course exists and we can see it
+    const { data: courseCheck } = await supabase
+      .from('courses')
+      .select('id')
+      .eq('id', courseId)
+      .single()
+
+    if (!courseCheck) {
+      throw new Error('Course not found or already deleted.')
+    }
+
+    const { error } = await supabase
       .from('courses')
       .delete()
       .eq('id', courseId)
-      .select()
 
     if (error) {
       console.error('Error deleting course:', error)
       throw new Error(`Failed to delete course: ${error.message}`)
     }
 
-    // Check if any rows were actually deleted
-    if (!data || data.length === 0) {
-      throw new Error('Course was not deleted. You may not have permission to delete this course, or it may have already been deleted.')
+    // Verify the course was actually deleted
+    const { data: verifyCheck } = await supabase
+      .from('courses')
+      .select('id')
+      .eq('id', courseId)
+      .maybeSingle()
+
+    if (verifyCheck) {
+      // Course still exists - RLS likely blocked the delete
+      console.error('Course still exists after delete attempt - RLS may be blocking')
+      throw new Error('Delete was blocked by database permissions. Please check that your admin role has delete access to courses.')
     }
 
     return true
