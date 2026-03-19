@@ -323,6 +323,60 @@
 
 ---
 
+## 🎨 Accessibility & Dark Mode Stories
+
+### US-021: Dark Mode Support
+**As a** user with dark mode enabled on my device  
+**I want to** see the site properly styled in dark mode  
+**So that** I can use the platform comfortably at night or with light sensitivity
+
+**Acceptance Criteria:**
+- [ ] All pages render with dark backgrounds and light text
+- [ ] No white-on-white or invisible text anywhere
+- [ ] Course schedule tables are readable
+- [ ] Forms, inputs, and buttons have proper contrast
+- [ ] Modals and popups have dark backgrounds
+- [ ] Status badges remain distinguishable
+- [ ] Cards, tables, and containers have visible borders
+
+**Test:** Toggle OS dark mode and navigate all pages
+
+---
+
+## 🛠️ Admin Stories
+
+### US-022: Admin Course Management
+**As an** admin  
+**I want to** manage courses including reordering and categorization  
+**So that** I can control how courses appear to users
+
+**Acceptance Criteria:**
+- [ ] Admin can view all courses in a table
+- [ ] Admin can reorder courses via drag-and-drop
+- [ ] Course display order is saved and reflected on the public courses page
+- [ ] All 9 categories are available (Performing Arts, Visual Arts, Parenting, Academics, Language, Spirituality, Life Skills, Hobbies, Networking)
+- [ ] Each category shows the correct emoji icon on course cards
+
+**Test:** `npm test -- --grep "US-022"`
+
+---
+
+### US-023: Instructor Course Updates
+**As an** instructor  
+**I want to** update my course details without errors  
+**So that** I can keep course information current
+
+**Acceptance Criteria:**
+- [ ] Edit course form loads with existing data
+- [ ] All fields are editable (title, description, category, schedule, etc.)
+- [ ] Saving updates works without timezone conversion errors
+- [ ] Session times in 24-hour format from database are handled correctly
+- [ ] Success message is shown after update
+
+**Test:** `npm test -- --grep "US-023"`
+
+---
+
 ## 🔄 Running Tests
 
 ### Run All User Story Tests

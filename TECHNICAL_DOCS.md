@@ -96,11 +96,13 @@ src/
 │   └── ...
 ├── styles/              # Global styles and design system
 │   ├── tokens.css       # Design tokens (colors, spacing)
+│   ├── dark-mode.css    # Global dark mode overrides
 │   ├── utilities.css    # Utility classes
 │   ├── buttons.css      # Button styles
 │   └── hero.css         # Shared hero section
 ├── utils/               # Utility functions
-│   └── timezoneUtils.js # Timezone helpers
+│   ├── timezoneUtils.js # Timezone conversion helpers
+│   └── courseImageGenerator.js # Category icons & gradients
 ├── App.jsx              # Root component with routes
 ├── main.jsx             # Entry point
 └── index.css            # Global styles
@@ -220,6 +222,27 @@ App.jsx
 --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 ```
+
+### Dark Mode
+
+The app supports automatic dark mode via `@media (prefers-color-scheme: dark)`:
+
+- **`tokens.css`**: Overrides CSS variables (colors, backgrounds, borders) for dark mode
+- **`dark-mode.css`**: Comprehensive overrides for all hardcoded light colors across pages/components
+
+**Dark palette:**
+| Token | Value | Usage |
+|-------|-------|-------|
+| `#111827` | Darkest | Page backgrounds |
+| `#1f2937` | Dark | Cards, modals, containers |
+| `#1e293b` | Alt dark | Secondary surfaces |
+| `#374151` | Medium | Borders, hover states |
+| `#4b5563` | Light | Active states |
+| `#f9fafb` | Lightest | Primary text |
+| `#e5e7eb` | Light gray | Secondary text |
+| `#9ca3af` | Gray | Muted text |
+
+When adding new components, prefer CSS variables from `tokens.css`. If you must use hardcoded colors, add corresponding dark mode overrides in `dark-mode.css`.
 
 ### Shared Components
 
@@ -425,9 +448,12 @@ npm run build
 
 ### 1. Course Marketplace
 - Browse published courses
-- Filter by category
+- Filter by category (Performing Arts 🎭, Visual Arts 🎨, Parenting 👨‍👩‍👧‍👦, Academics 📚, Language 🌍, Spirituality 🧘, Life Skills 🌱, Hobbies 🎮, Networking ☕)
 - Search by title/description
 - Enroll in courses
+- Course card images generated from category (gradient + emoji icon via `courseImageGenerator.js`)
+- Admin-configurable course display order (client-side sorting by `display_order`)
+- Timezone-aware session scheduling (`timezoneUtils.js` handles 12h/24h format conversion)
 
 ### 2. Community Q&A
 - Topic-based organization
@@ -458,6 +484,7 @@ npm run build
 - [ ] Community Q&A
 - [ ] Profile editing
 - [ ] Mobile responsiveness
+- [ ] Dark mode (toggle OS dark mode and verify all pages)
 
 ### Running Tests
 
