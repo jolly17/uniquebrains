@@ -18,12 +18,21 @@ export async function fetchAllCourses() {
         profiles!instructor_id(id, first_name, last_name, email),
         enrollments(count)
       `)
-      .order('display_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
 
     if (error) {
       console.error('Error fetching courses:', error)
       throw new Error(`Failed to fetch courses: ${error.message}`)
+    }
+
+    // Sort by display_order client-side (works whether or not the column exists)
+    if (courses && courses.length > 0 && courses[0].display_order !== undefined) {
+      courses.sort((a, b) => {
+        const orderA = a.display_order ?? Number.MAX_SAFE_INTEGER
+        const orderB = b.display_order ?? Number.MAX_SAFE_INTEGER
+        if (orderA !== orderB) return orderA - orderB
+        return new Date(b.created_at) - new Date(a.created_at)
+      })
     }
 
     // Transform data to include instructor name and enrollment count

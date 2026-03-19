@@ -26,7 +26,8 @@ function Courses() {
     { value: 'language', label: 'Language', icon: '🌍' },
     { value: 'spirituality', label: 'Spirituality', icon: '🧘' },
     { value: 'lifeskills', label: 'Life Skills', icon: '🌱' },
-    { value: 'hobbies', label: 'Hobbies & Fun', icon: '🎮' }
+    { value: 'hobbies', label: 'Hobbies & Fun', icon: '🎮' },
+    { value: 'networking', label: 'Networking', icon: '☕' }
   ]
 
   // Fetch all published courses

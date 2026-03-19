@@ -308,7 +308,6 @@ export async function getAllPublishedCourses() {
       .eq('status', 'published')
       .eq('is_published', true)
       .not('enrollments.status', 'eq', 'dropped')
-      .order('display_order', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -316,6 +315,16 @@ export async function getAllPublishedCourses() {
         operation: 'getAllPublishedCourses',
         table: 'courses',
       });
+    }
+
+    // Sort by display_order client-side (works whether or not the column exists)
+    if (courses && courses.length > 0 && courses[0].display_order !== undefined) {
+      courses.sort((a, b) => {
+        const orderA = a.display_order ?? Number.MAX_SAFE_INTEGER
+        const orderB = b.display_order ?? Number.MAX_SAFE_INTEGER
+        if (orderA !== orderB) return orderA - orderB
+        return new Date(b.created_at) - new Date(a.created_at)
+      })
     }
 
     // Transform the data to match expected format
