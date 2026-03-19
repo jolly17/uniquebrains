@@ -98,7 +98,8 @@ SET search_path = '';
 
 GRANT EXECUTE ON FUNCTION public.has_submitted_homework(UUID, UUID) TO authenticated;
 
--- 6. get_homework_stats
+-- 6. get_homework_stats (DROP first - return type may differ)
+DROP FUNCTION IF EXISTS public.get_homework_stats(UUID);
 CREATE OR REPLACE FUNCTION public.get_homework_stats(homework_uuid UUID)
 RETURNS JSON AS $$
 DECLARE
@@ -119,7 +120,8 @@ SET search_path = '';
 
 GRANT EXECUTE ON FUNCTION public.get_homework_stats(UUID) TO authenticated;
 
--- 7. debug_student_access
+-- 7. debug_student_access (DROP first - return type may differ)
+DROP FUNCTION IF EXISTS public.debug_student_access(UUID);
 CREATE OR REPLACE FUNCTION public.debug_student_access(student_uuid UUID)
 RETURNS JSON AS $$
 DECLARE
@@ -217,7 +219,8 @@ END;
 $$ LANGUAGE plpgsql
 SET search_path = '';
 
--- 13. resources_within_radius
+-- 13. resources_within_radius (DROP first - RETURNS TABLE can't be changed)
+DROP FUNCTION IF EXISTS public.resources_within_radius(DOUBLE PRECISION, DOUBLE PRECISION, DOUBLE PRECISION, VARCHAR);
 CREATE OR REPLACE FUNCTION public.resources_within_radius(
   lat DOUBLE PRECISION,
   lng DOUBLE PRECISION,
@@ -437,8 +440,8 @@ END;
 $$ LANGUAGE plpgsql
 SET search_path = '';
 
--- 17. get_care_resources_with_coords (may have been created in SQL editor)
--- Recreate with proper search_path
+-- 17. get_care_resources_with_coords (DROP first - RETURNS TABLE can't be changed)
+DROP FUNCTION IF EXISTS public.get_care_resources_with_coords();
 CREATE OR REPLACE FUNCTION public.get_care_resources_with_coords()
 RETURNS TABLE (
   id UUID,
