@@ -594,3 +594,89 @@ button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* ===== Dark Mode Support ===== */
+@media (prefers-color-scheme: dark) {
+  .course-schedule-table-full {
+    background: #1e293b;
+    border-color: #334155;
+  }
+
+  .schedule-info-row {
+    border-bottom-color: #334155;
+  }
+
+  .schedule-note {
+    background: #1e293b;
+  }
+
+  .schedule-day {
+    background: #334155;
+    color: #e2e8f0;
+  }
+
+  .objective-item {
+    background: #1e293b;
+  }
+
+  .objective-item:hover {
+    background: #334155;
+  }
+
+  .course-note {
+    background: #1e293b;
+    border-left-color: #6366f1;
+  }
+
+  .enrollment-bar {
+    background: #334155;
+  }
+
+  .enrollment-success-popup {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+
+  .enrollment-success-popup h2 {
+    color: #86efac;
+  }
+
+  .enrollment-success-popup .success-subtitle {
+    color: #9ca3af;
+  }
+
+  .enrollment-success-popup .btn-secondary {
+    background: #374151;
+    color: #e5e7eb;
+  }
+
+  .enrollment-success-popup .btn-secondary:hover {
+    background: #4b5563;
+  }
+
+  .carousel-btn {
+    background: #1f2937;
+    border-color: #374151;
+    color: #e5e7eb;
+  }
+
+  .carousel-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+  }
+
+  .course-enroll-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+  }
+
+  .review-item {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .dropdown-divider {
+    background: #374151;
+  }
+}
