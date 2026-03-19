@@ -8,6 +8,7 @@ function AdminStudents() {
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [editingStudent, setEditingStudent] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
 
@@ -29,6 +30,12 @@ function AdminStudents() {
     }
   }
 
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setError('')
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+
   const handleEdit = (student) => {
     setEditingStudent(student)
     setShowEditModal(true)
@@ -44,9 +51,10 @@ function AdminStudents() {
       await loadStudents()
       setShowEditModal(false)
       setEditingStudent(null)
+      showSuccess('Student profile updated successfully!')
     } catch (err) {
       console.error('Error updating student:', err)
-      alert('Failed to update student')
+      setError('Failed to update student. Please try again.')
     }
   }
 
@@ -61,14 +69,16 @@ function AdminStudents() {
     { 
       key: 'created_at', 
       label: 'Joined',
-      render: (value) => new Date(value).toLocaleDateString('en-US')
+      render: (value) => value
+        ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '-'
     }
   ]
 
   const editFields = [
     { key: 'first_name', label: 'First Name', type: 'text', required: true },
     { key: 'last_name', label: 'Last Name', type: 'text', required: true },
-    { key: 'email', label: 'Email', type: 'email', required: true }
+    { key: 'email', label: 'Email', type: 'email', required: true, disabled: true }
   ]
 
   return (
@@ -78,7 +88,19 @@ function AdminStudents() {
         <p>Manage student accounts and profiles</p>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {successMessage && (
+        <div className="success-banner">
+          <span className="success-icon-badge">✓</span>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError('')}>×</button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}

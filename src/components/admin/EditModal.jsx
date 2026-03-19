@@ -4,6 +4,7 @@ import './EditModal.css'
 function EditModal({ isOpen, onClose, onSave, title, fields, initialData }) {
   const [formData, setFormData] = useState({})
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   useEffect(() => {
     if (initialData) {
@@ -16,12 +17,13 @@ function EditModal({ isOpen, onClose, onSave, title, fields, initialData }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSaving(true)
+    setSaveError('')
     try {
       await onSave(formData)
-      onClose()
+      // Note: parent component handles closing the modal on success
     } catch (error) {
       console.error('Error saving:', error)
-      alert('Failed to save changes')
+      setSaveError(error.message || 'Failed to save changes. Please try again.')
     } finally {
       setSaving(false)
     }
@@ -40,6 +42,12 @@ function EditModal({ isOpen, onClose, onSave, title, fields, initialData }) {
         </div>
 
         <form onSubmit={handleSubmit} className="modal-body">
+          {saveError && (
+            <div className="modal-error">
+              <span>{saveError}</span>
+              <button type="button" className="modal-error-dismiss" onClick={() => setSaveError('')}>×</button>
+            </div>
+          )}
           {fields.map(field => (
             <div key={field.key} className="form-field">
               <label htmlFor={field.key}>{field.label}</label>

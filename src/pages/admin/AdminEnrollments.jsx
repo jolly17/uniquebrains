@@ -7,12 +7,18 @@ function AdminEnrollments() {
   const [enrollments, setEnrollments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [emailModalOpen, setEmailModalOpen] = useState(false)
   const [selectedCourse, setSelectedCourse] = useState(null)
   const [emailSubject, setEmailSubject] = useState('')
   const [emailMessage, setEmailMessage] = useState('')
   const [sendingEmail, setSendingEmail] = useState(false)
-  const [emailSuccess, setEmailSuccess] = useState('')
+  
+  // Status change modal state
+  const [statusModalOpen, setStatusModalOpen] = useState(false)
+  const [selectedEnrollment, setSelectedEnrollment] = useState(null)
+  const [newStatus, setNewStatus] = useState('')
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
   useEffect(() => {
     loadEnrollments()
@@ -30,6 +36,11 @@ function AdminEnrollments() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setTimeout(() => setSuccessMessage(''), 3000)
   }
 
   // Get unique courses for filter
@@ -76,17 +87,17 @@ function AdminEnrollments() {
   const handleEmailAllStudents = (courseTitle) => {
     setSelectedCourse(courseTitle)
     setEmailModalOpen(true)
-    setEmailSuccess('')
+    setError('')
   }
 
   const sendEmailToAllStudents = async () => {
     if (!emailSubject.trim() || !emailMessage.trim()) {
-      alert('Please fill in both subject and message')
+      setError('Please fill in both subject and message')
       return
     }
 
     setSendingEmail(true)
-    setEmailSuccess('')
+    setError('')
     
     try {
       // Get all students enrolled in the selected course
@@ -96,7 +107,7 @@ function AdminEnrollments() {
         .filter(email => email && email.trim())
       
       if (studentEmails.length === 0) {
-        alert('No valid email addresses found for students in this course')
+        setError('No valid email addresses found for students in this course')
         setSendingEmail(false)
         return
       }
@@ -113,39 +124,54 @@ function AdminEnrollments() {
         senderName: 'UniqueBrains Admin'
       })
       
-      setEmailSuccess(`Successfully sent email to ${result.emailsSent || studentEmails.length} students!`)
+      showSuccess(`Successfully sent email to ${result.emailsSent || studentEmails.length} students!`)
       setEmailSubject('')
       setEmailMessage('')
       
-      // Close modal after 2 seconds
+      // Close modal after brief delay
       setTimeout(() => {
         setEmailModalOpen(false)
-        setEmailSuccess('')
-      }, 2000)
+      }, 1500)
     } catch (err) {
       console.error('Error sending emails:', err)
-      alert('Failed to send emails. Please try again.')
+      setError('Failed to send emails. Please try again.')
     } finally {
       setSendingEmail(false)
     }
   }
 
-  const handleStatusChange = async (enrollment) => {
-    const newStatus = prompt(
-      `Change status for ${enrollment.student_name}?\nCurrent: ${enrollment.status}\n\nEnter new status (active, completed, dropped, pending):`,
-      enrollment.status
-    )
+  // Open status change modal
+  const handleStatusChange = (enrollment) => {
+    setSelectedEnrollment(enrollment)
+    setNewStatus(enrollment.status || 'active')
+    setStatusModalOpen(true)
+    setError('')
+  }
+
+  // Confirm status change
+  const confirmStatusChange = async () => {
+    if (!selectedEnrollment || !newStatus) return
     
-    if (newStatus && ['active', 'completed', 'dropped', 'pending'].includes(newStatus.toLowerCase())) {
-      try {
-        await updateEnrollmentStatus(enrollment.id, newStatus.toLowerCase())
-        await loadEnrollments()
-      } catch (err) {
-        console.error('Error updating status:', err)
-        alert('Failed to update enrollment status')
-      }
-    } else if (newStatus) {
-      alert('Invalid status. Please use: active, completed, dropped, or pending')
+    // Don't update if status hasn't changed
+    if (newStatus === selectedEnrollment.status) {
+      setStatusModalOpen(false)
+      setSelectedEnrollment(null)
+      return
+    }
+
+    try {
+      setUpdatingStatus(true)
+      setError('')
+      await updateEnrollmentStatus(selectedEnrollment.id, newStatus)
+      await loadEnrollments()
+      setStatusModalOpen(false)
+      setSelectedEnrollment(null)
+      showSuccess(`Enrollment status updated to "${newStatus}" successfully!`)
+    } catch (err) {
+      console.error('Error updating status:', err)
+      setError('Failed to update enrollment status. Please try again.')
+    } finally {
+      setUpdatingStatus(false)
     }
   }
 
@@ -234,6 +260,20 @@ function AdminEnrollments() {
         </div>
       </div>
 
+      {successMessage && (
+        <div className="success-banner">
+          <span className="success-icon-badge">✓</span>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError('')}>×</button>
+        </div>
+      )}
+
       {/* Email All Students Section */}
       {uniqueCourses.length > 0 && (
         <div className="email-actions-section">
@@ -257,8 +297,6 @@ function AdminEnrollments() {
         </div>
       )}
 
-      {error && <div className="error-message">{error}</div>}
-
       <DataTable
         columns={columns}
         data={enrollments}
@@ -267,73 +305,142 @@ function AdminEnrollments() {
         filters={filters}
       />
 
+      {/* Status Change Modal */}
+      {statusModalOpen && selectedEnrollment && (
+        <div className="modal-overlay" onClick={() => !updatingStatus && setStatusModalOpen(false)}>
+          <div className="modal-content status-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Change Enrollment Status</h2>
+              <button 
+                className="close-btn" 
+                onClick={() => setStatusModalOpen(false)}
+                disabled={updatingStatus}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="modal-info">
+                <strong>Student:</strong> {selectedEnrollment.student_name}<br />
+                <strong>Course:</strong> {selectedEnrollment.course_title}<br />
+                <strong>Current Status:</strong>{' '}
+                <span className={`status-badge status-${selectedEnrollment.status}`}>
+                  {selectedEnrollment.status}
+                </span>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="enrollment-status">New Status</label>
+                <div className="status-options">
+                  {['active', 'completed', 'dropped', 'pending'].map(status => (
+                    <label 
+                      key={status} 
+                      className={`status-option ${newStatus === status ? 'selected' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="enrollment-status"
+                        value={status}
+                        checked={newStatus === status}
+                        onChange={(e) => setNewStatus(e.target.value)}
+                        disabled={updatingStatus}
+                      />
+                      <span className={`status-badge status-${status}`}>
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </span>
+                      <span className="status-description">
+                        {status === 'active' && 'Student is actively enrolled'}
+                        {status === 'completed' && 'Student has completed the course'}
+                        {status === 'dropped' && 'Student has dropped the course'}
+                        {status === 'pending' && 'Enrollment is pending approval'}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setStatusModalOpen(false)}
+                disabled={updatingStatus}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={confirmStatusChange}
+                disabled={updatingStatus || newStatus === selectedEnrollment.status}
+              >
+                {updatingStatus ? 'Updating...' : 'Update Status'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Email Modal */}
       {emailModalOpen && (
-        <div className="modal-overlay" onClick={() => setEmailModalOpen(false)}>
+        <div className="modal-overlay" onClick={() => !sendingEmail && setEmailModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>📧 Email All Students</h2>
-              <button className="close-btn" onClick={() => setEmailModalOpen(false)}>×</button>
+              <button 
+                className="close-btn" 
+                onClick={() => setEmailModalOpen(false)}
+                disabled={sendingEmail}
+              >
+                ×
+              </button>
             </div>
             <div className="modal-body">
-              {emailSuccess ? (
-                <div className="success-message">
-                  <span className="success-icon">✓</span>
-                  {emailSuccess}
-                </div>
-              ) : (
-                <>
-                  <div className="modal-info">
-                    <strong>Course:</strong> {selectedCourse}<br />
-                    <strong>Recipients:</strong> {enrollments.filter(e => e.course_title === selectedCourse && e.student_email).length} students
-                  </div>
-                  
-                  <div className="form-group">
-                    <label htmlFor="email-subject">Subject</label>
-                    <input
-                      id="email-subject"
-                      type="text"
-                      className="form-input"
-                      value={emailSubject}
-                      onChange={(e) => setEmailSubject(e.target.value)}
-                      placeholder="Enter email subject"
-                      disabled={sendingEmail}
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="email-message">Message</label>
-                    <textarea
-                      id="email-message"
-                      className="form-textarea"
-                      value={emailMessage}
-                      onChange={(e) => setEmailMessage(e.target.value)}
-                      placeholder="Enter your message to students..."
-                      rows="8"
-                      disabled={sendingEmail}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
-            {!emailSuccess && (
-              <div className="modal-footer">
-                <button 
-                  className="btn-secondary" 
-                  onClick={() => setEmailModalOpen(false)}
-                  disabled={sendingEmail}
-                >
-                  Cancel
-                </button>
-                <button 
-                  className="btn-primary" 
-                  onClick={sendEmailToAllStudents}
-                  disabled={sendingEmail}
-                >
-                  {sendingEmail ? 'Sending...' : 'Send Email'}
-                </button>
+              <div className="modal-info">
+                <strong>Course:</strong> {selectedCourse}<br />
+                <strong>Recipients:</strong> {enrollments.filter(e => e.course_title === selectedCourse && e.student_email).length} students
               </div>
-            )}
+              
+              <div className="form-group">
+                <label htmlFor="email-subject">Subject</label>
+                <input
+                  id="email-subject"
+                  type="text"
+                  className="form-input"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  placeholder="Enter email subject"
+                  disabled={sendingEmail}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email-message">Message</label>
+                <textarea
+                  id="email-message"
+                  className="form-textarea"
+                  value={emailMessage}
+                  onChange={(e) => setEmailMessage(e.target.value)}
+                  placeholder="Enter your message to students..."
+                  rows="8"
+                  disabled={sendingEmail}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button 
+                className="btn-secondary" 
+                onClick={() => setEmailModalOpen(false)}
+                disabled={sendingEmail}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-primary" 
+                onClick={sendEmailToAllStudents}
+                disabled={sendingEmail || !emailSubject.trim() || !emailMessage.trim()}
+              >
+                {sendingEmail ? 'Sending...' : 'Send Email'}
+              </button>
+            </div>
           </div>
         </div>
       )}

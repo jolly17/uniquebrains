@@ -52,6 +52,7 @@ import AdminInstructors from './pages/admin/AdminInstructors'
 import AdminStudents from './pages/admin/AdminStudents'
 import AdminEnrollments from './pages/admin/AdminEnrollments'
 import AdminTopics from './pages/admin/AdminTopics'
+import AdminSessions from './pages/admin/AdminSessions'
 import AdminCareResources from './pages/admin/AdminCareResources'
 import InstructorProfile from './pages/InstructorProfile'
 
@@ -260,6 +261,7 @@ function App() {
             <Route path="students" element={<AdminStudents />} />
             <Route path="enrollments" element={<AdminEnrollments />} />
             <Route path="topics" element={<AdminTopics />} />
+            <Route path="sessions" element={<AdminSessions />} />
             <Route path="care-resources" element={<AdminCareResources />} />
           </Route>
         </Routes>

@@ -6,6 +6,7 @@ function AdminTopics() {
   const [topics, setTopics] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [editingTopic, setEditingTopic] = useState(null)
   const [editMode, setEditMode] = useState('image') // 'image' | 'details'
   const [imageUrl, setImageUrl] = useState('')
@@ -19,6 +20,17 @@ function AdminTopics() {
     fetchTopics()
   }, [])
 
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setError('')
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+
+  const showError = (message) => {
+    setError(message)
+    setSuccessMessage('')
+  }
+
   const fetchTopics = async () => {
     try {
       setLoading(true)
@@ -31,7 +43,7 @@ function AdminTopics() {
       setTopics(data || [])
     } catch (err) {
       console.error('Error fetching topics:', err)
-      setError('Failed to load topics')
+      showError('Failed to load topics')
     } finally {
       setLoading(false)
     }
@@ -60,7 +72,7 @@ function AdminTopics() {
 
   const handleUpdateImage = async () => {
     if (!editingTopic || !imageUrl.trim()) {
-      alert('Please enter a valid image URL')
+      showError('Please enter a valid image URL')
       return
     }
 
@@ -80,11 +92,11 @@ function AdminTopics() {
           : t
       ))
 
-      alert('Topic image updated successfully!')
+      showSuccess('Topic image updated successfully!')
       handleCancelEdit()
     } catch (err) {
       console.error('Error updating topic:', err)
-      alert('Failed to update topic image')
+      showError('Failed to update topic image')
     } finally {
       setUpdating(false)
     }
@@ -92,7 +104,7 @@ function AdminTopics() {
 
   const handleUpdateDetails = async () => {
     if (!editingTopic || !topicName.trim() || !topicDescription.trim()) {
-      alert('Please fill in all fields')
+      showError('Please fill in all fields')
       return
     }
 
@@ -125,11 +137,11 @@ function AdminTopics() {
           : t
       ))
 
-      alert('Topic details updated successfully!')
+      showSuccess('Topic details updated successfully!')
       handleCancelEdit()
     } catch (err) {
       console.error('Error updating topic:', err)
-      alert('Failed to update topic details. The topic name might already exist.')
+      showError('Failed to update topic details. The topic name might already exist.')
     } finally {
       setUpdating(false)
     }
@@ -137,6 +149,7 @@ function AdminTopics() {
 
   const handleDeleteClick = (topic) => {
     setDeletingTopic(topic)
+    setError('')
   }
 
   const handleCancelDelete = () => {
@@ -148,6 +161,7 @@ function AdminTopics() {
 
     try {
       setDeleting(true)
+      setError('')
       const { error } = await supabase
         .from('topics')
         .delete()
@@ -158,11 +172,17 @@ function AdminTopics() {
       // Update local state
       setTopics(topics.filter(t => t.id !== deletingTopic.id))
 
-      alert('Topic deleted successfully!')
+      showSuccess('Topic deleted successfully!')
       handleCancelDelete()
     } catch (err) {
       console.error('Error deleting topic:', err)
-      alert('Failed to delete topic. It may have associated questions.')
+      const errorMsg = err.message || ''
+      if (errorMsg.includes('foreign key') || errorMsg.includes('violates') || errorMsg.includes('referenced')) {
+        showError('Cannot delete this topic because it has associated questions. Please delete the questions first.')
+      } else {
+        showError(`Failed to delete topic: ${errorMsg || 'It may have associated questions that must be removed first.'}`)
+      }
+      handleCancelDelete()
     } finally {
       setDeleting(false)
     }
@@ -170,6 +190,7 @@ function AdminTopics() {
 
   const handleToggleFeatured = async (topicId, currentStatus) => {
     try {
+      setError('')
       const { error } = await supabase
         .from('topics')
         .update({ is_featured: !currentStatus })
@@ -183,24 +204,20 @@ function AdminTopics() {
           ? { ...t, is_featured: !currentStatus }
           : t
       ))
+      showSuccess(`Topic ${!currentStatus ? 'featured' : 'unfeatured'} successfully!`)
     } catch (err) {
       console.error('Error toggling featured status:', err)
-      alert('Failed to update featured status')
+      showError('Failed to update featured status')
     }
   }
 
   if (loading) {
     return (
       <div className="admin-topics">
-        <div className="loading">Loading topics...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="admin-topics">
-        <div className="error-message">{error}</div>
+        <div className="loading">
+          <div className="spinner"></div>
+          <p>Loading topics...</p>
+        </div>
       </div>
     )
   }
@@ -212,59 +229,80 @@ function AdminTopics() {
         <p className="page-subtitle">Update topic cover images and featured status</p>
       </div>
 
-      <div className="topics-list">
-        {topics.map((topic) => (
-          <div key={topic.id} className="topic-item">
-            <div className="topic-image">
-              <img 
-                src={topic.cover_image_url} 
-                alt={topic.name}
-                onError={(e) => {
-                  e.target.src = 'https://uniquebrains.org/uniquebrains-logo.png.png'
-                }}
-              />
-            </div>
-            <div className="topic-info">
-              <h3>{topic.name}</h3>
-              <p className="topic-description">{topic.description}</p>
-              <div className="topic-meta">
-                <span className="topic-slug">Slug: {topic.slug}</span>
-                <span className={`topic-featured ${topic.is_featured ? 'active' : ''}`}>
-                  {topic.is_featured ? '⭐ Featured' : 'Not Featured'}
-                </span>
+      {successMessage && (
+        <div className="success-banner">
+          <span className="success-icon-badge">✓</span>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError('')}>×</button>
+        </div>
+      )}
+
+      {topics.length === 0 && !error ? (
+        <div className="empty-state">
+          <span className="empty-icon">💬</span>
+          <p>No community topics found</p>
+        </div>
+      ) : (
+        <div className="topics-list">
+          {topics.map((topic) => (
+            <div key={topic.id} className="topic-item">
+              <div className="topic-image">
+                <img 
+                  src={topic.cover_image_url} 
+                  alt={topic.name}
+                  onError={(e) => {
+                    e.target.src = 'https://uniquebrains.org/uniquebrains-logo.png.png'
+                  }}
+                />
+              </div>
+              <div className="topic-info">
+                <h3>{topic.name}</h3>
+                <p className="topic-description">{topic.description}</p>
+                <div className="topic-meta">
+                  <span className="topic-slug">Slug: {topic.slug}</span>
+                  <span className={`topic-featured ${topic.is_featured ? 'active' : ''}`}>
+                    {topic.is_featured ? '⭐ Featured' : 'Not Featured'}
+                  </span>
+                </div>
+              </div>
+              <div className="topic-actions">
+                <button 
+                  onClick={() => handleEditDetailsClick(topic)}
+                  className="btn-edit"
+                >
+                  Edit Details
+                </button>
+                <button 
+                  onClick={() => handleEditImageClick(topic)}
+                  className="btn-edit"
+                >
+                  Change Image
+                </button>
+                <button 
+                  onClick={() => handleToggleFeatured(topic.id, topic.is_featured)}
+                  className={`btn-toggle ${topic.is_featured ? 'featured' : ''}`}
+                >
+                  {topic.is_featured ? 'Unfeature' : 'Feature'}
+                </button>
+                <button 
+                  onClick={() => handleDeleteClick(topic)}
+                  className="btn-delete"
+                >
+                  Delete
+                </button>
               </div>
             </div>
-            <div className="topic-actions">
-              <button 
-                onClick={() => handleEditDetailsClick(topic)}
-                className="btn-edit"
-              >
-                Edit Details
-              </button>
-              <button 
-                onClick={() => handleEditImageClick(topic)}
-                className="btn-edit"
-              >
-                Change Image
-              </button>
-              <button 
-                onClick={() => handleToggleFeatured(topic.id, topic.is_featured)}
-                className={`btn-toggle ${topic.is_featured ? 'featured' : ''}`}
-              >
-                {topic.is_featured ? 'Unfeature' : 'Feature'}
-              </button>
-              <button 
-                onClick={() => handleDeleteClick(topic)}
-                className="btn-delete"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {/* Edit Modal */}
+      {/* Edit Image Modal */}
       {editingTopic && editMode === 'image' && (
         <div className="modal-overlay" onClick={handleCancelEdit}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -379,11 +417,11 @@ function AdminTopics() {
 
       {/* Delete Confirmation Modal */}
       {deletingTopic && (
-        <div className="modal-overlay" onClick={handleCancelDelete}>
+        <div className="modal-overlay" onClick={() => !deleting && handleCancelDelete()}>
           <div className="modal-content delete-modal" onClick={(e) => e.stopPropagation()}>
             <h2>Delete Topic</h2>
             <p className="modal-subtitle warning">
-              Are you sure you want to delete "{deletingTopic.name}"?
+              Are you sure you want to delete "<strong>{deletingTopic.name}</strong>"?
             </p>
             <p className="warning-text">
               This will permanently delete the topic and all associated questions and answers. This action cannot be undone.

@@ -8,10 +8,12 @@ function AdminCourses() {
   const [courses, setCourses] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [editingCourse, setEditingCourse] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [courseToDelete, setCourseToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     loadCourses()
@@ -29,6 +31,11 @@ function AdminCourses() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setTimeout(() => setSuccessMessage(''), 3000)
   }
 
   // Extract unique values for filters
@@ -70,52 +77,71 @@ function AdminCourses() {
       options: getUniqueCategories()
     },
     {
-      key: 'status',
+      key: 'is_published',
       label: 'Status',
       options: [
-        { value: 'published', label: 'Published' },
-        { value: 'draft', label: 'Draft' }
+        { value: 'true', label: 'Published' },
+        { value: 'false', label: 'Draft' }
       ]
     }
   ]
 
   const handleEdit = (course) => {
-    setEditingCourse(course)
+    // Prepare the course data for the edit modal with a status field
+    setEditingCourse({
+      ...course,
+      status: course.is_published ? 'published' : 'draft'
+    })
     setShowEditModal(true)
   }
 
   const handleSave = async (formData) => {
     try {
+      const isPublished = formData.status === 'published'
       await updateCourse(editingCourse.id, {
         title: formData.title,
         description: formData.description,
         category: formData.category,
-        status: formData.status,
-        is_published: formData.status === 'published'
+        is_published: isPublished
       })
       await loadCourses()
       setShowEditModal(false)
       setEditingCourse(null)
+      showSuccess('Course updated successfully!')
     } catch (err) {
       console.error('Error updating course:', err)
-      alert('Failed to update course')
+      setError('Failed to update course. Please try again.')
     }
   }
 
   const handleDelete = (course) => {
     setCourseToDelete(course)
     setShowDeleteConfirm(true)
+    setError('') // Clear any previous errors
   }
 
   const confirmDelete = async () => {
     try {
+      setDeleting(true)
+      setError('')
       await deleteCourse(courseToDelete.id)
       await loadCourses()
       setShowDeleteConfirm(false)
       setCourseToDelete(null)
+      showSuccess('Course deleted successfully!')
     } catch (err) {
       console.error('Error deleting course:', err)
-      alert('Failed to delete course. It may have enrollments or sessions.')
+      // Provide specific error message based on the error
+      const errorMsg = err.message || ''
+      if (errorMsg.includes('foreign key') || errorMsg.includes('violates') || errorMsg.includes('referenced')) {
+        setError('Cannot delete this course because it has enrollments or sessions. Please remove those first, or unpublish the course instead.')
+      } else {
+        setError(`Failed to delete course: ${errorMsg || 'Unknown error. The course may have associated data (enrollments, sessions) that must be removed first.'}`)
+      }
+      setShowDeleteConfirm(false)
+      setCourseToDelete(null)
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -124,15 +150,22 @@ function AdminCourses() {
     { key: 'instructor_name', label: 'Instructor' },
     { key: 'category', label: 'Category' },
     { 
-      key: 'status', 
+      key: 'is_published', 
       label: 'Status',
       render: (value) => (
-        <span className={`status-badge status-${value}`}>
-          {value}
+        <span className={`status-badge ${value ? 'status-published' : 'status-draft'}`}>
+          {value ? 'Published' : 'Draft'}
         </span>
       )
     },
-    { key: 'enrollment_count', label: 'Enrollments' }
+    { key: 'enrollment_count', label: 'Enrollments' },
+    {
+      key: 'created_at',
+      label: 'Created',
+      render: (value) => value
+        ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '-'
+    }
   ]
 
   const editFields = [
@@ -158,7 +191,19 @@ function AdminCourses() {
         <p>Manage all courses on the platform</p>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {successMessage && (
+        <div className="success-banner">
+          <span className="success-icon">✓</span>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError('')}>×</button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
@@ -184,23 +229,31 @@ function AdminCourses() {
       )}
 
       {showDeleteConfirm && (
-        <div className="modal-overlay" onClick={() => setShowDeleteConfirm(false)}>
+        <div className="modal-overlay" onClick={() => !deleting && setShowDeleteConfirm(false)}>
           <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
             <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete "{courseToDelete?.title}"?</p>
+            <p>Are you sure you want to delete "<strong>{courseToDelete?.title}</strong>"?</p>
+            {courseToDelete?.enrollment_count > 0 && (
+              <p className="warning-text">
+                ⚠️ This course has {courseToDelete.enrollment_count} enrollment(s). 
+                Deleting may fail if there are active enrollments or sessions.
+              </p>
+            )}
             <p className="warning-text">This action cannot be undone.</p>
             <div className="dialog-actions">
               <button 
                 className="btn-secondary"
                 onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
               >
                 Cancel
               </button>
               <button 
                 className="btn-danger"
                 onClick={confirmDelete}
+                disabled={deleting}
               >
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </div>
           </div>

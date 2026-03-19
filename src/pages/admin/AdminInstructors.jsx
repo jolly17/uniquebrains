@@ -8,8 +8,12 @@ function AdminInstructors() {
   const [instructors, setInstructors] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [editingInstructor, setEditingInstructor] = useState(null)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showSuspendConfirm, setShowSuspendConfirm] = useState(false)
+  const [instructorToSuspend, setInstructorToSuspend] = useState(null)
+  const [suspending, setSuspending] = useState(false)
 
   useEffect(() => {
     loadInstructors()
@@ -29,6 +33,12 @@ function AdminInstructors() {
     }
   }
 
+  const showSuccess = (message) => {
+    setSuccessMessage(message)
+    setError('')
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+
   const handleEdit = (instructor) => {
     setEditingInstructor(instructor)
     setShowEditModal(true)
@@ -45,9 +55,37 @@ function AdminInstructors() {
       await loadInstructors()
       setShowEditModal(false)
       setEditingInstructor(null)
+      showSuccess('Instructor profile updated successfully!')
     } catch (err) {
       console.error('Error updating instructor:', err)
-      alert('Failed to update instructor')
+      setError('Failed to update instructor. Please try again.')
+    }
+  }
+
+  const handleSuspendClick = (instructor) => {
+    setInstructorToSuspend(instructor)
+    setShowSuspendConfirm(true)
+    setError('')
+  }
+
+  const confirmSuspend = async () => {
+    if (!instructorToSuspend) return
+
+    try {
+      setSuspending(true)
+      setError('')
+      await suspendInstructor(instructorToSuspend.id)
+      await loadInstructors()
+      setShowSuspendConfirm(false)
+      setInstructorToSuspend(null)
+      showSuccess(`Instructor "${instructorToSuspend.first_name} ${instructorToSuspend.last_name}" has been suspended. All their courses have been unpublished.`)
+    } catch (err) {
+      console.error('Error suspending instructor:', err)
+      setError('Failed to suspend instructor. Please try again.')
+      setShowSuspendConfirm(false)
+      setInstructorToSuspend(null)
+    } finally {
+      setSuspending(false)
     }
   }
 
@@ -55,11 +93,47 @@ function AdminInstructors() {
     { 
       key: 'first_name', 
       label: 'Name',
-      render: (value, row) => `${row.first_name} ${row.last_name}`
+      render: (value, row) => (
+        <div className="instructor-name-cell">
+          <span className="instructor-name">{row.first_name} {row.last_name}</span>
+          {row.is_suspended && (
+            <span className="suspended-badge">Suspended</span>
+          )}
+        </div>
+      )
     },
     { key: 'email', label: 'Email' },
     { key: 'courses_count', label: 'Courses' },
-    { key: 'students_taught', label: 'Students Taught' }
+    { key: 'students_taught', label: 'Students Taught' },
+    {
+      key: 'created_at',
+      label: 'Joined',
+      render: (value) => value
+        ? new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : '-'
+    },
+    {
+      key: 'id',
+      label: 'Actions',
+      render: (value, row) => (
+        <div className="custom-actions">
+          {!row.is_suspended ? (
+            <button
+              className="btn-suspend"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleSuspendClick(row)
+              }}
+              title="Suspend instructor and unpublish all courses"
+            >
+              ⛔ Suspend
+            </button>
+          ) : (
+            <span className="suspended-label">Suspended</span>
+          )}
+        </div>
+      )
+    }
   ]
 
   const editFields = [
@@ -77,7 +151,19 @@ function AdminInstructors() {
         <p>Manage instructor accounts and profiles</p>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {successMessage && (
+        <div className="success-banner">
+          <span className="success-icon-badge">✓</span>
+          {successMessage}
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          <span>{error}</span>
+          <button className="dismiss-btn" onClick={() => setError('')}>×</button>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
@@ -98,6 +184,42 @@ function AdminInstructors() {
           fields={editFields}
           initialData={editingInstructor}
         />
+      )}
+
+      {/* Suspend Confirmation Modal */}
+      {showSuspendConfirm && instructorToSuspend && (
+        <div className="modal-overlay" onClick={() => !suspending && setShowSuspendConfirm(false)}>
+          <div className="confirm-dialog" onClick={(e) => e.stopPropagation()}>
+            <h3>⚠️ Suspend Instructor</h3>
+            <p>
+              Are you sure you want to suspend <strong>{instructorToSuspend.first_name} {instructorToSuspend.last_name}</strong>?
+            </p>
+            <div className="suspend-warning">
+              <p>This action will:</p>
+              <ul>
+                <li>Unpublish all of their courses ({instructorToSuspend.courses_count || 0} courses)</li>
+                <li>Mark their account as suspended</li>
+                <li>Students will no longer see their courses</li>
+              </ul>
+            </div>
+            <div className="dialog-actions">
+              <button 
+                className="btn-secondary"
+                onClick={() => setShowSuspendConfirm(false)}
+                disabled={suspending}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-danger"
+                onClick={confirmSuspend}
+                disabled={suspending}
+              >
+                {suspending ? 'Suspending...' : 'Suspend Instructor'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

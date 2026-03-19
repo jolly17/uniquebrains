@@ -39,7 +39,10 @@ function AdminDashboard() {
   if (loading) {
     return (
       <div className="admin-dashboard">
-        <div className="loading-state">Loading dashboard...</div>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading dashboard...</p>
+        </div>
       </div>
     )
   }
@@ -47,7 +50,12 @@ function AdminDashboard() {
   if (error) {
     return (
       <div className="admin-dashboard">
-        <div className="error-state">{error}</div>
+        <div className="error-state">
+          <p>{error}</p>
+          <button className="btn-refresh" onClick={loadStats}>
+            🔄 Retry
+          </button>
+        </div>
       </div>
     )
   }
@@ -55,8 +63,13 @@ function AdminDashboard() {
   return (
     <div className="admin-dashboard">
       <div className="dashboard-header">
-        <h1>Admin Dashboard</h1>
-        <p>Welcome to the UniqueBrains admin panel</p>
+        <div className="dashboard-header-text">
+          <h1>Admin Dashboard</h1>
+          <p>Welcome to the UniqueBrains admin panel</p>
+        </div>
+        <button className="btn-refresh" onClick={loadStats} title="Refresh statistics">
+          🔄 Refresh
+        </button>
       </div>
 
       {/* Statistics Cards */}
