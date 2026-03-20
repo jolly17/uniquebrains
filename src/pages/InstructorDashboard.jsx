@@ -195,37 +195,46 @@ function InstructorDashboard() {
                     <div key={course.id} className="instructor-course-card">
                       <div className="course-details">
                         <h3>
-                          <a 
-                            href={`/courses/${course.id}`} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }}
+                          <Link 
+                            to={`/courses/${course.id}`}
+                            className="course-title-link"
                           >
                             {course.title}
-                          </a>
+                          </Link>
                         </h3>
-                        <div className="course-stats">
-                          <span>
-                            {enrollmentCount} active
+                        {truncatedDescription && (
+                          <p className="course-description">{truncatedDescription}</p>
+                        )}
+                        <div className="course-meta">
+                          <span className="enrollment-count">
+                            👥 {enrollmentCount} active
                             {course.enrollment_limit ? ` / ${course.enrollment_limit}` : ''} students
                             {course.enrollment_limit && enrollmentCount >= course.enrollment_limit && (
                               <span className="full-indicator"> (FULL)</span>
                             )}
                           </span>
+                          {!course.is_self_paced && course.session_duration && (
+                            <span className="session-info">
+                              📅 {course.session_duration} min sessions
+                            </span>
+                          )}
+                          {course.is_self_paced && (
+                            <span className="session-info">⏰ Self-paced</span>
+                          )}
+                          <span className={`status-badge ${course.is_published ? 'published' : 'draft'}`}>
+                            {course.is_published ? '🟢 Published' : '📝 Draft'}
+                          </span>
                         </div>
-                        {truncatedDescription && (
-                          <p className="course-description">{truncatedDescription}</p>
-                        )}
                       </div>
                       <div className="course-actions">
                         <Link to={`/teach/course/${course.id}/manage`} className="btn-primary">
-                          Manage
+                          Manage Course
                         </Link>
                         <div className="quick-actions">
                           <Link 
                             to={`/teach/course/${course.id}/manage?tab=chat`} 
                             className="quick-action-btn"
-                            title="Open Chat"
+                            title="Chat"
                           >
                             💬
                           </Link>
@@ -243,11 +252,19 @@ function InstructorDashboard() {
                             <Link 
                               to={`/teach/course/${course.id}/sessions`} 
                               className="quick-action-btn"
-                              title="View Sessions"
+                              title="Join Meeting"
                             >
                               📹
                             </Link>
                           )}
+                          <button
+                            onClick={() => handleDeleteCourse(course.id, course.title)}
+                            className="quick-action-btn delete-btn"
+                            title="Delete Course"
+                            disabled={deletingCourseId === course.id}
+                          >
+                            {deletingCourseId === course.id ? '⏳' : '✕'}
+                          </button>
                         </div>
                       </div>
                     </div>
