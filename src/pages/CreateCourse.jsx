@@ -22,7 +22,7 @@ function CreateCourse() {
     courseType: 'group', // Always group - instructors can set enrollmentLimit to 1 for 1:1
     price: '',
     sessionDuration: '',
-    sessionTime: '',
+    sessionTime: '12:00',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Auto-detect instructor's timezone
     enrollmentLimit: '',
     // Recurrence fields
@@ -63,6 +63,12 @@ function CreateCourse() {
     
     if (!user) {
       setError('You must be logged in to create a course')
+      return
+    }
+
+    // Validate session time
+    if (!formData.sessionTime) {
+      setError('Session time is required')
       return
     }
 
