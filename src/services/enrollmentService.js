@@ -56,7 +56,7 @@ export async function enrollStudent(courseId, studentId) {
     // Verify course exists and is published
     const { data: course, error: courseError } = await supabase
       .from('courses')
-      .select('id, title, is_published, enrollment_limit, instructor_id')
+      .select('id, title, is_published, enrollment_limit, instructor_id, start_date, session_time, meeting_link, selected_days, timezone')
       .eq('id', courseId)
       .single()
 
@@ -128,7 +128,12 @@ export async function enrollStudent(courseId, studentId) {
               studentEmail: studentProfile.email,
               studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
               courseTitle: course.title,
-              courseId: course.id
+              courseId: course.id,
+              courseStartDate: course.start_date || undefined,
+              sessionTime: course.session_time || undefined,
+              meetingLink: course.meeting_link || undefined,
+              selectedDays: course.selected_days || undefined,
+              timezone: course.timezone || undefined
             })
           }
 
@@ -215,7 +220,12 @@ export async function enrollStudent(courseId, studentId) {
           studentEmail: studentProfile.email,
           studentName: `${studentProfile.first_name} ${studentProfile.last_name}`,
           courseTitle: course.title,
-          courseId: course.id
+          courseId: course.id,
+          courseStartDate: course.start_date || undefined,
+          sessionTime: course.session_time || undefined,
+          meetingLink: course.meeting_link || undefined,
+          selectedDays: course.selected_days || undefined,
+          timezone: course.timezone || undefined
         })
       } else {
         console.log('Student profile not found, skipping student email')

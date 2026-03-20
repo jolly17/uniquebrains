@@ -273,6 +273,21 @@
   transform: scale(1.05);
 }
 
+.quick-action-btn.unenroll-btn {
+  font-size: 1.25rem;
+}
+
+.quick-action-btn.unenroll-btn:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.quick-action-btn.unenroll-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;

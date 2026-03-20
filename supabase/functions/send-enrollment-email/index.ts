@@ -14,6 +14,11 @@ interface EnrollmentEmailData {
   instructorName?: string
   courseTitle: string
   courseId?: string  // Optional for unenrollment emails
+  courseStartDate?: string  // Course start date (ISO date string)
+  sessionTime?: string  // Session time (HH:MM format)
+  meetingLink?: string  // Meeting link (Zoom, Google Meet, Jitsi, etc.)
+  selectedDays?: string[]  // Days of the week for sessions
+  timezone?: string  // Course timezone
 }
 
 serve(async (req) => {
@@ -113,7 +118,116 @@ serve(async (req) => {
   }
 })
 
+function formatStartDate(dateStr: string): string {
+  try {
+    const date = new Date(dateStr + 'T00:00:00')
+    return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  } catch {
+    return dateStr
+  }
+}
+
+function formatMultipleTimezones(timeStr: string, timezone?: string): string {
+  try {
+    // timeStr is in HH:MM or HH:MM:SS format
+    // Create a reference date using the course timezone to get correct UTC offset
+    const [hours, minutes] = timeStr.split(':')
+    const refDate = new Date()
+    refDate.setHours(parseInt(hours), parseInt(minutes || '0'), 0, 0)
+
+    // If we have a course timezone, construct a proper date in that timezone
+    // by finding the UTC time that corresponds to the given local time
+    if (timezone) {
+      // Create a date string in the course timezone and parse it
+      const dateStr = refDate.toISOString().split('T')[0]
+      // Use a known date with the given time, interpreted in the course timezone
+      const localDateStr = `${dateStr}T${hours.padStart(2, '0')}:${(minutes || '00').padStart(2, '0')}:00`
+      
+      // Get the offset by comparing local interpretation
+      const tempDate = new Date(localDateStr)
+      const localTime = tempDate.toLocaleString('en-US', { timeZone: timezone, hour: 'numeric', minute: '2-digit', hour12: false })
+      const [localHour, localMin] = localTime.split(':').map(Number)
+      const diffMinutes = (parseInt(hours) - localHour) * 60 + (parseInt(minutes || '0') - localMin)
+      
+      // Adjust to get the UTC time that represents the given time in the course timezone
+      refDate.setMinutes(refDate.getMinutes() + diffMinutes)
+    }
+
+    const timezones = [
+      { name: 'IST', tz: 'Asia/Kolkata' },
+      { name: 'GMT', tz: 'Europe/London' },
+      { name: 'EST', tz: 'America/New_York' },
+      { name: 'PST', tz: 'America/Los_Angeles' }
+    ]
+
+    const times = timezones.map(({ name, tz }) => {
+      const options: Intl.DateTimeFormatOptions = {
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: tz,
+        hour12: true
+      }
+      const time = refDate.toLocaleString('en-US', options)
+      return `${time} ${name}`
+    })
+
+    return times.join(' | ')
+  } catch {
+    return timeStr
+  }
+}
+
+function formatSelectedDays(days: string[]): string {
+  if (!days || days.length === 0) return ''
+  // Capitalize first letter of each day
+  return days.map(d => d.charAt(0).toUpperCase() + d.slice(1)).join(', ')
+}
+
 async function sendStudentEnrollmentEmail(data: EnrollmentEmailData) {
+  // Build course details section if any schedule info is available
+  const hasCourseDetails = data.courseStartDate || data.sessionTime || data.meetingLink
+  
+  let courseDetailsHtml = ''
+  if (hasCourseDetails) {
+    let detailRows = ''
+    
+    if (data.courseStartDate) {
+      const formattedDate = formatStartDate(data.courseStartDate)
+      detailRows += `<tr><td style="padding: 8px 12px; font-weight: 600; color: #4f46e5; white-space: nowrap; vertical-align: top;">📅 Start Date</td><td style="padding: 8px 12px;">${formattedDate}</td></tr>`
+    }
+    
+    if (data.selectedDays && data.selectedDays.length > 0) {
+      const formattedDays = formatSelectedDays(data.selectedDays)
+      detailRows += `<tr><td style="padding: 8px 12px; font-weight: 600; color: #4f46e5; white-space: nowrap; vertical-align: top;">🗓️ Session Days</td><td style="padding: 8px 12px;">${formattedDays}</td></tr>`
+    }
+    
+    if (data.meetingLink) {
+      detailRows += `<tr><td style="padding: 8px 12px; font-weight: 600; color: #4f46e5; white-space: nowrap; vertical-align: top;">🔗 Meeting Link</td><td style="padding: 8px 12px;"><a href="${data.meetingLink}" style="color: #4f46e5; text-decoration: underline;">${data.meetingLink}</a></td></tr>`
+    }
+    
+    // Build timezone box for session time (similar to session reminder emails)
+    let timezoneBoxHtml = ''
+    if (data.sessionTime) {
+      const multiTimezones = formatMultipleTimezones(data.sessionTime, data.timezone)
+      timezoneBoxHtml = `
+        <div style="background: #eff6ff; padding: 15px; border-radius: 6px; margin: 15px 0; border-left: 4px solid #4f46e5;">
+          <p style="margin: 0 0 8px 0; font-weight: 600; color: #1e40af;">🌍 Session Time (Multiple Timezones):</p>
+          <p style="margin: 0; font-size: 14px; color: #1f2937;">${multiTimezones}</p>
+        </div>
+      `
+    }
+
+    courseDetailsHtml = `
+      <div style="background: #f0f0ff; border: 1px solid #e0e0ff; border-radius: 8px; padding: 20px; margin: 20px 0;">
+        <h3 style="margin: 0 0 12px 0; color: #4f46e5; font-size: 16px;">📋 Course Details</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          ${detailRows}
+        </table>
+        ${timezoneBoxHtml}
+      </div>
+    `
+  }
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -136,6 +250,8 @@ async function sendStudentEnrollmentEmail(data: EnrollmentEmailData) {
           <p>Hi ${data.studentName},</p>
           
           <p>Congratulations! You've successfully enrolled in <strong>${data.courseTitle}</strong>.</p>
+          
+          ${courseDetailsHtml}
           
           <p>Here's what happens next:</p>
           <ul>

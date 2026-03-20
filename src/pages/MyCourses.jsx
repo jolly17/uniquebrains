@@ -270,6 +270,14 @@ function MyCourses() {
                           📹
                         </Link>
                       )}
+                      <button
+                        onClick={() => handleUnenroll(course.id, course.title)}
+                        className="quick-action-btn unenroll-btn"
+                        title="Unenroll from course"
+                        disabled={unenrollingCourseId === course.id}
+                      >
+                        {unenrollingCourseId === course.id ? '⏳' : '🚪'}
+                      </button>
                     </div>
                   </div>
                 </div>
