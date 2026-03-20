@@ -247,7 +247,7 @@ function MyCourses() {
                       <Link 
                         to={`/learn/course/${course.id}/view?tab=chat`} 
                         className="quick-action-btn"
-                        title="Open Chat"
+                        title="Chat"
                       >
                         💬
                       </Link>
@@ -265,7 +265,7 @@ function MyCourses() {
                         <Link 
                           to={`/learn/course/${course.id}/sessions`} 
                           className="quick-action-btn"
-                          title="View Sessions"
+                          title="Join Meeting"
                         >
                           📹
                         </Link>
@@ -273,10 +273,10 @@ function MyCourses() {
                       <button
                         onClick={() => handleUnenroll(course.id, course.title)}
                         className="quick-action-btn unenroll-btn"
-                        title="Unenroll from course"
+                        title="Unenroll"
                         disabled={unenrollingCourseId === course.id}
                       >
-                        {unenrollingCourseId === course.id ? '⏳' : '🚪'}
+                        {unenrollingCourseId === course.id ? '⏳' : '✕'}
                       </button>
                     </div>
                   </div>
