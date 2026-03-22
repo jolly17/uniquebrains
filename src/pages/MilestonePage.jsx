@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { MILESTONES } from '../data/milestones';
 import { getResourcesByMilestoneAndLocation } from '../services/careResourceService';
 import { supabase } from '../lib/supabase';
-import { AVAILABLE_COUNTRIES, AVAILABLE_TAGS } from '../data/dummyCareResources';
+import { AVAILABLE_COUNTRIES, AVAILABLE_TAGS, AVAILABLE_CONDITIONS } from '../data/dummyCareResources';
 import ResourceListings from '../components/ResourceListings';
 import BackButton from '../components/BackButton';
 import './MilestonePage.css';
@@ -45,6 +45,9 @@ function MilestonePage() {
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState([]);
   const [showTagsDropdown, setShowTagsDropdown] = useState(false);
+  const [selectedConditions, setSelectedConditions] = useState([]);
+  const [availableConditions, setAvailableConditions] = useState([]);
+  const [showConditionsDropdown, setShowConditionsDropdown] = useState(false);
   const [hoveredResourceId, setHoveredResourceId] = useState(null);
   
   // Map state - initialize from URL parameters or defaults
@@ -118,6 +121,28 @@ function MilestonePage() {
     } catch (err) {
       console.error('Error fetching tags:', err);
       setAvailableTags([]);
+    }
+  };
+
+  /**
+   * Fetch unique conditions from database
+   */
+  const fetchAvailableConditions = async (milestone) => {
+    try {
+      const { data, error } = await supabase
+        .from('care_resources')
+        .select('condition')
+        .eq('milestone', milestone);
+      
+      if (error) throw error;
+      
+      // Extract unique conditions
+      const allConditions = data.flatMap(resource => resource.condition || []);
+      const uniqueConditions = [...new Set(allConditions)].sort();
+      setAvailableConditions(uniqueConditions);
+    } catch (err) {
+      console.error('Error fetching conditions:', err);
+      setAvailableConditions([]);
     }
   };
 
@@ -197,6 +222,31 @@ function MilestonePage() {
   };
 
   /**
+   * Toggle condition selection
+   */
+  const toggleCondition = (condition) => {
+    setSelectedConditions(prev => 
+      prev.includes(condition) 
+        ? prev.filter(c => c !== condition)
+        : [...prev, condition]
+    );
+  };
+
+  /**
+   * Clear all condition selections
+   */
+  const clearAllConditions = () => {
+    setSelectedConditions([]);
+  };
+
+  /**
+   * Select all available conditions
+   */
+  const selectAllConditions = () => {
+    setSelectedConditions(availableConditions);
+  };
+
+  /**
    * Handle resource card click - navigate to detail page
    */
   const handleResourceClick = (resourceId) => {
@@ -270,6 +320,7 @@ function MilestonePage() {
       // Only filter by location when user explicitly searches
       fetchResources(milestone, null);
       fetchAvailableTags(milestone);
+      fetchAvailableConditions(milestone);
     }
   }, [milestone]);
 
@@ -341,6 +392,45 @@ function MilestonePage() {
                 </div>
               )}
             </div>
+            <div className="header-conditions-dropdown">
+              <button 
+                className="conditions-dropdown-button"
+                onClick={() => setShowConditionsDropdown(!showConditionsDropdown)}
+                aria-expanded={showConditionsDropdown}
+                aria-label={`Filter by condition. ${selectedConditions.length} conditions selected`}
+              >
+                {selectedConditions.length > 0 
+                  ? `${selectedConditions.length} conditions selected` 
+                  : 'Filter by condition...'}
+                <span className="dropdown-arrow" aria-hidden="true">
+                  {showConditionsDropdown ? '▲' : '▼'}
+                </span>
+              </button>
+              
+              {showConditionsDropdown && (
+                <div className="conditions-dropdown-menu">
+                  <div className="conditions-actions">
+                    <button type="button" onClick={selectAllConditions} className="condition-action-btn">
+                      Select All
+                    </button>
+                    <button type="button" onClick={clearAllConditions} className="condition-action-btn">
+                      Clear All
+                    </button>
+                  </div>
+                  {availableConditions.map(condition => (
+                    <label key={condition} className="filter-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={selectedConditions.includes(condition)}
+                        onChange={() => toggleCondition(condition)}
+                        aria-label={`Filter by ${condition}`}
+                      />
+                      <span>{condition}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="header-country-selector" role="group" aria-label="Select country">
               {AVAILABLE_COUNTRIES.map(country => (
                 <button
@@ -372,6 +462,7 @@ function MilestonePage() {
             availableTags={AVAILABLE_TAGS}
             searchQuery={resourceSearchQuery}
             selectedTags={selectedTags}
+            selectedConditions={selectedConditions}
             showFilters={false}
             hoveredResourceId={hoveredResourceId}
             onResourceHover={setHoveredResourceId}

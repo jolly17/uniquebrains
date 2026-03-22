@@ -335,3 +335,16 @@ export const AVAILABLE_TAGS = [
   'assessment',
   'early intervention'
 ];
+
+export const AVAILABLE_CONDITIONS = [
+  'Autism Spectrum Disorder',
+  'ADHD',
+  'Dyslexia',
+  'Dyscalculia',
+  'Anxiety',
+  'Sensory Processing Disorder',
+  'Down Syndrome',
+  'Cerebral Palsy',
+  'Intellectual Disability',
+  'Speech & Language Delay'
+];

@@ -26,6 +26,7 @@ function ResourceListings({
   availableTags,
   searchQuery = '',
   selectedTags = [],
+  selectedConditions = [],
   showFilters = true,
   hoveredResourceId = null,
   onResourceHover = null
@@ -41,6 +42,10 @@ function ResourceListings({
   const filteredResources = resources.filter(resource => {
     // Tag filter (from external prop)
     if (selectedTags.length > 0 && !selectedTags.some(tag => resource.tags?.includes(tag))) {
+      return false;
+    }
+    // Condition filter (from external prop)
+    if (selectedConditions.length > 0 && !selectedConditions.some(cond => resource.condition?.includes(cond))) {
       return false;
     }
     // Rating filter
@@ -237,11 +242,11 @@ function ResourceListings({
             <div className="empty-state-icon" aria-hidden="true">🔍</div>
             <h3>No resources found</h3>
             <p>
-              {searchQuery || selectedTags.length > 0 || filters.minRating > 0 || filters.verifiedOnly
+              {searchQuery || selectedTags.length > 0 || selectedConditions.length > 0 || filters.minRating > 0 || filters.verifiedOnly
                 ? 'Try adjusting your filters or search query.'
                 : 'No resources available for this milestone yet.'}
             </p>
-            {(searchQuery || selectedTags.length > 0 || filters.minRating > 0 || filters.verifiedOnly) && (
+            {(searchQuery || selectedTags.length > 0 || selectedConditions.length > 0 || filters.minRating > 0 || filters.verifiedOnly) && (
               <button className="clear-filters-btn-inline" onClick={clearAllFilters}>
                 Clear Filters
               </button>

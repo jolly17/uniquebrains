@@ -1,3 +1,15 @@
+-- =====================================================
+-- Check and Fix Session Reminder Cron Job
+-- =====================================================
+-- NOTE: The edge function now has idempotency protection via the
+-- session_reminder_log table (see migration 086). Even if pg_cron
+-- triggers the function multiple times (due to net.http_post retries
+-- or timeouts), duplicate emails will NOT be sent.
+--
+-- IMPORTANT: Run migration 086_add_session_reminder_log.sql first
+-- to create the tracking table before deploying the updated function.
+-- =====================================================
+
 -- Check current cron jobs for session reminders
 SELECT * FROM cron.job WHERE jobname LIKE '%session%';
 
@@ -38,3 +50,18 @@ FROM cron.job_run_details
 WHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'send-session-reminders')
 ORDER BY start_time DESC
 LIMIT 10;
+
+-- =====================================================
+-- DEBUGGING: Check the session_reminder_log for sent reminders
+-- =====================================================
+SELECT 
+  srl.session_id,
+  s.title AS session_title,
+  srl.reminder_date,
+  srl.sent_at,
+  srl.emails_sent,
+  srl.emails_failed
+FROM session_reminder_log srl
+JOIN sessions s ON srl.session_id = s.id
+ORDER BY srl.sent_at DESC
+LIMIT 20;

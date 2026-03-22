@@ -358,7 +358,7 @@ async function sendInstructorNotificationEmail(data: EnrollmentEmailData) {
           
           <p>You can view their profile and neurodiversity information in your course dashboard to provide the best learning experience.</p>
           
-          <a href="https://uniquebrains.org/teach/course/${data.courseId}/students" class="button" style="color: #ffffff !important;">View Student Details</a>
+          <a href="https://uniquebrains.org/teach/course/${data.courseId}/manage?tab=students" class="button" style="color: #ffffff !important;">View Student Details</a>
           
           <p>Keep up the amazing work! 🌟</p>
           <p>The UniqueBrains Team</p>
@@ -411,7 +411,7 @@ async function sendInstructorUnenrollmentNotificationEmail(data: EnrollmentEmail
           
           <p>You can view your current student roster in your course dashboard.</p>
           
-          <a href="https://uniquebrains.org/teach/course/${data.courseId}/students" class="button" style="color: #ffffff !important;">View Course Students</a>
+          <a href="https://uniquebrains.org/teach/course/${data.courseId}/manage?tab=students" class="button" style="color: #ffffff !important;">View Course Students</a>
           
           <p>If you have any questions, please reach out to us at <a href="mailto:hello@uniquebrains.org">hello@uniquebrains.org</a></p>
           

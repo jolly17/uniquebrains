@@ -1,8 +1,8 @@
-milestone,name,address,city,state,zip_code,country,phone,email,website,experience_years,tags,rating,review_count,verified,description
-diagnosis,Autism Diagnostic Center,123 Main St,New York,NY,10001,US,+1 (212) 555-0123,info@autismcenter.com,https://autismcenter.com,15,"autism,ADHD,assessment",4.8,127,true,"Comprehensive autism diagnostic services with experienced specialists. We provide thorough assessments for children and adults."
-therapies,Speech Therapy Clinic,456 Park Ave,Brooklyn,NY,11201,US,+1 (718) 555-0456,contact@speechclinic.com,https://speechclinic.com,10,"speech therapy,autism",4.5,89,true,"Specialized speech therapy for children with autism and communication delays."
-education,Special Education School,789 Broadway,Queens,NY,11373,US,+1 (718) 555-0789,info@specialedschool.com,https://specialedschool.com,20,"autism,ADHD,dyslexia",4.9,203,true,"Inclusive education with individualized learning plans for neurodivergent students."
-care-home,Supported Living Residence,321 Oak St,Boston,MA,02101,US,+1 (617) 555-0321,info@supportedliving.com,https://supportedliving.com,12,"autism,residential care",4.7,156,true,"Safe and supportive residential care for adults with autism and developmental disabilities."
+milestone,name,address,city,state,zip_code,country,phone,email,website,experience_years,tags,condition,rating,review_count,verified,description
+diagnosis,Autism Diagnostic Center,123 Main St,New York,NY,10001,US,+1 (212) 555-0123,info@autismcenter.com,https://autismcenter.com,15,"autism,ADHD,assessment","Autism Spectrum Disorder,ADHD",4.8,127,true,"Comprehensive autism diagnostic services with experienced specialists. We provide thorough assessments for children and adults."
+therapies,Speech Therapy Clinic,456 Park Ave,Brooklyn,NY,11201,US,+1 (718) 555-0456,contact@speechclinic.com,https://speechclinic.com,10,"speech therapy,autism","Autism Spectrum Disorder,Speech & Language Delay",4.5,89,true,"Specialized speech therapy for children with autism and communication delays."
+education,Special Education School,789 Broadway,Queens,NY,11373,US,+1 (718) 555-0789,info@specialedschool.com,https://specialedschool.com,20,"autism,ADHD,dyslexia","Autism Spectrum Disorder,ADHD,Dyslexia",4.9,203,true,"Inclusive education with individualized learning plans for neurodivergent students."
+care-home,Supported Living Residence,321 Oak St,Boston,MA,02101,US,+1 (617) 555-0321,info@supportedliving.com,https://supportedliving.com,12,"autism,residential care","Autism Spectrum Disorder,Intellectual Disability",4.7,156,true,"Safe and supportive residential care for adults with autism and developmental disabilities."
 
 # INSTRUCTIONS:
 # - milestone: Must be one of: diagnosis, therapies, education, trainings, ngo-advocacy, care-home, jobs-livelihood
@@ -17,6 +17,9 @@ care-home,Supported Living Residence,321 Oak St,Boston,MA,02101,US,+1 (617) 555-
 # - website: Website URL (optional, must start with http:// or https://)
 # - experience_years: Years of experience (optional, 0-100)
 # - tags: Comma-separated tags (optional, e.g., "autism,ADHD,assessment")
+# - condition: Comma-separated conditions (optional, e.g., "Autism Spectrum Disorder,ADHD,Dyslexia")
+#   Valid conditions: Autism Spectrum Disorder, ADHD, Dyslexia, Dyscalculia, Anxiety,
+#   Sensory Processing Disorder, Down Syndrome, Cerebral Palsy, Intellectual Disability, Speech & Language Delay
 # - rating: Rating 0.0-5.0 (optional)
 # - review_count: Number of reviews (optional, integer)
 # - verified: true/false or 1/0 (optional, defaults to false)

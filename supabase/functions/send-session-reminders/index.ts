@@ -1,5 +1,6 @@
 // Supabase Edge Function for sending session reminder emails via Resend
 // This function should be scheduled to run daily via cron job
+// IDEMPOTENCY: Uses session_reminder_log table to prevent duplicate emails
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -62,7 +63,11 @@ serve(async (req) => {
     const tomorrowEnd = new Date(tomorrow)
     tomorrowEnd.setHours(23, 59, 59, 999)
 
+    // The reminder_date used for idempotency (the date sessions occur)
+    const reminderDate = tomorrowStart.toISOString().split('T')[0] // YYYY-MM-DD
+
     console.log('Searching for sessions between:', tomorrowStart.toISOString(), 'and', tomorrowEnd.toISOString())
+    console.log('Reminder date for idempotency:', reminderDate)
 
     // Query sessions happening tomorrow
     const { data: sessions, error: sessionsError } = await supabase
@@ -105,11 +110,56 @@ serve(async (req) => {
       )
     }
 
-    let emailsSent = 0
-    let emailsFailed = 0
+    // ============================================================
+    // IDEMPOTENCY CHECK: Filter out sessions that already had reminders sent
+    // ============================================================
+    const sessionIds = sessions.map(s => s.id)
+    
+    const { data: alreadySent, error: logError } = await supabase
+      .from('session_reminder_log')
+      .select('session_id')
+      .in('session_id', sessionIds)
+      .eq('reminder_date', reminderDate)
+
+    if (logError) {
+      console.error('Error checking reminder log:', logError)
+      // Don't throw - if the log table doesn't exist yet, we still want to proceed
+      // but log the error for debugging
+      console.warn('Proceeding without idempotency check due to log error')
+    }
+
+    const alreadySentSessionIds = new Set((alreadySent || []).map(r => r.session_id))
+    const sessionsToProcess = sessions.filter(s => !alreadySentSessionIds.has(s.id))
+
+    if (alreadySentSessionIds.size > 0) {
+      console.log(`⚠️ Skipping ${alreadySentSessionIds.size} session(s) that already had reminders sent:`, 
+        Array.from(alreadySentSessionIds))
+    }
+
+    if (sessionsToProcess.length === 0) {
+      console.log('All sessions already had reminders sent. No duplicate emails will be sent.')
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: 'Reminders already sent for all sessions tomorrow',
+          sessionsFound: sessions.length,
+          sessionsSkipped: alreadySentSessionIds.size,
+          emailsSent: 0
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`Processing ${sessionsToProcess.length} session(s) that need reminders`)
+
+    let totalEmailsSent = 0
+    let totalEmailsFailed = 0
 
     // Process each session
-    for (const session of sessions) {
+    for (const session of sessionsToProcess) {
+      let sessionEmailsSent = 0
+      let sessionEmailsFailed = 0
+
       try {
         console.log(`Processing session: ${session.title} (${session.id})`)
 
@@ -129,7 +179,8 @@ serve(async (req) => {
 
         if (enrollmentsError) {
           console.error(`Error fetching enrollments for course ${session.course_id}:`, enrollmentsError)
-          emailsFailed++
+          sessionEmailsFailed++
+          totalEmailsFailed++
           continue
         }
 
@@ -153,11 +204,11 @@ serve(async (req) => {
         // Send reminder to instructor
         try {
           await sendInstructorReminderEmail(sessionData)
-          emailsSent++
+          sessionEmailsSent++
           console.log(`✓ Sent reminder to instructor: ${sessionData.instructorEmail}`)
         } catch (error) {
           console.error(`✗ Failed to send reminder to instructor: ${sessionData.instructorEmail}`, error)
-          emailsFailed++
+          sessionEmailsFailed++
         }
 
         // Send reminders to all enrolled students
@@ -170,33 +221,63 @@ serve(async (req) => {
                   enrollment.profiles.full_name,
                   enrollment.profiles.email
                 )
-                emailsSent++
+                sessionEmailsSent++
                 console.log(`✓ Sent reminder to student: ${enrollment.profiles.email}`)
               } catch (error) {
                 console.error(`✗ Failed to send reminder to student: ${enrollment.profiles.email}`, error)
-                emailsFailed++
+                sessionEmailsFailed++
               }
             }
           }
         }
 
+        // ============================================================
+        // LOG: Record that reminders were sent for this session
+        // Uses UPSERT with ON CONFLICT to handle race conditions
+        // ============================================================
+        const { error: insertError } = await supabase
+          .from('session_reminder_log')
+          .upsert(
+            {
+              session_id: session.id,
+              reminder_date: reminderDate,
+              emails_sent: sessionEmailsSent,
+              emails_failed: sessionEmailsFailed,
+            },
+            { onConflict: 'session_id,reminder_date' }
+          )
+
+        if (insertError) {
+          console.error(`Error logging reminder for session ${session.id}:`, insertError)
+          // Non-fatal: emails were already sent, just log the error
+        } else {
+          console.log(`✓ Logged reminder for session ${session.id} (${sessionEmailsSent} sent, ${sessionEmailsFailed} failed)`)
+        }
+
       } catch (error) {
         console.error(`Error processing session ${session.id}:`, error)
-        emailsFailed++
+        sessionEmailsFailed++
       }
+
+      totalEmailsSent += sessionEmailsSent
+      totalEmailsFailed += sessionEmailsFailed
     }
 
     console.log(`=== Summary ===`)
-    console.log(`Sessions processed: ${sessions.length}`)
-    console.log(`Emails sent: ${emailsSent}`)
-    console.log(`Emails failed: ${emailsFailed}`)
+    console.log(`Sessions found: ${sessions.length}`)
+    console.log(`Sessions skipped (already sent): ${alreadySentSessionIds.size}`)
+    console.log(`Sessions processed: ${sessionsToProcess.length}`)
+    console.log(`Emails sent: ${totalEmailsSent}`)
+    console.log(`Emails failed: ${totalEmailsFailed}`)
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        sessionsProcessed: sessions.length,
-        emailsSent,
-        emailsFailed
+        sessionsFound: sessions.length,
+        sessionsSkipped: alreadySentSessionIds.size,
+        sessionsProcessed: sessionsToProcess.length,
+        emailsSent: totalEmailsSent,
+        emailsFailed: totalEmailsFailed
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
@@ -333,7 +414,7 @@ async function sendInstructorReminderEmail(data: SessionReminderData) {
           
           <p>Make sure you're prepared and ready to inspire your students! 🌟</p>
           
-          <a href="https://uniquebrains.org/teach/course/${data.courseId}/students" class="button" style="color: #ffffff !important;">View Course Dashboard</a>
+          <a href="https://uniquebrains.org/teach/course/${data.courseId}/manage?tab=students" class="button" style="color: #ffffff !important;">View Course Dashboard</a>
           
           <p>If you need to make any changes, please update your course details or contact us at <a href="mailto:hello@uniquebrains.org">hello@uniquebrains.org</a></p>
           

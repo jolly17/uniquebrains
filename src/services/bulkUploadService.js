@@ -83,6 +83,11 @@ export async function bulkUploadResources(file, user, onProgress = null) {
         ? row.tags.split(',').map(t => t.trim()).filter(t => t.length > 0)
         : [];
       
+      // Parse condition if provided
+      const condition = row.condition 
+        ? row.condition.split(',').map(c => c.trim()).filter(c => c.length > 0)
+        : [];
+      
       // Parse verified field
       const verified = row.verified === 'true' || 
                       row.verified === '1' || 
@@ -110,6 +115,7 @@ export async function bulkUploadResources(file, user, onProgress = null) {
           website: row.website?.trim() || null,
           experience_years: row.experience_years ? parseInt(row.experience_years) : null,
           tags: tags,
+          condition: condition,
           rating: row.rating ? parseFloat(row.rating) : null,
           review_count: row.review_count ? parseInt(row.review_count) : 0,
           verified: verified
