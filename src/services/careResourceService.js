@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase'
 import { handleSupabaseError } from '../lib/errorHandler'
+import { geocodeAddress } from '../lib/geocoding'
 
 /**
  * Care Resource Service - Backend API functions for care resource management
@@ -150,4 +151,73 @@ export async function getResourcesByMilestoneAndLocation({
     limit,
     offset
   })
+}
+
+/**
+ * Update a resource's address and re-geocode it to get new coordinates.
+ * Admin-only operation.
+ * 
+ * @param {string} resourceId - The resource ID to update
+ * @param {Object} addressFields - New address fields
+ * @param {string} addressFields.address - Street address
+ * @param {string} [addressFields.city] - City
+ * @param {string} [addressFields.state] - State/province
+ * @param {string} [addressFields.zip_code] - Postal code
+ * @param {string} addressFields.country - Country code (2-letter ISO)
+ * @returns {Promise<Object>} Updated resource with new coordinates
+ */
+export async function updateResourceAddress(resourceId, addressFields) {
+  if (!resourceId) {
+    throw new Error('Resource ID is required')
+  }
+  if (!addressFields.address) {
+    throw new Error('Address is required')
+  }
+  if (!addressFields.country) {
+    throw new Error('Country code is required')
+  }
+
+  // Geocode the new address
+  const coordinates = await geocodeAddress({
+    address: addressFields.address,
+    city: addressFields.city || '',
+    state: addressFields.state || '',
+    zipCode: addressFields.zip_code || '',
+    country: addressFields.country
+  })
+
+  if (!coordinates) {
+    throw new Error('Failed to geocode the new address. Please verify the address is correct.')
+  }
+
+  // Update the resource in the database
+  const updateData = {
+    address: addressFields.address.trim(),
+    city: addressFields.city?.trim() || null,
+    state: addressFields.state?.trim() || null,
+    zip_code: addressFields.zip_code?.trim() || null,
+    country: addressFields.country.toUpperCase().trim(),
+    coordinates: `POINT(${coordinates.lng} ${coordinates.lat})`,
+    lat: coordinates.lat,
+    lng: coordinates.lng
+  }
+
+  const { data, error } = await supabase
+    .from('care_resources')
+    .update(updateData)
+    .eq('id', resourceId)
+    .select()
+    .single()
+
+  if (error) {
+    throw handleSupabaseError(error, {
+      operation: 'updateResourceAddress',
+      table: 'care_resources',
+    })
+  }
+
+  return {
+    ...data,
+    coordinates: { lat: data.lat, lng: data.lng }
+  }
 }

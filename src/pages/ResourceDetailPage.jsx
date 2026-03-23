@@ -5,6 +5,7 @@ import BackButton from '../components/BackButton';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import { updateResourceAddress } from '../services/careResourceService';
 import './ResourceDetailPage.css';
 
 function ResourceDetailPage() {
@@ -17,7 +18,21 @@ function ResourceDetailPage() {
   const [reviews, setReviews] = useState([]);
   const [userHasReviewed, setUserHasReviewed] = useState(false);
   const [averageRating, setAverageRating] = useState(0);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === 'admin';
+
+  // Edit address state
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    address: '',
+    city: '',
+    state: '',
+    zip_code: '',
+    country: ''
+  });
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [addressError, setAddressError] = useState(null);
+  const [addressSuccess, setAddressSuccess] = useState(false);
 
   useEffect(() => {
     async function fetchResource() {
@@ -168,6 +183,138 @@ function ResourceDetailPage() {
               </p>
             )}
           </div>
+
+          {isAdmin && !editingAddress && (
+            <button
+              className="btn-secondary btn-small"
+              style={{ marginTop: '0.75rem' }}
+              onClick={() => {
+                setAddressForm({
+                  address: resource.address || '',
+                  city: resource.city || '',
+                  state: resource.state || '',
+                  zip_code: resource.zip_code || '',
+                  country: resource.country || 'IN'
+                });
+                setAddressError(null);
+                setAddressSuccess(false);
+                setEditingAddress(true);
+              }}
+            >
+              ✏️ Edit Address & Re-geocode
+            </button>
+          )}
+
+          {isAdmin && editingAddress && (
+            <div className="edit-address-form" style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ddd', borderRadius: '8px', background: '#f9f9f9' }}>
+              <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem' }}>📍 Update Address</h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                  Address *
+                  <textarea
+                    value={addressForm.address}
+                    onChange={(e) => setAddressForm(prev => ({ ...prev, address: e.target.value }))}
+                    rows={3}
+                    style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontFamily: 'inherit', fontSize: '0.9rem', marginTop: '0.25rem', boxSizing: 'border-box' }}
+                    placeholder="Street address"
+                  />
+                </label>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                    City
+                    <input
+                      type="text"
+                      value={addressForm.city}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, city: e.target.value }))}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem', marginTop: '0.25rem', boxSizing: 'border-box' }}
+                      placeholder="City"
+                    />
+                  </label>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                    State
+                    <input
+                      type="text"
+                      value={addressForm.state}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, state: e.target.value }))}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem', marginTop: '0.25rem', boxSizing: 'border-box' }}
+                      placeholder="State/Province"
+                    />
+                  </label>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                    Postal Code
+                    <input
+                      type="text"
+                      value={addressForm.zip_code}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, zip_code: e.target.value }))}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem', marginTop: '0.25rem', boxSizing: 'border-box' }}
+                      placeholder="Postal/ZIP code"
+                    />
+                  </label>
+                  <label style={{ fontSize: '0.85rem', fontWeight: '600' }}>
+                    Country Code *
+                    <input
+                      type="text"
+                      value={addressForm.country}
+                      onChange={(e) => setAddressForm(prev => ({ ...prev, country: e.target.value.toUpperCase() }))}
+                      maxLength={2}
+                      style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.9rem', marginTop: '0.25rem', boxSizing: 'border-box' }}
+                      placeholder="IN, US, GB..."
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {addressError && (
+                <p style={{ color: '#dc3545', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>❌ {addressError}</p>
+              )}
+              {addressSuccess && (
+                <p style={{ color: '#28a745', fontSize: '0.85rem', margin: '0.5rem 0 0' }}>✅ Address updated and re-geocoded successfully!</p>
+              )}
+
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                <button
+                  className="btn-primary btn-small"
+                  disabled={savingAddress || !addressForm.address || !addressForm.country}
+                  onClick={async () => {
+                    setSavingAddress(true);
+                    setAddressError(null);
+                    setAddressSuccess(false);
+                    try {
+                      const updated = await updateResourceAddress(resourceId, addressForm);
+                      setResource(updated);
+                      setAddressSuccess(true);
+                      setTimeout(() => {
+                        setEditingAddress(false);
+                        setAddressSuccess(false);
+                      }, 2000);
+                    } catch (err) {
+                      setAddressError(err.message);
+                    } finally {
+                      setSavingAddress(false);
+                    }
+                  }}
+                >
+                  {savingAddress ? '⏳ Geocoding...' : '📍 Save & Re-geocode'}
+                </button>
+                <button
+                  className="btn-secondary btn-small"
+                  disabled={savingAddress}
+                  onClick={() => {
+                    setEditingAddress(false);
+                    setAddressError(null);
+                    setAddressSuccess(false);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {resource.tags && resource.tags.length > 0 && (
