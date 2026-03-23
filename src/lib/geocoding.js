@@ -9,6 +9,23 @@ const MAPBOX_API_KEY = import.meta.env.VITE_MAPBOX_API_KEY;
 // Cache for geocoding results to avoid duplicate API calls
 const geocodeCache = new Map();
 
+// Track last Nominatim request time for rate limiting (1 req/sec)
+let lastNominatimRequestTime = 0;
+
+/**
+ * Enforce Nominatim rate limit of 1 request per second.
+ * Waits if needed before allowing the next request.
+ */
+async function enforceNominatimRateLimit() {
+  const now = Date.now();
+  const elapsed = now - lastNominatimRequestTime;
+  const minDelay = 1100; // 1.1 seconds to be safe
+  if (elapsed < minDelay) {
+    await new Promise(resolve => setTimeout(resolve, minDelay - elapsed));
+  }
+  lastNominatimRequestTime = Date.now();
+}
+
 /**
  * Clean and normalize an address string for geocoding.
  * Strips business names, landmarks, floor info, special characters, and other
@@ -495,6 +512,9 @@ export async function geocodeAddress({ address, city, state, zipCode, country })
  * Rate limit: 1 request/second
  */
 async function geocodeWithNominatim(address) {
+  // Enforce rate limit before making request
+  await enforceNominatimRateLimit();
+  
   const params = new URLSearchParams({
     q: address,
     format: 'json',
@@ -508,6 +528,22 @@ async function geocodeWithNominatim(address) {
     }
   });
   
+  // Handle rate limiting - wait and retry once
+  if (response.status === 429) {
+    console.warn('Nominatim rate limited (429), waiting 2s and retrying...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    lastNominatimRequestTime = Date.now();
+    const retryResponse = await fetch(`${NOMINATIM_BASE_URL}/search?${params}`, {
+      headers: {
+        'User-Agent': 'UniqueBrains Care Roadmap (contact@uniquebrains.com)'
+      }
+    });
+    if (!retryResponse.ok) return null;
+    const retryData = await retryResponse.json();
+    if (retryData.length === 0) return null;
+    return { lat: parseFloat(retryData[0].lat), lng: parseFloat(retryData[0].lon) };
+  }
+  
   if (!response.ok) {
     throw new Error(`Nominatim API request failed: ${response.status}`);
   }
@@ -515,7 +551,7 @@ async function geocodeWithNominatim(address) {
   const data = await response.json();
   
   if (data.length === 0) {
-    console.error('Nominatim returned no results for:', address);
+    console.log('Nominatim returned no results for:', address);
     return null;
   }
   
@@ -539,6 +575,9 @@ async function geocodeWithNominatim(address) {
  * @returns {Promise<Object|null>} - {lat, lng} or null
  */
 async function geocodeWithNominatimStructured({ street, city, state, postalcode, country }) {
+  // Enforce rate limit before making request
+  await enforceNominatimRateLimit();
+  
   const params = new URLSearchParams({
     format: 'json',
     limit: 1,
@@ -557,6 +596,22 @@ async function geocodeWithNominatimStructured({ street, city, state, postalcode,
       'User-Agent': 'UniqueBrains Care Roadmap (contact@uniquebrains.com)'
     }
   });
+  
+  // Handle rate limiting - wait and retry once
+  if (response.status === 429) {
+    console.warn('Nominatim rate limited (429), waiting 2s and retrying...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    lastNominatimRequestTime = Date.now();
+    const retryResponse = await fetch(`${NOMINATIM_BASE_URL}/search?${params}`, {
+      headers: {
+        'User-Agent': 'UniqueBrains Care Roadmap (contact@uniquebrains.com)'
+      }
+    });
+    if (!retryResponse.ok) return null;
+    const retryData = await retryResponse.json();
+    if (retryData.length === 0) return null;
+    return { lat: parseFloat(retryData[0].lat), lng: parseFloat(retryData[0].lon) };
+  }
   
   if (!response.ok) {
     throw new Error(`Nominatim structured search failed: ${response.status}`);

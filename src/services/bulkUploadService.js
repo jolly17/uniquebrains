@@ -125,11 +125,8 @@ export async function bulkUploadResources(file, user, onProgress = null) {
       
       results.successful++;
       
-      // Rate limiting: wait 1 second between requests (for Nominatim)
-      // This ensures we don't exceed the 1 req/sec limit
-      if (i < rows.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1100));
-      }
+      // Note: Rate limiting is now handled internally by the geocoding module
+      // (enforceNominatimRateLimit) so no additional delay is needed here.
       
     } catch (error) {
       results.failed++;
