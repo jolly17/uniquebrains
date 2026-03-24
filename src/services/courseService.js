@@ -4,6 +4,101 @@ import { convertTo24HourFormat, convertTo24HourParts } from '../utils/timezoneUt
 import * as Sentry from '@sentry/react'
 
 /**
+ * Send course schedule change notification emails to all enrolled students
+ * Called when an instructor modifies the course schedule (time, duration, days, etc.)
+ * which affects all future sessions
+ * @param {Object} data - Course schedule change data
+ * @returns {Promise<void>}
+ */
+async function sendCourseScheduleChangeEmails(data) {
+  try {
+    // Fetch all enrolled students' emails for this course
+    const { data: enrollments, error: enrollmentsError } = await supabase
+      .from('enrollments')
+      .select(`
+        student_id,
+        profiles!student_id(email)
+      `)
+      .eq('course_id', data.courseId)
+      .eq('status', 'active')
+
+    if (enrollmentsError) {
+      console.error('Error fetching enrollments for course schedule change notification:', enrollmentsError)
+      return
+    }
+
+    const studentEmails = enrollments
+      ?.map(e => e.profiles?.email)
+      .filter(email => email) || []
+
+    if (studentEmails.length === 0) {
+      console.log('No enrolled students to notify about course schedule change')
+      return
+    }
+
+    // Fetch the next upcoming session to use as the reference for the email
+    const { data: nextSessions, error: sessionsError } = await supabase
+      .from('sessions')
+      .select('id, title, session_date, duration_minutes')
+      .eq('course_id', data.courseId)
+      .gte('session_date', new Date().toISOString())
+      .order('session_date', { ascending: true })
+      .limit(1)
+
+    if (sessionsError || !nextSessions || nextSessions.length === 0) {
+      console.log('No upcoming sessions found to reference in notification email')
+      return
+    }
+
+    const nextSession = nextSessions[0]
+
+    // Get auth token for edge function call
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const payload = {
+      sessionId: nextSession.id,
+      sessionTitle: `All future sessions (next: ${nextSession.title})`,
+      courseId: data.courseId,
+      courseTitle: data.courseTitle,
+      instructorName: data.instructorName,
+      instructorEmail: data.instructorEmail,
+      meetingLink: data.meetingLink,
+      timezone: data.timezone,
+      oldSessionDate: data.oldNextSessionDate || nextSession.session_date,
+      newSessionDate: nextSession.session_date,
+      newDurationMinutes: nextSession.duration_minutes || data.newDuration || 60,
+      studentEmails
+    }
+
+    console.log(`Sending course schedule change notification to ${studentEmails.length} students`)
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-session-updated-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(payload)
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    const result = await response.json()
+    console.log('Course schedule change emails sent successfully:', result)
+  } catch (error) {
+    console.error('Error sending course schedule change emails:', error)
+    // Non-blocking - don't throw
+  }
+}
+
+/**
  * Course Service - Backend API functions for course management
  * Handles all course-related database operations with proper error handling
  */
@@ -457,10 +552,14 @@ export async function updateCourse(courseId, updates, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course and fetch current schedule data
+    // Verify instructor owns the course and fetch current schedule data + instructor info
     const { data: course, error: fetchError } = await supabase
       .from('courses')
-      .select('instructor_id, session_time, session_duration, start_date, end_date, selected_days, frequency')
+      .select(`
+        instructor_id, title, session_time, session_duration, start_date, end_date, 
+        selected_days, frequency, meeting_link, timezone,
+        profiles!instructor_id(full_name, email)
+      `)
       .eq('id', courseId)
       .single()
 
@@ -485,6 +584,25 @@ export async function updateCourse(courseId, updates, instructorId) {
     
     // Determine if we just need to update existing sessions (minor schedule change)
     const needsSessionUpdate = !needsSessionRegeneration && (isTimeUpdated || isDurationUpdated)
+
+    // Track whether we need to send schedule change notifications
+    const scheduleHasChanged = needsSessionRegeneration || needsSessionUpdate
+
+    // Capture the old next session date before making changes (for the notification email)
+    let oldNextSessionDate = null
+    if (scheduleHasChanged) {
+      const { data: oldNextSessions } = await supabase
+        .from('sessions')
+        .select('session_date')
+        .eq('course_id', courseId)
+        .gte('session_date', new Date().toISOString())
+        .order('session_date', { ascending: true })
+        .limit(1)
+      
+      if (oldNextSessions && oldNextSessions.length > 0) {
+        oldNextSessionDate = oldNextSessions[0].session_date
+      }
+    }
 
     // Prepare update data
     const updateData = {
@@ -586,6 +704,22 @@ export async function updateCourse(courseId, updates, instructorId) {
           console.log(`Updated ${futureSessions.length} future sessions`)
         }
       }
+    }
+
+    // Send schedule change notification emails to all enrolled students (non-blocking)
+    if (scheduleHasChanged) {
+      sendCourseScheduleChangeEmails({
+        courseId,
+        courseTitle: updates.title || course.title,
+        instructorName: course.profiles?.full_name || 'Instructor',
+        instructorEmail: course.profiles?.email,
+        meetingLink: updates.meeting_link || course.meeting_link,
+        timezone: updates.timezone || course.timezone || 'UTC',
+        oldNextSessionDate,
+        newDuration: updates.session_duration || course.session_duration
+      }).catch(error => {
+        console.error('Failed to send course schedule change notification emails:', error)
+      })
     }
 
     return updatedCourse
