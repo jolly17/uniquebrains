@@ -179,8 +179,7 @@ export async function updateSession(sessionId, updates, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course for this session AND fetch current session details
-    // We need the old session_date to detect schedule changes
+    // Step 1: Fetch session details
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select(`
@@ -189,18 +188,13 @@ export async function updateSession(sessionId, updates, instructorId) {
         session_date,
         duration_minutes,
         course_id,
-        courses!inner(
-          instructor_id,
-          title,
-          meeting_link,
-          timezone,
-          profiles!instructor_id(full_name, email)
-        )
+        courses!inner(instructor_id)
       `)
       .eq('id', sessionId)
       .single()
 
     if (fetchError) {
+      console.error('Error fetching session for update:', fetchError)
       throw new Error(`Session not found: ${fetchError.message}`)
     }
 
@@ -208,17 +202,45 @@ export async function updateSession(sessionId, updates, instructorId) {
       throw new Error('Unauthorized: You can only update sessions for your own courses')
     }
 
+    // Step 2: Fetch course details separately (for email notification)
+    const { data: courseData, error: courseError } = await supabase
+      .from('courses')
+      .select(`
+        title,
+        meeting_link,
+        timezone,
+        profiles!instructor_id(full_name, email)
+      `)
+      .eq('id', session.course_id)
+      .single()
+
+    if (courseError) {
+      console.error('Error fetching course details for notification:', courseError)
+    }
+
+    console.log('=== Session Update: Course data fetched ===')
+    console.log('Course title:', courseData?.title)
+    console.log('Instructor:', courseData?.profiles?.full_name, courseData?.profiles?.email)
+    console.log('Meeting link:', courseData?.meeting_link)
+
     // Validate meeting link if being updated
     if (updates.meeting_link && !isValidUrl(updates.meeting_link)) {
       throw new Error('Invalid meeting link URL')
     }
 
-    // Detect if date/time has changed
+    // Detect if date/time has changed - use timestamp comparison to avoid format differences
     const oldSessionDate = session.session_date
     const newSessionDate = updates.session_date
       ? new Date(updates.session_date).toISOString()
       : null
-    const scheduleChanged = newSessionDate && newSessionDate !== oldSessionDate
+    const oldTimestamp = new Date(oldSessionDate).getTime()
+    const newTimestamp = newSessionDate ? new Date(newSessionDate).getTime() : null
+    const scheduleChanged = newTimestamp !== null && oldTimestamp !== newTimestamp
+    
+    console.log('=== Session Update Schedule Change Detection ===')
+    console.log('Old session_date (from DB):', oldSessionDate, '-> timestamp:', oldTimestamp)
+    console.log('New session_date (from update):', newSessionDate, '-> timestamp:', newTimestamp)
+    console.log('Schedule changed:', scheduleChanged)
 
     // Prepare update data
     const updateData = {
@@ -243,16 +265,17 @@ export async function updateSession(sessionId, updates, instructorId) {
     }
 
     // If the date/time changed, send notification emails to all enrolled students
-    if (scheduleChanged) {
+    if (scheduleChanged && courseData) {
+      console.log('=== Triggering session schedule change email notification ===')
       sendSessionUpdatedEmails({
         sessionId: session.id,
         sessionTitle: updates.title || session.title,
         courseId: session.course_id,
-        courseTitle: session.courses.title,
-        instructorName: session.courses.profiles.full_name,
-        instructorEmail: session.courses.profiles.email,
-        meetingLink: session.courses.meeting_link,
-        timezone: session.courses.timezone || 'UTC',
+        courseTitle: courseData.title,
+        instructorName: courseData.profiles?.full_name || 'Instructor',
+        instructorEmail: courseData.profiles?.email,
+        meetingLink: courseData.meeting_link,
+        timezone: courseData.timezone || 'UTC',
         oldSessionDate: oldSessionDate,
         newSessionDate: updateData.session_date,
         newDurationMinutes: updates.duration_minutes || session.duration_minutes || 60
@@ -260,6 +283,8 @@ export async function updateSession(sessionId, updates, instructorId) {
         // Don't throw - session is already updated, email failure is non-blocking
         console.error('Failed to send session update notification emails:', error)
       })
+    } else if (scheduleChanged && !courseData) {
+      console.warn('Schedule changed but could not fetch course data for email notification')
     }
 
     return updatedSession
