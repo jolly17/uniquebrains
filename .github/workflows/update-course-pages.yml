@@ -1,0 +1,52 @@
+name: Update Course OG Pages
+
+# Triggered by:
+# 1. Supabase webhook via repository_dispatch when a course is published/updated
+# 2. Manual trigger from GitHub Actions UI
+# 3. Scheduled daily at 6 AM UTC as a safety net
+on:
+  repository_dispatch:
+    types: [course-updated]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  update-course-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pre-render course pages
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/prerender-course-meta.js
+
+      - name: Generate sitemap
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/generate-sitemap.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add docs/courses/ docs/images/courses/ public/images/courses/ docs/sitemap.xml
+          # Only commit if there are changes
+          git diff --staged --quiet || git commit -m "chore: auto-update course OG pages and sitemap [skip ci]"
+          git push
