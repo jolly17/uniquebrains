@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e91e63;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="overlay" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#000;stop-opacity:0" />
+      <stop offset="100%" style="stop-color:#000;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background gradient -->
+  <rect width="1200" height="630" fill="url(#bg)" rx="0"/>
+  <rect width="1200" height="630" fill="url(#overlay)" rx="0"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="1050" cy="120" r="200" fill="white" opacity="0.08"/>
+  <circle cx="150" cy="530" r="150" fill="white" opacity="0.06"/>
+  
+  <!-- Category emoji (large) -->
+  <text x="100" y="220" font-size="120" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">🎭</text>
+  
+  <!-- Course title -->
+  <text x="100" y="340" font-size="48" font-weight="bold" fill="white" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    Speaking Hindi for Adults
+  </text>
+  
+  <!-- Instructor name -->
+  <text x="100" y="400" font-size="28" fill="white" opacity="0.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    👨‍🏫 Rajkumar Goyal
+  </text>
+  
+  <!-- Category badge -->
+  <rect x="100" y="430" width="280" height="44" rx="22" fill="white" opacity="0.2"/>
+  <text x="120" y="460" font-size="22" fill="white" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    🎭 Performing Arts
+  </text>
+  
+  <!-- UniqueBrains branding -->
+  <text x="100" y="570" font-size="32" font-weight="bold" fill="white" opacity="0.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    UniqueBrains
+  </text>
+  <text x="100" y="600" font-size="18" fill="white" opacity="0.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    Where the Neurodiverse Community Connects and Thrives
+  </text>
+  
+  <!-- Free badge (if applicable) -->
+  
+  <rect x="1020" y="40" width="140" height="50" rx="25" fill="white" opacity="0.95"/>
+  <text x="1090" y="73" font-size="24" font-weight="bold" fill="#e91e63" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+    FREE
+  </text>
+</svg>
