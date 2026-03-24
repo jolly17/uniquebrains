@@ -179,13 +179,23 @@ export async function updateSession(sessionId, updates, instructorId) {
   }
 
   try {
-    // Verify instructor owns the course for this session
+    // Verify instructor owns the course for this session AND fetch current session details
+    // We need the old session_date to detect schedule changes
     const { data: session, error: fetchError } = await supabase
       .from('sessions')
       .select(`
         id,
+        title,
+        session_date,
+        duration_minutes,
         course_id,
-        courses!inner(instructor_id)
+        courses!inner(
+          instructor_id,
+          title,
+          meeting_link,
+          timezone,
+          profiles!instructor_id(full_name, email)
+        )
       `)
       .eq('id', sessionId)
       .single()
@@ -202,6 +212,13 @@ export async function updateSession(sessionId, updates, instructorId) {
     if (updates.meeting_link && !isValidUrl(updates.meeting_link)) {
       throw new Error('Invalid meeting link URL')
     }
+
+    // Detect if date/time has changed
+    const oldSessionDate = session.session_date
+    const newSessionDate = updates.session_date
+      ? new Date(updates.session_date).toISOString()
+      : null
+    const scheduleChanged = newSessionDate && newSessionDate !== oldSessionDate
 
     // Prepare update data
     const updateData = {
@@ -223,6 +240,26 @@ export async function updateSession(sessionId, updates, instructorId) {
     if (updateError) {
       console.error('Error updating session:', updateError)
       throw new Error(`Failed to update session: ${updateError.message}`)
+    }
+
+    // If the date/time changed, send notification emails to all enrolled students
+    if (scheduleChanged) {
+      sendSessionUpdatedEmails({
+        sessionId: session.id,
+        sessionTitle: updates.title || session.title,
+        courseId: session.course_id,
+        courseTitle: session.courses.title,
+        instructorName: session.courses.profiles.full_name,
+        instructorEmail: session.courses.profiles.email,
+        meetingLink: session.courses.meeting_link,
+        timezone: session.courses.timezone || 'UTC',
+        oldSessionDate: oldSessionDate,
+        newSessionDate: updateData.session_date,
+        newDurationMinutes: updates.duration_minutes || session.duration_minutes || 60
+      }).catch(error => {
+        // Don't throw - session is already updated, email failure is non-blocking
+        console.error('Failed to send session update notification emails:', error)
+      })
     }
 
     return updatedSession
@@ -346,6 +383,74 @@ async function sendSessionDeletedEmails(data) {
     console.log('Session deletion emails sent successfully')
   } catch (error) {
     console.error('Error sending session deletion emails:', error)
+    throw error
+  }
+}
+
+/**
+ * Send session schedule change notification emails to all enrolled students
+ * Called when an instructor modifies a session's date/time
+ * @param {Object} data - Session update data (without studentEmails - those are fetched here)
+ * @returns {Promise<void>}
+ */
+async function sendSessionUpdatedEmails(data) {
+  try {
+    // Fetch all enrolled students' emails for this course
+    const { data: enrollments, error: enrollmentsError } = await supabase
+      .from('enrollments')
+      .select(`
+        student_id,
+        profiles!student_id(email)
+      `)
+      .eq('course_id', data.courseId)
+      .eq('status', 'active')
+
+    if (enrollmentsError) {
+      console.error('Error fetching enrollments for schedule change notification:', enrollmentsError)
+      throw new Error(`Failed to fetch enrollments: ${enrollmentsError.message}`)
+    }
+
+    const studentEmails = enrollments
+      ?.map(e => e.profiles?.email)
+      .filter(email => email) || []
+
+    if (studentEmails.length === 0 && !data.instructorEmail) {
+      console.log('No recipients to notify about session schedule change')
+      return
+    }
+
+    // Get auth token for edge function call
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
+    const payload = {
+      ...data,
+      studentEmails
+    }
+
+    console.log(`Sending session schedule change notification to ${studentEmails.length} students and instructor`)
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-session-updated-email`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token || import.meta.env.VITE_SUPABASE_ANON_KEY}`
+        },
+        body: JSON.stringify(payload)
+      }
+    )
+
+    if (!response.ok) {
+      const error = await response.json()
+      throw new Error(`Email function error: ${JSON.stringify(error)}`)
+    }
+
+    const result = await response.json()
+    console.log('Session schedule change emails sent successfully:', result)
+  } catch (error) {
+    console.error('Error sending session schedule change emails:', error)
     throw error
   }
 }
