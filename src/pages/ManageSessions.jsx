@@ -333,7 +333,7 @@ function ManageSessions() {
         title: newSession.topic || 'Session',
         description: '',
         session_date: sessionDateTime.toISOString(),
-        duration_minutes: 60,
+        duration_minutes: course?.session_duration || 60,
         student_id: null // All courses are group courses now
       }
 
