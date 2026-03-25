@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+import sharp from 'sharp'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -44,7 +45,7 @@ const CATEGORY_MAP = {
   'academics':       { icon: '📚', label: 'Academics',       colors: ['#2196f3', '#3f51b5'] },
   'language':        { icon: '🌍', label: 'Language',        colors: ['#00bcd4', '#2196f3'] },
   'spirituality':    { icon: '🧘', label: 'Spirituality',    colors: ['#9c27b0', '#673ab7'] },
-  'lifeskills':      { icon: '🐷', label: 'Life Skills',     colors: ['#ff9800', '#f44336'] },
+  'lifeskills':      { icon: '🌱', label: 'Life Skills',     colors: ['#ff9800', '#f44336'] },
   'hobbies':         { icon: '🎮', label: 'Hobbies & Fun',   colors: ['#8bc34a', '#4caf50'] },
 }
 
@@ -164,17 +165,40 @@ function truncateDescription(text, maxLength = 200) {
 }
 
 /**
- * Get the OG image URL for a course based on its category
+ * Convert SVG content to PNG using sharp
+ * Returns the PNG buffer, or null if conversion fails
+ */
+async function convertSvgToPng(svgContent) {
+  try {
+    const svgBuffer = Buffer.from(svgContent, 'utf-8')
+    const pngBuffer = await sharp(svgBuffer)
+      .resize(1200, 630)
+      .png({ quality: 90 })
+      .toBuffer()
+    return pngBuffer
+  } catch (error) {
+    console.warn(`   ⚠️  SVG-to-PNG conversion failed: ${error.message}`)
+    return null
+  }
+}
+
+/**
+ * Get the OG image URL for a course
  * 
  * Priority:
- * 1. Category-specific PNG image (if designer has provided one at /images/categories/{category}.png)
- * 2. Default site thumbnail as fallback
+ * 1. Per-course generated PNG (at /images/courses/{courseId}-og.png)
+ * 2. Category-specific PNG image (if designer has provided one at /images/categories/{category}.png)
+ * 3. Default site thumbnail as fallback
  * 
- * NOTE: Most social media platforms (Facebook, WhatsApp, LinkedIn) do NOT support SVG.
- * OG images MUST be PNG or JPG format, ideally 1200x630px.
- * The generated SVG files are kept as visual references for the designer.
+ * Social media platforms (Facebook, WhatsApp, LinkedIn) require PNG/JPG format.
  */
 function getCourseOgImage(course) {
+  // Check if per-course PNG exists (generated from SVG)
+  const coursePngPath = path.join(DOCS_DIR, 'images', 'courses', `${course.id}-og.png`)
+  if (fs.existsSync(coursePngPath)) {
+    return `${BASE_URL}/images/courses/${course.id}-og.png`
+  }
+
   const category = course.category || 'default'
   const categoryImagePath = path.join(DOCS_DIR, 'images', 'categories', `${category}.png`)
   
@@ -373,17 +397,26 @@ async function prerenderCoursePages() {
       // 1. Generate the SVG OG image for this course
       const svgContent = generateCategoryOgSvg(course, categoryInfo)
       const svgFileName = `${course.id}-og.svg`
+      const pngFileName = `${course.id}-og.png`
       
-      // Write to docs (production)
+      // Write SVG to docs (production) and public (dev)
       fs.writeFileSync(path.join(courseImagesDir, svgFileName), svgContent, 'utf-8')
-      // Write to public (dev)
       fs.writeFileSync(path.join(publicCourseImagesDir, svgFileName), svgContent, 'utf-8')
 
-      // 2. Create directory for the course HTML
+      // 2. Convert SVG to PNG for social media compatibility
+      const pngBuffer = await convertSvgToPng(svgContent)
+      if (pngBuffer) {
+        fs.writeFileSync(path.join(courseImagesDir, pngFileName), pngBuffer)
+        fs.writeFileSync(path.join(publicCourseImagesDir, pngFileName), pngBuffer)
+        console.log(`   🖼️  Generated PNG: /images/courses/${pngFileName}`)
+      }
+
+      // 3. Create directory for the course HTML
       const courseDir = path.join(DOCS_DIR, 'courses', course.id)
       fs.mkdirSync(courseDir, { recursive: true })
 
-      // 3. Generate and write the HTML file with OG meta tags
+      // 4. Generate and write the HTML file with OG meta tags
+      // (must be after PNG generation so getCourseOgImage can find the PNG)
       const html = generateCourseHtml(course)
       const filePath = path.join(courseDir, 'index.html')
       fs.writeFileSync(filePath, html, 'utf-8')

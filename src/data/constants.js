@@ -15,7 +15,7 @@ export const COURSE_CATEGORIES = [
   { value: 'academics', label: 'Academics', icon: '📚' },
   { value: 'language', label: 'Language', icon: '🌍' },
   { value: 'spirituality', label: 'Spirituality', icon: '🧘' },
-  { value: 'lifeskills', label: 'Life Skills', icon: '🐷' },
+  { value: 'lifeskills', label: 'Life Skills', icon: '🌱' },
   { value: 'hobbies', label: 'Hobbies & Fun', icon: '🎮' }
 ]
 

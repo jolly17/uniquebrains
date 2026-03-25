@@ -19,7 +19,7 @@
   <circle cx="150" cy="530" r="150" fill="white" opacity="0.06"/>
   
   <!-- Category emoji (large) -->
-  <text x="100" y="220" font-size="120" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">🐷</text>
+  <text x="100" y="220" font-size="120" font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, sans-serif">🌱</text>
   
   <!-- Course title -->
   <text x="100" y="340" font-size="48" font-weight="bold" fill="white" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
@@ -34,7 +34,7 @@
   <!-- Category badge -->
   <rect x="100" y="430" width="216" height="44" rx="22" fill="white" opacity="0.2"/>
   <text x="120" y="460" font-size="22" fill="white" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
-    🐷 Life Skills
+    🌱 Life Skills
   </text>
   
   <!-- UniqueBrains branding with mascot -->
