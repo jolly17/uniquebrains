@@ -27,6 +27,12 @@ const DEFAULT_IMAGE = `${BASE_URL}/uniquebrains-thumbnail.png.png`
 const DOCS_DIR = path.join(__dirname, '../docs')
 const PUBLIC_DIR = path.join(__dirname, '../public')
 
+// Read mascot image and convert to base64 data URI for embedding in SVG
+const MASCOT_PATH = path.join(PUBLIC_DIR, 'Uniquebrains-mascot.png')
+const MASCOT_BASE64 = fs.existsSync(MASCOT_PATH)
+  ? `data:image/png;base64,${fs.readFileSync(MASCOT_PATH).toString('base64')}`
+  : `${BASE_URL}/Uniquebrains-mascot.png`
+
 /**
  * Category-to-icon mapping (matches src/data/constants.js COURSE_CATEGORIES)
  * Each category maps to: emoji icon, display label, and gradient colors for generated OG images
@@ -117,11 +123,12 @@ function generateCategoryOgSvg(course, categoryInfo) {
     ${icon} ${categoryLabel}
   </text>
   
-  <!-- UniqueBrains branding -->
-  <text x="100" y="570" font-size="32" font-weight="bold" fill="white" opacity="0.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <!-- UniqueBrains branding with mascot -->
+  <image href="${MASCOT_BASE64}" x="80" y="520" width="80" height="80" opacity="0.95"/>
+  <text x="170" y="570" font-size="32" font-weight="bold" fill="white" opacity="0.9" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
     UniqueBrains
   </text>
-  <text x="100" y="600" font-size="18" fill="white" opacity="0.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+  <text x="170" y="600" font-size="18" fill="white" opacity="0.7" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">
     Where the Neurodiverse Community Connects and Thrives
   </text>
   
