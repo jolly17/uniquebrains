@@ -2,7 +2,153 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../lib/supabase'
+import { updatePassword } from '../lib/auth'
 import './StudentProfile.css'
+
+/**
+ * Change Password Section Component
+ * Allows users to change their password.
+ * For Google OAuth users who don't have a password yet, they can set one.
+ */
+function ChangePasswordSection({ user }) {
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [passwordLoading, setPasswordLoading] = useState(false)
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+
+  // Detect if user signed in via OAuth (Google)
+  const isOAuthUser = user?.app_metadata?.provider === 'google' || 
+                      user?.app_metadata?.providers?.includes('google')
+  const hasEmailProvider = user?.app_metadata?.provider === 'email' || 
+                           user?.app_metadata?.providers?.includes('email')
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault()
+    setPasswordError('')
+    setPasswordSuccess('')
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match.')
+      return
+    }
+
+    if (newPassword.length < 8) {
+      setPasswordError('Password must be at least 8 characters long.')
+      return
+    }
+
+    setPasswordLoading(true)
+
+    try {
+      const { error } = await updatePassword(newPassword)
+
+      if (error) {
+        setPasswordError(error.message || 'Failed to update password. Please try again.')
+      } else {
+        setPasswordSuccess('Password updated successfully!')
+        setNewPassword('')
+        setConfirmPassword('')
+        setShowPasswordForm(false)
+        // Clear success message after 5 seconds
+        setTimeout(() => setPasswordSuccess(''), 5000)
+      }
+    } catch (err) {
+      setPasswordError('An unexpected error occurred. Please try again.')
+    } finally {
+      setPasswordLoading(false)
+    }
+  }
+
+  return (
+    <div className="profile-section">
+      <h2>🔒 Password & Security</h2>
+      
+      {isOAuthUser && !hasEmailProvider ? (
+        <p className="section-description">
+          You signed in with Google. You can set a password below to also be able to sign in with your email and password.
+        </p>
+      ) : (
+        <p className="section-description">
+          Change your account password. Your new password must be at least 8 characters long.
+        </p>
+      )}
+
+      {passwordSuccess && (
+        <div className="password-success-message">
+          ✅ {passwordSuccess}
+        </div>
+      )}
+
+      {!showPasswordForm ? (
+        <button
+          type="button"
+          onClick={() => setShowPasswordForm(true)}
+          className="btn-secondary"
+        >
+          {isOAuthUser && !hasEmailProvider ? '🔑 Set Password' : '🔑 Change Password'}
+        </button>
+      ) : (
+        <form onSubmit={handlePasswordChange} className="change-password-form">
+          {passwordError && (
+            <div className="password-error-message">
+              {passwordError}
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="newPassword">New Password</label>
+            <input
+              id="newPassword"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+              placeholder="Enter new password (min 8 characters)"
+              minLength={8}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confirm New Password</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="Confirm new password"
+              minLength={8}
+            />
+          </div>
+
+          <div className="password-actions">
+            <button
+              type="button"
+              onClick={() => {
+                setShowPasswordForm(false)
+                setNewPassword('')
+                setConfirmPassword('')
+                setPasswordError('')
+              }}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={passwordLoading}
+            >
+              {passwordLoading ? 'Updating...' : (isOAuthUser && !hasEmailProvider ? 'Set Password' : 'Update Password')}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
 
 function StudentProfile() {
   const { user, profile } = useAuth()
@@ -452,6 +598,8 @@ function StudentProfile() {
           </div>
         )}
       </form>
+
+      <ChangePasswordSection user={user} />
 
       <div className="profile-section danger-zone">
         <h2>Account Management</h2>

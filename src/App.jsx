@@ -23,6 +23,8 @@ import StudentProfile from './pages/StudentProfile'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import { AuthCallback } from './pages/AuthCallback'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Onboarding from './pages/Onboarding'
 import RoleSelection from './pages/RoleSelection'
 import BackendTestComponent from './components/BackendTestComponent'
@@ -90,17 +92,46 @@ function AnalyticsTracker() {
   return null
 }
 
+// Component to detect auth code in URL and redirect to auth callback
+// This handles the case where Supabase redirects to the root URL with ?code= param
+function AuthCodeRedirector() {
+  const location = useLocation()
+  
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search)
+    const code = searchParams.get('code')
+    
+    // If there's a code parameter and we're NOT already on the auth callback page,
+    // redirect to the auth callback to handle the code exchange
+    if (code && !location.pathname.startsWith('/auth/')) {
+      // Check if this is a password recovery flow (localStorage flag set by ForgotPassword page)
+      const isRecovery = localStorage.getItem('password_recovery_pending') === 'true'
+      const params = new URLSearchParams(location.search)
+      if (isRecovery) {
+        params.set('type', 'recovery')
+      }
+      // Redirect to auth callback with all params
+      window.location.replace(`/auth/callback?${params.toString()}`)
+    }
+  }, [location])
+  
+  return null
+}
+
 function App() {
   return (
     <AuthProvider>
       <ToastProvider>
       <Router>
         <AnalyticsTracker />
+        <AuthCodeRedirector />
         <ScrollToTop />
         <Routes>
           {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/auth/reset-password" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/role-selection" element={<RoleSelection />} />

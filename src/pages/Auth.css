@@ -225,6 +225,22 @@
   cursor: pointer;
 }
 
+.forgot-password-link {
+  text-align: right;
+  margin-top: -0.5rem;
+}
+
+.forgot-password-link a {
+  color: var(--primary-color);
+  font-size: 0.875rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-password-link a:hover {
+  text-decoration: underline;
+}
+
 .auth-footer {
   text-align: center;
   margin-top: 1.5rem;

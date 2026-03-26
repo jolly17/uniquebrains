@@ -111,6 +111,10 @@ function Login() {
               placeholder="••••••••"
             />
           </div>
+
+          <div className="forgot-password-link">
+            <Link to="/forgot-password">Forgot your password?</Link>
+          </div>
           
           <button type="submit" className="btn-primary btn-full">
             Sign In

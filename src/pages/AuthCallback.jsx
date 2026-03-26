@@ -6,12 +6,13 @@
  */
 
 import { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import './AuthCallback.css'
 
 export function AuthCallback() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [error, setError] = useState(null)
   const hasProcessed = useRef(false)
 
@@ -25,6 +26,31 @@ export function AuthCallback() {
     const handleAuthCallback = async () => {
       hasProcessed.current = true
       try {
+        // Check if this is a password recovery callback
+        const callbackType = searchParams.get('type')
+        const isRecoveryFlow = callbackType === 'recovery' || 
+                               localStorage.getItem('password_recovery_pending') === 'true'
+        
+        // If there's a code parameter, exchange it for a session first
+        const code = searchParams.get('code')
+        if (code) {
+          console.log('🔑 Exchanging auth code for session...')
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          if (exchangeError) {
+            console.error('Code exchange error:', exchangeError)
+            throw exchangeError
+          }
+          console.log('✅ Code exchanged successfully')
+          
+          // If this is a password recovery flow, redirect to reset password page
+          if (isRecoveryFlow) {
+            console.log('🔒 Password recovery flow detected, redirecting to reset password page')
+            localStorage.removeItem('password_recovery_pending')
+            navigate('/auth/reset-password', { replace: true })
+            return
+          }
+        }
+        
         // Get the session from the URL hash
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
