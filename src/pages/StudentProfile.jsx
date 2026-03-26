@@ -176,7 +176,6 @@ function StudentProfile() {
         email: profile.email || user?.email || '',
         bio: profile.bio || '',
         age: profile.age || '',
-        gradeLevel: profile.grade_level || '',
         expertise: profile.expertise || [],
         neurodiversityProfile: profile.neurodiversity_profile || [],
         interests: profile.interests || [],
@@ -197,7 +196,6 @@ function StudentProfile() {
         formData.email !== originalData.email ||
         formData.bio !== originalData.bio ||
         formData.age !== originalData.age ||
-        formData.gradeLevel !== originalData.gradeLevel ||
         JSON.stringify(formData.expertise) !== JSON.stringify(originalData.expertise) ||
         JSON.stringify(formData.neurodiversityProfile) !== JSON.stringify(originalData.neurodiversityProfile) ||
         JSON.stringify(formData.interests) !== JSON.stringify(originalData.interests)
@@ -229,25 +227,6 @@ function StudentProfile() {
     { value: 'gaming', label: 'Gaming' },
     { value: 'cooking', label: 'Cooking & Baking' },
     { value: 'other', label: 'Other' }
-  ]
-
-  const gradeLevelOptions = [
-    'Pre-K',
-    'Kindergarten',
-    'Grade 1',
-    'Grade 2',
-    'Grade 3',
-    'Grade 4',
-    'Grade 5',
-    'Grade 6',
-    'Grade 7',
-    'Grade 8',
-    'Grade 9',
-    'Grade 10',
-    'Grade 11',
-    'Grade 12',
-    'College/University',
-    'Adult Learner'
   ]
 
   const handleCheckboxChange = (value) => {
@@ -334,7 +313,6 @@ function StudentProfile() {
           email: formData.email,
           bio: formData.bio,
           age: formData.age ? parseInt(formData.age) : null,
-          grade_level: formData.gradeLevel || null,
           expertise: expertise,
           neurodiversity_profile: formData.neurodiversityProfile,
           interests: interests
@@ -362,7 +340,7 @@ function StudentProfile() {
   }
 
   const isInstructor = profile?.role === 'instructor'
-  const roleLabel = isInstructor ? "Instructor's" : "Student's"
+  const roleLabel = "Student's/Instructor's"
 
   return (
     <div className="student-profile">
@@ -426,37 +404,19 @@ function StudentProfile() {
           </div>
 
           {!isInstructor && (
-            <>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="age">{roleLabel} Age</label>
-                  <input
-                    id="age"
-                    name="age"
-                    type="number"
-                    min="3"
-                    max="100"
-                    value={formData.age}
-                    onChange={handleInputChange}
-                    placeholder="Enter age"
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="gradeLevel">{roleLabel} Grade Level</label>
-                  <select
-                    id="gradeLevel"
-                    name="gradeLevel"
-                    value={formData.gradeLevel}
-                    onChange={handleInputChange}
-                  >
-                    <option value="">Select grade level</option>
-                    {gradeLevelOptions.map(grade => (
-                      <option key={grade} value={grade}>{grade}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </>
+            <div className="form-group">
+              <label htmlFor="age">{roleLabel} Age</label>
+              <input
+                id="age"
+                name="age"
+                type="number"
+                min="3"
+                max="100"
+                value={formData.age}
+                onChange={handleInputChange}
+                placeholder="Enter age"
+              />
+            </div>
           )}
         </div>
 
@@ -515,7 +475,7 @@ function StudentProfile() {
           <div className="profile-section">
             <h2>About the Student/Instructor</h2>
             <p className="section-description">
-              Tell us about the student, their learning goals, and any additional information that helps instructors support them better.
+              Tell us about the student/instructor, their learning goals, and any additional information that helps support them better.
             </p>
 
             <div className="form-group">
@@ -531,7 +491,7 @@ function StudentProfile() {
 
             <div className="form-group">
               <label>{roleLabel} Interests</label>
-              <p className="field-hint">What topics or activities does the student enjoy?</p>
+              <p className="field-hint">What topics or activities does the student/instructor enjoy?</p>
               <div className="checkbox-grid">
                 {interestOptions.map(option => (
                   <label key={option.value} className="checkbox-label">
@@ -563,15 +523,15 @@ function StudentProfile() {
         )}
 
         <div className="profile-section">
-          <h2>Student/Instructor's Unique Mind</h2>
+          <h2>Student's/Instructor's Unique Mind</h2>
           <p className="section-description">
             {isInstructor 
               ? 'Share what makes your mind unique to help students understand your teaching approach and create a more inclusive learning environment. This information is visible to enrolled students.'
-              : 'Help us understand what makes the student\'s mind unique so instructors can provide the best support. This information is private and only shared with enrolled instructors.'}
+              : 'Help us understand what makes the student\'s/instructor\'s mind unique so we can provide the best support. This information is private and only shared with enrolled course members.'}
           </p>
 
           <div className="form-group">
-            <label>What's unique about the student/instructor's mind? (Select all that apply)</label>
+            <label>What's unique about the student's/instructor's mind? (Select all that apply)</label>
             <div className="checkbox-grid">
               {neurodiversityOptions.map(option => (
                 <label key={option.value} className="checkbox-label">
