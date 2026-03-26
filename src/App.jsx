@@ -1,6 +1,7 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, lazy, Suspense } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { supabase } from './lib/supabase'
 import { ToastProvider } from './components/Toast'
 import { trackPageView } from './utils/analytics'
 import Layout from './components/Layout'
@@ -92,28 +93,31 @@ function AnalyticsTracker() {
   return null
 }
 
-// Component to detect auth code in URL and redirect to auth callback
-// This handles the case where Supabase redirects to the root URL with ?code= param
-function AuthCodeRedirector() {
-  const location = useLocation()
+// Component to detect password recovery flow after Supabase processes the auth code.
+// When Supabase redirects to the root URL with ?code=, the Supabase client automatically
+// exchanges it via detectSessionInUrl. We listen for the PASSWORD_RECOVERY event and
+// redirect to the reset password page.
+function PasswordRecoveryDetector() {
+  const navigate = useNavigate()
   
   useEffect(() => {
-    const searchParams = new URLSearchParams(location.search)
-    const code = searchParams.get('code')
+    const isRecoveryPending = localStorage.getItem('password_recovery_pending') === 'true'
+    if (!isRecoveryPending) return
     
-    // If there's a code parameter and we're NOT already on the auth callback page,
-    // redirect to the auth callback to handle the code exchange
-    if (code && !location.pathname.startsWith('/auth/')) {
-      // Check if this is a password recovery flow (localStorage flag set by ForgotPassword page)
-      const isRecovery = localStorage.getItem('password_recovery_pending') === 'true'
-      const params = new URLSearchParams(location.search)
-      if (isRecovery) {
-        params.set('type', 'recovery')
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔍 Auth state change:', event)
+      if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && isRecoveryPending)) {
+        console.log('🔒 Password recovery detected, redirecting to reset password page')
+        localStorage.removeItem('password_recovery_pending')
+        subscription.unsubscribe()
+        navigate('/auth/reset-password', { replace: true })
       }
-      // Redirect to auth callback with all params
-      window.location.replace(`/auth/callback?${params.toString()}`)
+    })
+    
+    return () => {
+      subscription?.unsubscribe()
     }
-  }, [location])
+  }, [navigate])
   
   return null
 }
@@ -124,7 +128,7 @@ function App() {
       <ToastProvider>
       <Router>
         <AnalyticsTracker />
-        <AuthCodeRedirector />
+        <PasswordRecoveryDetector />
         <ScrollToTop />
         <Routes>
           {/* Public routes */}

@@ -31,22 +31,45 @@ export function AuthCallback() {
         const isRecoveryFlow = callbackType === 'recovery' || 
                                localStorage.getItem('password_recovery_pending') === 'true'
         
-        // If there's a code parameter, exchange it for a session first
-        const code = searchParams.get('code')
-        if (code) {
-          console.log('🔑 Exchanging auth code for session...')
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          if (exchangeError) {
-            console.error('Code exchange error:', exchangeError)
-            throw exchangeError
-          }
-          console.log('✅ Code exchanged successfully')
+        // Let Supabase handle the code exchange automatically via detectSessionInUrl.
+        // We listen for auth state changes to detect the PASSWORD_RECOVERY event.
+        if (isRecoveryFlow) {
+          console.log('🔒 Password recovery flow detected')
+          localStorage.removeItem('password_recovery_pending')
           
-          // If this is a password recovery flow, redirect to reset password page
-          if (isRecoveryFlow) {
-            console.log('🔒 Password recovery flow detected, redirecting to reset password page')
-            localStorage.removeItem('password_recovery_pending')
+          // Wait for Supabase to process the code and establish a session
+          const waitForSession = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => {
+              reject(new Error('Session establishment timed out'))
+            }, 10000)
+            
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+              console.log('Auth event during recovery:', event)
+              if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+                clearTimeout(timeout)
+                subscription.unsubscribe()
+                resolve(session)
+              }
+            })
+            
+            // Also check if session already exists
+            supabase.auth.getSession().then(({ data: { session } }) => {
+              if (session) {
+                clearTimeout(timeout)
+                subscription.unsubscribe()
+                resolve(session)
+              }
+            })
+          })
+          
+          try {
+            await waitForSession
+            console.log('✅ Session established, redirecting to reset password page')
             navigate('/auth/reset-password', { replace: true })
+            return
+          } catch (err) {
+            console.error('Failed to establish session for recovery:', err)
+            navigate('/forgot-password', { replace: true })
             return
           }
         }

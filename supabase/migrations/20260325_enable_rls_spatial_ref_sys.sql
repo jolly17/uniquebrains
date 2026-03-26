@@ -1,0 +1,48 @@
+-- =====================================================
+-- FIX: Secure spatial_ref_sys (PostGIS table)
+-- 
+-- The Supabase Database Linter flags public.spatial_ref_sys
+-- as having RLS disabled. This table is a read-only reference
+-- table created by the PostGIS extension containing spatial
+-- reference system definitions (EPSG codes, projections, etc).
+--
+-- We CANNOT enable RLS directly because the table is owned by
+-- the postgres superuser and ALTER TABLE requires ownership.
+-- (Error: "must be owner of table spatial_ref_sys")
+--
+-- Instead, we revoke all privileges from anon and authenticated
+-- roles so PostgREST cannot expose this table via the API.
+-- Internal database functions (like PostGIS operations) will
+-- still work since they run as the function owner, not the
+-- API caller.
+-- =====================================================
+
+-- Revoke all API access to spatial_ref_sys
+-- This prevents PostgREST from exposing the table externally
+REVOKE ALL ON public.spatial_ref_sys FROM anon;
+REVOKE ALL ON public.spatial_ref_sys FROM authenticated;
+
+-- =====================================================
+-- NOTE: The linter warning "rls_disabled_in_public" may
+-- still appear because RLS cannot be enabled on tables
+-- not owned by the current role. This is a known Supabase
+-- limitation with PostGIS extension tables.
+--
+-- The security risk is mitigated by revoking API access:
+-- - anon/authenticated roles cannot query this table via API
+-- - PostGIS functions still work internally
+-- - The table contains only public reference data (EPSG codes)
+--
+-- To fully resolve, you would need to contact Supabase support
+-- to run as superuser:
+--   ALTER TABLE public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
+--
+-- VERIFICATION - Run these queries:
+--
+-- Check privileges are revoked:
+-- SELECT grantee, privilege_type 
+-- FROM information_schema.role_table_grants 
+-- WHERE table_name = 'spatial_ref_sys' AND table_schema = 'public';
+--
+-- Confirm anon/authenticated are NOT listed in results.
+-- =====================================================
