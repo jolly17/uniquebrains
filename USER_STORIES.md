@@ -261,6 +261,46 @@
 
 ---
 
+### US-024: Forgot Password
+**As a** registered user  
+**I want to** reset my password via email  
+**So that** I can regain access to my account if I forget my password
+
+**Acceptance Criteria:**
+- [ ] "Forgot your password?" link is visible on login page
+- [ ] Forgot password page loads at `/forgot-password`
+- [ ] User can enter their email address
+- [ ] Success message shown after submitting (even if email doesn't exist, for security)
+- [ ] Reset email is received with a valid link
+- [ ] Clicking the link redirects to the reset password form
+- [ ] User can set a new password (minimum 6 characters)
+- [ ] Password confirmation must match
+- [ ] Success message shown after password reset
+- [ ] User can log in with the new password
+
+**Test:** `npm test -- --grep "US-024"`
+
+---
+
+### US-025: Change Password (Profile)
+**As a** logged-in user  
+**I want to** change my password from my profile  
+**So that** I can keep my account secure
+
+**Acceptance Criteria:**
+- [ ] "Password & Security" section is visible on profile page
+- [ ] Email users see "Change Password" option
+- [ ] Google OAuth users see "Set Password" option
+- [ ] New password field requires minimum 6 characters
+- [ ] Confirm password field must match
+- [ ] Success message shown after password change
+- [ ] Form resets after successful change
+- [ ] Error message shown if password update fails
+
+**Test:** `npm test -- --grep "US-025"`
+
+---
+
 ## 👤 Profile Stories
 
 ### US-017: View Profile

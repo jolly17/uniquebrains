@@ -261,6 +261,34 @@ When adding new components, prefer CSS variables from `tokens.css`. If you must 
 1. **Email Sign Up**: User registers → Email verification → Profile creation
 2. **OAuth**: Google/GitHub → Callback → Profile creation
 3. **Sign In**: Email/password or OAuth → JWT token → Session
+4. **Forgot Password**: User enters email → Reset link sent → Click link → Set new password
+5. **Change Password**: Logged-in user → Profile page → Password & Security section → Set new password
+
+### Password Reset Flow (PKCE)
+
+The password reset flow uses Supabase's PKCE (Proof Key for Code Exchange) flow:
+
+1. User visits `/forgot-password` and enters their email
+2. A `password_recovery_pending` flag is stored in `localStorage`
+3. Supabase sends a reset email with a link to `https://uniquebrains.org/?code=xxx`
+4. When the user clicks the link, Supabase's `detectSessionInUrl` automatically exchanges the code
+5. `PasswordRecoveryDetector` component (in `App.jsx`) listens for `PASSWORD_RECOVERY` or `SIGNED_IN` auth events
+6. When detected (combined with the localStorage flag), the user is redirected to `/auth/reset-password`
+7. User sets their new password via `supabase.auth.updateUser({ password })`
+
+**Key files:**
+- `src/pages/ForgotPassword.jsx` — Email input form for requesting reset
+- `src/pages/ResetPassword.jsx` — New password form after clicking email link
+- `src/pages/StudentProfile.jsx` — Change Password section (for logged-in users)
+- `src/lib/auth.js` — `resetPassword()` and `updatePassword()` functions
+
+**Important:** The `PasswordRecoveryDetector` in `App.jsx` is critical because Supabase strips the redirect path and sends users to the root URL. The detector catches the auth event and navigates to the reset page without breaking the PKCE code verifier.
+
+### Change Password (Profile Page)
+
+Logged-in users can change their password from the Profile page (`/profile`):
+- **Email users**: See "Change Password" button
+- **Google OAuth users**: See "Set Password" button (allows adding email/password login to their account)
 
 ### Auth Context (`src/context/AuthContext.jsx`)
 
@@ -479,6 +507,9 @@ npm run build
 - [ ] User registration (email)
 - [ ] User login/logout
 - [ ] OAuth (Google)
+- [ ] Forgot password (email reset link)
+- [ ] Reset password (via email link)
+- [ ] Change password (from profile page)
 - [ ] Course browsing
 - [ ] Course enrollment
 - [ ] Community Q&A
